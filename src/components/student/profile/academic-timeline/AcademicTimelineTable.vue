@@ -266,7 +266,7 @@
                 </div>
               </div>
             </td>
-            <td class="column-date vertical-top text-right pr-4">
+            <td class="column-date vertical-top pr-4" :class="{'text-right': !isExpanded(message)}">
               <v-btn
                 v-if="!editModeNoteId && isEditable(message) && canUserEditNote(message, currentUser)"
                 :id="`edit-note-${message.id}-button`"
@@ -638,7 +638,7 @@ const getButtonAriaLabel = message => {
 }
 
 const getSameDayDate = message => {
-  const format = 'h:mm a'
+  const format = 'h:mma'
   const startTime = formatDate(message.startsAt || message.createdAt, format)
   const endTime = formatDate(message.endsAt, format)
   return {
@@ -870,7 +870,7 @@ table {
   height: 32px;
 }
 .column-date {
-  width: 9rem;
+  width: 12rem;
 }
 .column-message {
   min-width: 12.5rem;
@@ -884,7 +884,6 @@ table {
 }
 .expanded-timeline-container {
   position: absolute;
-  right: 0;
 }
 .message-open {
   flex-flow: row wrap;

@@ -16,6 +16,20 @@ const $_refreshMyDraftNoteCount = () => {
 }
 const $_track = action => ga.note(action)
 
+export function addNoteComment(parentNoteId: number, text: string, attachments: NoteAttachment[]) {
+  const args = {
+    body: text,
+    parentNoteId: parentNoteId
+  }
+  const contextStore = useContextStore()
+  each(attachments, (attachment, index) => args[`attachment[${index}]`] = attachment)
+  return utils.postMultipartFormData('/api/notes/add_comment', args).then(data => {
+    contextStore.broadcast('note-updated', data)
+    $_track('update')
+    return data
+  })
+}
+
 export function getNote(noteId: number) {
   $_track('view')
   const currentUser = useContextStore().currentUser
@@ -58,7 +72,9 @@ export function updateNote(
     subject?: string,
     templateAttachmentIds?: number[],
     topics?: string[],
-    noteTemplateId?: number
+    noteTemplateId?: number,
+    attachments?: NoteAttachment[],
+    parentNoteId?: number
 ) {
   const args = {
     id: noteId,
@@ -73,10 +89,12 @@ export function updateNote(
     subject,
     templateAttachmentIds,
     topics,
-    noteTemplateId
+    noteTemplateId,
+    parentNoteId
   }
   const contextStore = useContextStore()
   const apiPath: string = isPeerAdvisor(contextStore.currentUser) ? '/api/peer_advising/note/update' : '/api/notes/update'
+  each(attachments, (attachment, index) => args[`attachment[${index}]`] = attachment)
   return utils.postMultipartFormData(apiPath, args).then(data => {
     const eventType = size(sids) > 1 ? 'notes-batch-published' : 'note-updated'
     contextStore.broadcast(eventType, data)

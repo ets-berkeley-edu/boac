@@ -164,6 +164,7 @@ export const useNoteStore: StoreDefinition = defineStore('note', {
           attachments: model.attachments || [],
           author: model.author || {},
           body: model.body,
+          comments: model.comments,
           contactType: model.contactType || undefined,
           deleteAttachmentIds: [],
           id: model.id,

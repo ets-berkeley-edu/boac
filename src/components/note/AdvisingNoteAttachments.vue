@@ -111,8 +111,14 @@
           name="attachment"
           @close-clicked="onRemoveAttachment(index)"
         >
-          <span v-if="isDownloadable" class="sr-only text-capitalize">Download attachment&nbsp;</span>
-          <span class="truncate-with-ellipsis" :class="{'demo-mode-blur': currentUser.inDemoMode, 'text-anchor': isDownloadable}">
+          <span v-if="isDownloadable && attachment.id" class="sr-only text-capitalize">Download attachment&nbsp;</span>
+          <span
+            class="truncate-with-ellipsis"
+            :class="{
+              'demo-mode-blur': currentUser.inDemoMode,
+              'text-anchor': isDownloadable && attachment.id
+            }"
+          >
             {{ attachment.displayName }}
           </span>
           <span v-if="noteDescription" class="sr-only text-capitalize">, {{ noteDescription }}</span>
@@ -214,15 +220,11 @@ watch(isUploadingAttachments, v => {
       progressBar.setAttribute('aria-valuetext', 'Uploading attachments...')
       progressBar.setAttribute('tabindex', '0')
       progressBar.setAttribute('id', id)
-      putFocusNextTick(id)
-    } else {
-      putFocusNextTick(inputId)
     }
   }
   else {
     if (progressBarAlert) {
       clearInterval(progressBarAlert)
-      putFocusNextTick(inputId)
     }
     if (progressBar) {
       progressBar.removeAttribute('tabindex')
@@ -247,7 +249,7 @@ onBeforeUnmount(() => {
 
 const downloadUrl = (attachment) => {
   let url = undefined
-  if (props.isDownloadable) {
+  if (props.isDownloadable && attachment.id) {
     const apiBaseUrl = contextStore.config.apiBaseUrl
     url = isPeerAdvisor(currentUser) ?
       `${apiBaseUrl}/api/peer_advisor/note/attachment/${attachment.id}` :
@@ -271,9 +273,11 @@ const onAttachmentsInput = files => {
       props.add(attachments).then(() => {
         alertScreenReader(`Added ${pluralized}`)
         noteStore.setIsUploadingAttachments(false)
+        putFocusNextTick(inputId.value)
       })
     } else {
       noteStore.setIsUploadingAttachments(false)
+      putFocusNextTick(inputId.value)
     }
   }
 }
@@ -290,7 +294,7 @@ const onRemoveAttachment = index => {
     const nextFocusIndex = (index === lastItemIndex ) ? index - 1 : index
     putFocusNextTick(`remove-${props.idPrefix}-attachment-${nextFocusIndex}-btn`)
   } else {
-    putFocusNextTick(inputId)
+    putFocusNextTick(inputId.value)
   }
   props.remove(index)
 }

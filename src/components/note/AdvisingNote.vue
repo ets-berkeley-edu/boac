@@ -143,18 +143,18 @@
       :function-confirm="confirmedRemoveAttachment"
       modal-header="Delete Attachment"
     >
-      Are you sure you want to delete the <strong>'{{ displayName(note.attachments, deleteAttachmentIndex) }}'</strong> attachment?
+      Are you sure you want to delete the <strong>'{{ attachmentToDelete.displayName }}'</strong> attachment?
     </AreYouSureModal>
   </article>
 </template>
 
 <script setup>
 import {computed, onMounted, ref, watch} from 'vue'
-import {get, isNil, isNumber, map, orderBy, replace, size} from 'lodash'
+import {get, isNil, map, orderBy, replace, size} from 'lodash'
 import {mdiPaperclip} from '@mdi/js'
 import AdvisingEForm from '@/components/note/eform/AdvisingEForm'
 import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments'
-import AdvisingNoteComments from '@/components/note/AdvisingNoteComments'
+import AdvisingNoteComments from '@/components/note/comment/AdvisingNoteComments'
 import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import {addAttachments, removeAttachment} from '@/api/notes'
@@ -188,10 +188,10 @@ const contextStore = useContextStore()
 const noteStore = useNoteStore()
 
 const addAttachmentInputElementId = `note-${props.note.id}-choose-file-for-note-attachment`
+const attachmentToDelete = ref()
 const author = ref(get(props.note, 'author'))
 const authorDepartments = computed(() => orderBy(map(author.value.departments, 'deptName')))
 const currentUser = contextStore.currentUser
-const deleteAttachmentIndex = ref(undefined)
 const isAuthorDetailsLoaded = ref(false)
 const isUpdatingAttachments = ref(false)
 const noteSummary = computed(() => {
@@ -226,22 +226,18 @@ const addNoteAttachments = attachments => {
 
 const cancelRemoveAttachment = () => {
   showConfirmDeleteAttachment.value = false
-  deleteAttachmentIndex.value = null
+  attachmentToDelete.value = null
 }
 
 const confirmedRemoveAttachment = () => {
   showConfirmDeleteAttachment.value = false
-  const attachment = props.note.attachments[deleteAttachmentIndex.value]
+  const attachment = attachmentToDelete.value
   if (attachment && attachment.id) {
     removeAttachment(props.note, attachment.id).then(updatedNote => {
       alertScreenReader(`Removed attachment "${attachment.displayName}"`)
       props.afterSaved(updatedNote, addAttachmentInputElementId)
     })
   }
-}
-
-const displayName = (attachments, index) => {
-  return !isNumber(index) || size(attachments) <= index ? '' : attachments[index].displayName
 }
 
 const loadAuthorDetails = () => {
@@ -284,7 +280,7 @@ const loadAuthorDetails = () => {
 }
 
 const removeAttachmentByIndex = index => {
-  deleteAttachmentIndex.value = index
+  attachmentToDelete.value = props.note.attachments[index]
   showConfirmDeleteAttachment.value = true
 }
 </script>
