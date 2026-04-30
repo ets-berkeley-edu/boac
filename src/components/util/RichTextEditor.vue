@@ -21,6 +21,7 @@
       :id="ckElementId"
       aria-details="link-to-advising-note-best-practices"
       class="mt-2"
+      :class="{'error': isInvalid}"
     >
       <ckeditor
         :model-value="initialValue"
@@ -38,10 +39,14 @@
 import {AutoLink, Bold, ClassicEditor, ContextualBalloon, Essentials, Italic, Link, List, Paragraph, StandardEditingMode, TextTransformation, Typing} from 'ckeditor5'
 import {each, isString} from 'lodash'
 import {mdiOpenInNew} from '@mdi/js'
-import {nextTick, onBeforeUnmount, onMounted, ref} from 'vue'
+import {nextTick, onBeforeUnmount, onMounted, onUpdated, ref} from 'vue'
 import {BoldCustom, ItalicCustom, ListBulletedCustom, ListNumberedCustom} from '@/plugins/ckeditor'
 
 const props = defineProps({
+  autoFocus: {
+    required: false,
+    type: Boolean
+  },
   disabled: {
     required: false,
     type: Boolean
@@ -49,6 +54,10 @@ const props = defineProps({
   initialValue: {
     required: true,
     type: String
+  },
+  isInvalid: {
+    required: false,
+    type: Boolean
   },
   label: {
     required: true,
@@ -113,6 +122,12 @@ onMounted(() => {
     // Is this instance inside a modal dialog?
     isInModal.value = !!document.querySelector(`.v-overlay-container #${ckElementId.value}`)
   })
+})
+
+onUpdated(() => {
+  if (props.isInvalid && props.autoFocus) {
+    editor.value.focus()
+  }
 })
 
 const abandonAttempt = () => {
@@ -295,6 +310,9 @@ const onEditorReady = editorInstance => {
   initDomFixer()
   registerPopupListener()
   manageToolbarFocus()
+  if (props.autoFocus) {
+    editor.value.focus()
+  }
 }
 
 const registerPopupListener = () => {
@@ -339,8 +357,15 @@ const registerPopupListener = () => {
   border-radius: 4px;
   border-style: solid !important;
   border-width: 1 !important;
+  height: 180px;
   &.text-error input {
     color: rgb(var(--v-theme-error))
+  }
+}
+.error .ck.ck-editor:not(:has(.ck.ck-toolbar:focus-within)) .ck.ck-editor__editable {
+  border-color: rgba(var(--v-theme-error)) !important;
+  &.ck-focused {
+    outline-color: rgba(var(--v-theme-error)) !important;
   }
 }
 </style>

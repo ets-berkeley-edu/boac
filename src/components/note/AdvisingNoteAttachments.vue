@@ -205,7 +205,7 @@ let progressBarAlert
 const progressBarId = computed(() => `${props.idPrefix}-attachment-progress`)
 
 watch(isUploadingAttachments, v => {
-  const el = attachmentFileInput.value.$el
+  const el = attachmentFileInput.value ? attachmentFileInput.value.$el : null
   const progressBar = el && el.querySelector('.v-progress-linear')
   if (v) {
     progressBarAlert = setInterval(() => {

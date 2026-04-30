@@ -23,7 +23,7 @@ export function addNoteComment(parentNoteId: number, text: string, attachments: 
   }
   const contextStore = useContextStore()
   each(attachments, (attachment, index) => args[`attachment[${index}]`] = attachment)
-  return utils.postMultipartFormData('/api/notes/add_comment', args).then(data => {
+  return utils.postMultipartFormData('/api/note/add_comment', args).then(data => {
     contextStore.broadcast('note-updated', data)
     $_track('update')
     return data
@@ -100,6 +100,21 @@ export function updateNote(
     contextStore.broadcast(eventType, data)
     $_track('update')
     $_refreshMyDraftNoteCount()
+    return data
+  })
+}
+
+export function updateNoteComment(noteId: number, body: string, attachments: NoteAttachment[], deleteAttachmentIds: number[]) {
+  const args = {
+    id: noteId,
+    body,
+    deleteAttachmentIds
+  }
+  const contextStore = useContextStore()
+  each(attachments, (attachment, index) => args[`attachment[${index}]`] = attachment)
+  return utils.postMultipartFormData('/api/note/edit_comment', args).then(data => {
+    contextStore.broadcast('note-updated', data)
+    $_track('update')
     return data
   })
 }

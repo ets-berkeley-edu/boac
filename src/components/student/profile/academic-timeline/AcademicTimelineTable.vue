@@ -171,7 +171,6 @@
                   :aria-controls="`${message.type}-${message.id}-is-open`"
                   :aria-expanded="true"
                   :aria-label="`Close Message ${getButtonAriaLabel(message)}`"
-                  block
                   class="ma-2"
                   color="primary"
                   density="compact"
@@ -274,12 +273,12 @@
                 v-if="!editModeNoteId && isEditable(message) && canUserEditNote(message, currentUser)"
                 :id="`edit-note-${message.id}-button`"
                 :aria-label="`Edit ${getButtonAriaLabel(message)}`"
-                block
                 class="my-2"
                 :class="{'sr-only': !isExpanded(message)}"
                 color="primary"
                 density="compact"
                 :disabled="noteStore.disableNewNoteButton"
+                slim
                 :text="`Edit ${message.isDraft ? 'Draft' : 'Note'}`"
                 variant="text"
                 @click.stop="editNote(message)"
@@ -294,13 +293,14 @@
                 color="primary"
                 density="compact"
                 :disabled="noteStore.disableNewNoteButton"
+                slim
                 :text="`Delete ${message.isDraft ? 'Draft' : 'Note'}`"
                 variant="text"
                 @click.stop="onClickDeleteNote(message)"
               />
               <div
                 :id="`timeline-tab-${activeTab}-date-${index}`"
-                class="position-relative text-no-wrap py-2"
+                class="position-relative text-no-wrap py-2 pl-2"
               >
                 <TimelineDate
                   v-if="!isExpanded(message) || !includes(['appointment', 'eForm', 'note'], message.type)"
@@ -422,14 +422,14 @@ import AreYouSureModal from '@/components/util/AreYouSureModal'
 import EditAdvisingNote from '@/components/note/EditAdvisingNote'
 import TimelineDate from '@/components/student/profile/TimelineDate'
 import {alertScreenReader, decodeStudentUriAnchor, pluralize, putFocusNextTick, stripHtmlAndTrim} from '@/lib/utils'
-import {canUserEditNote, summarizeNoteForAcademicTimeline as getMessageSummary} from '@/lib/note.js'
+import {canUserEditNote, summarizeNoteForAcademicTimeline as getMessageSummary} from '@/lib/note'
 import {deleteNote, getNote, markNoteRead} from '@/api/notes'
 import {dismissStudentAlert} from '@/api/student'
 import {isDirector} from '@/lib/boa-user'
 import {markAppointmentRead} from '@/api/appointments'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session/index'
-import {getUserDepartmentsWithRoles} from '@/lib/berkeley-department.js'
+import {getUserDepartmentsWithRoles} from '@/lib/berkeley-department'
 
 const props = defineProps({
   countPerActiveTab: {

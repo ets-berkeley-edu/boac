@@ -1,6 +1,6 @@
 <template>
   <section class="note-comments">
-    <h4 class="text-medium-emphasis mb-2">Comments</h4>
+    <h4 class="text-medium-emphasis mb-2" :class="{'sr-only': !size(note.comments)}">Comments</h4>
     <article
       v-for="comment in note.comments"
       :key="comment.id"
@@ -11,34 +11,60 @@
           <span class="sr-only">comment </span>
           <div class="d-flex">
             <span class="font-weight-bold">From:&nbsp;</span>
-            <a class="d-flex align-center" href="">
-              John Lee <v-icon class="ml-1" :icon="mdiInformation" size="1rem" />
+            <a
+              v-if="get(comment, 'author.name')"
+              :id="`note-${note.id}-comment-${comment.id}-author-link`"
+              :aria-label="`${comment.author.name} UC Berkeley Directory page (opens in new tab)`"
+              class="d-flex align-center"
+              :href="`https://www.berkeley.edu/directory/results?search-term=${comment.author.name}`"
+              target="_blank"
+            >
+              {{ comment.author.name }} <v-icon class="ml-1" :icon="mdiInformation" size="1rem" />
             </a>
           </div>
         </h5>
-        <p>lorem ipsum</p>
+        <div :id="`note-${note.id}-comment-${comment.id}-text`" v-html="comment.body" />
+        <AdvisingNoteAttachments
+          v-if="size(comment.attachments)"
+          :attachments="comment.attachments"
+          class="attachments-edit pt-3"
+          :disabled="false"
+          :id-prefix="`note-${note.id}-comment-${comment.id}`"
+          :is-downloadable="true"
+          is-read-only
+          label-class="text-medium-emphasis"
+          :note="note"
+        />
       </div>
       <EditNoteComment
         v-if="editingComment && editingComment.id === comment.id"
         :cancel="onCancelEdit"
         :comment="editingComment"
         :id-prefix="`note-${note.id}-comment-${editingComment.id}`"
-        :note="note"
         :save="updateComment"
       />
       <footer v-if="!editingComment || editingComment.id !== comment.id" class="column-date">
         <v-btn
+          v-if="canUserEditNote(comment, currentUser)"
           :id="`note-${note.id}-comment-${comment.id}-edit-btn`"
           class="mb-2"
           color="primary"
           density="compact"
           :disabled="isCreatingComment"
+          slim
           text="Edit Comment"
           variant="text"
           @click="onClickEdit(comment)"
         />
-        <div class="text-medium-emphasis">Replied:</div>
-        <div>Dec 18, 2023 @ 3:08PM</div>
+        <div class="pl-2">
+          <div class="font-size-14 text-medium-emphasis">Replied:</div>
+          <TimelineDate
+            :id="`note-${note.id}-comment-${comment.id}-created-at`"
+            :date="comment.createdAt"
+            :include-time-of-day="comment.createdAt.length > 10"
+            class="mb-2"
+          />
+        </div>
       </footer>
     </article>
     <v-btn
@@ -62,11 +88,16 @@
 </template>
 
 <script setup lang="ts">
+import {get, size} from 'lodash'
 import {mdiInformation, mdiPlus} from '@mdi/js'
 import {ref} from 'vue'
+import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments'
 import EditNoteComment from '@/components/note/comment/EditNoteComment'
-import {addNoteComment, updateNote} from '@/api/notes'
+import TimelineDate from '@/components/student/profile/TimelineDate'
+import {addNoteComment, updateNoteComment} from '@/api/notes'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
+import {canUserEditNote} from '@/lib/note.js'
+import {useContextStore} from '@/stores/context'
 
 const props = defineProps({
   note: {
@@ -75,6 +106,8 @@ const props = defineProps({
   }
 })
 
+const contextStore = useContextStore()
+const currentUser = contextStore.currentUser
 const editingComment = ref()
 const isCreatingComment = ref(false)
 
@@ -109,22 +142,25 @@ const createComment = (body, attachments) => {
   })
 }
 
-const updateComment = (body, attachments, commentId) => {
-  return updateNote(
-    commentId,
+const updateComment = (id, body, attachments, deleteAttachmentIds) => {
+  return updateNoteComment(
+    id,
     body,
     attachments,
-    props.note.id
+    deleteAttachmentIds
   ).then(() => {
     editingComment.value = null
     alertScreenReader('updated comment')
-    putFocusNextTick(`note-${props.note.id}-comment-${commentId}-edit-btn`)
+    putFocusNextTick(`note-${props.note.id}-comment-${id}-edit-btn`)
   })
 }
 </script>
 
 <style scoped>
+.column-date {
+  width: 12rem;
+}
 .note-comments {
-  margin-right: -12rem;
+  margin-right: -14rem;
 }
 </style>
