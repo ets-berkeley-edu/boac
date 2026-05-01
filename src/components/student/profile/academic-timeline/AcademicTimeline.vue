@@ -31,7 +31,7 @@
 
 <script setup>
 import {DateTime} from 'luxon'
-import {each, find, findIndex, get, keys, remove, size} from 'lodash'
+import {cloneDeep, each, find, findIndex, get, keys, partition, reduce, remove, size} from 'lodash'
 import {onMounted, onUnmounted, ref} from 'vue'
 import AcademicTimelineHeader from '@/components/student/profile/academic-timeline/AcademicTimelineHeader'
 import AcademicTimelineTable from '@/components/student/profile/academic-timeline/AcademicTimelineTable'
@@ -52,11 +52,10 @@ const currentUser = contextStore.currentUser
 const eventHandlers = ref(undefined)
 const filterTypes = ref(undefined)
 const isTimelineLoading = ref(true)
-const messages = ref(undefined)
+const messages = ref([])
 const selectedFilter = ref(undefined)
 
 onMounted(() => {
-  messages.value = []
   filterTypes.value = {
     alert: {name: 'Alert', tab: 'Alerts', tabWidth: 65},
     hold: {name: 'Hold', tab: 'Holds', tabWidth: 62},
@@ -68,13 +67,19 @@ onMounted(() => {
     filterTypes.value.appointment = {name: 'Appointment', tab: 'Appointments', tabWidth: 126}
   }
   each(keys(filterTypes.value), (type, typeIndex) => {
-    const notifications = props.student.notifications[type]
+    const commentsAndNotifications = partition(props.student.notifications[type], 'parentNoteId')
+    const commentsByNoteId = reduce(commentsAndNotifications[0], collectComments, {})
+    const notifications = commentsAndNotifications[1]
     countsPerType.value[type] = size(notifications)
-    each(notifications, (message, index) => {
+    each(notifications, (notification, index) => {
+      const message = cloneDeep(notification)
       // If object is not a BOA advising note then generate a transient and non-zero primary key.
       message.transientId = (typeIndex + 1) * 1000 + index
       if (!message.id) {
         message.id = message.transientId
+      }
+      if (commentsByNoteId[message.id]) {
+        message.comments = commentsByNoteId[message.id]
       }
       messages.value.push(message)
     })
@@ -91,14 +96,27 @@ onMounted(() => {
   })
 })
 
+const collectComments = (result, comment) => {
+  if (!result[comment.parentNoteId]) {
+    result[comment.parentNoteId] = []
+  }
+  result[comment.parentNoteId] = result[comment.parentNoteId].concat(comment)
+  return result
+}
+
 const onCreateOrUpdateNote = note => {
   return new Promise(resolve => {
     if (note.sid === props.student.sid) {
-      const message = find(messages.value, ['id', note.id])
-      note.transientId = message ? message.transientId : note.id
+      const noteId = note.parentNoteId || note.id
+      const message = find(messages.value, ['id', noteId])
+      note.transientId = message ? message.transientId : noteId
       if (message) {
-        const existingNoteIndex = findIndex(messages.value, {'id': note.id})
-        messages.value.splice(existingNoteIndex, 1, note)
+        const existingNoteIndex = findIndex(messages.value, {'id': noteId})
+        if (note.parentNoteId) {
+          updateNoteComments(message, note)
+        } else {
+          messages.value.splice(existingNoteIndex, 1, note)
+        }
       } else {
         messages.value.push(note)
         updateCountsPerType('note', countsPerType.value.note + 1)
@@ -164,6 +182,18 @@ const sortMessages = () => {
 
 const updateCountsPerType = (type, count) => {
   countsPerType.value[type] = count
+}
+
+const updateNoteComments = (parentNote, comment) => {
+  if (!parentNote.comments) {
+    parentNote.comments = []
+  }
+  const existingCommentIndex = findIndex(parentNote.comments, {'id': comment.id})
+  if (existingCommentIndex >= 0) {
+    parentNote.comments.splice(existingCommentIndex, 1, comment)
+  } else {
+    parentNote.comments.push(comment)
+  }
 }
 
 onUnmounted(() => {
