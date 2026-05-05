@@ -16,10 +16,10 @@ const $_refreshMyDraftNoteCount = () => {
 }
 const $_track = action => ga.note(action)
 
-export function addNoteComment(parentNoteId: number, text: string, attachments: NoteAttachment[]) {
+export function addNoteComment(parentNoteId: number, body: string, attachments: NoteAttachment[]) {
   const args = {
-    body: text,
-    parentNoteId: parentNoteId
+    body,
+    parentNoteId
   }
   const contextStore = useContextStore()
   each(attachments, (attachment, index) => args[`attachment[${index}]`] = attachment)

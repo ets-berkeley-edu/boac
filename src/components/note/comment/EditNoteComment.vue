@@ -1,5 +1,5 @@
 <template>
-  <div class="flex-grow-1">
+  <div>
     <RichTextEditor
       :id="`${idPrefix}-text`"
       :auto-focus="true"
@@ -28,7 +28,7 @@
       :disabled="isSaving || isUpdatingAttachments"
       :id-prefix="idPrefix"
       :is-downloadable="!isSaving"
-      :note="comment"
+      :note="comment || {parentNoteId: parentNoteId}"
       :remove="removeAttachmentByIndex"
     />
     <div class="d-flex pt-2">
@@ -72,6 +72,11 @@ const props = defineProps({
   },
   idPrefix: {
     required: true,
+    type: String
+  },
+  parentNoteId: {
+    default: undefined,
+    required: false,
     type: String
   },
   save: {

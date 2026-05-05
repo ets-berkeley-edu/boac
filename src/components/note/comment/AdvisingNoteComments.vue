@@ -81,7 +81,7 @@
       v-if="isCreatingComment"
       :cancel="onCancelAdd"
       :id-prefix="`note-${note.id}-comment-new`"
-      :note="note"
+      :parent-note-id="note.id"
       :save="createComment"
     />
   </section>
@@ -134,7 +134,7 @@ const onClickEdit = comment => {
   putFocusNextTick(`note-${props.note.id}-comment-text`)
 }
 
-const createComment = (body, attachments) => {
+const createComment = (commentId, body, attachments) => {
   return addNoteComment(props.note.id, body, attachments).then(() => {
     isCreatingComment.value = false
     alertScreenReader('posted comment')
@@ -161,6 +161,6 @@ const updateComment = (id, body, attachments, deleteAttachmentIds) => {
   width: 12rem;
 }
 .note-comments {
-  margin-right: -14rem;
+  margin-right: -13rem;
 }
 </style>

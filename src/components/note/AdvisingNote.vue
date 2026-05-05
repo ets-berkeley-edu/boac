@@ -32,14 +32,30 @@
         :class="{'truncate-with-ellipsis': !isOpen}"
         v-html="noteSummary"
       />
-      <div v-if="!isOpen && size(note.attachments)" class="px-2 ml-auto">
-        <v-icon :aria-hidden="true" color="info" :icon="mdiPaperclip" />
-        <span class="sr-only">Has attachments</span>
+      <div v-if="!isOpen" class="indicators d-flex ml-auto">
+        <div v-if="size(note.attachments)" class="mr-auto">
+          <v-icon :aria-hidden="true" color="info" :icon="mdiPaperclip" />
+          <span class="sr-only">Has attachments.</span>
+        </div>
+        <v-badge
+          v-if="size(note.comments)"
+          class="ml-auto mr-2 mt-1"
+          color="info"
+          :content="size(note.comments)"
+          :label="`${pluralize('comment', size(note.comments))}.`"
+        >
+          <v-icon
+            :aria-hidden="true"
+            color="info"
+            :icon="mdiCommentOutline"
+            size="1.4rem"
+          />
+        </v-badge>
       </div>
     </div>
     <section
       :id="`note-${note.id}-is-open`"
-      class="pb-4"
+      class="note-body pb-4"
       :class="{'sr-only': !isOpen}"
     >
       <div v-if="(note.subject || note.isDraft) && note.message" class="open-note-message-container py-3">
@@ -131,7 +147,7 @@
       </div>
     </section>
     <AdvisingNoteComments
-      v-if="!note.legacySource && !note.eform && !note.peerAdvisingDepartmentId"
+      v-if="!note.legacySource || note.eForm"
       class="border-t-sm py-4"
       :class="{'sr-only': !isOpen}"
       :note="note"
@@ -151,14 +167,14 @@
 <script setup>
 import {computed, onMounted, ref, watch} from 'vue'
 import {get, isNil, map, orderBy, replace, size} from 'lodash'
-import {mdiPaperclip} from '@mdi/js'
+import {mdiCommentOutline, mdiPaperclip} from '@mdi/js'
 import AdvisingEForm from '@/components/note/eform/AdvisingEForm'
 import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments'
 import AdvisingNoteComments from '@/components/note/comment/AdvisingNoteComments'
 import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import {addAttachments, removeAttachment} from '@/api/notes'
-import {alertScreenReader, capitalizeAllWords, oxfordJoin} from '@/lib/utils'
+import {alertScreenReader, capitalizeAllWords, oxfordJoin, pluralize} from '@/lib/utils'
 import {canUserEditNote, summarizeNoteForAcademicTimeline} from '@/lib/note.js'
 import {findPeerAdvisingDepartment, getBoaUserRoles} from '@/lib/berkeley-department'
 import {getCalnetProfileByCsid, getCalnetProfileByUid} from '@/api/user'
@@ -299,6 +315,13 @@ const removeAttachmentByIndex = index => {
   box-sizing: border-box;
   max-width: 100%;
   width: 100%;
+}
+.indicators {
+  min-width: 3.25rem;
+  width: 3.25rem;
+}
+.note-body {
+  min-height: 7.75rem
 }
 .open-note-message-container {
   overflow-wrap: break-word;
