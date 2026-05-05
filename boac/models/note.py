@@ -27,7 +27,7 @@ import json
 import threading
 
 from flask import current_app as app
-from sqlalchemy import and_, desc
+from sqlalchemy import and_, asc, desc
 from sqlalchemy.dialects.postgresql import ARRAY, ENUM
 from sqlalchemy.sql import text
 
@@ -129,6 +129,11 @@ class Note(Base):
     def find_by_ids(cls, note_ids):
         criteria = and_(cls.id.in_(note_ids), cls.deleted_at == None)  # noqa: E711
         return cls.query.filter(criteria).all()
+
+    @classmethod
+    def get_notes_by_parent_id(cls, parent_note_id):
+        criteria = and_(cls.parent_note_id == parent_note_id, cls.deleted_at == None)  # noqa: E711
+        return cls.query.filter(criteria).order_by(asc(cls.created_at), asc(cls.id)).all()
 
     @classmethod
     def get_draft_note_count(cls, author_uid=None):
