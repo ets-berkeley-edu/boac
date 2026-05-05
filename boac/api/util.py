@@ -36,7 +36,7 @@ from boac.lib.berkeley import ACADEMIC_STANDING_DESCRIPTIONS, dept_codes_where_a
 from boac.lib.util import get_benchmarker, join_if_present, to_iso_format
 from boac.merged import calnet
 from boac.merged.advising_appointment import get_advising_appointments
-from boac.merged.advising_note import get_advising_notes, note_to_compatible_json
+from boac.merged.advising_note import can_current_user_access_note, get_advising_notes, note_to_compatible_json
 from boac.merged.calnet import get_calnet_user_for_uid
 from boac.merged.cohort_filter_options import PROTECTED_COHORT_FILTERS_COENG, PROTECTED_COHORT_FILTERS_UWASC, CohortFilterOptions
 from boac.merged.sis_terms import current_term_id
@@ -46,6 +46,7 @@ from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
 from boac.models.degree_progress_course import ACCENT_COLOR_CODES
 from boac.models.note import Note, note_contact_type_enum
+from boac.models.note_read import NoteRead
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 from boac.models.university_dept import UniversityDept
 from boac.models.user_login import UserLogin
@@ -172,14 +173,33 @@ def put_notifications(student):
             })
 
         # The front-end requires 'type', 'message' and 'read'. Optional fields: id, status, createdAt, updatedAt.
+        notes_by_id = {}
+        children = []
         for note in get_advising_notes(sid) or []:
             message = note['body']
             note_type = 'eForm' if note.get('eForm') else 'note'
-            student['notifications'][note_type].append({
+            wrapped = {
                 **note,
                 'message': message.strip() if message else None,
                 'type': note_type,
-            })
+            }
+            if note_type == 'eForm':
+                student['notifications']['eForm'].append(wrapped)
+                continue
+            if wrapped.get('parentNoteId'):
+                children.append(wrapped)
+            else:
+                wrapped['comments'] = []
+                notes_by_id[wrapped['id']] = wrapped
+                student['notifications']['note'].append(wrapped)
+        for child in children:
+            parent = notes_by_id.get(child['parentNoteId'])
+            if parent:
+                parent['comments'].append(child)
+            else:
+                student['notifications']['note'].append(child)
+        for parent in notes_by_id.values():
+            parent['comments'].sort(key=lambda c: c.get('createdAt') or '')
     for alert in Alert.current_alerts_for_sid(viewer_id=current_user.get_id(), sid=sid):
         student['notifications']['alert'].append({
             **alert,
@@ -326,8 +346,8 @@ def get_academic_standing(profile):
         return ''
 
 
-def get_boac_note_as_compatible_json(note, note_read):
-    return {
+def get_boac_note_as_compatible_json(note, note_read, children_by_parent_id=None):
+    base = {
         **note_to_compatible_json(
             note=note.__dict__,
             note_read=note_read,
@@ -337,6 +357,27 @@ def get_boac_note_as_compatible_json(note, note_read):
         'message': note.body,
         'type': 'note',
     }
+    if note.parent_note_id:
+        base['comments'] = []
+        return base
+    if children_by_parent_id is None:
+        child_notes = Note.get_notes_by_parent_id(parent_note_id=note.id)
+        accessible = [c for c in child_notes if can_current_user_access_note(c)]
+    else:
+        accessible = children_by_parent_id.get(note.id, [])
+    reads_by_id = {}
+    if accessible:
+        read_rows = NoteRead.get_notes_read_by_user(current_user.get_id(), [str(c.id) for c in accessible])
+        reads_by_id = {r.note_id: r.created_at for r in read_rows}
+    base['comments'] = [
+        get_boac_note_as_compatible_json(
+            child,
+            note_read=reads_by_id.get(str(child.id)),
+            children_by_parent_id=children_by_parent_id,
+        )
+        for child in accessible
+    ]
+    return base
 
 
 def get_coe_status(profile):

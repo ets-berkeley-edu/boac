@@ -27,7 +27,7 @@ import json
 import threading
 
 from flask import current_app as app
-from sqlalchemy import and_, desc
+from sqlalchemy import and_, asc, desc
 from sqlalchemy.dialects.postgresql import ARRAY, ENUM
 from sqlalchemy.sql import text
 
@@ -131,6 +131,11 @@ class Note(Base):
         return cls.query.filter(criteria).all()
 
     @classmethod
+    def get_notes_by_parent_id(cls, parent_note_id):
+        criteria = and_(cls.parent_note_id == parent_note_id, cls.deleted_at == None)  # noqa: E711
+        return cls.query.filter(criteria).order_by(asc(cls.created_at), asc(cls.id)).all()
+
+    @classmethod
     def get_draft_note_count(cls, author_uid=None):
         sql = f"""
             SELECT
@@ -176,6 +181,7 @@ class Note(Base):
             cls.peer_advising_department_id == peer_advising_department_id,
             cls.deleted_at.is_(None),
             cls.is_draft.is_(False),
+            cls.parent_note_id.is_(None),
         ]
         # Add advisor filter if provided
         if peer_advisor_uid is not None:
@@ -1034,6 +1040,7 @@ def _get_total_count_peer_advising_notes(peer_advising_department_id, peer_advis
         FROM notes
         WHERE deleted_at IS NULL
           AND is_draft IS FALSE
+          AND parent_note_id IS NULL
           AND peer_advising_department_id = :dept_id
     """
     params = {'dept_id': peer_advising_department_id}

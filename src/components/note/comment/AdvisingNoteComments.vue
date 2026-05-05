@@ -134,7 +134,7 @@ const onClickEdit = comment => {
   putFocusNextTick(`note-${props.note.id}-comment-text`)
 }
 
-const createComment = (body, attachments) => {
+const createComment = (commentId, body, attachments) => {
   return addNoteComment(props.note.id, body, attachments).then(() => {
     isCreatingComment.value = false
     alertScreenReader('posted comment')

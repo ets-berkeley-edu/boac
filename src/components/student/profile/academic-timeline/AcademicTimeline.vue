@@ -31,7 +31,7 @@
 
 <script setup>
 import {DateTime} from 'luxon'
-import {cloneDeep, each, find, findIndex, get, keys, partition, reduce, remove, size} from 'lodash'
+import {cloneDeep, each, find, findIndex, get, keys, remove, size} from 'lodash'
 import {onMounted, onUnmounted, ref} from 'vue'
 import AcademicTimelineHeader from '@/components/student/profile/academic-timeline/AcademicTimelineHeader'
 import AcademicTimelineTable from '@/components/student/profile/academic-timeline/AcademicTimelineTable'
@@ -67,9 +67,7 @@ onMounted(() => {
     filterTypes.value.appointment = {name: 'Appointment', tab: 'Appointments', tabWidth: 126}
   }
   each(keys(filterTypes.value), (type, typeIndex) => {
-    const commentsAndNotifications = partition(props.student.notifications[type], 'parentNoteId')
-    const commentsByNoteId = reduce(commentsAndNotifications[0], collectComments, {})
-    const notifications = commentsAndNotifications[1]
+    const notifications = props.student.notifications[type] || []
     countsPerType.value[type] = size(notifications)
     each(notifications, (notification, index) => {
       const message = cloneDeep(notification)
@@ -77,9 +75,6 @@ onMounted(() => {
       message.transientId = (typeIndex + 1) * 1000 + index
       if (!message.id) {
         message.id = message.transientId
-      }
-      if (commentsByNoteId[message.id]) {
-        message.comments = commentsByNoteId[message.id]
       }
       messages.value.push(message)
     })
@@ -95,14 +90,6 @@ onMounted(() => {
     contextStore.setEventHandler(eventType, handler)
   })
 })
-
-const collectComments = (result, comment) => {
-  if (!result[comment.parentNoteId]) {
-    result[comment.parentNoteId] = []
-  }
-  result[comment.parentNoteId] = result[comment.parentNoteId].concat(comment)
-  return result
-}
 
 const onCreateOrUpdateNote = note => {
   return new Promise(resolve => {
