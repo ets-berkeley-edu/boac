@@ -1,28 +1,20 @@
 <template>
-  <section class="note-comments">
-    <h4 class="text-medium-emphasis mb-2" :class="{'sr-only': !size(note.comments)}">Comments</h4>
+  <section class="note-comments px-6">
+    <div class="font-size-16 font-weight-bold text-medium-emphasis mb-4" :class="{'sr-only': !size(note.comments)}">Comments</div>
     <article
       v-for="comment in note.comments"
       :key="comment.id"
-      class="border-b-sm d-flex justify-space-between py-4 my-2"
+      class="border-b-sm d-flex justify-space-between my-2"
     >
-      <div v-if="!editingComment || editingComment.id !== comment.id">
-        <h5 class="text-body-1 mb-3">
+      <div v-if="!editingComment || editingComment.id !== comment.id" class="flex-grow-1 pr-3">
+        <div class="d-flex align-center text-body-1 mb-2">
           <span class="sr-only">comment </span>
-          <div class="d-flex">
-            <span class="font-weight-bold">From:&nbsp;</span>
-            <a
-              v-if="get(comment, 'author.name')"
-              :id="`note-${note.id}-comment-${comment.id}-author-link`"
-              :aria-label="`${comment.author.name} UC Berkeley Directory page (opens in new tab)`"
-              class="d-flex align-center"
-              :href="`https://www.berkeley.edu/directory/results?search-term=${comment.author.name}`"
-              target="_blank"
-            >
-              {{ comment.author.name }} <v-icon class="ml-1" :icon="mdiInformation" size="1rem" />
-            </a>
-          </div>
-        </h5>
+          <span class="font-weight-bold pr-1">From:&nbsp;</span>
+          <AuthorDetails
+            :author="comment.author"
+            :id-prefix="`note-${note.id}-comment-${comment.id}`"
+          />
+        </div>
         <div :id="`note-${note.id}-comment-${comment.id}-text`" v-html="comment.body" />
         <AdvisingNoteAttachments
           v-if="size(comment.attachments)"
@@ -43,7 +35,7 @@
         :id-prefix="`note-${note.id}-comment-${editingComment.id}`"
         :save="updateComment"
       />
-      <footer v-if="!editingComment || editingComment.id !== comment.id" class="column-date">
+      <footer v-if="!editingComment || editingComment.id !== comment.id" class="academic-timeline-column-date">
         <v-btn
           v-if="canUserEditNote(comment, currentUser)"
           :id="`note-${note.id}-comment-${comment.id}-edit-btn`"
@@ -62,6 +54,15 @@
             :id="`note-${note.id}-comment-${comment.id}-created-at`"
             :date="comment.createdAt"
             :include-time-of-day="comment.createdAt.length > 10"
+            class="mb-2"
+          />
+        </div>
+        <div v-if="comment.updatedAt && comment.createdAt !== comment.updatedAt" class="pl-2">
+          <div class="font-size-14 text-medium-emphasis">Edited:</div>
+          <TimelineDate
+            :id="`note-${note.id}-comment-${comment.id}-updated-at`"
+            :date="comment.updatedAt"
+            :include-time-of-day="comment.updatedAt.length > 10"
             class="mb-2"
           />
         </div>
@@ -88,10 +89,11 @@
 </template>
 
 <script setup lang="ts">
-import {get, size} from 'lodash'
-import {mdiInformation, mdiPlus} from '@mdi/js'
+import {mdiPlus} from '@mdi/js'
 import {ref} from 'vue'
+import {size} from 'lodash'
 import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments'
+import AuthorDetails from '@/components/note/AuthorDetails'
 import EditNoteComment from '@/components/note/comment/EditNoteComment'
 import TimelineDate from '@/components/student/profile/TimelineDate'
 import {addNoteComment, updateNoteComment} from '@/api/notes'
@@ -134,7 +136,7 @@ const onClickEdit = comment => {
   putFocusNextTick(`note-${props.note.id}-comment-text`)
 }
 
-const createComment = (commentId, body, attachments) => {
+const createComment = (id, body, attachments) => {
   return addNoteComment(props.note.id, body, attachments).then(() => {
     isCreatingComment.value = false
     alertScreenReader('posted comment')
@@ -157,10 +159,7 @@ const updateComment = (id, body, attachments, deleteAttachmentIds) => {
 </script>
 
 <style scoped>
-.column-date {
-  width: 12rem;
-}
-.note-comments {
-  margin-right: -13rem;
+.academic-timeline-column-date{
+  margin-right: -24px;
 }
 </style>
