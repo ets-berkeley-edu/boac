@@ -789,6 +789,20 @@ const refreshSearchIndex = () => {
     if (m.createdBy === 'Calendly') {
       idx = idx.concat([m.appointmentTitle])
     }
+    if (m.type === 'note' && size(m.comments)) {
+      each(m.comments, c => {
+        const commentAuthor = c.author || {}
+        idx = idx.concat([
+          c.body,
+          c.subject,
+          commentAuthor.name,
+          (map(commentAuthor.departments || [], 'deptName')).join(),
+          commentAuthor.email,
+          c.createdBy,
+          c.message
+        ])
+      })
+    }
     searchIndex.value.push({idx: normalizeForSearchIndex(idx.join()), message: m})
   })
 }
