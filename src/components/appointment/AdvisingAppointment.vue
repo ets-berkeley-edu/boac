@@ -1,5 +1,5 @@
 <template>
-  <div class="w-100">
+  <article class="w-100">
     <div
       v-if="!isOpen"
       :id="`appointment-${appointment.id}-is-closed`"
@@ -20,8 +20,22 @@
         <v-icon :aria-hidden="true" color="info" :icon="mdiPaperclip" />
         <span class="sr-only">Has attachments</span>
       </div>
+      <v-badge
+        v-if="size(appointment.comments)"
+        class="ml-auto mt-1"
+        color="info"
+        :content="size(appointment.comments)"
+        :label="`${pluralize('comment', size(appointment.comments))}.`"
+      >
+        <v-icon
+          :aria-hidden="true"
+          color="info"
+          :icon="mdiCommentOutline"
+          size="1.4rem"
+        />
+      </v-badge>
     </div>
-    <div class="advising-appointment-outer">
+    <section class="advising-appointment-outer">
       <div
         :id="`appointment-${appointment.id}-is-open`"
         class="pb-4"
@@ -123,17 +137,25 @@
           </ul>
         </div>
       </div>
-    </div>
-  </div>
+    </section>
+    <AdvisingNoteComments
+      v-if="['Calendly', 'YCBM'].includes(appointment.createdBy)"
+      class="border-t-sm py-4"
+      :class="{'sr-only': !isOpen}"
+      :note="appointment"
+    />
+  </article>
 </template>
 
 <script setup>
 import {computed, onMounted, ref, watch} from 'vue'
 import {get, size} from 'lodash'
-import {mdiPaperclip} from '@mdi/js'
+import {mdiCommentOutline, mdiPaperclip} from '@mdi/js'
 import AppointmentCanceledIndicator from '@/components/appointment/AppointmentCanceledIndicator'
+import AdvisingNoteComments from '@/components/note/comment/AdvisingNoteComments'
 import {getCalnetProfileByCsid, getCalnetProfileByUid} from '@/api/user'
 import PillItem from '@/components/util/PillItem'
+import {pluralize} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {summarizeNoteForAcademicTimeline} from '@/lib/note.js'
 

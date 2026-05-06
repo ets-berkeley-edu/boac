@@ -130,9 +130,9 @@
         </colgroup>
         <thead>
           <tr class="sr-only">
-            <th>Category</th>
-            <th>Message</th>
-            <th>Metadata</th>
+            <th scope="col">Category</th>
+            <th scope="col">Message</th>
+            <th scope="col">Metadata</th>
           </tr>
         </thead>
         <tbody>
@@ -144,6 +144,7 @@
             class="message-row border-t-sm border-b-sm"
             :class="{
               'cursor-pointer': !isExpanded(message),
+              'expanded': isExpanded(message),
               'message-row-read': message.read
             }"
             role="row"
@@ -269,99 +270,100 @@
               class="column-date vertical-top pr-4"
               :class="{'text-right': !(isExpanded(message) && ['appointment', 'eForm', 'note'].includes(message.type))}"
             >
-              <v-btn
-                v-if="!editModeNoteId && isEditable(message) && canUserEditNote(message, currentUser)"
-                :id="`edit-note-${message.id}-button`"
-                :aria-label="`Edit ${getButtonAriaLabel(message)}`"
-                class="my-2"
-                :class="{'sr-only': !isExpanded(message)}"
-                color="primary"
-                density="compact"
-                :disabled="noteStore.disableNewNoteButton"
-                slim
-                :text="`Edit ${message.isDraft ? 'Draft' : 'Note'}`"
-                variant="text"
-                @click.stop="editNote(message)"
-              />
-              <v-btn
-                v-if="!editModeNoteId && isEditable(message) && userCanDelete(message)"
-                :id="`delete-note-button-${message.id}`"
-                :aria-label="`Delete ${getButtonAriaLabel(message)}`"
-                block
-                class="my-2"
-                :class="{'sr-only': !isExpanded(message)}"
-                color="primary"
-                density="compact"
-                :disabled="noteStore.disableNewNoteButton"
-                slim
-                :text="`Delete ${message.isDraft ? 'Draft' : 'Note'}`"
-                variant="text"
-                @click.stop="onClickDeleteNote(message)"
-              />
-              <div
-                :id="`timeline-tab-${activeTab}-date-${index}`"
-                class="position-relative text-no-wrap py-2 pl-2"
-              >
-                <TimelineDate
-                  v-if="!isExpanded(message) || !includes(['appointment', 'eForm', 'note'], message.type)"
-                  :id="`collapsed-${message.type}-${message.id}-created-at`"
-                  :aria-hidden="includes(['appointment', 'eForm', 'note'], message.type)"
-                  :date="message.startsAt || message.setDate || message.updatedAt || message.createdAt"
-                  :include-time-of-day="false"
-                  :sr-prefix="message.type === 'appointment' ? 'Appointment date' : 'Last updated on'"
+              <div class="timeline-message-metadata">
+                <v-btn
+                  v-if="!editModeNoteId && isEditable(message) && canUserEditNote(message, currentUser)"
+                  :id="`edit-note-${message.id}-button`"
+                  :aria-label="`Edit ${getButtonAriaLabel(message)}`"
+                  class="my-2"
+                  :class="{'sr-only': !isExpanded(message)}"
+                  color="primary"
+                  density="compact"
+                  :disabled="noteStore.disableNewNoteButton"
+                  slim
+                  :text="`Edit ${message.isDraft ? 'Draft' : 'Note'}`"
+                  variant="text"
+                  @click.stop="editNote(message)"
+                />
+                <v-btn
+                  v-if="!editModeNoteId && isEditable(message) && userCanDelete(message)"
+                  :id="`delete-note-button-${message.id}`"
+                  :aria-label="`Delete ${getButtonAriaLabel(message)}`"
+                  block
+                  class="my-2"
+                  :class="{'sr-only': !isExpanded(message)}"
+                  color="primary"
+                  density="compact"
+                  :disabled="noteStore.disableNewNoteButton"
+                  slim
+                  :text="`Delete ${message.isDraft ? 'Draft' : 'Note'}`"
+                  variant="text"
+                  @click.stop="onClickDeleteNote(message)"
                 />
                 <div
-                  v-if="['appointment', 'eForm', 'note'].includes(message.type)"
-                  :class="{
-                    'expanded-timeline-container': isExpanded(message),
-                    'sr-only': !isExpanded(message),
-                    'position-relative': displayUpdatedAt(message)
-                  }"
+                  :id="`timeline-tab-${activeTab}-date-${index}`"
+                  class="position-relative text-no-wrap py-2 pl-2"
                 >
-                  <div v-if="message.createdAt" :class="{'pb-2': !displayUpdatedAt(message)}">
-                    <div :aria-hidden="true" class="text-medium-emphasis font-size-14">{{ message.type === 'appointment' ? 'Appt Date' : 'Created' }}:</div>
-                    <TimelineDate
-                      :id="`expanded-${message.type}-${message.id}-created-at`"
-                      :date="message.startsAt || message.createdAt"
-                      :sr-prefix="message.type === 'appointment' ? 'Appointment date' : 'Created on'"
-                      :include-time-of-day="(message.createdAt.length > 10) && (message.type !== 'appointment')"
-                    />
-                    <div
-                      v-if="['Calendly', 'YCBM'].includes(message.createdBy) && message.endsAt"
-                      :id="`expanded-${message.type}-${message.id}-appt-time-range`"
-                    >
-                      <span :aria-hidden="true">{{ getSameDayDate(message).visual }}</span>
-                      <span class="sr-only">{{ getSameDayDate(message).screenReader }}</span>
-                    </div>
-                  </div>
-                  <div v-if="displayUpdatedAt(message)">
-                    <div :aria-hidden="true" class="pt-2 text-medium-emphasis font-size-14">Updated:</div>
-                    <TimelineDate
-                      :id="`expanded-${message.type}-${message.id}-updated-at`"
-                      :date="message.updatedAt"
-                      :include-time-of-day="message.updatedAt.length > 10"
-                      class="mb-2"
-                      sr-prefix="Last updated on"
-                    />
-                  </div>
-                  <div v-if="message.setDate">
-                    <div class="pt-2 text-medium-emphasis font-size-14">Set Date:</div>
-                    <TimelineDate
-                      :id="`expanded-${message.type}-${message.id}-set-date`"
-                      :date="message.setDate"
-                      class="mb-2"
-                    />
-                  </div>
-                  <span v-if="!message.updatedAt && !message.createdAt" class="sr-only">No last-updated date</span>
-                  <router-link
-                    v-if="['eForm', 'note'].includes(message.type) && message.id !== editModeNoteId"
-                    :id="`advising-${message.type}-permalink-${message.id}`"
-                    class="d-inline-block my-2"
-                    :to="`#permalink-${message.type}-${message.id}`"
-                    @click.prevent="scrollToPermalink(message)"
+                  <TimelineDate
+                    v-if="!isExpanded(message) || !includes(['appointment', 'eForm', 'note'], message.type)"
+                    :id="`collapsed-${message.type}-${message.id}-created-at`"
+                    :aria-hidden="includes(['appointment', 'eForm', 'note'], message.type)"
+                    :date="message.startsAt || message.setDate || message.updatedAt || message.createdAt"
+                    :include-time-of-day="false"
+                    :sr-prefix="message.type === 'appointment' ? 'Appointment date' : 'Last updated on'"
+                  />
+                  <div
+                    v-if="['appointment', 'eForm', 'note'].includes(message.type)"
+                    :class="{
+                      'expanded-timeline-container': isExpanded(message),
+                      'sr-only': !isExpanded(message),
+                      'position-relative': displayUpdatedAt(message)
+                    }"
                   >
-                    Permalink <span class="sr-only">{{ getButtonAriaLabel(message) }}</span><v-icon :icon="mdiLinkVariant" />
-                  </router-link>
+                    <div v-if="message.createdAt" :class="{'pb-2': !displayUpdatedAt(message)}">
+                      <div :aria-hidden="true" class="text-medium-emphasis font-size-14">{{ message.type === 'appointment' ? 'Appt Date' : 'Created' }}:</div>
+                      <TimelineDate
+                        :id="`expanded-${message.type}-${message.id}-created-at`"
+                        :date="message.startsAt || message.createdAt"
+                        :sr-prefix="message.type === 'appointment' ? 'Appointment date' : 'Created on'"
+                        :include-time-of-day="(message.createdAt.length > 10) && (message.type !== 'appointment')"
+                      />
+                      <div
+                        v-if="['Calendly', 'YCBM'].includes(message.createdBy) && message.endsAt"
+                        :id="`expanded-${message.type}-${message.id}-appt-time-range`"
+                      >
+                        <span :aria-hidden="true">{{ getSameDayDate(message).visual }}</span>
+                        <span class="sr-only">{{ getSameDayDate(message).screenReader }}</span>
+                      </div>
+                    </div>
+                    <div v-if="displayUpdatedAt(message)">
+                      <div :aria-hidden="true" class="pt-2 text-medium-emphasis font-size-14">Updated:</div>
+                      <TimelineDate
+                        :id="`expanded-${message.type}-${message.id}-updated-at`"
+                        :date="message.updatedAt"
+                        :include-time-of-day="message.updatedAt.length > 10"
+                        sr-prefix="Last updated on"
+                      />
+                    </div>
+                    <div v-if="message.setDate">
+                      <div class="pt-2 text-medium-emphasis font-size-14">Set Date:</div>
+                      <TimelineDate
+                        :id="`expanded-${message.type}-${message.id}-set-date`"
+                        :date="message.setDate"
+                        class="mb-2"
+                      />
+                    </div>
+                    <span v-if="!message.updatedAt && !message.createdAt" class="sr-only">No last-updated date</span>
+                    <router-link
+                      v-if="['eForm', 'note'].includes(message.type) && message.id !== editModeNoteId"
+                      :id="`advising-${message.type}-permalink-${message.id}`"
+                      class="d-inline-block my-2"
+                      :to="`#permalink-${message.type}-${message.id}`"
+                      @click.prevent="scrollToPermalink(message)"
+                    >
+                      Permalink <span class="sr-only">{{ getButtonAriaLabel(message) }}</span><v-icon :icon="mdiLinkVariant" />
+                    </router-link>
+                  </div>
                 </div>
               </div>
             </td>
@@ -855,7 +857,7 @@ table {
   height: 32px;
 }
 .column-date {
-  width: 12rem;
+  width: 8rem;
 }
 .column-message {
   min-width: 12.5rem;
@@ -866,6 +868,20 @@ table {
   vertical-align: top;
   white-space: nowrap;
   width: 8.5rem;
+}
+.expanded {
+  .timeline-message-metadata {
+    margin-left: -3rem;
+    width: 12rem;
+  }
+  .timeline-message-full-width {
+    margin: 0 -8.5rem;
+    padding: 0 24px;
+    width: calc(100% + 6rem) !important;
+    &.timeline-requirement {
+      width: calc(100% + 16rem) !important;
+    }
+  }
 }
 .expanded-timeline-container {
   position: absolute;
@@ -885,14 +901,6 @@ table {
 .requirements-icon {
   padding: 0 4px 0 0;
   width: 20px;
-}
-.timeline-message-full-width {
-  margin: 0 -8.5rem;
-  padding: 0 24px;
-  width: calc(100% + 8rem) !important;
-  &.timeline-requirement {
-    width: calc(100% + 16rem) !important;
-  }
 }
 .toggle-expand-all-container {
   width: 7.75rem;
