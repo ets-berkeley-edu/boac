@@ -1,14 +1,18 @@
 <template>
-  <article :id="`note-${note.id}-outer`" class="advising-note-outer w-100">
+  <div :id="`note-${note.id}-outer`" class="advising-note-outer w-100">
     <div
-      :id="`note-${note.id}-is-closed`"
-      aria-level="3"
+      :id="`${note.eForm ? 'eForm' : 'note'}-${note.id}-is-closed`"
+      :aria-controls="isOpen ? undefined : `note-${note.id}-is-open`"
+      :aria-expanded="isOpen ? undefined : false"
       class="d-flex w-100"
       :class="{
         'font-size-18': !note.peerAdvisingDepartmentId,
-        'note-snippet-when-closed': !isOpen
+        'cursor-pointer note-snippet-when-closed': !isOpen
       }"
-      role="heading"
+      :role="isOpen ? undefined : 'button'"
+      :tabindex="isOpen ? undefined : 0"
+      @click="onClickOpen"
+      @keyup.enter="onClickOpen"
     >
       <div v-if="note.isDraft" :id="`note-${note.id}-is-draft`" class="d-flex align-center">
         <v-badge
@@ -55,7 +59,7 @@
     </div>
     <section
       :id="`note-${note.id}-is-open`"
-      class="note-body pb-4"
+      class="note-body"
       :class="{'sr-only': !isOpen}"
     >
       <div v-if="(note.subject || note.isDraft) && note.message" class="open-note-message-container py-3">
@@ -64,69 +68,16 @@
       <div v-if="!note.subject && !note.message && note.eForm" class="py-3">
         <AdvisingEForm :note="note" />
       </div>
-      <div v-if="isAuthorDetailsLoaded && !isNil(author) && !author.name && !author.email && !note.eForm" class="font-size-14 py-3 text-medium-emphasis">
-        Advisor profile not found
-        <span v-if="note.legacySource" class="font-italic">
-          (note imported from {{ note.legacySource }})
-        </span>
+      <div v-if="!note.eForm && note.legacySource" class="font-italic text-medium-emphasis">
+        (note imported from {{ note.legacySource }})
       </div>
-      <div v-if="isAuthorDetailsLoaded && author && !note.eForm" class="py-3">
-        <div v-if="author.name || author.email">
-          <span class="sr-only">Note created by </span>
-          <span v-if="author.uid && author.name">
-            <router-link
-              v-if="currentUser.isAdmin && note.peerAdvisingDepartmentId"
-              :id="`note-${note.id}-link-to-peer-advisor-home`"
-              :to="`/peer_advisor/${author.uid}/home`"
-            >
-              {{ author.name }}
-            </router-link>
-            <a
-              v-if="!currentUser.isAdmin || !note.peerAdvisingDepartmentId"
-              :id="`note-${note.id}-author-name`"
-              :aria-label="`${author.name} UC Berkeley Directory page (opens in new tab)`"
-              :href="`https://www.berkeley.edu/directory/results?search-term=${author.name}`"
-              target="_blank"
-            >
-              {{ author.name }}
-            </a>
-          </span>
-          <span v-if="!author.uid && author.name" :id="`note-${note.id}-author-name`">
-            {{ author.name }}
-          </span>
-          <span v-if="!author.uid && !author.name && author.email" :id="`note-${note.id}-author-email`">
-            {{ author.email }}
-          </span>
-          <span v-if="author.role || author.title">
-            - <span :id="`note-${note.id}-author-role`">{{ capitalizeAllWords(replace(author.role || author.title, '_', ' ')) }}</span>
-          </span>
-          <span v-if="note.legacySource" class="font-italic text-medium-emphasis">
-            (note imported from {{ note.legacySource }})
-          </span>
-        </div>
-        <div v-if="note.peerAdvisingDepartmentId">
-          <span :id="`note-${note.id}-peer-advising-department`">{{ peerAdvisingDepartment.name }}</span>
-          <div
-            v-if="peerAdvisingDepartment.deptName !== peerAdvisingDepartment.name"
-            :id="`note-${note.id}-university-department-of-peer-advisor`"
-            class="text-medium-emphasis"
-          >
-            {{ peerAdvisingDepartment.deptName }}
-          </div>
-        </div>
-        <div v-if="!note.peerAdvisingDepartmentId" class="text-medium-emphasis">
-          <div v-for="(deptName, index) in authorDepartments" :key="index">
-            <span :id="`note-${note.id}-author-dept-${index}`">{{ deptName }}</span>
-          </div>
-        </div>
-      </div>
-      <div v-if="note.topics && size(note.topics)" class="mt-5">
-        <AdvisingNoteTopics
-          label-class="text-medium-emphasis"
-          :note="note"
-          read-only
-        />
-      </div>
+      <AdvisingNoteTopics
+        v-if="note.topics && size(note.topics)"
+        class="mt-5"
+        label-class="text-medium-emphasis"
+        :note="note"
+        read-only
+      />
       <div v-if="note.contactType" class="mt-5">
         <div class="font-size-16 font-weight-bold text-medium-emphasis">Contact Type</div>
         <div :id="`note-${note.id}-contact-type`">{{ note.contactType }}</div>
@@ -146,12 +97,6 @@
         />
       </div>
     </section>
-    <AdvisingNoteComments
-      v-if="!note.legacySource || note.eForm"
-      class="border-t-sm py-4"
-      :class="{'sr-only': !isOpen}"
-      :note="note"
-    />
     <AreYouSureModal
       v-model="showConfirmDeleteAttachment"
       button-label-confirm="Delete"
@@ -161,23 +106,20 @@
     >
       Are you sure you want to delete the <strong>'{{ attachmentToDelete.displayName }}'</strong> attachment?
     </AreYouSureModal>
-  </article>
+  </div>
 </template>
 
 <script setup>
-import {computed, onMounted, ref, watch} from 'vue'
-import {get, isNil, map, orderBy, replace, size} from 'lodash'
+import {computed, ref} from 'vue'
+import {size} from 'lodash'
 import {mdiCommentOutline, mdiPaperclip} from '@mdi/js'
 import AdvisingEForm from '@/components/note/eform/AdvisingEForm'
 import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments'
-import AdvisingNoteComments from '@/components/note/comment/AdvisingNoteComments'
 import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import {addAttachments, removeAttachment} from '@/api/notes'
-import {alertScreenReader, capitalizeAllWords, oxfordJoin, pluralize} from '@/lib/utils'
+import {alertScreenReader, pluralize} from '@/lib/utils'
 import {canUserEditNote, summarizeNoteForAcademicTimeline} from '@/lib/note.js'
-import {findPeerAdvisingDepartment, getBoaUserRoles} from '@/lib/berkeley-department'
-import {getCalnetProfileByCsid, getCalnetProfileByUid} from '@/api/user'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 
@@ -197,6 +139,10 @@ const props = defineProps({
   note: {
     required: true,
     type: Object
+  },
+  onClickOpen: {
+    required: true,
+    type: Function
   }
 })
 
@@ -205,27 +151,15 @@ const noteStore = useNoteStore()
 
 const addAttachmentInputElementId = `note-${props.note.id}-choose-file-for-note-attachment`
 const attachmentToDelete = ref()
-const author = ref(get(props.note, 'author'))
-const authorDepartments = computed(() => orderBy(map(author.value.departments, 'deptName')))
 const currentUser = contextStore.currentUser
-const isAuthorDetailsLoaded = ref(false)
 const isUpdatingAttachments = ref(false)
 const noteSummary = computed(() => {
   const note = props.note
   const showNoteMessage = props.isOpen && !note.subject && !note.peerAdvisingDepartmentId && size(note.message)
   return showNoteMessage ? note.message : summarizeNoteForAcademicTimeline(note, !props.isOpen)
 })
-const peerAdvisingDepartment = computed(() => props.note.peerAdvisingDepartmentId ? findPeerAdvisingDepartment(props.note.peerAdvisingDepartmentId) : undefined)
 const showConfirmDeleteAttachment = ref(false)
 const showNoteAttachmentsWidget = computed(() => (!props.note.legacySource && canUserEditNote(props.note, currentUser)) || size(props.note.attachments))
-
-watch(() => props.isOpen, () => {
-  loadAuthorDetails()
-})
-
-onMounted(() => {
-  loadAuthorDetails()
-})
 
 const addNoteAttachments = attachments => {
   return new Promise(resolve => {
@@ -253,45 +187,6 @@ const confirmedRemoveAttachment = () => {
       alertScreenReader(`Removed attachment "${attachment.displayName}"`)
       props.afterSaved(updatedNote, addAttachmentInputElementId)
     })
-  }
-}
-
-const loadAuthorDetails = () => {
-  const requiresLazyLoad = (
-    props.isOpen &&
-    (
-      !get(props.note, 'author.name') ||
-      !get(props.note, 'author.role') ||
-      get(author.value, 'uid') !== get(props.note, 'author.uid') ||
-      get(author.value, 'sid') !== get(props.note, 'author.sid')
-    )
-  )
-  if (requiresLazyLoad) {
-    const hasIdentifier = get(props.note, 'author.uid') || get(props.note, 'author.sid')
-    if (hasIdentifier) {
-      const author_uid = props.note.author.uid
-      const callback = data => {
-        author.value = data
-        author.value.role = author.value.role || author.value.title
-        if (!author.value.role && author.value.departments.length) {
-          author.value.role = oxfordJoin(getBoaUserRoles(author.value.departments[0]))
-        }
-      }
-      if (author_uid) {
-        if (author_uid === currentUser.uid) {
-          callback(currentUser)
-          isAuthorDetailsLoaded.value = true
-        } else {
-          getCalnetProfileByUid(author_uid).then(callback).finally(() => isAuthorDetailsLoaded.value = true)
-        }
-      } else if (props.note.author.sid) {
-        getCalnetProfileByCsid(props.note.author.sid).then(callback).finally(() => isAuthorDetailsLoaded.value = true)
-      }
-    } else {
-      isAuthorDetailsLoaded.value = true
-    }
-  } else {
-    isAuthorDetailsLoaded.value = true
   }
 }
 

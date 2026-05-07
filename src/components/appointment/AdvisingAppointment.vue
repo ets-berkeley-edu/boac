@@ -1,9 +1,15 @@
 <template>
-  <article class="w-100">
+  <div class="w-100">
     <div
       v-if="!isOpen"
       :id="`appointment-${appointment.id}-is-closed`"
-      class="appointment-snippet-when-closed d-flex"
+      :aria-controls="`appointment-${appointment.id}-is-open`"
+      :aria-expanded="false"
+      class="appointment-snippet-when-closed cursor-pointer d-flex"
+      role="button"
+      :tabindex="0"
+      @click="onClickOpen"
+      @keyup.enter="onClickOpen"
     >
       <div
         :id="`appointment-${appointment.id}-details-closed`"
@@ -61,34 +67,6 @@
           />
         </div>
         <div
-          v-if="get(advisor, 'name') && (appointment.legacySource || ['Calendly', 'YCBM'].includes(appointment.createdBy))"
-          class="pt-2"
-        >
-          <a
-            v-if="advisor.uid"
-            :id="`appointment-${appointment.id}-advisor-name`"
-            :aria-label="`${advisor.name} UC Berkeley Directory page (opens in new tab)`"
-            :href="`https://www.berkeley.edu/directory/results?search-term=${advisor.name}`"
-            target="_blank"
-          >
-            {{ advisor.name }}
-          </a>
-          <span v-if="!advisor.uid" :id="`appointment-${appointment.id}-advisor-name`">
-            {{ advisor.name }}
-          </span>
-          <span v-if="advisor.title" :id="`appointment-${appointment.id}-advisor-role`">
-            - {{ advisor.title }}
-          </span>
-          <span v-if="appointment.legacySource" class="font-italic text-medium-emphasis">
-            (appointment imported from {{ appointment.legacySource }})
-          </span>
-        </div>
-        <div v-if="size(get(advisor, 'departments'))" class="text-medium-emphasis">
-          <span v-for="(dept, index) in advisor.departments" :key="dept.deptCode">
-            <span :id="`appointment-${appointment.id}-advisor-dept-${index}`">{{ dept.deptName }}</span>
-          </span>
-        </div>
-        <div
           v-if="appointment.appointmentType"
           :id="`appointment-${appointment.id}-type`"
           class="pt-2"
@@ -138,13 +116,7 @@
         </div>
       </div>
     </section>
-    <AdvisingNoteComments
-      v-if="['Calendly', 'YCBM'].includes(appointment.createdBy)"
-      class="border-t-sm py-4"
-      :class="{'sr-only': !isOpen}"
-      :note="appointment"
-    />
-  </article>
+  </div>
 </template>
 
 <script setup>
@@ -152,7 +124,6 @@ import {computed, onMounted, ref, watch} from 'vue'
 import {get, size} from 'lodash'
 import {mdiCommentOutline, mdiPaperclip} from '@mdi/js'
 import AppointmentCanceledIndicator from '@/components/appointment/AppointmentCanceledIndicator'
-import AdvisingNoteComments from '@/components/note/comment/AdvisingNoteComments'
 import {getCalnetProfileByCsid, getCalnetProfileByUid} from '@/api/user'
 import PillItem from '@/components/util/PillItem'
 import {pluralize} from '@/lib/utils'
@@ -167,6 +138,10 @@ const props = defineProps({
   isOpen: {
     required: true,
     type: Boolean
+  },
+  onClickOpen: {
+    required: true,
+    type: Function
   },
   student: {
     required: true,

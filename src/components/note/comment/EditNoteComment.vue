@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="edit-note-comment">
     <RichTextEditor
       :id="`${idPrefix}-text`"
       :auto-focus="true"
@@ -143,3 +143,9 @@ const removeAttachmentByIndex = index => {
   alertScreenReader(`Removed attachment '${attachment.displayName}'`)
 }
 </script>
+
+<style scoped>
+.edit-note-comment {
+  width: calc(100% - 12rem);
+}
+</style>
