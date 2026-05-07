@@ -1,10 +1,10 @@
 <template>
   <section class="note-comments px-6">
-    <div class="font-size-16 font-weight-bold text-medium-emphasis mb-4" :class="{'sr-only': !size(note.comments)}">Comments</div>
+    <div class="font-size-16 font-weight-bold text-medium-emphasis my-2" :class="{'sr-only': !size(note.comments)}">Comments</div>
     <article
       v-for="comment in note.comments"
       :key="comment.id"
-      class="border-b-sm d-flex justify-space-between my-2"
+      class="border-t-sm d-flex justify-space-between py-2 pl-2"
     >
       <div v-if="!editingComment || editingComment.id !== comment.id" class="flex-grow-1 pr-3">
         <div class="d-flex align-center text-body-1 mb-2">
@@ -31,6 +31,7 @@
       <EditNoteComment
         v-if="editingComment && editingComment.id === comment.id"
         :cancel="onCancelEdit"
+        class="pb-3"
         :comment="editingComment"
         :id-prefix="`note-${note.id}-comment-${editingComment.id}`"
         :save="updateComment"
@@ -68,16 +69,18 @@
         </div>
       </footer>
     </article>
-    <v-btn
-      v-if="!isCreatingComment && !editingComment"
-      :id="`note-${note.id}-add-comment-btn`"
-      class="bg-white my-2"
-      color="primary"
-      :prepend-icon="mdiPlus"
-      text="Add Comment"
-      variant="outlined"
-      @click="onClickAdd"
-    />
+    <div class="border-t-sm pt-2">
+      <v-btn
+        v-if="!isCreatingComment && !editingComment"
+        :id="`note-${note.id}-add-comment-btn`"
+        class="bg-white my-2"
+        color="primary"
+        :prepend-icon="mdiPlus"
+        text="Add Comment"
+        variant="outlined"
+        @click="onClickAdd"
+      />
+    </div>
     <EditNoteComment
       v-if="isCreatingComment"
       :cancel="onCancelAdd"

@@ -20,7 +20,7 @@
         v-if="!isOpen && ['Calendly', 'YCBM'].includes(appointment.createdBy) && (appointment.status === 'cancelled' || appointment.isRescheduled || appointment.isStudentNoShow)"
         :id="`collapsed-${appointment.type}-${appointment.id}-status-cancelled`"
         :appointment="appointment"
-        class="collapsed-cancelled-icon"
+        class="collapsed-cancelled-icon justify-end"
       />
       <div v-if="size(appointment.attachments)" class="px-2">
         <v-icon :aria-hidden="true" color="info" :icon="mdiPaperclip" />
@@ -72,7 +72,7 @@
           class="pt-2"
           :class="{'text-medium-emphasis': ['Calendly', 'YCBM'].includes(appointment.appointmentType)}"
         >
-          {{ appointment.appointmentType }}
+          <span class="sr-only">Source: </span>{{ appointment.appointmentType }}
         </div>
         <div v-if="appointment.topics && size(appointment.topics)" class="pt-3">
           <div :id="`appointment-${appointment.id}-topics-label`" class="font-size-16 font-weight-bold text-medium-emphasis pb-1">
@@ -196,7 +196,7 @@ const setAdvisor = () => {
   flex-basis: 100%;
 }
 .appointment-snippet-when-closed {
-  height: 24px;
+  align-items: center;
 }
 .collapsed-cancelled-icon {
   margin-top: -2px;

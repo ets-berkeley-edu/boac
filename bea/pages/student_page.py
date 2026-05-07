@@ -264,9 +264,9 @@ class StudentPage(CuratedAddSelector, StudentPageAdvisingNote, StudentPageAppoin
 
     ALERTS_BUTTON = By.ID, 'timeline-tab-alert'
     SHOW_HIDE_ALERTS_BUTTON = By.ID, 'timeline-tab-alert-previous-messages'
-    ALERT = By.XPATH, '//tr[contains(@id, "permalink-alert-")]'
+    ALERT = By.XPATH, '//article[contains(@id, "timeline-alert-")]'
     ALERT_TEXT = By.XPATH, '//div[contains(@id,"timeline-tab-alert-message")]'
-    ALERT_DATE = By.XPATH, '//tr[contains(@id, "permalink-alert-")]//div[contains(@id, "collapsed-alert-")][contains(@id, "-created-at")]'
+    ALERT_DATE = By.XPATH, '//article[contains(@id, "timeline-alert-")]//div[contains(@id, "collapsed-alert-")][contains(@id, "-created-at")]'
 
     def visible_alerts(self):
         if self.is_present(self.ALERTS_BUTTON) and self.element(self.ALERTS_BUTTON).is_enabled():

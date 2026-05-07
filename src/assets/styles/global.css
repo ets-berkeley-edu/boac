@@ -268,8 +268,11 @@
 .letter-spacing-normal {
   letter-spacing: normal;
 }
+.line-height-1 {
+  line-height: 1 !important;
+}
 .line-height-normal {
-  line-height: normal;
+  line-height: normal !important;
 }
 .list-bullets {
   list-style-position: inside;

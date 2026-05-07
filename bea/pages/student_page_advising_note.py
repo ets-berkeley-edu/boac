@@ -177,7 +177,7 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
             return None
 
     def expanded_note_source(self, note):
-        note_src_loc = By.XPATH, f"//tr[@id='permalink-note-{note.record_id}']//span[contains(text(), 'note imported from')]"
+        note_src_loc = By.XPATH, f"//article[@id='timeline-note-{note.record_id}']//span[contains(text(), 'note imported from')]"
         return self.el_text_if_exists(note_src_loc)
 
     def expanded_note_permalink_url(self, note):

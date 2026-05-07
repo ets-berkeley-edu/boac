@@ -25,10 +25,10 @@
           role="none"
         >
           <template #badge>
-            <span class="font-weight-black pa-1 text-body-2">Draft</span>
+            <span class="font-weight-black pa-1 text-body-2 line-height-1">Draft</span>
           </template>
         </v-badge>
-        <span :id="`note-${note.id}-subject`">{{ note.subject || contextStore.config.draftNoteSubjectPlaceholder }}</span>
+        <span :id="`note-${note.id}-subject`" class="text-no-wrap">{{ note.subject || contextStore.config.draftNoteSubjectPlaceholder }}</span>
       </div>
       <div
         v-if="!note.isDraft"
@@ -215,15 +215,11 @@ const removeAttachmentByIndex = index => {
   min-width: 3.25rem;
   width: 3.25rem;
 }
-.note-body {
-  min-height: 7.75rem
-}
 .open-note-message-container {
   overflow-wrap: break-word;
 }
 .note-snippet-when-closed {
   font-size: 1rem !important;
-  font-weight: 400;
   height: 24px;
 }
 </style>

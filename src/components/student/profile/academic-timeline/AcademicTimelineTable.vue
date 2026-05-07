@@ -119,10 +119,14 @@
     <div v-if="countPerActiveTab" id="timeline-messages" class="w-100">
       <article
         v-for="(message, index) in messagesVisible"
-        :id="`permalink-${message.type}-${message.id}`"
+        :id="`timeline-${message.type}-${message.id}`"
         :key="index"
         class="message-row border-t-sm border-b-sm"
-        :class="{'message-row-read': message.read}"
+        :class="{
+          'expanded': isExpanded(message),
+          'message-row-read': message.read
+        }"
+        tabindex="-1"
       >
         <div class="d-flex">
           <div class="column-pill">
@@ -131,10 +135,7 @@
               :message="message"
             />
           </div>
-          <div
-            :class="{'font-weight-bold': !message.read}"
-            class="column-message"
-          >
+          <div class="column-message" :class="{'font-weight-bold': !message.read}">
             <div class="d-flex flex-column">
               <v-btn
                 v-if="isExpanded(message) && (!editModeNoteId || message.id !== editModeNoteId)"
@@ -304,7 +305,7 @@
             </div>
             <div
               :id="`timeline-tab-${activeTab}-date-${index}`"
-              class="position-relative text-no-wrap py-2 pl-2"
+              class="text-no-wrap py-2 pl-2"
             >
               <TimelineDate
                 v-if="!isExpanded(message) || !includes(['appointment', 'eForm', 'note'], message.type)"
@@ -316,11 +317,7 @@
               />
               <div
                 v-if="['appointment', 'eForm', 'note'].includes(message.type)"
-                :class="{
-                  'expanded-timeline-container': isExpanded(message),
-                  'sr-only': !isExpanded(message),
-                  'position-relative': displayUpdatedAt(message)
-                }"
+                :class="{'sr-only': !isExpanded(message)}"
               >
                 <div v-if="message.createdAt" :class="{'pb-2': !displayUpdatedAt(message)}">
                   <div :aria-hidden="true" class="text-medium-emphasis font-size-14">{{ message.type === 'appointment' ? 'Appt Date' : 'Created' }}:</div>
@@ -360,8 +357,8 @@
                 <router-link
                   v-if="['eForm', 'note'].includes(message.type) && message.id !== editModeNoteId"
                   :id="`advising-${message.type}-permalink-${message.id}`"
-                  class="d-inline-block my-2"
-                  :to="`#permalink-${message.type}-${message.id}`"
+                  class="d-inline-block mt-2"
+                  :to="`#timeline-${message.type}-${message.id}`"
                   @click.prevent="scrollToPermalink(message)"
                 >
                   Permalink <span class="sr-only">{{ getButtonAriaLabel(message) }}</span><v-icon :icon="mdiLinkVariant" />
@@ -370,7 +367,6 @@
             </div>
           </footer>
         </div>
-        <hr v-if="isExpanded(message) && commentsEnabled(message)" class="mx-6">
         <AdvisingNoteComments
           v-if="commentsEnabled(message)"
           class="pb-3"
@@ -620,7 +616,7 @@ const deleteConfirmed = () => {
   deleteNote(note.id).then(() => {
     if (size(messagesVisible.value)) {
       const nextFocusMessage = indexOfNote < size(messagesVisible.value) ? messagesVisible.value[indexOfNote] : messagesVisible.value[indexOfNote - 1]
-      putFocusNextTick(isExpanded(nextFocusMessage) ? `${activeTab.value}-close-message-${nextFocusMessage.id}` : `permalink-${nextFocusMessage.type}-${nextFocusMessage.id}`)
+      putFocusNextTick(isExpanded(nextFocusMessage) ? `${activeTab.value}-close-message-${nextFocusMessage.id}` : `timeline-${nextFocusMessage.type}-${nextFocusMessage.id}`)
     } else {
       putFocusNextTick('new-note-button')
     }
@@ -650,7 +646,7 @@ const editNote = note => {
 const formatDate = (isoDate, format) => DateTime.fromISO(isoDate).setZone(config.timezone).toFormat(format)
 
 const getButtonAriaLabel = message => {
-  const messageType = `${message.isDraft ? 'draft ' : ''}${isCancelledAppointment(message) ? 'cancelled ' : ''}${'eForm' === message.type ? '' : props.filterTypes[message.type].name}`
+  const messageType = `${message.isDraft ? 'draft ' : ''}${isCancelledAppointment(message) ? 'cancelled ' : ''}${'eForm' === message.type ? '' : message.type}`
   return `${messageType} ${truncate(getMessageSummary(message, true), {length: 100, separator: '.'})}`
 }
 
@@ -824,7 +820,7 @@ const refreshSearchIndex = () => {
 const scrollToPermalink = message => {
   isShowingAll.value = true
   open(message)
-  putFocusNextTick(`permalink-${message.type}-${message.id}`, {scrollBlock: 'start'})
+  putFocusNextTick(`timeline-${message.type}-${message.id}`, {scrollBlock: 'start'})
 }
 
 const toggleExpandAll = () => {
@@ -865,14 +861,21 @@ const userCanDelete = message => {
 
 <style>
 .academic-timeline-column-date {
-  min-width: 12rem;
+  min-width: 8rem;
   padding-right: 12px;
-  width: 12rem;
+  width: 8rem;
 }
 .academic-timeline-search-input input {
   max-height: 30px !important;
   min-height: 30px !important;
   padding: 0 10px;
+}
+.message-row ul {
+  padding-left: 25px;
+}
+.message-row.expanded .academic-timeline-column-date {
+  min-width: 12rem;
+  width: 12rem;
 }
 </style>
 
@@ -894,14 +897,14 @@ const userCanDelete = message => {
   white-space: nowrap;
   width: 8.75rem;
 }
-.expanded-timeline-container {
-  position: absolute;
-}
 .message-open {
   flex-flow: row wrap;
   display: flex;
   min-height: 3.5rem;
   scroll-margin-top: 110px !important;
+}
+.message-row.expanded .column-message {
+  align-content: start;
 }
 .message-row:active, .message-row:focus, .message-row:focus-within, .message-row:hover {
   background-color: rgb(var(--v-theme-sky-blue));
