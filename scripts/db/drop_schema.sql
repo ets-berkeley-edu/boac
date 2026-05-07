@@ -84,6 +84,9 @@ ALTER TABLE IF EXISTS ONLY public.notes DROP CONSTRAINT IF EXISTS notes_peer_adv
 ALTER TABLE IF EXISTS ONLY public.notes DROP CONSTRAINT IF EXISTS notes_note_template_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.note_templates DROP CONSTRAINT IF EXISTS note_templates_peer_advising_department_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.notes DROP CONSTRAINT IF EXISTS notes_parent_note_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.comment_attachments DROP CONSTRAINT IF EXISTS comment_attachments_comment_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.comments DROP CONSTRAINT IF EXISTS comments_comment_parent_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.comment_attachments DROP CONSTRAINT IF EXISTS comment_attachments_comment_id_path_to_attachment_unique_constraint;
 
 --
 
@@ -104,6 +107,11 @@ DROP INDEX IF EXISTS public.idx_advisor_author_index;
 DROP INDEX IF EXISTS public.idx_advisor_author_name_uid_idx;
 DROP INDEX IF EXISTS public.idx_notes_fts_index;
 DROP INDEX IF EXISTS public.idx_notes_fts_index_id_idx;
+DROP INDEX IF EXISTS public.comment_attachments_comment_id_idx;
+DROP INDEX IF EXISTS public.comment_parents_parent_id_parent_type_idx;
+DROP INDEX IF EXISTS public.comments_author_uid_idx;
+DROP INDEX IF EXISTS public.comments_comment_parent_id_idx;
+DROP INDEX IF EXISTS public.comments_deleted_at_idx;
 DROP INDEX IF EXISTS public.note_attachments_note_id_idx;
 DROP INDEX IF EXISTS public.note_template_attachments_note_template_id_idx;
 DROP INDEX IF EXISTS public.note_template_topics_note_template_id_idx;
@@ -148,6 +156,9 @@ ALTER TABLE IF EXISTS ONLY public.note_template_topics DROP CONSTRAINT IF EXISTS
 ALTER TABLE IF EXISTS ONLY public.note_templates DROP CONSTRAINT IF EXISTS note_templates_pkey;
 ALTER TABLE IF EXISTS ONLY public.note_topics DROP CONSTRAINT IF EXISTS note_topics_pkey;
 ALTER TABLE IF EXISTS ONLY public.notes DROP CONSTRAINT IF EXISTS notes_pkey;
+ALTER TABLE IF EXISTS ONLY public.comment_attachments DROP CONSTRAINT IF EXISTS comment_attachments_pkey;
+ALTER TABLE IF EXISTS ONLY public.comments DROP CONSTRAINT IF EXISTS comments_pkey;
+ALTER TABLE IF EXISTS ONLY public.comment_parents DROP CONSTRAINT IF EXISTS comment_parents_pkey;
 ALTER TABLE IF EXISTS ONLY public.notes_read DROP CONSTRAINT IF EXISTS notes_read_pkey;
 ALTER TABLE IF EXISTS ONLY public.student_group_members DROP CONSTRAINT IF EXISTS student_group_members_pkey;
 ALTER TABLE IF EXISTS ONLY public.student_groups DROP CONSTRAINT IF EXISTS student_groups_pkey;
@@ -170,6 +181,12 @@ ALTER TABLE IF EXISTS public.json_cache ALTER COLUMN id DROP DEFAULT;
 
 DROP MATERIALIZED VIEW IF EXISTS public.advisor_author_index;
 DROP MATERIALIZED VIEW IF EXISTS public.notes_fts_index;
+DROP TABLE IF EXISTS public.comment_attachments;
+DROP SEQUENCE IF EXISTS public.comment_attachments_id_seq;
+DROP TABLE IF EXISTS public.comments;
+DROP SEQUENCE IF EXISTS public.comments_id_seq;
+DROP TABLE IF EXISTS public.comment_parents;
+DROP SEQUENCE IF EXISTS public.comment_parents_id_seq;
 DROP TABLE IF EXISTS public.notes;
 DROP TABLE IF EXISTS public.note_attachments;
 DROP SEQUENCE IF EXISTS public.note_attachments_id_seq;
@@ -229,5 +246,6 @@ DROP TYPE IF EXISTS public.cohort_filter_event_types;
 DROP TYPE IF EXISTS public.cohort_domain_types;
 DROP TYPE IF EXISTS public.degree_progress_category_types;
 DROP TYPE IF EXISTS public.generic_permission_types;
+DROP TYPE IF EXISTS public.comment_parent_types;
 DROP TYPE IF EXISTS public.note_contact_types;
 DROP TYPE IF EXISTS public.university_dept_member_role_types;
