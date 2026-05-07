@@ -37,7 +37,7 @@ class StudentPageEForm(StudentPageTimeline, CreateNoteModal):
 
     E_FORMS_BUTTON = (By.ID, 'timeline-tab-eForm')
     SHOW_HIDE_E_FORMS_BUTTON = (By.ID, 'toggle-expand-all-eForms')
-    E_FORM_MSG_ROW = By.XPATH, '//tr[contains(@id, "permalink-eForm-")]'
+    E_FORM_MSG_ROW = By.XPATH, '//article[contains(@id, "timeline-eForm-")]'
 
     def show_e_forms(self):
         app.logger.info('Checking eForms tab')
@@ -48,7 +48,7 @@ class StudentPageEForm(StudentPageTimeline, CreateNoteModal):
 
     @staticmethod
     def e_form_data_loc(e_form, label):
-        return By.XPATH, f"//tr[@id='permalink-eForm-{e_form.record_id}']//dt[text()='{label}']/following-sibling::dd"
+        return By.XPATH, f"//article[@id='timeline-eForm-{e_form.record_id}']//dt[text()='{label}']/following-sibling::dd"
 
     def collapsed_e_form_date(self, e_form):
         date_loc = By.ID, f'collapsed-eForm-{e_form.record_id}-created-at'

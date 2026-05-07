@@ -77,7 +77,7 @@ const props = defineProps({
   parentNoteId: {
     default: undefined,
     required: false,
-    type: String
+    type: [Number, String]
   },
   save: {
     required: true,

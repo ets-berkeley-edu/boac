@@ -76,10 +76,10 @@ class StudentPageTimeline(BoaPages):
 
     def collapsed_item_loc(self, item):
         item_type = self.item_type(item)
-        return By.ID, f'permalink-{item_type}-{item.record_id}'
+        return By.ID, f'timeline-{item_type}-{item.record_id}'
 
     def visible_message_ids(self):
-        els = self.elements((By.XPATH, '//tr[contains(@class, "message-row")]'))
+        els = self.elements((By.XPATH, '//article[contains(@class, "message-row")]'))
         ids = []
         for el in els:
             parts = el.get_dom_attribute('id').split('-')
@@ -87,7 +87,7 @@ class StudentPageTimeline(BoaPages):
         return ids
 
     def close_msg_button(self, item):
-        return By.XPATH, f'//tr[@id="permalink-{self.item_type(item)}-{item.record_id}"]//button[contains(@id, "-close-message")]'
+        return By.XPATH, f'//article[@id="timeline-{self.item_type(item)}-{item.record_id}"]//button[contains(@id, "-close-message")]'
 
     def visible_collapsed_item_data(self, item):
         item_type = self.item_type(item)
@@ -115,7 +115,7 @@ class StudentPageTimeline(BoaPages):
         else:
             app.logger.info(f'Expanding {item_type} ID {item.record_id}')
             self.scroll_to_top()
-            xpath = f'//tr[@id="permalink-{item_type}-{item.record_id}"]'
+            xpath = f'//article[@id="timeline-{item_type}-{item.record_id}"]'
             self.wait_for_element_and_click((By.XPATH, xpath))
         time.sleep(2)
 
