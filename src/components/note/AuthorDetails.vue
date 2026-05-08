@@ -19,7 +19,7 @@
         v-bind="tooltipProps"
         :aria-describedby="undefined"
         :aria-details="`${idPrefix}-author-details`"
-        class="text-no-wrap text-primary pl-2"
+        class="text-no-wrap text-primary"
         :class="activatorClass"
         :to="`/peer_advisor/${author.uid}/home`"
       >
@@ -31,7 +31,7 @@
         v-bind="tooltipProps"
         :aria-describedby="undefined"
         :aria-details="`${idPrefix}-author-details`"
-        class="text-no-wrap text-primary pl-2"
+        class="text-no-wrap text-primary"
         :class="activatorClass"
         role="button"
         tabindex="0"

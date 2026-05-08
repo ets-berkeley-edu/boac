@@ -1,221 +1,176 @@
 <template>
-  <div class="peer-advising-table-wrapper">
+  <div class="peer-advising-notes">
     <slot v-if="!size(notes) && !isFetchingNotes" name="noData" />
-    <table
+    <div
       v-if="size(notes)"
       id="notes-for-peer-advisor-view"
       class="d-block mt-5 w-100"
     >
-      <caption class="sr-only">Peer Advising notes, sorted by date created descending.</caption>
-      <thead class="sr-only">
-        <tr>
-          <th class="border-b-md th-student" role="columnheader" scope="col">Student</th>
-          <th class="border-b-md th-note" role="columnheader" scope="col">Note</th>
-          <th class="border-b-md th-created-date" role="columnheader" scope="col">Date Created</th>
-        </tr>
-      </thead>
-      <tbody class="d-block w-100">
-        <tr
-          v-for="(note, index) in notes"
-          :id="`tr-peer-advisor-note-${note.id}`"
-          :key="index"
-          :class="{
-            'bg-sky-blue expanded border-b-sm': isExpanded(note),
-            'bg-surface-light': (index % 2 === 0),
-            'border-b-md': index === notes.length - 1
-          }"
+      <article
+        v-for="(note, index) in notes"
+        :id="`peer-advisor-note-${note.id}`"
+        :key="index"
+        class="peer-note"
+        :class="{
+          'bg-sky-blue expanded border-b-sm': isExpanded(note),
+          'bg-surface-light': (index % 2 === 0),
+          'border-b-md': index === notes.length - 1,
+          'grid-wrap': xs
+        }"
+      >
+        <div
+          :id="`peer-advisor-note-${note.id}-student`"
+          class="font-weight-bold note-student grid-cell text-no-wrap"
         >
-          <td
-            :id="`td-note-${note.id}-student`"
-            class="font-weight-bold td-student"
-            :class="{'d-contents': !smAndDown}"
+          <PeerAdvisorNoteAuthorName
+            :show-student-last-name-first="showStudentLastNameFirst"
+            :note="note"
+          />
+        </div>
+        <div class="note-summary grid-cell align-content-center">
+          <button
+            v-if="!isExpanded(note)"
+            :id="`open-peer-advising-${note.id}`"
+            :aria-controls="`note-details-${note.id} note-actions-${note.id} note-dates-${note.id}`"
+            :aria-expanded="false"
+            :aria-label="`Message ${getNoteLabel(note, index)}`"
+            class="align-center d-flex justify-start px-3 text-none text-primary v-btn w-100"
+            :class="{'demo-mode-blur': currentUser.inDemoMode}"
+            @click="() => toggleShowHide(note)"
           >
-            <div class="grid-cell">
-              <PeerAdvisorNoteAuthorName
-                :show-student-last-name-first="showStudentLastNameFirst"
-                :note="note"
+            <span class="v-btn__overlay" />
+            <span
+              class="truncate-with-ellipsis"
+              v-html="stripHtmlAndSummarize(note.body || summarizeTopics(note.topics))"
+            />
+            <span v-if="size(note.attachments)" class="ml-auto">
+              <span class="sr-only">Has attachment(s)</span>
+              <v-icon class="has-attachment-icon" :icon="mdiPaperclip" size="1.25rem" />
+            </span>
+          </button>
+          <v-btn
+            v-if="isExpanded(note) && editingNoteId !== note.id"
+            :id="`close-peer-advising-${note.id}`"
+            :aria-controls="`note-details-${note.id} note-actions-${note.id} note-dates-${note.id}`"
+            :aria-expanded="true"
+            :aria-label="`Close message ${getNoteLabel(note, index)}`"
+            class="mx-2 vertical-top w-100"
+            color="primary"
+            density="compact"
+            :prepend-icon="mdiCloseCircle"
+            text="Close Message"
+            variant="text"
+            @click="toggleShowHide(note)"
+          />
+        </div>
+        <v-expand-transition>
+          <div v-show="isExpanded(note)" :id="`peer-advisor-note-details-${note.id}`" class="note-details grid-cell pt-3">
+            <PeerAdvisingNoteDetails
+              v-if="note.id !== editingNoteId"
+              :after-note-edit="afterNoteUpdated"
+              class="px-1 px-sm-5"
+              :note="note"
+              :note-description="`Note ${getNotePosition(index)}`"
+            />
+            <div v-if="note.id === editingNoteId" :class="{'edit-advising-note-container': !smAndDown}">
+              <EditAdvisingNote
+                :after-cancel="afterNoteEditCancel"
+                :after-saved="afterEditAdvisingNote"
+                class="px-2 pl-md-10 pr-md-0 w-100"
+                initial-mode="editNote"
+                :note-id="note.id"
               />
             </div>
-          </td>
-          <td
-            :id="`td-note-${note.id}-body`"
-            class="td-note"
-            :class="{'d-contents': !smAndDown}"
+          </div>
+        </v-expand-transition>
+        <div v-if="!isExpanded(note)" class="created-date grid-cell text-no-wrap">
+          <TimelineDate
+            :id="`collapsed-note-${note.id}-updated-at`"
+            aria-hidden="true"
+            :date="note.updatedAt || note.createdAt"
+            :include-time-of-day="false"
+            sr-prefix="Last updated on"
+          />
+        </div>
+        <div
+          v-if="isExpanded(note)"
+          :id="`td-note-${note.id}-created-at`"
+          :class="{
+            'demo-mode-blur': currentUser.inDemoMode
+          }"
+          class="created-date grid-cell"
+        >
+          <div
+            v-if="editingNoteId !== note.id && canUserEditNote(note, currentUser)"
+            v-show="isExpanded(note)"
+            :id="`note-actions-${note.id}`"
+            class="d-flex flex-column"
           >
-            <div v-if="!isExpanded(note)" class="grid-cell">
-              <button
-                :id="`open-peer-advising-${note.id}`"
-                :aria-controls="`note-details-${note.id} note-actions-${note.id} note-dates-${note.id}`"
-                :aria-expanded="false"
-                :aria-label="`Message ${getNoteLabel(note, index)}`"
-                class="align-center d-flex justify-start px-3 text-none text-primary toggle-note-btn v-btn w-100"
-                :class="{'demo-mode-blur': currentUser.inDemoMode}"
-                @click="() => toggleShowHide(note)"
-              >
-                <span class="v-btn__overlay" />
-                <span
-                  class="truncate-with-ellipsis"
-                  v-html="stripHtmlAndSummarize(note.body || summarizeTopics(note.topics))"
-                />
-                <span v-if="size(note.attachments)" class="ml-2">
-                  <span class="sr-only">Has attachment(s)</span>
-                  <v-icon class="has-attachment-icon" :icon="mdiPaperclip" size="small" />
-                </span>
-              </button>
-            </div>
-            <v-expand-transition>
-              <div v-show="isExpanded(note)" :id="`note-details-${note.id}`" :class="{'d-contents': !smAndDown}">
-                <div class="grid-cell">
-                  <div class="d-flex pl-4 pr-md-4">
-                    <v-btn
-                      v-if="isExpanded(note) && editingNoteId !== note.id"
-                      :id="`close-peer-advising-${note.id}`"
-                      :aria-controls="`note-details-${note.id} note-actions-${note.id} note-dates-${note.id}`"
-                      :aria-expanded="true"
-                      :aria-label="`Close message ${getNoteLabel(note, index)}`"
-                      class="toggle-note-btn w-75 w-md-100"
-                      color="primary"
-                      :prepend-icon="mdiCloseCircle"
-                      text="Close Message"
-                      variant="text"
-                      @click="toggleShowHide(note)"
-                    />
-                  </div>
-                </div>
-                <div
-                  :class="{'mb-3': !smAndDown}"
-                  class="grid-cell note-details"
-                >
-                  <PeerAdvisingNoteDetails
-                    v-if="note.id !== editingNoteId"
-                    :after-note-edit="afterNoteUpdated"
-                    class="px-1 px-sm-5"
-                    :note="note"
-                    :note-description="`Note ${getNotePosition(index)}`"
+            <v-btn
+              v-show="isExpanded(note)"
+              :id="`edit-note-${note.id}-button`"
+              :aria-label="`Edit note ${getNoteLabel(note, index)}`"
+              class="note-action-button font-size-16 mb-3"
+              color="primary"
+              density="compact"
+              :disabled="!!editingNoteId"
+              slim
+              text="Edit Note"
+              variant="text"
+              @click="() => editNote(note.id)"
+            />
+            <v-btn
+              v-if="isPeerAdvisorManager(currentUser)"
+              v-show="isExpanded(note)"
+              :id="`delete-note-button-${note.id}`"
+              :aria-label="`Delete note ${getNoteLabel(note, index)}`"
+              class="note-action-button font-size-16 mb-3"
+              color="primary"
+              density="compact"
+              slim
+              text="Delete Note"
+              variant="text"
+              @click="() => onClickDeleteNote(note)"
+            />
+          </div>
+          <v-expand-transition>
+            <div v-show="isExpanded(note)" :id="`note-dates-${note.id}`">
+              <div class="text-no-wrap">
+                <div>
+                  <div :aria-hidden="true" class="font-size-14 text-medium-emphasis">Created:</div>
+                  <TimelineDate
+                    :id="`expanded-note-${note.id}-created-at`"
+                    :date="note.createdAt"
+                    sr-prefix="Created on"
+                    :include-time-of-day="note.createdAt.length > 10"
                   />
-                  <div v-if="note.id === editingNoteId" :class="{'edit-advising-note-container': !smAndDown}">
-                    <EditAdvisingNote
-                      :after-cancel="afterNoteEditCancel"
-                      :after-saved="afterEditAdvisingNote"
-                      class="px-2 pl-md-10 pr-md-0 w-100"
-                      initial-mode="editNote"
-                      :note-id="note.id"
-                    />
-                  </div>
+                </div>
+                <div v-if="note.updatedAt" class="mt-2">
+                  <div :aria-hidden="true" class="font-size-14 text-medium-emphasis">Updated:</div>
+                  <TimelineDate
+                    :id="`expanded-note-${note.id}-updated-at`"
+                    :date="note.updatedAt"
+                    :include-time-of-day="note.updatedAt.length > 10"
+                    sr-prefix="Last updated on"
+                  />
                 </div>
               </div>
-            </v-expand-transition>
-          </td>
-          <td
-            :id="`td-note-${note.id}-created-at`"
-            :class="{
-              'd-contents': !smAndDown,
-              'demo-mode-blur': currentUser.inDemoMode
-            }"
-            class="td-created-date"
-          >
-            <div class="grid-cell px-4 px-md-2">
-              <div v-if="!isExpanded(note)" class="created-date text-no-wrap">
-                <TimelineDate
-                  :id="`collapsed-note-${note.id}-updated-at`"
-                  aria-hidden="true"
-                  :date="note.updatedAt || note.createdAt"
-                  :include-time-of-day="false"
-                  sr-prefix="Last updated on"
-                />
-              </div>
-              <div
-                v-if="editingNoteId !== note.id && canUserEditNote(note, currentUser)"
-                v-show="isExpanded(note)"
-                :id="`note-actions-${note.id}`"
-                class="note-actions d-flex flex-column pl-md-5"
-              >
-                <v-btn
-                  v-show="isExpanded(note)"
-                  :id="`edit-note-${note.id}-button`"
-                  :aria-label="`Edit note ${getNoteLabel(note, index)}`"
-                  class="edit-note-button font-size-16 mb-2 w-md-100"
-                  color="primary"
-                  density="compact"
-                  :disabled="!!editingNoteId"
-                  text="Edit Note"
-                  variant="text"
-                  @click="() => editNote(note.id)"
-                />
-                <v-btn
-                  v-if="isPeerAdvisorManager(currentUser)"
-                  v-show="isExpanded(note)"
-                  :id="`delete-note-button-${note.id}`"
-                  :aria-label="`Delete note ${getNoteLabel(note, index)}`"
-                  class="delete-note-button font-size-16 my-2 w-md-100"
-                  color="primary"
-                  density="compact"
-                  size="md"
-                  text="Delete Note"
-                  variant="text"
-                  @click="() => onClickDeleteNote(note)"
-                />
-              </div>
-              <v-expand-transition>
-                <div v-show="isExpanded(note)" :id="`note-dates-${note.id}`">
-                  <div class="created-date text-no-wrap">
-                    <div>
-                      <div :aria-hidden="true" class="font-size-14 text-medium-emphasis">Created:</div>
-                      <TimelineDate
-                        :id="`expanded-note-${note.id}-created-at`"
-                        :date="note.createdAt"
-                        sr-prefix="Created on"
-                        :include-time-of-day="note.createdAt.length > 10"
-                      />
-                    </div>
-                    <div v-if="note.updatedAt" class="mt-2">
-                      <div :aria-hidden="true" class="font-size-14 text-medium-emphasis">Updated:</div>
-                      <TimelineDate
-                        :id="`expanded-note-${note.id}-updated-at`"
-                        :date="note.updatedAt"
-                        :include-time-of-day="note.updatedAt.length > 10"
-                        sr-prefix="Last updated on"
-                      />
-                    </div>
-                  </div>
-                  <div class="mt-4">
-                    <div v-if="note.author.name || note.author.email" class="mt-2">
-                      <div class="font-size-14 text-medium-emphasis text-no-wrap mb-1">Created by:</div>
-                      <div v-if="note.author.uid && note.author.name">
-                        <router-link
-                          v-if="currentUser.isAdmin && note.peerAdvisingDepartmentId"
-                          :id="`note-${note.id}-link-to-peer-advisor-home`"
-                          :class="{'demo-mode-blur': currentUser.inDemoMode}"
-                          :to="`/peer_advisor/${note.author.uid}/home`"
-                        >
-                          {{ note.author.name }}
-                        </router-link>
-                        <a
-                          v-if="!currentUser.isAdmin || !note.peerAdvisingDepartmentId"
-                          :id="`note-${note.id}-author-name`"
-                          :class="{'demo-mode-blur': currentUser.inDemoMode}"
-                          :href="`https://www.berkeley.edu/directory/results?search-term=${note.author.name}`"
-                          target="_blank"
-                        >
-                          {{ note.author.name }} <span class="sr-only">&nbsp;UC Berkeley Directory page (opens in new tab)</span>
-                        </a>
-                      </div>
-                      <div :id="`note-${note.id}-author-role`" class="font-weight-550 mt-1">
-                        {{ capitalizeAllWords(replace(note.author.role, '_', ' ')) }}
-                      </div>
-                    </div>
-                    <PeerAdvisingDepartmentSummary
-                      :id-prefix="`note-${note.id}`"
-                      :peer-advising-department-id="note.peerAdvisingDepartmentId"
-                    />
-                  </div>
+              <div class="mt-4">
+                <div v-if="note.author.name || note.author.email" class="mt-2">
+                  <div class="font-size-14 text-medium-emphasis text-no-wrap mb-1">Created by:</div>
+                  <AuthorDetails
+                    activator-class="font-size-14"
+                    :author="note.author"
+                    :id-prefix="`note-${note.id}`"
+                    :peer-advising-department-id="note.peerAdvisingDepartmentId"
+                  />
                 </div>
-              </v-expand-transition>
+              </div>
             </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+          </v-expand-transition>
+        </div>
+      </article>
+    </div>
     <div v-if="!size(notes)" id="peer-advisor-no-notes" class="align-center d-flex pt-3">
       <slot name="append" />
     </div>
@@ -250,9 +205,9 @@ import {getPeerAdvisingDepartmentById} from '@/lib/berkeley-department'
 import {isPeerAdvisorManager} from '@/lib/boa-user'
 import {useContextStore} from '@/stores/context'
 import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
+import AuthorDetails from '@/components/note/AuthorDetails'
 import EditAdvisingNote from '@/components/note/EditAdvisingNote.vue'
 import PeerAdvisingNoteDetails from '@/components/peer/note/PeerAdvisingNoteDetails.vue'
-import PeerAdvisingDepartmentSummary from '@/components/peer/PeerAdvisingDepartmentSummary.vue'
 import PeerAdvisorNoteAuthorName from '@/components/peer/note/PeerAdvisorNoteAuthorName.vue'
 import TimelineDate from '@/components/student/profile/TimelineDate.vue'
 
@@ -275,7 +230,7 @@ const props = defineProps({
   }
 })
 
-const {smAndDown} = useDisplay()
+const {smAndDown, xs} = useDisplay()
 const contextStore = useContextStore()
 const currentUser = contextStore.currentUser
 const editingNoteId = ref<number | undefined>()
@@ -365,114 +320,59 @@ const toggleShowHide = (note: Note) => {
     putFocusNextTick(`open-peer-advising-${note.id}`)
   } else {
     expandedNoteIds.value.push(note.id)
-    putFocusNextTick(`show-note-${note.id}-details`)
+    putFocusNextTick(`close-peer-advising-${note.id}`)
   }
 }
 </script>
 
 <style scoped>
-@media (max-width: 959px) {
-  .delete-note-button, .edit-note-button {
-    margin-left: 0 !important;
-  }
-  .grid-cell {
-    padding-bottom: 0 !important;
-  }
-  .peer-advising-table-wrapper {
-    min-width: 300px;
-    overflow: hidden; /* Prevent horizontal scrollbar */
-  }
-  .peer-advising-table-wrapper .td-created-date .note-actions {
-    width: 12rem !important;
-  }
-  .peer-advising-table-wrapper .td-created-date .created-date {
-    position: absolute;
-    right: 12px;
-    text-align: end;
-    top: 12px;
-    width: 10rem !important;
-  }
-  .peer-advising-table-wrapper tr.expanded .td-created-date .created-date {
-    position: static;
-    right: auto;
-    top: auto;
-    width: 100% !important;
-    text-align: left;
-    margin-top: 8px;
-  }
-  .peer-advising-table-wrapper .td-note .grid-cell.note-details {
-    margin: 12px 0 !important;
-    width: 100% !important;
-  }
-  .peer-advising-table-wrapper table, tbody, tr {
-    border-collapse: collapse;
-    display: block !important; /* Allow table to stack vertically */
-  }
-  .peer-advising-table-wrapper td {
-    display: block !important; /* Allow cells to stack vertically */
-    max-width: unset !important;
-    padding: 2px 8px !important;
-    width: 100% !important;
-  }
-  .peer-advising-table-wrapper tr {
-    position: relative;
-  }
-  .peer-advising-table-wrapper tr.expanded {
-    padding-bottom: 12px !important;
-  }
-}
-.d-contents {
-  display: contents;
-}
-.delete-note-button {
-  font-weight: 590;
-  margin-left: -18px;
-}
 .edit-advising-note-container {
   margin-top: -30px;
   padding-right: 25px;
 }
-.edit-note-button {
-  font-weight: 590;
-  margin-left: -18px;
-}
 .has-attachment-icon {
   margin-bottom: 1px;
 }
-.peer-advising-table-wrapper .grid-cell {
-  padding: 8px 12px;
+.note-action-button {
+  display: block;
+  font-weight: 590;
+  margin-left: -8px;
+  max-width: fit-content;
 }
-.peer-advising-table-wrapper .expanded .grid-cell {
-  padding-bottom: 16px !important;
+.peer-advising-notes .grid-cell {
+  padding: 8px;
 }
-.peer-advising-table-wrapper .td-created-date .grid-cell {
-  grid-area: 1 / 3 / 1 / 3;
-}
-.peer-advising-table-wrapper .td-note .grid-cell {
+.peer-advising-notes .note-summary {
   grid-area: 1 / 2 / 1 / 2;
-  z-index: 2;
 }
-.peer-advising-table-wrapper .td-note .grid-cell.note-details {
-  grid-area: 2 / 1 / 1 / 3;
-  margin-top: 68px;
-  z-index: 3;
+.peer-advising-notes .created-date {
+  grid-area: 1 / 3 / 3 / 3;
 }
-.peer-advising-table-wrapper .td-student .grid-cell {
+.peer-advising-notes .note-details {
+  grid-area: 2 / 1 / 2 / 3;
+}
+.peer-advising-notes .note-student {
   grid-area: 1 / 1 / 1 / 1;
-  min-width: 200px;
 }
-.peer-advising-table-wrapper .toggle-note-btn {
-  height: 24px;
-  letter-spacing: normal;
-}
-.peer-advising-table-wrapper td {
-  padding: 8px 12px;
-  vertical-align: top;
-}
-.peer-advising-table-wrapper tr {
+.peer-advising-notes .peer-note {
   display: grid;
-  grid-auto-rows: min-content;
-  grid-template-columns: 25% 50% 25%;
+  grid-template-columns: 13rem calc(100% - 22rem) 9rem;
+  grid-template-rows: 2.5rem;
   width: 100%;
+}
+.peer-advising-notes .peer-note.expanded {
+  grid-template-columns: 13rem 1fr 13rem;
+  grid-template-rows: 2.5rem min-content;
+}
+.peer-advising-notes .peer-note.expanded.grid-wrap {
+  grid-template-columns: auto auto;
+  grid-template-rows: 2.5rem min-content min-content;
+  .created-date {
+    grid-area: 3 / 1 / 3 / 3;
+    padding-left: 24px;
+  }
+  .note-details {
+    grid-area: 2 / 1 / 2 / 3;
+  }
 }
 </style>

@@ -47,7 +47,13 @@ class PeerAdvisingNoteTable(StudentPageAdvisingNote):
 
     @staticmethod
     def peer_note_row_xpath(note):
-        return f'//tr[@id="tr-peer-advisor-note-{note.record_id}"]'
+        return f'//article[@id="peer-advisor-note-{note.record_id}"]'
+
+    def peer_note_student_xpath(self, note):
+        return f'//div[@id="peer-advisor-note-{note.record_id}-student"]'
+
+    def peer_note_body_xpath(self, note):
+        return f'//div[@id="peer-advisor-note-{note.record_id}-details"]'
 
     def peer_note_row(self, note):
         return By.XPATH, self.peer_note_row_xpath(note)
@@ -56,14 +62,14 @@ class PeerAdvisingNoteTable(StudentPageAdvisingNote):
         self.when_present(self.peer_note_row(note), utils.get_medium_timeout())
 
     def peer_note_student(self, note):
-        return self.el_text_if_exists((By.XPATH, f'{self.peer_note_row_xpath(note)}/td[1]'))
+        return self.el_text_if_exists((By.XPATH, f'{self.peer_note_row_xpath(note)}/{self.peer_note_student_xpath(note)}'))
 
     def peer_note_body(self, note):
-        return self.el_text_if_exists((By.XPATH, f'{self.peer_note_row_xpath(note)}/td[2]'), 'Has attachment(s)')
+        return self.el_text_if_exists((By.XPATH, f'{self.peer_note_row_xpath(note)}/{self.peer_note_body_xpath(note)}'), 'Has attachment(s)')
 
     def peer_note_date(self, note):
         return self.el_text_if_exists(
-            (By.XPATH, f'{self.peer_note_row_xpath(note)}/td[3]//div[contains(@id, "updated-at")]'),
+            (By.XPATH, f'{self.peer_note_row_xpath(note)}//div[contains(@id, "updated-at")]'),
             text_to_remove='Last updated on')
 
     @staticmethod
@@ -76,7 +82,7 @@ class PeerAdvisingNoteTable(StudentPageAdvisingNote):
 
     def peer_manager_note_date(self, note):
         return self.el_text_if_exists(
-            (By.XPATH, f'{self.peer_note_row_xpath(note)}/td[3]//div[contains(@id, "updated-at")]'),
+            (By.XPATH, f'{self.peer_note_row_xpath(note)}//div[contains(@id, "updated-at")]'),
             text_to_remove='Last updated on')
 
     @staticmethod

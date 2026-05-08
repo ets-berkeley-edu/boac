@@ -213,7 +213,7 @@ const onClickShowMore = () => {
       putFocusNextTick('fetch-more-notes')
     } else {
       // Once the button is gone (all notes are visible), move focus to the last note row.
-      putFocusNextTick(`tr-peer-advisor-note-${get(last(notes.value), 'id')}`)
+      putFocusNextTick(`peer-advisor-note-${get(last(notes.value), 'id')}`)
     }
     isFetchingNotes.value = false
   })
