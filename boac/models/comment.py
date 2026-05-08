@@ -25,8 +25,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from sqlalchemy.dialects.postgresql import ARRAY
 
-from boac import db
+from boac import db, std_commit
+from boac.lib.util import to_iso_format
 from boac.models.base import Base
+from boac.models.comment_attachment import CommentAttachment
 
 
 class Comment(Base):
@@ -46,3 +48,58 @@ class Comment(Base):
         back_populates='comment',
         lazy=True,
     )
+
+    @classmethod
+    def find_by_id(cls, comment_id):
+        return cls.query.filter_by(id=comment_id).filter(cls.deleted_at == None).first()  # noqa: E711
+
+    @classmethod
+    def create(
+            cls,
+            comment_parent_id,
+            author_uid,
+            author_name,
+            author_role,
+            author_dept_codes,
+            body,
+            attachments=(),
+    ):
+        comment = Comment(
+            comment_parent_id=comment_parent_id,
+            author_uid=author_uid,
+            author_name=author_name,
+            author_role=author_role,
+            author_dept_codes=author_dept_codes,
+            body=body,
+        )
+        db.session.add(comment)
+        std_commit()
+        db.session.refresh(comment)
+        for attachment in attachments:
+            comment.attachments.append(
+                CommentAttachment.create(
+                    comment_id=comment.id,
+                    name=attachment['name'],
+                    byte_stream=attachment['byte_stream'],
+                    uploaded_by=author_uid,
+                ),
+            )
+        std_commit()
+        db.session.refresh(comment)
+        return comment
+
+    def to_api_json(self):
+        return {
+            'id': self.id,
+            'commentParentId': self.comment_parent_id,
+            'authorUid': self.author_uid,
+            'authorName': self.author_name,
+            'authorRole': self.author_role,
+            'authorDeptCodes': self.author_dept_codes,
+            'body': self.body,
+            'message': self.body,
+            'attachments': [a.to_api_json() for a in self.attachments if not a.deleted_at],
+            'createdAt': to_iso_format(self.created_at),
+            'updatedAt': to_iso_format(self.updated_at),
+            'deletedAt': to_iso_format(self.deleted_at),
+        }

@@ -23,9 +23,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from sqlalchemy import and_
 from sqlalchemy.dialects.postgresql import ENUM
 
-from boac import db
+from boac import db, std_commit
 
 comment_parent_type_enum = ENUM(
     'appointment',
@@ -44,3 +45,27 @@ class CommentParent(db.Model):
     parent_id = db.Column(db.String(255), nullable=False)
     parent_type = db.Column(comment_parent_type_enum, nullable=False)
     deleted_at = db.Column(db.DateTime, nullable=True)
+
+    @classmethod
+    def find_by_type_and_parent_id(cls, parent_type, parent_id):
+        return cls.query.filter(
+            and_(
+                cls.parent_type == parent_type,
+                cls.parent_id == str(parent_id),
+                cls.deleted_at == None,  # noqa: E711
+            ),
+        ).first()
+
+    @classmethod
+    def find_or_create(cls, parent_type, parent_id):
+        parent = cls.find_by_type_and_parent_id(parent_type=parent_type, parent_id=parent_id)
+        if parent:
+            return parent
+        parent = CommentParent(
+            parent_id=str(parent_id),
+            parent_type=parent_type,
+        )
+        db.session.add(parent)
+        std_commit()
+        db.session.refresh(parent)
+        return parent
