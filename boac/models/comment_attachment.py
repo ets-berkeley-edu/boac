@@ -25,7 +25,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from datetime import datetime
 
+from sqlalchemy import and_
+
 from boac import db
+from boac.lib.util import get_attachment_filename, note_attachment_to_api_json, put_attachment_to_s3
 
 
 class CommentAttachment(db.Model):
@@ -38,3 +41,23 @@ class CommentAttachment(db.Model):
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
     deleted_at = db.Column(db.DateTime)
     comment = db.relationship('Comment', back_populates='attachments')
+
+    @classmethod
+    def create(cls, comment_id, name, byte_stream, uploaded_by):
+        return CommentAttachment(
+            comment_id=comment_id,
+            path_to_attachment=put_attachment_to_s3(name=name, byte_stream=byte_stream),
+            uploaded_by_uid=uploaded_by,
+        )
+
+    @classmethod
+    def find_by_id(cls, attachment_id):
+        return cls.query.filter(and_(cls.id == attachment_id, cls.deleted_at == None)).first()  # noqa: E711
+
+    def get_user_filename(self):
+        return get_attachment_filename(self.id, self.path_to_attachment)
+
+    def to_api_json(self):
+        api_json = note_attachment_to_api_json(self)
+        api_json['commentId'] = self.comment_id
+        return api_json
