@@ -297,7 +297,7 @@
             >
               <span v-if="message.type === 'note'" class="font-size-14 text-medium-emphasis pl-2">Created by:</span>
               <AuthorDetails
-                activator-class="font-size-14"
+                activator-class="font-size-14 pl-2"
                 :author="message.author || message.advisor"
                 :id-prefix="`note-${message.id}`"
                 :peer-advising-department-id="message.peerAdvisingDepartmentId"
@@ -369,7 +369,7 @@
         </div>
         <AdvisingNoteComments
           v-if="commentsEnabled(message)"
-          class="pb-3"
+          class="pb-3 px-6"
           :class="{'sr-only': !isExpanded(message)}"
           :note="message"
         />

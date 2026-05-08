@@ -22,24 +22,7 @@
         :appointment="appointment"
         class="collapsed-cancelled-icon justify-end"
       />
-      <div v-if="size(appointment.attachments)" class="px-2">
-        <v-icon :aria-hidden="true" color="info" :icon="mdiPaperclip" />
-        <span class="sr-only">Has attachments</span>
-      </div>
-      <v-badge
-        v-if="size(appointment.comments)"
-        class="ml-auto mt-1"
-        color="info"
-        :content="size(appointment.comments)"
-        :label="`${pluralize('comment', size(appointment.comments))}.`"
-      >
-        <v-icon
-          :aria-hidden="true"
-          color="info"
-          :icon="mdiCommentOutline"
-          size="1.4rem"
-        />
-      </v-badge>
+      <TimelineMessageIcons v-if="!isOpen" :message="appointment" />
     </div>
     <section class="advising-appointment-outer">
       <div
@@ -122,11 +105,11 @@
 <script setup>
 import {computed, onMounted, ref, watch} from 'vue'
 import {get, size} from 'lodash'
-import {mdiCommentOutline, mdiPaperclip} from '@mdi/js'
+import {mdiPaperclip} from '@mdi/js'
 import AppointmentCanceledIndicator from '@/components/appointment/AppointmentCanceledIndicator'
-import {getCalnetProfileByCsid, getCalnetProfileByUid} from '@/api/user'
 import PillItem from '@/components/util/PillItem'
-import {pluralize} from '@/lib/utils'
+import TimelineMessageIcons from '@/components/student/profile/academic-timeline/TimelineMessageIcons.vue'
+import {getCalnetProfileByCsid, getCalnetProfileByUid} from '@/api/user'
 import {useContextStore} from '@/stores/context'
 import {summarizeNoteForAcademicTimeline} from '@/lib/note.js'
 

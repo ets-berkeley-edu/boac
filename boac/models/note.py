@@ -34,7 +34,7 @@ from sqlalchemy.sql import text
 from boac import db, std_commit
 from boac.externals import sqs
 from boac.lib.background import bg_execute
-from boac.lib.util import get_attachment_filename, get_benchmarker, put_attachment_to_s3, safe_strftime, to_iso_format, utc_now
+from boac.lib.util import get_benchmarker, put_attachment_to_s3, safe_strftime, to_iso_format, utc_now
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.base import Base
 from boac.models.note_attachment import NoteAttachment
@@ -239,42 +239,8 @@ class Note(Base):
             GROUP BY n.id, a.id, t.topic
             ORDER BY n.updated_at DESC
         """
-        notes = []
         params = {'author_uid': author_uid, 'peer_advising_department_id': peer_advising_department_id}
-        for row in db.session.execute(text(sql), params).mappings():
-            note_id = row['id']
-            note = next((n for n in notes if n['id'] == note_id), None)
-            if not note:
-                note = {
-                    'id': note_id,
-                    'attachments': [],
-                    'author': {
-                        'uid': row['author_uid'],
-                        'name': row['author_name'],
-                    },
-                    'body': row['body'],
-                    'contactType': row['contact_type'],
-                    'peerAdvisingDepartmentId': peer_advising_department_id,
-                    'sid': row['sid'],
-                    'subject': row['subject'],
-                    'topics': [],
-                    'createdAt': to_iso_format(row['created_at']),
-                    'updatedAt': to_iso_format(row['updated_at']),
-                }
-                notes.append(note)
-            topic = row['topic']
-            if topic and topic not in note['topics']:
-                note['topics'].append(topic)
-            attachment_id = row['attachment_id']
-            if attachment_id and attachment_id not in [a['id'] for a in note['attachments']]:
-                filename = get_attachment_filename(attachment_id, row['path_to_attachment'])
-                note['attachments'].append({
-                    'id': attachment_id,
-                    'displayName': filename,
-                    'filename': filename,
-                    'uploadedByUid': row['uploaded_by_uid'],
-                })
-        return notes
+        return db.session.execute(text(sql), params).mappings().all()
 
     @classmethod
     def create(

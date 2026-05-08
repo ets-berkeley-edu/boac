@@ -1,6 +1,6 @@
 <template>
-  <div v-if="!contextStore.loading" class="pt-8 px-4 px-sm-8 px-md-16">
-    <div class="align-start d-flex flex-wrap justify-space-between">
+  <div v-if="!contextStore.loading" class="pt-8 px-0 px-md-8">
+    <div class="align-start d-flex flex-wrap justify-space-between px-4 px-md-8">
       <div>
         <h1 id="page-header" class="mb-0 mr-4">Peer Advising Notes</h1>
         <div>{{ get(peerAdvisingDepartment, 'name') }}</div>
@@ -22,7 +22,7 @@
         />
       </div>
     </div>
-    <div class="align-center d-flex flex-wrap justify-space-between mt-2">
+    <div class="align-center d-flex flex-wrap justify-space-between mt-2 px-4 px-md-8">
       <ShowMyPeerAdvisingNotesToggle
         v-if="showMyNotesOnly || isFetchingNotes || notes.length"
         v-model="showMyNotesOnly"
@@ -213,7 +213,7 @@ const onClickShowMore = () => {
       putFocusNextTick('fetch-more-notes')
     } else {
       // Once the button is gone (all notes are visible), move focus to the last note row.
-      putFocusNextTick(`tr-peer-advisor-note-${get(last(notes.value), 'id')}`)
+      putFocusNextTick(`peer-advisor-note-${get(last(notes.value), 'id')}`)
     }
     isFetchingNotes.value = false
   })

@@ -12,13 +12,15 @@
     </v-btn>
     <v-dialog
       v-model="isModalOpen"
-      :fullscreen="$vuetify.display.width < 750"
+      :fullscreen="$vuetify.display.smAndDown"
       persistent
+      scrollable
       @keydown.esc="closeModal"
     >
       <v-card
-        class="peer-advising-notes-modal modal-content pr-0 scrollbar-gutter-stable w-100"
+        class="peer-advising-notes-modal modal-content px-0"
         max-width="1100"
+        min-height="calc(100vh - 100px)"
         width="90vw"
       >
         <v-card-title>
@@ -44,8 +46,8 @@
             </div>
           </div>
         </v-card-title>
-        <v-card-text class="modal-body">
-          <div :id="`peer-advising-department-${peerAdvisingDepartment.id}`">
+        <v-card-text class="modal-body overflow-x-hidden px-1 px-md-6">
+          <div :id="`peer-advising-department-${peerAdvisingDepartment.id}`" class="pl-5 pl-md-0">
             {{ peerAdvisingDepartment.name }}
             <span v-if="timeframe">
               ({{ timeframe.label }})
