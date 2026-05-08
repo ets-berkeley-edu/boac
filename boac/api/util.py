@@ -357,9 +357,13 @@ def get_boac_note_as_compatible_json(note, note_read, children_by_parent_id=None
         'message': note.body,
         'type': 'note',
     }
+    base['comments'] = get_boa_note_comments_as_compatible_json(note, children_by_parent_id)
+    return base
+
+
+def get_boa_note_comments_as_compatible_json(note, children_by_parent_id=None):
     if note.parent_note_id:
-        base['comments'] = []
-        return base
+        return []
     if children_by_parent_id is None:
         child_notes = Note.get_notes_by_parent_id(parent_note_id=note.id)
         accessible = [c for c in child_notes if can_current_user_access_note(c)]
@@ -369,7 +373,7 @@ def get_boac_note_as_compatible_json(note, note_read, children_by_parent_id=None
     if accessible:
         read_rows = NoteRead.get_notes_read_by_user(current_user.get_id(), [str(c.id) for c in accessible])
         reads_by_id = {r.note_id: r.created_at for r in read_rows}
-    base['comments'] = [
+    return[
         get_boac_note_as_compatible_json(
             child,
             note_read=reads_by_id.get(str(child.id)),
@@ -377,8 +381,6 @@ def get_boac_note_as_compatible_json(note, note_read, children_by_parent_id=None
         )
         for child in accessible
     ]
-    return base
-
 
 def get_coe_status(profile):
     status = None

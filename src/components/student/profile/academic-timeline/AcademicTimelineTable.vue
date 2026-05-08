@@ -369,7 +369,7 @@
         </div>
         <AdvisingNoteComments
           v-if="commentsEnabled(message)"
-          class="pb-3"
+          class="pb-3 px-6"
           :class="{'sr-only': !isExpanded(message)}"
           :note="message"
         />

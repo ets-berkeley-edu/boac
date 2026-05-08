@@ -36,26 +36,7 @@
         :class="{'truncate-with-ellipsis': !isOpen}"
         v-html="noteSummary"
       />
-      <div v-if="!isOpen" class="indicators d-flex ml-auto">
-        <div v-if="size(note.attachments)" class="mr-auto">
-          <v-icon :aria-hidden="true" color="info" :icon="mdiPaperclip" />
-          <span class="sr-only">Has attachments.</span>
-        </div>
-        <v-badge
-          v-if="size(note.comments)"
-          class="ml-auto mr-2 mt-1"
-          color="info"
-          :content="size(note.comments)"
-          :label="`${pluralize('comment', size(note.comments))}.`"
-        >
-          <v-icon
-            :aria-hidden="true"
-            color="info"
-            :icon="mdiCommentOutline"
-            size="1.4rem"
-          />
-        </v-badge>
-      </div>
+      <TimelineMessageIcons v-if="!isOpen" :message="note" />
     </div>
     <section
       :id="`note-${note.id}-is-open`"
@@ -112,13 +93,13 @@
 <script setup>
 import {computed, ref} from 'vue'
 import {size} from 'lodash'
-import {mdiCommentOutline, mdiPaperclip} from '@mdi/js'
 import AdvisingEForm from '@/components/note/eform/AdvisingEForm'
 import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments'
 import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
+import TimelineMessageIcons from '@/components/student/profile/academic-timeline/TimelineMessageIcons.vue'
 import {addAttachments, removeAttachment} from '@/api/notes'
-import {alertScreenReader, pluralize} from '@/lib/utils'
+import {alertScreenReader} from '@/lib/utils'
 import {canUserEditNote, summarizeNoteForAcademicTimeline} from '@/lib/note.js'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
@@ -210,10 +191,6 @@ const removeAttachmentByIndex = index => {
   box-sizing: border-box;
   max-width: 100%;
   width: 100%;
-}
-.indicators {
-  min-width: 3.25rem;
-  width: 3.25rem;
 }
 .open-note-message-container {
   overflow-wrap: break-word;

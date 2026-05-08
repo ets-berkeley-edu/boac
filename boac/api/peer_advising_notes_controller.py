@@ -32,6 +32,7 @@ from flask_login import current_user
 from boac.api.decorators import advising_data_access_required, peer_advisor_or_peer_advisor_manager, peer_advisor_required
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import (
+    get_boa_note_comments_as_compatible_json,
     get_boac_note_as_compatible_json,
     get_note_attachments_from_http_post,
     get_note_author_profile_of_current_user,
@@ -42,8 +43,15 @@ from boac.externals import data_loch
 from boac.externals.data_loch import get_basic_student_data
 from boac.lib.berkeley import has_peer_advising_role_type, sis_term_id_for_name, term_name_for_sis_id
 from boac.lib.http import tolerant_jsonify
-from boac.lib.util import get as get_param
-from boac.lib.util import process_input_from_rich_text_editor, to_bool_or_none
+from boac.lib.util import (
+    get as get_param,
+)
+from boac.lib.util import (
+    get_attachment_filename,
+    process_input_from_rich_text_editor,
+    to_bool_or_none,
+    to_iso_format,
+)
 from boac.merged.advising_note import can_current_user_edit_note, get_author_uid, get_boa_attachment_stream
 from boac.merged.sis_terms import future_term_id
 from boac.merged.student import merge_enrollment_terms
@@ -215,14 +223,36 @@ def get_notes_authored_by():
         month = timeframe['month']
         year = timeframe['year']
         timeframe = f"{year}-{f'0{month}' if month < 10 else month}"
-    notes = Note.get_peer_advising_notes_authored_by(
+    notes = []
+    rows = Note.get_peer_advising_notes_authored_by(
         author_uid=uid,
         timeframe_month=timeframe,
         peer_advising_department_id=peer_advising_department_id,
     )
-    sids = [note['sid'] for note in notes]
+    sids = [row['sid'] for row in rows]
     students_by_sid = {student['sid']: student for student in data_loch.get_basic_student_data(sids)}
-    for note in notes:
+    for row in rows:
+        note_id = row['id']
+        note = next((n for n in notes if n['id'] == note_id), None)
+        if not note:
+            note = {
+                'id': note_id,
+                'attachments': [],
+                'author': {
+                    'uid': row['author_uid'],
+                    'name': row['author_name'],
+                },
+                'body': row['body'],
+                'comments': get_boa_note_comments_as_compatible_json(row),
+                'contactType': row['contact_type'],
+                'peerAdvisingDepartmentId': peer_advising_department_id,
+                'sid': row['sid'],
+                'subject': row['subject'],
+                'topics': [],
+                'createdAt': to_iso_format(row['created_at']),
+                'updatedAt': to_iso_format(row['updated_at']),
+            }
+            notes.append(note)
         student = students_by_sid.get(note['sid'])
         note['student'] = {
             'firstName': student['first_name'],
@@ -230,6 +260,18 @@ def get_notes_authored_by():
             'sid': student['sid'],
             'uid': student['uid'],
         }
+        topic = row['topic']
+        if topic and topic not in note['topics']:
+            note['topics'].append(topic)
+        attachment_id = row['attachment_id']
+        if attachment_id and attachment_id not in [a['id'] for a in note['attachments']]:
+            filename = get_attachment_filename(attachment_id, row['path_to_attachment'])
+            note['attachments'].append({
+                'id': attachment_id,
+                'displayName': filename,
+                'filename': filename,
+                'uploadedByUid': row['uploaded_by_uid'],
+            })
     return tolerant_jsonify(notes)
 
 

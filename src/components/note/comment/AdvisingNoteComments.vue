@@ -1,5 +1,5 @@
 <template>
-  <section class="note-comments px-6">
+  <section class="note-comments">
     <div class="font-size-16 font-weight-bold text-medium-emphasis my-2" :class="{'sr-only': !size(note.comments)}">Comments</div>
     <article
       v-for="comment in note.comments"
@@ -29,7 +29,7 @@
         />
       </div>
       <EditNoteComment
-        v-if="editingComment && editingComment.id === comment.id"
+        v-if="!readOnly && editingComment && editingComment.id === comment.id"
         :cancel="onCancelEdit"
         class="pb-3"
         :comment="editingComment"
@@ -38,7 +38,7 @@
       />
       <footer v-if="!editingComment || editingComment.id !== comment.id" class="academic-timeline-column-date">
         <v-btn
-          v-if="canUserEditNote(comment, currentUser)"
+          v-if="!readOnly && canUserEditNote(comment, currentUser)"
           :id="`note-${note.id}-comment-${comment.id}-edit-btn`"
           class="mb-2"
           color="primary"
@@ -69,7 +69,7 @@
         </div>
       </footer>
     </article>
-    <div class="border-t-sm pt-2">
+    <div v-if="!readOnly" class="border-t-sm pt-2">
       <v-btn
         v-if="!isCreatingComment && !editingComment"
         :id="`note-${note.id}-add-comment-btn`"
@@ -108,6 +108,10 @@ const props = defineProps({
   note: {
     required: true,
     type: Object
+  },
+  readOnly: {
+    required: false,
+    type: Boolean
   }
 })
 

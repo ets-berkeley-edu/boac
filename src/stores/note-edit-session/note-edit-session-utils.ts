@@ -50,6 +50,7 @@ export function getDefaultModel(): NoteEditSessionModel {
     attachments: [] as Attachment[],
     author: {},
     body: undefined,
+    comments: [],
     contactType: undefined,
     deleteAttachmentIds: [],
     isDraft: false,

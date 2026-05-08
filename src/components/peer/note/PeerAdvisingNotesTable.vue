@@ -20,14 +20,21 @@
       >
         <div
           :id="`peer-advisor-note-${note.id}-student`"
-          class="font-weight-bold note-student grid-cell text-no-wrap"
+          class="font-weight-bold note-student grid-cell"
         >
-          <PeerAdvisorNoteAuthorName
-            :show-student-last-name-first="showStudentLastNameFirst"
+          <PeerAdvisorNoteStudentName
+            class="text-wrap"
             :note="note"
+            :show-student-last-name-first="showStudentLastNameFirst"
           />
         </div>
-        <div class="note-summary grid-cell align-content-center">
+        <div
+          class="note-summary grid-cell"
+          :class="{
+            'align-content-center': !isExpanded(note),
+            'align-content-start': isExpanded(note)
+          }"
+        >
           <button
             v-if="!isExpanded(note)"
             :id="`open-peer-advising-${note.id}`"
@@ -43,10 +50,7 @@
               class="truncate-with-ellipsis"
               v-html="stripHtmlAndSummarize(note.body || summarizeTopics(note.topics))"
             />
-            <span v-if="size(note.attachments)" class="ml-auto">
-              <span class="sr-only">Has attachment(s)</span>
-              <v-icon class="has-attachment-icon" :icon="mdiPaperclip" size="1.25rem" />
-            </span>
+            <TimelineMessageIcons v-if="size(note.attachments) || size(note.comments)" :message="note" />
           </button>
           <v-btn
             v-if="isExpanded(note) && editingNoteId !== note.id"
@@ -54,10 +58,11 @@
             :aria-controls="`note-details-${note.id} note-actions-${note.id} note-dates-${note.id}`"
             :aria-expanded="true"
             :aria-label="`Close message ${getNoteLabel(note, index)}`"
-            class="mx-2 vertical-top w-100"
+            class="vertical-top w-100"
             color="primary"
             density="compact"
             :prepend-icon="mdiCloseCircle"
+            slim
             text="Close Message"
             variant="text"
             @click="toggleShowHide(note)"
@@ -83,7 +88,7 @@
             </div>
           </div>
         </v-expand-transition>
-        <div v-if="!isExpanded(note)" class="created-date grid-cell text-no-wrap">
+        <div v-if="!isExpanded(note)" class="align-content-center created-date grid-cell text-no-wrap text-right">
           <TimelineDate
             :id="`collapsed-note-${note.id}-updated-at`"
             aria-hidden="true"
@@ -94,7 +99,7 @@
         </div>
         <div
           v-if="isExpanded(note)"
-          :id="`td-note-${note.id}-created-at`"
+          :id="`peer-advisor-note-${note.id}-created-at`"
           :class="{
             'demo-mode-blur': currentUser.inDemoMode
           }"
@@ -169,6 +174,18 @@
             </div>
           </v-expand-transition>
         </div>
+        <div
+          v-if="isExpanded(note) && editingNoteId !== note.id"
+          :id="`peer-advisor-note-${note.id}-comments`"
+          class="note-comments grid-cell"
+        >
+          <AdvisingNoteComments
+            class="pl-5"
+            :class="{'sr-only': !isExpanded(note)}"
+            :note="note"
+            :read-only="!canUserEditNote(note, currentUser)"
+          />
+        </div>
       </article>
     </div>
     <div v-if="!size(notes)" id="peer-advisor-no-notes" class="align-center d-flex pt-3">
@@ -195,7 +212,7 @@
 import {DateTime} from 'luxon'
 import {computed, ref} from 'vue'
 import {get, replace, size, truncate} from 'lodash'
-import {mdiCloseCircle, mdiPaperclip} from '@mdi/js'
+import {mdiCloseCircle} from '@mdi/js'
 import {useDisplay} from 'vuetify'
 import type {Note} from '@/lib/types'
 import {alertScreenReader, capitalizeAllWords, putFocusNextTick, stripHtmlAndTrim} from '@/lib/utils'
@@ -204,12 +221,14 @@ import {deleteNote} from '@/api/notes'
 import {getPeerAdvisingDepartmentById} from '@/lib/berkeley-department'
 import {isPeerAdvisorManager} from '@/lib/boa-user'
 import {useContextStore} from '@/stores/context'
+import AdvisingNoteComments from '@/components/note/comment/AdvisingNoteComments'
 import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
 import AuthorDetails from '@/components/note/AuthorDetails'
 import EditAdvisingNote from '@/components/note/EditAdvisingNote.vue'
 import PeerAdvisingNoteDetails from '@/components/peer/note/PeerAdvisingNoteDetails.vue'
-import PeerAdvisorNoteAuthorName from '@/components/peer/note/PeerAdvisorNoteAuthorName.vue'
+import PeerAdvisorNoteStudentName from '@/components/peer/note/PeerAdvisorNoteStudentName.vue'
 import TimelineDate from '@/components/student/profile/TimelineDate.vue'
+import TimelineMessageIcons from '@/components/student/profile/academic-timeline/TimelineMessageIcons.vue'
 
 const props = defineProps({
   afterNoteEdit: {
@@ -317,21 +336,25 @@ const toggleShowHide = (note: Note) => {
   const index = expandedNoteIds.value.indexOf(note.id)
   if (index > -1) {
     expandedNoteIds.value.splice(index, 1)
-    putFocusNextTick(`open-peer-advising-${note.id}`)
+    putFocusNextTick(`open-peer-advising-${note.id}`, {scroll: false})
   } else {
     expandedNoteIds.value.push(note.id)
-    putFocusNextTick(`close-peer-advising-${note.id}`)
+    putFocusNextTick(`close-peer-advising-${note.id}`, {scroll: false})
   }
 }
 </script>
+
+<style>
+  .academic-timeline-column-date {
+    margin-right: -8px !important;
+    width: 13rem;
+  }
+</style>
 
 <style scoped>
 .edit-advising-note-container {
   margin-top: -30px;
   padding-right: 25px;
-}
-.has-attachment-icon {
-  margin-bottom: 1px;
 }
 .note-action-button {
   display: block;
@@ -348,6 +371,9 @@ const toggleShowHide = (note: Note) => {
 .peer-advising-notes .created-date {
   grid-area: 1 / 3 / 3 / 3;
 }
+.peer-advising-notes .note-comments {
+  grid-area: 3 / 1 / 3 / 4;
+}
 .peer-advising-notes .note-details {
   grid-area: 2 / 1 / 2 / 3;
 }
@@ -356,23 +382,27 @@ const toggleShowHide = (note: Note) => {
 }
 .peer-advising-notes .peer-note {
   display: grid;
-  grid-template-columns: 13rem calc(100% - 22rem) 9rem;
-  grid-template-rows: 2.5rem;
+  grid-template-columns: 15rem calc(100% - 23rem) 8rem;
+  grid-template-rows: min-content;
   width: 100%;
 }
 .peer-advising-notes .peer-note.expanded {
-  grid-template-columns: 13rem 1fr 13rem;
-  grid-template-rows: 2.5rem min-content;
+  grid-template-columns: 15rem 1fr 13rem;
+  grid-template-rows: min-content 1fr min-content;
 }
 .peer-advising-notes .peer-note.expanded.grid-wrap {
   grid-template-columns: auto auto;
-  grid-template-rows: 2.5rem min-content min-content;
+  grid-template-rows: min-content min-content min-content min-content;
   .created-date {
     grid-area: 3 / 1 / 3 / 3;
     padding-left: 24px;
   }
+  .note-comments {
+    grid-area: 4 / 1 / 4 / 4;
+  }
   .note-details {
     grid-area: 2 / 1 / 2 / 3;
+    padding-left: 20px;
   }
 }
 </style>
