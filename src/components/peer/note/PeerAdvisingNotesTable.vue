@@ -345,10 +345,10 @@ const toggleShowHide = (note: Note) => {
 </script>
 
 <style>
-  .academic-timeline-column-date {
-    margin-right: -8px !important;
-    width: 13rem;
-  }
+.peer-advising-notes .academic-timeline-column-date {
+  margin-right: -8px !important;
+  width: 13rem;
+}
 </style>
 
 <style scoped>
