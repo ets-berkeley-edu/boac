@@ -1,6 +1,6 @@
 <template>
-  <div v-if="!contextStore.loading" class="pt-8 px-0 px-md-8">
-    <div class="align-start d-flex flex-wrap justify-space-between px-4 px-md-8">
+  <div v-if="!contextStore.loading" class="pt-6 px-2 px-sm-2 px-md-8">
+    <div class="align-start d-flex flex-wrap justify-space-between px-4">
       <div>
         <h1 id="page-header" class="mb-0 mr-4">Peer Advising Notes</h1>
         <div>{{ get(peerAdvisingDepartment, 'name') }}</div>
@@ -22,7 +22,7 @@
         />
       </div>
     </div>
-    <div class="align-center d-flex flex-wrap justify-space-between mt-2 px-4 px-md-8">
+    <div class="align-center d-flex flex-wrap justify-space-between mt-2 px-4">
       <ShowMyPeerAdvisingNotesToggle
         v-if="showMyNotesOnly || isFetchingNotes || notes.length"
         v-model="showMyNotesOnly"

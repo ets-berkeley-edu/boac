@@ -32,6 +32,7 @@ from flask_login import current_user
 from boac.api.decorators import advising_data_access_required, peer_advisor_or_peer_advisor_manager, peer_advisor_required
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import (
+    create_note_comment,
     get_boa_note_comments_as_compatible_json,
     get_boac_note_as_compatible_json,
     get_note_attachments_from_http_post,
@@ -48,6 +49,7 @@ from boac.lib.util import (
 )
 from boac.lib.util import (
     get_attachment_filename,
+    is_int,
     process_input_from_rich_text_editor,
     to_bool_or_none,
     to_iso_format,
@@ -62,6 +64,26 @@ from boac.models.note_read import NoteRead
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 from boac.models.peer_advising_topic import PeerAdvisingTopic
 from boac.routes import login_manager
+
+
+@app.route('/api/peer_advising/note/add_comment', methods=['POST'])
+@peer_advisor_required
+def add_peer_advising_note_comment():
+    params = request.form
+    parent_note_id = params.get('parentNoteId')
+    if not parent_note_id or not is_int(parent_note_id):
+        raise BadRequestError('Request has missing or invalid request parameters')
+    parent_note = Note.find_by_id(note_id=parent_note_id)
+    if not parent_note:
+        raise ResourceNotFoundError('Note not found')
+    memberships = (
+        PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(authorized_user_id=current_user.get_id())
+    )
+    user_peer_advising_department_id = memberships[0]['peer_advising_department_id']
+    if parent_note.peer_advising_department_id != user_peer_advising_department_id:
+        raise ResourceNotFoundError('Note not found')
+    comment = create_note_comment(parent_note, params)
+    return tolerant_jsonify(get_boac_note_as_compatible_json(note=comment, note_read=True))
 
 
 @app.route('/api/peer_advising/note_topics')

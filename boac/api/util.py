@@ -33,7 +33,7 @@ from flask_login import current_user
 from boac.api.errors import BadRequestError
 from boac.externals.data_loch import get_sis_holds
 from boac.lib.berkeley import ACADEMIC_STANDING_DESCRIPTIONS, dept_codes_where_advising
-from boac.lib.util import get_benchmarker, join_if_present, to_iso_format
+from boac.lib.util import get_benchmarker, join_if_present, process_input_from_rich_text_editor, to_iso_format
 from boac.merged import calnet
 from boac.merged.advising_appointment import get_advising_appointments
 from boac.merged.advising_note import can_current_user_access_note, get_advising_notes, note_to_compatible_json
@@ -151,6 +151,26 @@ def construct_phantom_cohort(domain, filters, **kwargs):
         filter_criteria=translate_filters_to_cohort_criteria(filters, domain),
     )
     return cohort.to_api_json(**kwargs)
+
+
+def create_note_comment(parent_note, params):
+    body = process_input_from_rich_text_editor(params.get('body'))
+    if not body or not body.strip():
+        raise BadRequestError('Request has missing or invalid request parameters')
+    attachments = get_note_attachments_from_http_post(tolerate_none=True)
+    attachment_limit = app.config['NOTES_ATTACHMENTS_MAX_PER_NOTE']
+    if len(attachments) > attachment_limit:
+        raise BadRequestError(f'No more than {attachment_limit} attachments may be uploaded at once.')
+    return Note.create(
+        **get_note_author_profile_of_current_user(),
+        attachments=attachments,
+        body=body,
+        is_private=parent_note.is_private,
+        parent_note_id=parent_note.id,
+        peer_advising_department_id=parent_note.peer_advising_department_id,
+        sid=parent_note.sid,
+        subject='',
+    )
 
 
 def put_notifications(student):
