@@ -26,14 +26,14 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import datetime
 
 from flask import jsonify, make_response, redirect, request, session
-from flask_login import LoginManager
+from flask_login import LoginManager, current_user
 
 from boac.merged.user_session import UserSession
 
 login_manager = LoginManager()
 
 
-def register_routes(app):
+def register_routes(app):  #noqa: PLR0915
     """Register app routes."""
     def _user_loader(user_id=None, flush_cached=False):
         return UserSession(user_id, flush_cached)
@@ -110,12 +110,20 @@ def register_routes(app):
         if request.full_path.startswith('/api'):
             forwarded_for = request.headers.get('X-Forwarded-For')
             client_ip_address = forwarded_for.split(',')[0] if forwarded_for else request.remote_addr
-            log_message = ' '.join([
+
+            session_uid = None
+            if current_user and current_user.uid:
+                session_uid = f'[UID {current_user.uid}]'
+
+            log_message_elements = [
                 client_ip_address,
+                session_uid,
                 request.method,
                 request.full_path,
                 response.status,
-            ])
+            ]
+            log_message = ' '.join(e for e in log_message_elements if e)
+
             if response.status_code >= 500:
                 app.logger.error(log_message)
             elif response.status_code >= 400:
