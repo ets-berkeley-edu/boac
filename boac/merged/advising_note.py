@@ -587,6 +587,13 @@ def get_zip_stream(
     return z
 
 
+_EFORM_DATA_SOURCE_TO_PARENT_TYPE = {
+    'student_late_drop_eforms': 'late_drop_eform',
+    'student_cpp_change_eforms': 'cpp_change_eform',
+    'student_course_load_eforms': 'course_load_eform',
+}
+
+
 def note_to_compatible_json(
         note,
         topics=(),
@@ -595,6 +602,7 @@ def note_to_compatible_json(
 ):
     # We have legacy notes and notes created via BOAC. The following sets a standard for the front-end.
     omit_note_body = note.get('is_private') and not current_user.can_access_private_notes
+    data_source = note.get('data_source') if note.get('eform_id') else None
     return {
         'appointmentId': note.get('appointmentId'),
         'attachments': None if omit_note_body else attachments,
@@ -610,6 +618,7 @@ def note_to_compatible_json(
         'isDraft': note.get('is_draft'),
         'peerAdvisingDepartmentId': note.get('peer_advising_department_id'),
         'parentNoteId': note.get('parent_note_id'),
+        'parentType': _EFORM_DATA_SOURCE_TO_PARENT_TYPE.get(data_source) if data_source else None,
         'read': bool(note_read),
         'setDate': safe_strftime(note.get('set_date'), '%Y-%m-%d'),
         'sid': note.get('sid'),

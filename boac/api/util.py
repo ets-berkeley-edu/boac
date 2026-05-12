@@ -43,6 +43,7 @@ from boac.merged.sis_terms import current_term_id
 from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
+from boac.models.comment import Comment
 from boac.models.curated_group import CuratedGroup
 from boac.models.degree_progress_course import ACCENT_COLOR_CODES
 from boac.models.note import Note, note_contact_type_enum
@@ -220,6 +221,10 @@ def put_notifications(student):
                 student['notifications']['note'].append(child)
         for parent in notes_by_id.values():
             parent['comments'].sort(key=lambda c: c.get('createdAt') or '')
+        _attach_external_comments(
+            appointments=student['notifications']['appointment'],
+            eforms=student['notifications']['eForm'],
+        )
     for alert in Alert.current_alerts_for_sid(viewer_id=current_user.get_id(), sid=sid):
         student['notifications']['alert'].append({
             **alert,
@@ -246,6 +251,29 @@ def put_notifications(student):
                 'read': True,
                 'type': 'requirement',
             })
+
+
+def _attach_external_comments(appointments, eforms):
+    pairs = []
+    for a in appointments:
+        if a.get('id') is not None:
+            pairs.append(('appointment', str(a['id'])))
+    for e in eforms:
+        parent_type = e.get('parentType')
+        if parent_type and e.get('id') is not None:
+            pairs.append((parent_type, str(e['id'])))
+    grouped = Comment.get_comments_by_parents(pairs)
+    for a in appointments:
+        if a.get('id') is None:
+            a['comments'] = []
+            continue
+        a['comments'] = [c.to_api_json() for c in grouped.get(('appointment', str(a['id'])), [])]
+    for e in eforms:
+        parent_type = e.get('parentType')
+        if not parent_type or e.get('id') is None:
+            e['comments'] = []
+            continue
+        e['comments'] = [c.to_api_json() for c in grouped.get((parent_type, str(e['id'])), [])]
 
 
 def get_current_user_profile():

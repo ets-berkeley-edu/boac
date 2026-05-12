@@ -6,6 +6,7 @@ CREATE TYPE comment_parent_types AS ENUM (
     'cpp_change_eform',
     'late_drop_eform'
 );
+ALTER TYPE comment_parent_types OWNER TO app_boa;
 
 CREATE TABLE comment_parents (
     id INTEGER NOT NULL,
@@ -13,14 +14,14 @@ CREATE TABLE comment_parents (
     parent_type comment_parent_types NOT NULL,
     deleted_at TIMESTAMP WITH TIME ZONE
 );
-ALTER TABLE comment_parents OWNER TO boac;
+ALTER TABLE comment_parents OWNER TO app_boa;
 CREATE SEQUENCE comment_parents_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
-ALTER TABLE comment_parents_id_seq OWNER TO boac;
+ALTER TABLE comment_parents_id_seq OWNER TO app_boa;
 ALTER SEQUENCE comment_parents_id_seq OWNED BY comment_parents.id;
 ALTER TABLE ONLY comment_parents ALTER COLUMN id SET DEFAULT nextval('comment_parents_id_seq'::regclass);
 ALTER TABLE ONLY comment_parents
@@ -41,14 +42,14 @@ CREATE TABLE comments (
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
     deleted_at TIMESTAMP WITH TIME ZONE
 );
-ALTER TABLE comments OWNER TO boac;
+ALTER TABLE comments OWNER TO app_boa;
 CREATE SEQUENCE comments_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
-ALTER TABLE comments_id_seq OWNER TO boac;
+ALTER TABLE comments_id_seq OWNER TO app_boa;
 ALTER SEQUENCE comments_id_seq OWNED BY comments.id;
 ALTER TABLE ONLY comments ALTER COLUMN id SET DEFAULT nextval('comments_id_seq'::regclass);
 ALTER TABLE ONLY comments
@@ -65,14 +66,14 @@ CREATE TABLE comment_attachments (
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     deleted_at TIMESTAMP WITH TIME ZONE
 );
-ALTER TABLE comment_attachments OWNER TO boac;
+ALTER TABLE comment_attachments OWNER TO app_boa;
 CREATE SEQUENCE comment_attachments_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
-ALTER TABLE comment_attachments_id_seq OWNER TO boac;
+ALTER TABLE comment_attachments_id_seq OWNER TO app_boa;
 ALTER SEQUENCE comment_attachments_id_seq OWNED BY comment_attachments.id;
 ALTER TABLE ONLY comment_attachments ALTER COLUMN id SET DEFAULT nextval('comment_attachments_id_seq'::regclass);
 ALTER TABLE ONLY comment_attachments
