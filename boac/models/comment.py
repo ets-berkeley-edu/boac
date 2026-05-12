@@ -23,12 +23,16 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from collections import defaultdict
+
+from sqlalchemy import tuple_
 from sqlalchemy.dialects.postgresql import ARRAY
 
 from boac import db, std_commit
 from boac.lib.util import to_iso_format
 from boac.models.base import Base
 from boac.models.comment_attachment import CommentAttachment
+from boac.models.comment_parent import CommentParent
 
 
 class Comment(Base):
@@ -52,6 +56,27 @@ class Comment(Base):
     @classmethod
     def find_by_id(cls, comment_id):
         return cls.query.filter_by(id=comment_id).filter(cls.deleted_at == None).first()  # noqa: E711
+
+    @classmethod
+    def get_comments_by_parents(cls, pairs):
+        normalized = [(pt, str(pid)) for pt, pid in pairs if pt and pid is not None]
+        grouped = defaultdict(list)
+        if not normalized:
+            return grouped
+        rows = (
+            db.session.query(cls, CommentParent.parent_type, CommentParent.parent_id)
+            .join(CommentParent, cls.comment_parent_id == CommentParent.id)
+            .filter(
+                cls.deleted_at == None,  # noqa: E711
+                CommentParent.deleted_at == None,  # noqa: E711
+                tuple_(CommentParent.parent_type, CommentParent.parent_id).in_(normalized),
+            )
+            .order_by(cls.created_at.asc(), cls.id.asc())
+            .all()
+        )
+        for comment, parent_type, parent_id in rows:
+            grouped[(parent_type, parent_id)].append(comment)
+        return grouped
 
     @classmethod
     def create(
