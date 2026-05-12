@@ -540,7 +540,7 @@ def mock_peer_advising_note_template(app, db):
 
 
 @pytest.fixture
-def create_peer_advising_note(fake_auth, db):
+def mock_peer_advising_note(fake_auth, db):
     """Create a Peer Advising Note."""
     # Set up the test by creating a note authored by CE3 Peer Advisor.
     peer_advisor_author_uid = '1133400'
@@ -561,4 +561,74 @@ def create_peer_advising_note(fake_auth, db):
     )
     db.session.add(note)
     std_commit(allow_test_environment=True)
-    return note
+    logout_user()
+
+    yield Note.find_by_id(note.id)
+
+    Note.delete(note.id)
+    std_commit(allow_test_environment=True)
+
+
+@pytest.fixture
+def mock_peer_advising_note_with_comments(fake_auth, db, mock_peer_advising_note):
+    """Create a Peer Advising Note with comments."""
+    peer_advisor_author_uid = '1133400'
+    advisor_uid = '2525'
+    foreign_dept_advisor_uid = '1133399'
+    navcal_department = PeerAdvisingDepartment.get_department_by_name('NAVCAL')
+
+    # Add a comment from a peer advisor
+    fake_auth.login(peer_advisor_author_uid)
+    peer_comment = Note.create(
+        author_uid=peer_advisor_author_uid,
+        author_name='Peer',
+        author_role='peer_advisor',
+        author_dept_codes=[],
+        sid='9000000000',
+        body='A comment from a peer.',
+        parent_note_id=mock_peer_advising_note.id,
+        peer_advising_department_id=navcal_department.id,
+        subject='',
+    )
+    db.session.add(peer_comment)
+    logout_user()
+
+    # Add a comment from an advisor in the same department
+    fake_auth.login(advisor_uid)
+    peer_comment = Note.create(
+        author_uid=advisor_uid,
+        author_name='Grigsby Columbo',
+        author_role='peer_advisor_manager',
+        author_dept_codes=[],
+        sid='9000000000',
+        body='A comment from the advisor.',
+        parent_note_id=mock_peer_advising_note.id,
+        peer_advising_department_id=navcal_department.id,
+        subject='',
+    )
+    db.session.add(peer_comment)
+    logout_user()
+
+    # Add a comment from an advisor in a different department
+    fake_auth.login(foreign_dept_advisor_uid)
+    peer_comment = Note.create(
+        author_uid=foreign_dept_advisor_uid,
+        author_name='Grigsby Columbo',
+        author_role='peer_advisor_manager',
+        author_dept_codes=[],
+        sid='9000000000',
+        body='A comment from the advisor.',
+        parent_note_id=mock_peer_advising_note.id,
+        peer_advising_department_id=navcal_department.id,
+        subject='',
+    )
+    db.session.add(peer_comment)
+    logout_user()
+
+    std_commit(allow_test_environment=True)
+    yield Note.find_by_id(mock_peer_advising_note.id)
+
+    Note.delete(mock_peer_advising_note.id)
+    std_commit(allow_test_environment=True)
+
+

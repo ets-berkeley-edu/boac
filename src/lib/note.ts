@@ -1,4 +1,4 @@
-import {each, filter, get, isEmpty, map, size, trim} from 'lodash'
+import {each, filter, findIndex, get, isEmpty, map, size, trim} from 'lodash'
 import type {
   AcademicTimelineMessage,
   Attachment,
@@ -7,6 +7,7 @@ import type {
   DepartmentMembership,
   EForm,
   Note,
+  NoteComment,
   NoteTemplate,
 } from '@/lib/types'
 import {getPeerAdvisorDepartmentMemberships} from '@/lib/berkeley-department'
@@ -111,6 +112,18 @@ export function summarizeNoteForAcademicTimeline(message: AcademicTimelineMessag
 
 export function summarizeTopics(topics: string[]): string {
   return `Topic${topics.length === 1 ? '' : 's'}: ${oxfordJoin(topics)}`
+}
+
+export function updateNoteComments(parentNote: Note, comment: NoteComment) {
+  if (!parentNote.comments) {
+    parentNote.comments = []
+  }
+  const existingCommentIndex = findIndex(parentNote.comments, {'id': comment.id})
+  if (existingCommentIndex >= 0) {
+    parentNote.comments.splice(existingCommentIndex, 1, comment)
+  } else {
+    parentNote.comments.push(comment)
+  }
 }
 
 export function validateAttachment(attachments: Attachment[], existingAttachments: Attachment[]): string | null {

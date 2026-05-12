@@ -870,7 +870,7 @@ const userCanDelete = message => {
   min-height: 30px !important;
   padding: 0 10px;
 }
-.message-row ul {
+.message-row ul, .message-row ul {
   padding-left: 25px;
 }
 .message-row.expanded .academic-timeline-column-date {

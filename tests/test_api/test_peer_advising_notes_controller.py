@@ -36,6 +36,7 @@ admin_uid = '2040'
 asc_advisor_uid = '6446'
 ce3_advisor_uid = '2525'
 ce3_navcal_peer_advisor_uid = '1133400'
+ce3_navcal_peer_advisor_2_uid = '188444'
 ce3_navcal_peer_advisor_manager_uid = '2525'
 coe_advisor_no_advising_data_uid = '1022796'
 coe_mech_peer_advisor_uid = '1913062'
@@ -44,108 +45,6 @@ coe_student = {
     'uid': '300847',
 }
 qcadv_advisor_uid = '53791'
-
-
-class TestPeerAdvisorAddNoteComment:
-
-    @classmethod
-    def setup_class(cls):
-        author_uid = ce3_navcal_peer_advisor_uid
-        peer_advisor_user_id = AuthorizedUser.get_id_per_uid(author_uid)
-        memberships = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(peer_advisor_user_id)
-        cls.ce3_navcal_peer_advising_department_id = memberships[0]['peer_advising_department_id']
-        cls.mock_ce3_navcal_peer_advising_note = None
-        cls.student_sid_of_note = '11667051'
-        # Create mock note
-        note = Note.create(
-            author_uid=author_uid,
-            author_name='Davey Jones',
-            author_role='peer_advisor',
-            author_dept_codes=[],
-            body="""
-                I bought you a pair of shoes, a trumpet you can blow
-                And a book of rules on what to say to people
-                When they pick on you
-                'Cause if you stay with us, you're gonna be pretty kooky, too.
-            """,
-            peer_advising_department_id=cls.ce3_navcal_peer_advising_department_id,
-            sid=cls.student_sid_of_note,
-            subject='Kooks',
-            contact_type=None,
-            topics=['collaborative synergies', 'vertical solutions'],
-        )
-        std_commit(allow_test_environment=True)
-        cls.peer_advising_note_id = note.id
-
-    def test_unauthorized_peer_advising_note_comment(self, client, fake_auth):
-        """Unauthorized user cannot comment on Peer Advising note."""
-        for uid in [None, coe_advisor_no_advising_data_uid, qcadv_advisor_uid]:
-            if uid:
-                fake_auth.login(uid)
-            self._api_add_note_comment(
-                body='Hack the body!',
-                client=client,
-                parent_note_id=self.peer_advising_note_id,
-                expected_status_code=401,
-            )
-
-    def test_foreign_dept_peer_advisor_note_comment(self, client, fake_auth):
-        """Peer advisor cannot comment on a Peer Advising note from another department."""
-        fake_auth.login(coe_mech_peer_advisor_uid)
-        self._api_add_note_comment(
-            body='A comment that has no business being here',
-            client=client,
-            parent_note_id=self.peer_advising_note_id,
-            expected_status_code=404,
-        )
-
-    def test_nonexistent_peer_advising_note_comment(self, client, fake_auth):
-        """Peer advisor cannot comment on a nonexistent Peer Advising note."""
-        fake_auth.login(ce3_navcal_peer_advisor_uid)
-        self._api_add_note_comment(
-            body='An orphan comment',
-            client=client,
-            parent_note_id=9999,
-            expected_status_code=404,
-        )
-
-    def test_authorized_peer_advisor_note_comment(self, client, fake_auth):
-        """Peer advisor can comment on a Peer Advising note within their department."""
-        body = 'A very interesting comment!'
-        fake_auth.login(ce3_navcal_peer_advisor_uid)
-        api_json = self._api_add_note_comment(
-            body=body,
-            client=client,
-            parent_note_id=self.peer_advising_note_id,
-        )
-        assert api_json['body'].strip().replace(' ', '') == body.strip().replace(' ', '')
-        assert api_json['peerAdvisingDepartmentId'] == self.ce3_navcal_peer_advising_department_id
-        assert api_json['sid'] == self.student_sid_of_note
-
-
-    @classmethod
-    def _api_add_note_comment(
-            cls,
-            body,
-            client,
-            parent_note_id,
-            attachments=None,
-            expected_status_code=200,
-    ):
-        data = {
-            'parentNoteId': parent_note_id,
-            'body': body,
-            'attachments': attachments,
-        }
-        response = client.post(
-            '/api/peer_advising/note/add_comment',
-            buffered=True,
-            content_type='multipart/form-data',
-            data=data,
-        )
-        assert response.status_code == expected_status_code
-        return response.json
-
 
 class TestCreatePeerAdvisingNote:
 
@@ -397,6 +296,180 @@ class TestGetPeerAdvisingTopics:
         api_json = self._api_get_peer_advising_topics(client)
         assert len(api_json)
         assert 'Probation' in [topic['topic'] for topic in api_json]
+
+
+class TestPeerAdvisorAddNoteComment:
+
+    @classmethod
+    def setup_class(cls):
+        author_uid = ce3_navcal_peer_advisor_uid
+        peer_advisor_user_id = AuthorizedUser.get_id_per_uid(author_uid)
+        memberships = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(peer_advisor_user_id)
+        cls.ce3_navcal_peer_advising_department_id = memberships[0]['peer_advising_department_id']
+
+
+    def test_unauthorized_peer_advising_note_comment(self, client, fake_auth, mock_peer_advising_note):
+        """Unauthorized user cannot comment on Peer Advising note."""
+        for uid in [None, coe_advisor_no_advising_data_uid, qcadv_advisor_uid]:
+            if uid:
+                fake_auth.login(uid)
+            self._api_add_note_comment(
+                body='Hack the body!',
+                client=client,
+                parent_note_id=mock_peer_advising_note.id,
+                expected_status_code=401,
+            )
+
+    def test_foreign_dept_peer_advisor_note_comment(self, client, fake_auth, mock_peer_advising_note):
+        """Peer advisor cannot comment on a Peer Advising note from another department."""
+        fake_auth.login(coe_mech_peer_advisor_uid)
+        self._api_add_note_comment(
+            body='A comment that has no business being here',
+            client=client,
+            parent_note_id=mock_peer_advising_note.id,
+            expected_status_code=404,
+        )
+
+    def test_nonexistent_peer_advising_note_comment(self, client, fake_auth):
+        """Peer advisor cannot comment on a nonexistent Peer Advising note."""
+        fake_auth.login(ce3_navcal_peer_advisor_uid)
+        self._api_add_note_comment(
+            body='An orphan comment',
+            client=client,
+            parent_note_id=9999,
+            expected_status_code=404,
+        )
+
+    def test_authorized_peer_advisor_note_comment(self, client, fake_auth, mock_peer_advising_note):
+        """Peer advisor can comment on a Peer Advising note within their department."""
+        body = 'A very interesting comment!'
+        fake_auth.login(ce3_navcal_peer_advisor_uid)
+        api_json = self._api_add_note_comment(
+            body=body,
+            client=client,
+            parent_note_id=mock_peer_advising_note.id,
+        )
+        assert api_json['body'].strip().replace(' ', '') == body.strip().replace(' ', '')
+        assert api_json['parentNoteId'] == mock_peer_advising_note.id
+        assert api_json['peerAdvisingDepartmentId'] == self.ce3_navcal_peer_advising_department_id
+        assert api_json['sid'] == mock_peer_advising_note.sid
+
+
+    @classmethod
+    def _api_add_note_comment(
+            cls,
+            body,
+            client,
+            parent_note_id,
+            attachments=None,
+            expected_status_code=200,
+    ):
+        data = {
+            'parentNoteId': parent_note_id,
+            'body': body,
+            'attachments': attachments,
+        }
+        response = client.post(
+            '/api/peer_advising/note/add_comment',
+            buffered=True,
+            content_type='multipart/form-data',
+            data=data,
+        )
+        assert response.status_code == expected_status_code
+        return response.json
+
+
+class TestPeerAdvisorEditNoteComment:
+
+    @classmethod
+    def setup_class(cls):
+        author_uid = ce3_navcal_peer_advisor_uid
+        peer_advisor_user_id = AuthorizedUser.get_id_per_uid(author_uid)
+        memberships = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(peer_advisor_user_id)
+        cls.ce3_navcal_peer_advising_department_id = memberships[0]['peer_advising_department_id']
+
+
+    def test_unauthorized_peer_advising_note_comment(self, client, fake_auth, mock_peer_advising_note_with_comments):
+        """Unauthorized user cannot edit a Peer Advising note comment."""
+        comments = Note.get_notes_by_parent_id(mock_peer_advising_note_with_comments.id)
+        for uid in [None, coe_advisor_no_advising_data_uid, qcadv_advisor_uid]:
+            if uid:
+                fake_auth.login(uid)
+            for comment in comments:
+                self._api_edit_note_comment(
+                    comment_id=comment.id,
+                    body='Hack the body!',
+                    client=client,
+                    parent_note_id=mock_peer_advising_note_with_comments.id,
+                    expected_status_code=401,
+                )
+
+    def test_nonexistent_peer_advising_note_comment(self, client, fake_auth, mock_peer_advising_note_with_comments):
+        """Peer advisor cannot edit a nonexistent Peer Advising note comment."""
+        fake_auth.login(ce3_navcal_peer_advisor_uid)
+        self._api_edit_note_comment(
+            comment_id=666,
+            body='An orphan comment',
+            client=client,
+            parent_note_id=mock_peer_advising_note_with_comments.id,
+            expected_status_code=404,
+        )
+
+    def test_other_advisor_peer_advising_note_comment(self, client, fake_auth, mock_peer_advising_note_with_comments):
+        """Peer advisor cannot edit another advisor's comment."""
+        comments = Note.get_notes_by_parent_id(mock_peer_advising_note_with_comments.id)
+        fake_auth.login(ce3_navcal_peer_advisor_2_uid)
+        for comment in comments:
+            self._api_edit_note_comment(
+                comment_id=comment.id,
+                body='A comment that has no business being here',
+                client=client,
+                parent_note_id=mock_peer_advising_note_with_comments.id,
+                expected_status_code=404,
+            )
+
+    def test_authorized_peer_advisor_note_comment(self, client, fake_auth, mock_peer_advising_note_with_comments):
+        """Peer advisor can edit their own Peer Advising note comment."""
+        body = 'A very interesting comment!'
+        comments = Note.get_notes_by_parent_id(mock_peer_advising_note_with_comments.id)
+        fake_auth.login(ce3_navcal_peer_advisor_uid)
+        for comment in comments:
+            if comment.author_uid == ce3_navcal_peer_advisor_uid:
+                api_json = self._api_edit_note_comment(
+                    comment_id=comment.id,
+                    body=body,
+                    client=client,
+                    parent_note_id=mock_peer_advising_note_with_comments.id,
+                )
+                assert api_json['body'].strip().replace(' ', '') == body.strip().replace(' ', '')
+                assert api_json['peerAdvisingDepartmentId'] == self.ce3_navcal_peer_advising_department_id
+                assert api_json['sid'] == mock_peer_advising_note_with_comments.sid
+
+
+    @classmethod
+    def _api_edit_note_comment(
+            cls,
+            comment_id,
+            body,
+            client,
+            parent_note_id,
+            attachments=None,
+            expected_status_code=200,
+    ):
+        data = {
+            'id': comment_id,
+            'parentNoteId': parent_note_id,
+            'body': body,
+            'attachments': attachments,
+        }
+        response = client.post(
+            '/api/peer_advising/note/edit_comment',
+            buffered=True,
+            content_type='multipart/form-data',
+            data=data,
+        )
+        assert response.status_code == expected_status_code
+        return response.json
 
 
 class TestPeerAdvisingNoteAttachments:

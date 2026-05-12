@@ -29,7 +29,7 @@
         />
       </div>
       <EditNoteComment
-        v-if="!readOnly && editingComment && editingComment.id === comment.id"
+        v-if="canUserEditNote(comment, currentUser) && editingComment && editingComment.id === comment.id"
         :cancel="onCancelEdit"
         class="pb-3"
         :comment="editingComment"
@@ -38,7 +38,7 @@
       />
       <footer v-if="!editingComment || editingComment.id !== comment.id" class="academic-timeline-column-date">
         <v-btn
-          v-if="!readOnly && canUserEditNote(comment, currentUser)"
+          v-if="canUserEditNote(comment, currentUser)"
           :id="`note-${note.id}-comment-${comment.id}-edit-btn`"
           class="mb-2"
           color="primary"
@@ -69,9 +69,8 @@
         </div>
       </footer>
     </article>
-    <div v-if="!readOnly" class="border-t-sm pt-2">
+    <div v-if="!isCreatingComment && !editingComment" class="border-t-sm pt-2">
       <v-btn
-        v-if="!isCreatingComment && !editingComment"
         :id="`note-${note.id}-add-comment-btn`"
         class="bg-white my-2"
         color="primary"
@@ -100,18 +99,16 @@ import AuthorDetails from '@/components/note/AuthorDetails'
 import EditNoteComment from '@/components/note/comment/EditNoteComment'
 import TimelineDate from '@/components/student/profile/TimelineDate'
 import {addNoteComment, updateNoteComment} from '@/api/notes'
+import {addPeerAdvisingNoteComment, updatePeerAdvisingNoteComment} from '@/api/peer-advising-notes'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {canUserEditNote} from '@/lib/note.js'
+import {isPeerAdvisor} from '@/lib/boa-user'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({
   note: {
     required: true,
     type: Object
-  },
-  readOnly: {
-    required: false,
-    type: Boolean
   }
 })
 
@@ -144,7 +141,8 @@ const onClickEdit = comment => {
 }
 
 const createComment = (id, body, attachments) => {
-  return addNoteComment(props.note.id, body, attachments).then(() => {
+  const add = isPeerAdvisor(currentUser) ? addPeerAdvisingNoteComment : addNoteComment
+  return add(props.note.id, body, attachments).then(() => {
     isCreatingComment.value = false
     alertScreenReader('posted comment')
     putFocusNextTick(`note-${props.note.id}-add-comment-btn`)
@@ -152,7 +150,8 @@ const createComment = (id, body, attachments) => {
 }
 
 const updateComment = (id, body, attachments, deleteAttachmentIds) => {
-  return updateNoteComment(
+  const update = isPeerAdvisor(currentUser) ? updatePeerAdvisingNoteComment : updateNoteComment
+  return update(
     id,
     body,
     attachments,
@@ -168,5 +167,8 @@ const updateComment = (id, body, attachments, deleteAttachmentIds) => {
 <style scoped>
 .academic-timeline-column-date{
   margin-right: -24px;
+}
+.note-comments :deep(ul), .note-comments :deep(ol) {
+  padding-left: 25px;
 }
 </style>
