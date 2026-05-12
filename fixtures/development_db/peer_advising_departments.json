@@ -11,6 +11,7 @@
         "peer_advising_department_name": "NAVCAL",
         "university_dept_code": "ZCEEE",
         "users": [
+            {"uid": "188444", "role": "peer_advisor"},
             {"uid": "1133400", "role": "peer_advisor"},
             {"uid": "2525", "role": "peer_advisor_manager"}
         ]

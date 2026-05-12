@@ -39,7 +39,7 @@
         </span>
       </transition>
     </div>
-    <div v-if="!isPeerAdvisor(currentUser) && !model.peerAdvisingDepartmentId" class="mt-1">
+    <div v-if="!isFetchingNote && !isPeerAdvisor(currentUser) && !model.peerAdvisingDepartmentId" class="mt-1">
       <label id="edit-note-subject-label" class="font-weight-bold" for="edit-note-subject">
         <span class="sr-only">Note </span>Subject
       </label>
@@ -205,6 +205,7 @@ const noteStore = useNoteStore()
 
 const currentUser = contextStore.currentUser
 const editNoteForm = ref()
+const isFetchingNote = ref(false)
 const isPublishingNote = ref(false)
 const isSavingDraft = ref(false)
 const showAreYouSureModal = ref(false)
@@ -248,6 +249,7 @@ onMounted(() => {
     fetchTopics.then(data => {
       topics.value = data
       noteStore.setMode('editNote')
+      isFetchingNote.value = false
       focusNoteField()
       if (note.isDraft) {
         setTimeout(() => {
@@ -257,6 +259,7 @@ onMounted(() => {
       contextStore.setEventHandler('user-session-expired', noteStore.onBoaSessionExpires)
     })
   }
+  isFetchingNote.value = true
   getNote(props.noteId).then(note => {
     noteStore.resetModel()
     noteStore.setModel(note)

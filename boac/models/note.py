@@ -758,13 +758,16 @@ class Note(Base):
     def delete(cls, note_id):
         note = cls.find_by_id(note_id)
         if note:
-            note.deleted_at = utc_now()
+            now = utc_now()
+            note.deleted_at = now
             for attachment in note.attachments:
-                attachment.deleted_at = utc_now()
+                attachment.deleted_at = now
             sqs_topic_messages = []
             for topic in note.topics:
-                topic.deleted_at = utc_now()
+                topic.deleted_at = now
                 sqs_topic_messages.append(topic.to_sqs_json())
+            for comment in Note.get_notes_by_parent_id(note_id):
+                comment.deleted_at = now
             std_commit()
             if not note.is_draft and len(sqs_topic_messages):
                 sqs.send(

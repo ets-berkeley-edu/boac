@@ -128,6 +128,55 @@ def create_peer_advising_note():
     return tolerant_jsonify(get_boac_note_as_compatible_json(note, note_read=True))
 
 
+@app.route('/api/peer_advising/note/edit_comment', methods=['POST'])
+@peer_advisor_required
+def edit_peer_advising_note_comment():
+    params = request.form
+    comment_id = params.get('id')
+    if not comment_id or not is_int(comment_id):
+        raise BadRequestError('Request has missing or invalid request parameters')
+    comment = Note.find_by_id(note_id=int(comment_id))
+    if not comment or not comment.parent_note_id or not can_current_user_edit_note(comment):
+        raise ResourceNotFoundError('Note not found')
+    body = process_input_from_rich_text_editor(params.get('body'))
+    if not body or not body.strip():
+        raise BadRequestError('Request has missing or invalid request parameters')
+
+    delete_ids_ = params.get('deleteAttachmentIds') or []
+    delete_ids_ = delete_ids_ if isinstance(delete_ids_, list) else str(delete_ids_).split(',')
+    delete_attachment_ids = [int(id_) for id_ in delete_ids_ if is_int(id_)]
+    attachments = get_note_attachments_from_http_post(tolerate_none=True)
+    attachment_limit = app.config['NOTES_ATTACHMENTS_MAX_PER_NOTE']
+    existing_attachment_count = len(comment.attachments) - len(delete_attachment_ids)
+    if existing_attachment_count + len(attachments) > attachment_limit:
+        raise BadRequestError(f'No more than {attachment_limit} attachments may be uploaded at once.')
+
+    comment = Note.update(
+        body=body,
+        contact_type=comment.contact_type,
+        is_draft=False,
+        is_private=comment.is_private,
+        note_id=comment.id,
+        set_date=comment.set_date,
+        sid=comment.sid,
+        subject=comment.subject,
+        topics=[topic.topic for topic in comment.topics],
+        note_template_id=comment.note_template_id,
+    )
+    for attachment_id in delete_attachment_ids:
+        comment = Note.delete_attachment(
+            note_id=comment.id,
+            attachment_id=attachment_id,
+        )
+    for attachment in attachments:
+        comment = Note.add_attachment(
+            note_id=comment.id,
+            attachment=attachment,
+        )
+    note_read = NoteRead.find_or_create(current_user.get_id(), comment.id)
+    return tolerant_jsonify(get_boac_note_as_compatible_json(note=comment, note_read=note_read))
+
+
 @app.route('/api/peer_advising/<sid>/enrollments')
 @peer_advisor_required
 def get_enrollment_terms_by_sid(sid):
@@ -370,10 +419,7 @@ def update_peer_advising_note():
         raise BadRequestError('Request has missing or invalid request parameters')
     # Fetch existing note
     note = Note.find_by_id(note_id=note_id) if note_id else None
-    is_authorized = note and PeerAdvisingDepartmentMember.is_user_in_peer_advising_department(
-        user_id=current_user.get_id(),
-        peer_advising_department_id=note.peer_advising_department_id,
-    )
+    is_authorized = note and can_current_user_edit_note(note)
     if not is_authorized:
         raise ResourceNotFoundError('Note not found')
     note = Note.update(

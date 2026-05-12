@@ -63,7 +63,6 @@
           <v-expand-transition>
             <PeerAdvisingNotesTable
               v-if="!isFetchingNotes"
-              :after-note-edit="afterNoteEdit"
               class="d-block font-size-16 w-100"
               :is-fetching-notes="isFetchingNotes"
               :notes="notes"
@@ -88,8 +87,8 @@
 
 <script setup lang="ts">
 import type {PropType} from 'vue'
-import {get, orderBy} from 'lodash'
-import {onBeforeUnmount, onMounted, ref} from 'vue'
+import {findIndex, get, orderBy} from 'lodash'
+import {onBeforeUnmount, ref} from 'vue'
 import {mdiCloseThick} from '@mdi/js'
 import type {BoaUser, Note, PeerAdvisingDepartment} from '@/lib/types'
 import type {Month} from '@/lib/types-peer-advising'
@@ -97,6 +96,7 @@ import ModalHeader from '@/components/util/ModalHeader.vue'
 import PeerAdvisingNotesTable from '@/components/peer/note/PeerAdvisingNotesTable.vue'
 import {toggleModalBackgroundDisabled} from '@/lib/utils'
 import {getPeerAdvisingNotesAuthoredBy} from '@/api/peer-advising-notes'
+import {updateNoteComments} from '@/lib/note'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 
@@ -126,28 +126,31 @@ const isFetchingNotes = ref<boolean>(false)
 const isModalOpen = ref<boolean>(false)
 const notes = ref<Note[]>([])
 
-onMounted(() => {
-  contextStore.setEventHandler('note-deleted', () => {
-    getPeerAdvisingNotesAuthoredBy(props.peerAdvisingDepartment.id, props.user.uid, props.timeframe).then(data => {
-      notes.value = orderBy(data, n => n.updatedAt || n.createdAt, ['desc'])
-    })
-  })
-})
-
 onBeforeUnmount(() => {
   toggleModalBackgroundDisabled(false)
   noteStore.exitSession()
   contextStore.removeEventHandler('note-deleted')
+  contextStore.removeEventHandler('note-updated')
 })
 
-const afterNoteEdit = () => {
-  getPeerAdvisingNotesAuthoredBy(
-    props.peerAdvisingDepartment.id,
-    props.user.uid,
-    props.timeframe
-  ).then(data => {
-    notes.value = data
-  })
+const afterNoteEdit = note => {
+  const noteId = note.parentNoteId || note.id
+  const existingNoteIndex = findIndex(notes.value, {'id': noteId})
+  if (existingNoteIndex > -1) {
+    if (note.parentNoteId) {
+      const parentNote = notes.value[existingNoteIndex]
+      if (parentNote) {
+        updateNoteComments(parentNote, note)
+      } else {
+        loadNotes()
+      }
+    } else {
+      notes.value.splice(existingNoteIndex, 1, note)
+      notes.value = sortNotes(notes.value)
+    }
+  } else {
+    loadNotes()
+  }
 }
 
 const closeModal = () => {
@@ -155,19 +158,31 @@ const closeModal = () => {
   noteStore.exitSession()
   isModalOpen.value = false
   notes.value = []
+  contextStore.removeEventHandler('note-deleted')
+  contextStore.removeEventHandler('note-updated')
 }
 
-const showModal = () => {
-  toggleModalBackgroundDisabled(true)
-  isModalOpen.value = true
+const loadNotes = () => {
   isFetchingNotes.value = true
   getPeerAdvisingNotesAuthoredBy(
     props.peerAdvisingDepartment.id,
     props.user.uid,
     props.timeframe
   ).then(data => {
-    notes.value = data
+    notes.value = sortNotes(data)
     isFetchingNotes.value = false
   })
+}
+
+const showModal = () => {
+  toggleModalBackgroundDisabled(true)
+  isModalOpen.value = true
+  loadNotes()
+  contextStore.setEventHandler('note-deleted', loadNotes)
+  contextStore.setEventHandler('note-updated', afterNoteEdit)
+}
+
+const sortNotes = notes => {
+  return orderBy(notes, n => n.updatedAt || n.createdAt, ['desc'])
 }
 </script>

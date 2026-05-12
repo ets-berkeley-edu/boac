@@ -36,6 +36,7 @@ import {onMounted, onUnmounted, ref} from 'vue'
 import AcademicTimelineHeader from '@/components/student/profile/academic-timeline/AcademicTimelineHeader'
 import AcademicTimelineTable from '@/components/student/profile/academic-timeline/AcademicTimelineTable'
 import {getNote} from '@/api/notes'
+import {updateNoteComments} from '@/lib/note'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({
@@ -169,18 +170,6 @@ const sortMessages = () => {
 
 const updateCountsPerType = (type, count) => {
   countsPerType.value[type] = count
-}
-
-const updateNoteComments = (parentNote, comment) => {
-  if (!parentNote.comments) {
-    parentNote.comments = []
-  }
-  const existingCommentIndex = findIndex(parentNote.comments, {'id': comment.id})
-  if (existingCommentIndex >= 0) {
-    parentNote.comments.splice(existingCommentIndex, 1, comment)
-  } else {
-    parentNote.comments.push(comment)
-  }
 }
 
 onUnmounted(() => {

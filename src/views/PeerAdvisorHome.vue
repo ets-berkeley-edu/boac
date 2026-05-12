@@ -40,7 +40,6 @@
         :key="totalNoteCount"
         :notes="notes"
         :is-fetching-notes="isFetchingNotes"
-        :after-note-edit="fetchNotes"
       >
         <template #noData>
           <div class="d-flex align-center">
@@ -78,7 +77,7 @@ import {findIndex, get, last, orderBy} from 'lodash'
 import {mdiFileDocument} from '@mdi/js'
 import {computed, onMounted, onUnmounted, ref, watch} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
-import type {BasicStudent, BoaUser, Note, PeerAdvisingDepartment} from '@/lib/types'
+import type {BasicStudent, BoaUser, Note, NoteComment, PeerAdvisingDepartment} from '@/lib/types'
 import EditPeerAdvisingNoteModal from '@/components/peer/note/EditPeerAdvisingNoteModal.vue'
 import PeerAdvisingNotesTable from '@/components/peer/note/PeerAdvisingNotesTable.vue'
 import SectionSpinner from '@/components/util/SectionSpinner.vue'
@@ -89,6 +88,7 @@ import {getDefaultModel} from '@/stores/note-edit-session/note-edit-session-util
 import {findPeerAdvisingDepartment, getPeerAdvisorDepartmentMemberships} from '@/lib/berkeley-department'
 import {getPeerAdvisorNotes} from '@/api/peer-advising-notes'
 import {getUserByUid} from '@/api/user'
+import {updateNoteComments} from '@/lib/note'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 
@@ -100,7 +100,6 @@ const currentUser = contextStore.currentUser
 const isFetchingNotes = ref(false)
 const noteStore = useNoteStore()
 const notes = ref<Note[]>([])
-const offset = ref(0)
 const peerAdvisingDepartment = ref<PeerAdvisingDepartment | undefined>()
 const peerAdvisor = ref<BoaUser>()
 const route = useRoute()
@@ -109,8 +108,6 @@ const totalNoteCount = ref(0)
 const showMyNotesOnly = ref(false)
 
 watch(showMyNotesOnly, async () => {
-  // clear out the old notes and set loading
-  notes.value = []
   isFetchingNotes.value = true
   // fetch fresh data filtered by the new switch state
   await fetchNotes()
@@ -144,18 +141,20 @@ const notesDescription = computed(() => {
   return `Showing all ${notes.value.length} notes.`
 })
 
-const fetchNotes = () => {
+const fetchNotes = (offset) => {
   return new Promise<void>(resolve => {
     if (peerAdvisor.value && peerAdvisor.value.uid) {
-      offset.value = notes.value.length || 0
       getPeerAdvisorNotes(
-        offset.value,
+        offset || 0,
         LIMIT_PER_FETCH,
         peerAdvisor.value.uid,
         true,
         showMyNotesOnly.value
       ).then(data => {
-        notes.value = orderBy([...notes.value, ...data.notes], n => n.updatedAt || n.createdAt, ['desc'])
+        if (!offset) {
+          notes.value = []
+        }
+        notes.value = sortNotes([...notes.value, ...data.notes])
         totalNoteCount.value = data.totalNoteCount
         isFetchingNotes.value = false
         resolve()
@@ -176,14 +175,7 @@ const init = (user: BoaUser) => {
     fetchNotes().then(() => {
       contextStore.loadingComplete()
       contextStore.setEventHandler('peer-advising-note-created', onPeerAdvisingNoteCreated)
-      contextStore.setEventHandler('note-updated', data => {
-        const note: Note = (data as Note)
-        const index = findIndex(notes.value, {'id': note.id})
-        if (index > -1) {
-          note.peerAdvisingDepartment = notes.value[index].peerAdvisingDepartment
-          notes.value[index] = note
-        }
-      })
+      contextStore.setEventHandler('note-updated', onPeerAdvisingNoteUpdated)
       putFocusNextTick('page-header')
     })
   } else {
@@ -206,7 +198,7 @@ const onClickCreateNote = () => {
 const onClickShowMore = () => {
   alertScreenReader('Loading additional notes')
   isFetchingNotes.value = true
-  fetchNotes().then(() => {
+  fetchNotes(notes.value.length).then(() => {
     alertScreenReader(notesDescription.value)
     if (totalNoteCount.value > notes.value.length) {
       // Keep focus on the "Show additional advising notes" button while it remains available.
@@ -226,5 +218,31 @@ const onPeerAdvisingNoteCreated: Handler<any> = (note: Note) => {
     notes.value.unshift(note)
     totalNoteCount.value += 1
   })
+}
+
+const onPeerAdvisingNoteUpdated = (note: Note|NoteComment) => {
+  const noteId = note.parentNoteId || note.id
+  const existingNoteIndex = findIndex(notes.value, {'id': noteId})
+  if (existingNoteIndex > -1) {
+    if (note.parentNoteId) {
+      const parentNote = notes.value[existingNoteIndex]
+      if (parentNote) {
+        updateNoteComments(parentNote, note as NoteComment)
+      } else {
+        fetchNotes()
+      }
+    } else {
+      note.peerAdvisingDepartment = notes.value[existingNoteIndex].peerAdvisingDepartment
+      notes.value.splice(existingNoteIndex, 1, note)
+      notes.value = sortNotes(notes.value)
+    }
+  } else {
+    fetchNotes()
+  }
+}
+
+const sortNotes = notes => {
+  return orderBy(notes, n => n.updatedAt || n.createdAt, ['desc'])
+
 }
 </script>

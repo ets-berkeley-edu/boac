@@ -183,7 +183,6 @@
             class="pl-5"
             :class="{'sr-only': !isExpanded(note)}"
             :note="note"
-            :read-only="!canUserEditNote(note, currentUser)"
           />
         </div>
       </article>
@@ -232,7 +231,8 @@ import TimelineMessageIcons from '@/components/student/profile/academic-timeline
 
 const props = defineProps({
   afterNoteEdit: {
-    required: true,
+    default: () => {},
+    required: false,
     type: Function
   },
   notes: {

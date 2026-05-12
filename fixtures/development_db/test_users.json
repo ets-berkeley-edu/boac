@@ -144,6 +144,17 @@
         "lastName": "Pumpkin-Eater"
     },
     {
+        "uid": "188444",
+        "csid": "5023548760",
+        "canAccessAdvisingData": false,
+        "canAccessCanvasData": false,
+        "degreeProgressPermission": null,
+        "isAdmin": false,
+        "inDemoMode": false,
+        "firstName": "Lial",
+        "lastName": "McCaig"
+    },
+    {
         "uid": "211159",
         "csid": "211159",
         "isAdmin": false,

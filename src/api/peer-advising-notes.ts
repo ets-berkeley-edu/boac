@@ -1,7 +1,7 @@
 import axios from 'axios'
 import {each} from 'lodash'
 import type {Month} from '@/lib/types-peer-advising'
-import type {NoteEditSessionModel} from '@/lib/types'
+import type {NoteAttachment, NoteEditSessionModel} from '@/lib/types'
 import utils from '@/api/api-utils'
 import {useContextStore} from '@/stores/context'
 
@@ -14,6 +14,18 @@ export async function addPeerAdvisingAttachments(noteId: number, attachments: ob
       resolve(note)
     })
   })
+}
+
+export async function addPeerAdvisingNoteComment(parentNoteId: number, body: string, attachments: NoteAttachment[]) {
+  const args = {
+    body,
+    parentNoteId
+  }
+  const contextStore = useContextStore()
+  each(attachments, (attachment, index) => args[`attachment[${index}]`] = attachment)
+  const data = await utils.postMultipartFormData('/api/peer_advising/note/add_comment', args)
+  contextStore.broadcast('note-updated', data)
+  return data
 }
 
 export function getPeerAdvisingNotesAuthoredBy(
@@ -116,6 +128,19 @@ export function updatePeerAdvisingNote(
     useContextStore().broadcast('peer-advising-note-updated', data)
     return data
   })
+}
+
+export async function updatePeerAdvisingNoteComment(noteId: number, body: string, attachments: NoteAttachment[], deleteAttachmentIds: number[]) {
+  const args = {
+    id: noteId,
+    body,
+    deleteAttachmentIds
+  }
+  const contextStore = useContextStore()
+  each(attachments, (attachment, index) => args[`attachment[${index}]`] = attachment)
+  const data = await utils.postMultipartFormData('/api/peer_advising/note/edit_comment', args)
+  contextStore.broadcast('note-updated', data)
+  return data
 }
 
 export async function updatePeerAdvisingNoteTemplate(noteTemplateId: number, noteBody: string, title: string, topics: []) {
