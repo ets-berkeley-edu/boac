@@ -44,12 +44,11 @@
       <span v-if="role">
         <span :id="`${idPrefix}-author-role`">{{ capitalizeAllWords(replace(role, '_', ' ')) }}</span>
       </span>
-      <div v-if="peerAdvisingDepartment">
+      <div v-if="peerAdvisingDepartment" class="text-medium-emphasis">
         <span :id="`${idPrefix}-peer-advising-department`">{{ peerAdvisingDepartment.name }}</span>
         <div
           v-if="peerAdvisingDepartment.deptName !== peerAdvisingDepartment.name"
           :id="`${idPrefix}-university-department-of-peer-advisor`"
-          class="text-medium-emphasis"
         >
           {{ peerAdvisingDepartment.deptName }}
         </div>

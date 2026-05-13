@@ -13,6 +13,7 @@
           <AuthorDetails
             :author="comment.author"
             :id-prefix="`note-${note.id}-comment-${comment.id}`"
+            :peer-advising-department-id="comment.peerAdvisingDepartmentId"
           />
         </div>
         <div :id="`note-${note.id}-comment-${comment.id}-text`" v-html="comment.body" />
@@ -69,24 +70,26 @@
         </div>
       </footer>
     </article>
-    <div v-if="!isCreatingComment && !editingComment" class="border-t-sm pt-2">
+    <div class="border-t-sm pt-2">
       <v-btn
+        v-if="!isCreatingComment && !editingComment"
         :id="`note-${note.id}-add-comment-btn`"
         class="bg-white my-2"
         color="primary"
+        :disabled="currentUser.isAdmin"
         :prepend-icon="mdiPlus"
         text="Add Comment"
         variant="outlined"
         @click="onClickAdd"
       />
+      <EditNoteComment
+        v-if="isCreatingComment"
+        :cancel="onCancelAdd"
+        :id-prefix="`note-${note.id}-comment-new`"
+        :parent-note-id="note.id"
+        :save="createComment"
+      />
     </div>
-    <EditNoteComment
-      v-if="isCreatingComment"
-      :cancel="onCancelAdd"
-      :id-prefix="`note-${note.id}-comment-new`"
-      :parent-note-id="note.id"
-      :save="createComment"
-    />
   </section>
 </template>
 

@@ -292,10 +292,10 @@
             />
             <div
               v-if="(message.type === 'note' && message.author) || (message.type === 'appointment' && message.advisor)"
-              class="pb-1"
+              class="pb-1 pl-2"
               :class="{'sr-only': !isExpanded(message)}"
             >
-              <span v-if="message.type === 'note'" class="font-size-14 text-medium-emphasis pl-2">Created by:</span>
+              <span v-if="message.type === 'note'" class="font-size-14 text-medium-emphasis">Created by:</span>
               <AuthorDetails
                 activator-class="font-size-14 pl-2"
                 :author="message.author || message.advisor"

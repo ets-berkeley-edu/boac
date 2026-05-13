@@ -30,7 +30,7 @@ from flask import current_app as app
 from flask import request
 from flask_login import current_user
 
-from boac.api.errors import BadRequestError
+from boac.api.errors import BadRequestError, UnauthorizedRequestError
 from boac.externals.data_loch import get_sis_holds
 from boac.lib.berkeley import ACADEMIC_STANDING_DESCRIPTIONS, dept_codes_where_advising
 from boac.lib.util import get_benchmarker, join_if_present, process_input_from_rich_text_editor, to_iso_format
@@ -154,7 +154,7 @@ def construct_phantom_cohort(domain, filters, **kwargs):
     return cohort.to_api_json(**kwargs)
 
 
-def create_note_comment(parent_note, params):
+def create_note_comment(parent_note, params, peer_advising_department_id=None):
     body = process_input_from_rich_text_editor(params.get('body'))
     if not body or not body.strip():
         raise BadRequestError('Request has missing or invalid request parameters')
@@ -162,13 +162,16 @@ def create_note_comment(parent_note, params):
     attachment_limit = app.config['NOTES_ATTACHMENTS_MAX_PER_NOTE']
     if len(attachments) > attachment_limit:
         raise BadRequestError(f'No more than {attachment_limit} attachments may be uploaded at once.')
+    author = get_note_author_profile_of_current_user()
+    if not author['author_role']:
+        raise UnauthorizedRequestError('Unauthorized.')
     return Note.create(
-        **get_note_author_profile_of_current_user(),
+        **author,
         attachments=attachments,
         body=body,
         is_private=parent_note.is_private,
         parent_note_id=parent_note.id,
-        peer_advising_department_id=parent_note.peer_advising_department_id,
+        peer_advising_department_id=peer_advising_department_id,
         sid=parent_note.sid,
         subject='',
     )

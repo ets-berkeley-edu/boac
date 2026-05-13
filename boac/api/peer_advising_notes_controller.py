@@ -79,10 +79,10 @@ def add_peer_advising_note_comment():
     memberships = (
         PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(authorized_user_id=current_user.get_id())
     )
-    user_peer_advising_department_id = memberships[0]['peer_advising_department_id']
-    if parent_note.peer_advising_department_id != user_peer_advising_department_id:
+    user_peer_advising_department_id = memberships[0]['peer_advising_department_id'] if len(memberships) else None
+    if not (user_peer_advising_department_id and parent_note.peer_advising_department_id == user_peer_advising_department_id):
         raise ResourceNotFoundError('Note not found')
-    comment = create_note_comment(parent_note, params)
+    comment = create_note_comment(parent_note, params, user_peer_advising_department_id)
     return tolerant_jsonify(get_boac_note_as_compatible_json(note=comment, note_read=True))
 
 
@@ -312,6 +312,7 @@ def get_notes_authored_by():
                 'author': {
                     'uid': row['author_uid'],
                     'name': row['author_name'],
+                    'role': row['author_role'],
                 },
                 'body': row['body'],
                 'comments': get_boa_note_comments_as_compatible_json(row),

@@ -36,6 +36,7 @@ from boac.models.curated_group import CuratedGroup
 from boac.models.note import Note
 from boac.models.note_attachment import NoteAttachment
 from boac.models.note_read import NoteRead
+from boac.models.peer_advising_department import PeerAdvisingDepartment
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 from tests.test_api.api_test_utils import all_cohorts_owned_by
 from tests.util import mock_advising_note_s3_bucket, mock_eop_note_attachment, mock_sis_note_attachment
@@ -46,6 +47,7 @@ ce3_navcal_peer_advisor_manager_uid = '2525'
 ce3_navcal_peer_advisor_uid = '1133400'
 coe_advisor_uid = '1133399'
 coe_advisor_no_advising_data_uid = '1022796'
+eop_peer_advisor_manager_uid = '3535'
 l_s_director_uid = '53791'
 l_s_major_advisor_uid = '242881'
 l_s_director_no_advising_data_uid = '1022796'
@@ -510,6 +512,123 @@ class TestBatchNoteCreation:
             assert len(note.attachments) == expected_attachment_count
             assert note.contact_type == 'Admin'
             assert note.set_date == date(2022, 1, 1)
+
+
+class TestAddNoteComment:
+
+    def test_unauthorized_note_comment(self, client, fake_auth, mock_advising_note):
+        """Unauthorized user cannot comment on a note."""
+        for uid in [None, coe_advisor_no_advising_data_uid, l_s_director_no_advising_data_uid, ce3_navcal_peer_advisor_uid]:
+            if uid:
+                fake_auth.login(uid)
+            self._api_add_note_comment(
+                body='Hack the body!',
+                client=client,
+                parent_note_id=mock_advising_note.id,
+                expected_status_code=401,
+            )
+
+    def test_admin_note_comment(self, client, fake_auth, mock_advising_note):
+        """Admin user cannot comment on a note."""
+        fake_auth.login(admin_uid)
+        self._api_add_note_comment(
+            body='With great power comes great responsibility.',
+            client=client,
+            parent_note_id=mock_advising_note.id,
+            expected_status_code=401,
+        )
+
+    def test_advisor_nonexistent_note_comment(self, client, fake_auth):
+        """Advisor with note access cannot comment on a nonexistent note."""
+        fake_auth.login(l_s_major_advisor_uid)
+        self._api_add_note_comment(
+            body='An orphan comment',
+            client=client,
+            parent_note_id=9999,
+            expected_status_code=404,
+        )
+
+    def test_advisor_note_comment(self, client, fake_auth, mock_advising_note):
+        """Advisor with note access can comment on a note."""
+        body = 'A very interesting comment!'
+        fake_auth.login(l_s_major_advisor_uid)
+        api_json = self._api_add_note_comment(
+            body=body,
+            client=client,
+            parent_note_id=mock_advising_note.id,
+        )
+        assert api_json['body'].strip().replace(' ', '') == body.strip().replace(' ', '')
+        assert api_json['parentNoteId'] == mock_advising_note.id
+        assert api_json['peerAdvisingDepartmentId'] is None
+        assert api_json['sid'] == mock_advising_note.sid
+
+    def test_advisor_peer_advising_note_comment(self, client, fake_auth, mock_navcal_peer_advising_note):
+        """Advisor with note access can comment on a Peer Advising note."""
+        body = 'Comment on a NAVCAL peer advising note from an ASC advisor'
+        fake_auth.login(asc_advisor_uid)
+        api_json = self._api_add_note_comment(
+            body=body,
+            client=client,
+            parent_note_id=mock_navcal_peer_advising_note.id,
+        )
+        assert api_json['body'].strip().replace(' ', '') == body.strip().replace(' ', '')
+        assert api_json['parentNoteId'] == mock_navcal_peer_advising_note.id
+        assert api_json['peerAdvisingDepartmentId'] is None
+        assert api_json['sid'] == mock_navcal_peer_advising_note.sid
+
+    def test_pam_peer_advising_note_comment(self, client, fake_auth, mock_navcal_peer_advising_note):
+        """Peer Advising Manager can comment on a Peer Advising note from the same department."""
+        body = 'Comment on a NAVCAL peer advising note from a NAVCAL peer advising manager'
+        navcal_department = PeerAdvisingDepartment.get_department_by_name('NAVCAL')
+        fake_auth.login(ce3_navcal_peer_advisor_manager_uid)
+        api_json = self._api_add_note_comment(
+            body=body,
+            client=client,
+            parent_note_id=mock_navcal_peer_advising_note.id,
+        )
+        assert api_json['body'].strip().replace(' ', '') == body.strip().replace(' ', '')
+        assert api_json['parentNoteId'] == mock_navcal_peer_advising_note.id
+        assert api_json['peerAdvisingDepartmentId'] == navcal_department.id
+        assert api_json['sid'] == mock_navcal_peer_advising_note.sid
+
+    def test_pam_cross_dept_peer_advising_note_comment(self, client, fake_auth, mock_navcal_peer_advising_note):
+        """Peer Advising Manager can comment on a Peer Advising note from a different department."""
+        body = 'Comment on a Mechanical Engineering peer advising note from an EOP peer advising manager'
+        eop_department = PeerAdvisingDepartment.get_department_by_name('Educational Opportunity Program')
+        fake_auth.login(eop_peer_advisor_manager_uid)
+        api_json = self._api_add_note_comment(
+            body=body,
+            client=client,
+            parent_note_id=mock_navcal_peer_advising_note.id,
+        )
+        assert api_json['body'].strip().replace(' ', '') == body.strip().replace(' ', '')
+        assert api_json['parentNoteId'] == mock_navcal_peer_advising_note.id
+        assert api_json['peerAdvisingDepartmentId'] == eop_department.id
+        assert api_json['sid'] == mock_navcal_peer_advising_note.sid
+
+
+    @classmethod
+    def _api_add_note_comment(
+            cls,
+            body,
+            client,
+            parent_note_id,
+            attachments=None,
+            expected_status_code=200,
+    ):
+        data = {
+            'parentNoteId': parent_note_id,
+            'body': body,
+            'attachments': attachments,
+        }
+        response = client.post(
+            '/api/note/add_comment',
+            buffered=True,
+            content_type='multipart/form-data',
+            data=data,
+        )
+        assert response.status_code == expected_status_code
+        return response.json
 
 
 class TestNoteAttachments:
