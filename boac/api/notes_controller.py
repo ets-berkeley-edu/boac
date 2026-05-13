@@ -47,7 +47,7 @@ from boac.api.util import (
     validate_note_contact_type,
 )
 from boac.externals import data_loch
-from boac.lib.berkeley import dept_codes_where_advising
+from boac.lib.berkeley import dept_codes_where_advising, get_department_membership_with_role
 from boac.lib.http import tolerant_jsonify
 from boac.lib.sis_advising import get_legacy_attachment_stream as get_sis_attachment_stream
 from boac.lib.util import get as get_param
@@ -119,7 +119,9 @@ def add_note_comment():
     parent_note = Note.find_by_id(note_id=parent_note_id)
     if not parent_note or not can_current_user_access_note(parent_note):
         raise ResourceNotFoundError('Note not found')
-    comment = create_note_comment(parent_note, request.form)
+    pam_membership = get_department_membership_with_role(current_user, 'peer_advisor_manager')
+    peer_advising_department_id = pam_membership.get('peerAdvisingDepartmentId', None) if pam_membership else None
+    comment = create_note_comment(parent_note, request.form, peer_advising_department_id)
     note_read = NoteRead.find_or_create(current_user.get_id(), comment.id)
     return tolerant_jsonify(get_boac_note_as_compatible_json(note=comment, note_read=note_read))
 

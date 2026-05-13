@@ -540,9 +540,38 @@ def mock_peer_advising_note_template(app, db):
 
 
 @pytest.fixture
-def mock_peer_advising_note(fake_auth, db):
-    """Create a Peer Advising Note."""
-    # Set up the test by creating a note authored by CE3 Peer Advisor.
+def mock_eop_peer_advising_note(fake_auth, db):
+    """Create an EOP Peer Advising Note."""
+    # Set up the test by creating a note authored by EOP Peer Advisor.
+    peer_advisor_author_uid = '1563405'
+    fake_auth.login(peer_advisor_author_uid)
+
+    eop_department = PeerAdvisingDepartment.get_department_by_name('Educational Opportunity Program')
+    # Create the note
+    note = Note.create(
+        author_uid=peer_advisor_author_uid,
+        author_name='Peer',
+        author_role='peer_advisor',
+        author_dept_codes=[],
+        sid='9000000000',
+        body='Anastasia has two note attachments.',
+        peer_advising_department_id=eop_department.id,
+        subject='Test Note',
+        topics=['topic1', 'topic2', 'topic3'],
+    )
+    db.session.add(note)
+    std_commit(allow_test_environment=True)
+    logout_user()
+
+    yield Note.find_by_id(note.id)
+
+    Note.delete(note.id)
+    std_commit(allow_test_environment=True)
+
+
+@pytest.fixture
+def mock_navcal_peer_advising_note(fake_auth, db):
+    """Create a CE3 NAVCAL Peer Advising Note."""
     peer_advisor_author_uid = '1133400'
     fake_auth.login(peer_advisor_author_uid)
 
@@ -570,12 +599,13 @@ def mock_peer_advising_note(fake_auth, db):
 
 
 @pytest.fixture
-def mock_peer_advising_note_with_comments(fake_auth, db, mock_peer_advising_note):
-    """Create a Peer Advising Note with comments."""
+def mock_navcal_peer_advising_note_with_comments(fake_auth, db, mock_navcal_peer_advising_note):
+    """Create a NAVCAL Peer Advising Note with comments."""
     peer_advisor_author_uid = '1133400'
     advisor_uid = '2525'
     foreign_dept_advisor_uid = '1133399'
     navcal_department = PeerAdvisingDepartment.get_department_by_name('NAVCAL')
+    mech_eng_department = PeerAdvisingDepartment.get_department_by_name('Mechanical Engineering')
 
     # Add a comment from a peer advisor
     fake_auth.login(peer_advisor_author_uid)
@@ -586,7 +616,7 @@ def mock_peer_advising_note_with_comments(fake_auth, db, mock_peer_advising_note
         author_dept_codes=[],
         sid='9000000000',
         body='A comment from a peer.',
-        parent_note_id=mock_peer_advising_note.id,
+        parent_note_id=mock_navcal_peer_advising_note.id,
         peer_advising_department_id=navcal_department.id,
         subject='',
     )
@@ -602,7 +632,7 @@ def mock_peer_advising_note_with_comments(fake_auth, db, mock_peer_advising_note
         author_dept_codes=[],
         sid='9000000000',
         body='A comment from the advisor.',
-        parent_note_id=mock_peer_advising_note.id,
+        parent_note_id=mock_navcal_peer_advising_note.id,
         peer_advising_department_id=navcal_department.id,
         subject='',
     )
@@ -613,22 +643,22 @@ def mock_peer_advising_note_with_comments(fake_auth, db, mock_peer_advising_note
     fake_auth.login(foreign_dept_advisor_uid)
     peer_comment = Note.create(
         author_uid=foreign_dept_advisor_uid,
-        author_name='Grigsby Columbo',
+        author_name='Joni Mitchell',
         author_role='peer_advisor_manager',
         author_dept_codes=[],
         sid='9000000000',
-        body='A comment from the advisor.',
-        parent_note_id=mock_peer_advising_note.id,
-        peer_advising_department_id=navcal_department.id,
+        body='A comment from a different department.',
+        parent_note_id=mock_navcal_peer_advising_note.id,
+        peer_advising_department_id=mech_eng_department.id,
         subject='',
     )
     db.session.add(peer_comment)
     logout_user()
 
     std_commit(allow_test_environment=True)
-    yield Note.find_by_id(mock_peer_advising_note.id)
+    yield Note.find_by_id(mock_navcal_peer_advising_note.id)
 
-    Note.delete(mock_peer_advising_note.id)
+    Note.delete(mock_navcal_peer_advising_note.id)
     std_commit(allow_test_environment=True)
 
 

@@ -64,12 +64,19 @@ from boac.models.note_read import NoteRead
 
 
 def can_current_user_access_note(note):
-    if isinstance(note, dict):
-        is_draft = note['is_draft'] if 'is_draft' in note else note['isDraft']
-    else:
-        is_draft = note.is_draft
-    return current_user.is_admin or \
-        (current_user.can_access_advising_data and (not is_draft or get_author_uid(note) == current_user.uid))
+    is_author = get_author_uid(note) == current_user.uid
+    is_draft = note.get('is_draft') or note.get('isDraft') if isinstance(note, dict) else note.is_draft
+    if is_peer_advisor(current_user):
+        peer_advising_department_id = note.get('peer_advising_department_id') or \
+            note['peerAdvisingDepartmentId'] if isinstance(note, dict) else note.peer_advising_department_id
+        if peer_advising_department_id:
+            return has_peer_advising_role_type(
+                    peer_advising_department_id=peer_advising_department_id,
+                    peer_advising_role_type='peer_advisor',
+                    user_id=current_user.get_id(),
+                )
+    elif current_user.is_admin or (current_user.can_access_advising_data and (not is_draft or is_author)):
+        return True
 
 
 def can_current_user_edit_note(note):
