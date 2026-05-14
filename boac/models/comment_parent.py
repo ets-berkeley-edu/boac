@@ -47,6 +47,12 @@ class CommentParent(db.Model):
     deleted_at = db.Column(db.DateTime, nullable=True)
 
     @classmethod
+    def find_by_id(cls, row_id):
+        return cls.query.filter(
+            and_(cls.id == row_id, cls.deleted_at == None),  # noqa: E711
+        ).first()
+
+    @classmethod
     def find_by_type_and_parent_id(cls, parent_type, parent_id):
         return cls.query.filter(
             and_(

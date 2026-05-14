@@ -25,12 +25,13 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from flask import current_app as app
 from flask import request
+from flask_login import current_user
 
 from boac.api.decorators import advising_data_access_required
-from boac.api.errors import BadRequestError
+from boac.api.errors import BadRequestError, ResourceNotFoundError
 from boac.api.util import get_note_attachments_from_http_post, get_note_author_profile_of_current_user
 from boac.lib.http import tolerant_jsonify
-from boac.lib.util import process_input_from_rich_text_editor
+from boac.lib.util import is_int, process_input_from_rich_text_editor
 from boac.models.comment import Comment
 from boac.models.comment_parent import CommentParent, comment_parent_type_enum
 
@@ -68,3 +69,53 @@ def create_comment():
         'parentType': comment_parent.parent_type,
         'parentId': comment_parent.parent_id,
     })
+
+
+def _comment_json_with_parent(comment):
+    comment_parent = CommentParent.find_by_id(comment.comment_parent_id)
+    if not comment_parent:
+        raise ResourceNotFoundError('Comment not found')
+    return {
+        **comment.to_api_json(),
+        'parentType': comment_parent.parent_type,
+        'parentId': comment_parent.parent_id,
+    }
+
+
+def _load_comment_for_mutation(comment_id):
+    if not comment_id or not is_int(comment_id):
+        raise BadRequestError('Request has missing or invalid request parameters')
+    comment = Comment.find_by_id(int(comment_id))
+    if not comment or comment.author_uid != current_user.uid:
+        raise ResourceNotFoundError('Comment not found')
+    return comment
+
+
+@app.route('/api/comments/update', methods=['POST'])
+@advising_data_access_required
+def update_comment():
+    params = request.form
+    comment = _load_comment_for_mutation(params.get('id'))
+    body = process_input_from_rich_text_editor(params.get('body'))
+    if not body or not body.strip():
+        raise BadRequestError('Request has missing or invalid request parameters')
+
+    delete_ids_ = params.get('deleteAttachmentIds') or []
+    delete_ids_ = delete_ids_ if isinstance(delete_ids_, list) else str(delete_ids_).split(',')
+    delete_attachment_ids = [int(id_) for id_ in delete_ids_ if is_int(id_)]
+    attachments = get_note_attachments_from_http_post(tolerate_none=True)
+    attachment_limit = app.config['NOTES_ATTACHMENTS_MAX_PER_NOTE']
+    existing_attachment_count = len(comment.attachments) - len(delete_attachment_ids)
+    if existing_attachment_count + len(attachments) > attachment_limit:
+        raise BadRequestError(f'No more than {attachment_limit} attachments may be uploaded at once.')
+
+    comment.update(body=body, delete_attachment_ids=delete_attachment_ids, new_attachments=attachments)
+    return tolerant_jsonify(_comment_json_with_parent(comment))
+
+
+@app.route('/api/comments/delete/<comment_id>', methods=['DELETE'])
+@advising_data_access_required
+def delete_comment(comment_id):
+    comment = _load_comment_for_mutation(comment_id)
+    comment.soft_delete()
+    return tolerant_jsonify({'message': f'Comment {comment_id} deleted'}), 200

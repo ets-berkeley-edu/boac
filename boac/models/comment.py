@@ -29,7 +29,7 @@ from sqlalchemy import tuple_
 from sqlalchemy.dialects.postgresql import ARRAY
 
 from boac import db, std_commit
-from boac.lib.util import to_iso_format
+from boac.lib.util import to_iso_format, utc_now
 from boac.models.base import Base
 from boac.models.comment_attachment import CommentAttachment
 from boac.models.comment_parent import CommentParent
@@ -112,6 +112,39 @@ class Comment(Base):
         std_commit()
         db.session.refresh(comment)
         return comment
+
+    def update(self, body, delete_attachment_ids=(), new_attachments=()):
+        now = utc_now()
+        delete_attachment_ids = set(delete_attachment_ids)
+        for attachment in self.attachments:
+            if attachment.id in delete_attachment_ids:
+                attachment.deleted_at = now
+        self.body = body
+        self.updated_at = now
+        for attachment in new_attachments:
+            self.attachments.append(
+                CommentAttachment.create(
+                    comment_id=self.id,
+                    name=attachment['name'],
+                    byte_stream=attachment['byte_stream'],
+                    uploaded_by=self.author_uid,
+                ),
+            )
+        std_commit()
+        db.session.refresh(self)
+        return self
+
+    def soft_delete(self):
+        now = utc_now()
+        for attachment in CommentAttachment.query.filter(
+            CommentAttachment.comment_id == self.id,
+            CommentAttachment.deleted_at == None,  # noqa: E711
+        ).all():
+            attachment.deleted_at = now
+        self.deleted_at = now
+        std_commit()
+        db.session.refresh(self)
+        return self
 
     def to_api_json(self):
         return {
