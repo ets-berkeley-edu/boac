@@ -16,18 +16,17 @@ const $_refreshMyDraftNoteCount = () => {
 }
 const $_track = action => ga.note(action)
 
-export function addNoteComment(parentNoteId: number, body: string, attachments: NoteAttachment[]) {
+export async function addNoteComment(parentNoteId: number, parentType: string, body: string, attachments: NoteAttachment[]) {
   const args = {
     body,
     parentNoteId
   }
   const contextStore = useContextStore()
   each(attachments, (attachment, index) => args[`attachment[${index}]`] = attachment)
-  return utils.postMultipartFormData('/api/note/add_comment', args).then(data => {
-    contextStore.broadcast('note-updated', data)
-    $_track('update')
-    return data
-  })
+  const data = await utils.postMultipartFormData('/api/note/add_comment', args)
+  contextStore.broadcast('note-updated', data)
+  $_track('update')
+  return data
 }
 
 export function getNote(noteId: number) {
@@ -104,7 +103,7 @@ export function updateNote(
   })
 }
 
-export function updateNoteComment(noteId: number, body: string, attachments: NoteAttachment[], deleteAttachmentIds: number[]) {
+export async function updateNoteComment(noteId: number, body: string, attachments: NoteAttachment[], deleteAttachmentIds: number[]) {
   const args = {
     id: noteId,
     body,
@@ -112,11 +111,10 @@ export function updateNoteComment(noteId: number, body: string, attachments: Not
   }
   const contextStore = useContextStore()
   each(attachments, (attachment, index) => args[`attachment[${index}]`] = attachment)
-  return utils.postMultipartFormData('/api/note/edit_comment', args).then(data => {
-    contextStore.broadcast('note-updated', data)
-    $_track('update')
-    return data
-  })
+  const data = await utils.postMultipartFormData('/api/note/edit_comment', args)
+  contextStore.broadcast('note-updated', data)
+  $_track('update')
+  return data
 }
 
 export function applyNoteTemplate(noteId: number, templateId: number) {
@@ -136,6 +134,16 @@ export function deleteNote(noteId: number) {
     $_refreshMyDraftNoteCount()
     return response.data
   })
+}
+
+export async function deleteNoteComment(parentNoteId: number, commentId: number) {
+  $_track('delete')
+  const response = await axios.delete(`${utils.apiBaseUrl()}/api/note/delete_comment/${commentId}`)
+  useContextStore().broadcast('comment-deleted', {
+    parentId: parentNoteId,
+    commentId: commentId
+  })
+  return response.data
 }
 
 export function addAttachments(noteId: number, attachments: NoteAttachment[]): Promise<NoteEditSessionModel> {

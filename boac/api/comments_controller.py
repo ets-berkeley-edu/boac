@@ -27,7 +27,7 @@ from flask import current_app as app
 from flask import request
 from flask_login import current_user
 
-from boac.api.decorators import advising_data_access_required
+from boac.api.decorators import admin_required, advising_data_access_required
 from boac.api.errors import BadRequestError, ResourceNotFoundError
 from boac.api.util import get_note_attachments_from_http_post, get_note_author_profile_of_current_user
 from boac.lib.http import tolerant_jsonify
@@ -85,8 +85,10 @@ def _comment_json_with_parent(comment):
 def _load_comment_for_mutation(comment_id):
     if not comment_id or not is_int(comment_id):
         raise BadRequestError('Request has missing or invalid request parameters')
+    app.logger.error(comment_id)
     comment = Comment.find_by_id(int(comment_id))
-    if not comment or comment.author_uid != current_user.uid:
+    app.logger.error(comment)
+    if not comment:
         raise ResourceNotFoundError('Comment not found')
     return comment
 
@@ -96,6 +98,8 @@ def _load_comment_for_mutation(comment_id):
 def update_comment():
     params = request.form
     comment = _load_comment_for_mutation(params.get('id'))
+    if comment.author_uid != current_user.uid:
+        raise ResourceNotFoundError('Comment not found')
     body = process_input_from_rich_text_editor(params.get('body'))
     if not body or not body.strip():
         raise BadRequestError('Request has missing or invalid request parameters')
@@ -114,7 +118,7 @@ def update_comment():
 
 
 @app.route('/api/comments/delete/<comment_id>', methods=['DELETE'])
-@advising_data_access_required
+@admin_required
 def delete_comment(comment_id):
     comment = _load_comment_for_mutation(comment_id)
     comment.soft_delete()

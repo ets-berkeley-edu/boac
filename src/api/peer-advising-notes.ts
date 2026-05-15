@@ -16,7 +16,7 @@ export async function addPeerAdvisingAttachments(noteId: number, attachments: ob
   })
 }
 
-export async function addPeerAdvisingNoteComment(parentNoteId: number, body: string, attachments: NoteAttachment[]) {
+export async function addPeerAdvisingNoteComment(parentNoteId: number, parentType: string, body: string, attachments: NoteAttachment[]) {
   const args = {
     body,
     parentNoteId

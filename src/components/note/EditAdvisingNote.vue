@@ -278,6 +278,7 @@ onMounted(() => {
 
 onBeforeMount(() => {
   contextStore.removeEventHandler('user-session-expired')
+  noteStore.clearAutoSaveJob()
 })
 
 const cancelRequested = () => {

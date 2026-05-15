@@ -35,7 +35,7 @@
       <ProgressButton
         :id="`${idPrefix}-save-btn`"
         :action="onClickSave"
-        :disabled="isSaving || isUpdatingAttachments"
+        :disabled="isSaving || isUpdatingAttachments || contextStore.currentUser.isAdmin"
         class="mr-2"
         color="primary"
         :in-progress="isSaving"
@@ -53,12 +53,13 @@
 </template>
 
 <script setup lang="ts">
-import {get, isEmpty, trim} from 'lodash'
+import {get, isEmpty, reject, trim} from 'lodash'
 import {onMounted, ref} from 'vue'
 import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments'
 import ProgressButton from '@/components/util/ProgressButton'
 import RichTextEditor from '@/components/util/RichTextEditor'
 import {alertScreenReader} from '@/lib/utils'
+import {useContextStore} from '@/stores/context'
 
 const props = defineProps({
   cancel: {
@@ -87,6 +88,7 @@ const props = defineProps({
 
 const commentAttachments = ref([])
 const commentText = ref('')
+const contextStore = useContextStore()
 const deleteAttachmentIds = ref([])
 const error = ref()
 const isSaving = ref(false)
@@ -119,11 +121,12 @@ const onClickSave = () => {
   if (isEmpty(body)) {
     error.value = 'Comment cannot be empty.'
   } else {
+    const newAttachments = reject(commentAttachments.value, 'id')
     isSaving.value = true
     props.save(
       get(props.comment, 'id'),
       trim(commentText.value),
-      commentAttachments.value,
+      newAttachments,
       deleteAttachmentIds.value
     ).then(() => isSaving.value = false)
   }
