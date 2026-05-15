@@ -27,7 +27,7 @@ import inspect
 import re
 import string
 import time
-from datetime import datetime
+from datetime import UTC, datetime
 from html.parser import HTMLParser
 
 import pytz
@@ -198,7 +198,7 @@ def unix_timestamp_to_localtime(epoch):
 
 
 def utc_now():
-    return datetime.utcnow().replace(tzinfo=pytz.utc)
+    return datetime.now(UTC).replace(tzinfo=pytz.utc)
 
 
 def utc_timestamp_to_localtime(_str):

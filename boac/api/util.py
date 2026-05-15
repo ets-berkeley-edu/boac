@@ -30,13 +30,13 @@ from flask import current_app as app
 from flask import request
 from flask_login import current_user
 
-from boac.api.errors import BadRequestError, UnauthorizedRequestError
+from boac.api.errors import BadRequestError, ResourceNotFoundError, UnauthorizedRequestError
 from boac.externals.data_loch import get_sis_holds
 from boac.lib.berkeley import ACADEMIC_STANDING_DESCRIPTIONS, dept_codes_where_advising
-from boac.lib.util import get_benchmarker, join_if_present, process_input_from_rich_text_editor, to_iso_format
+from boac.lib.util import get_benchmarker, is_int, join_if_present, process_input_from_rich_text_editor, to_iso_format, utc_now
 from boac.merged import calnet
 from boac.merged.advising_appointment import get_advising_appointments
-from boac.merged.advising_note import can_current_user_access_note, get_advising_notes, note_to_compatible_json
+from boac.merged.advising_note import can_current_user_access_note, can_current_user_edit_note, get_advising_notes, note_to_compatible_json
 from boac.merged.calnet import get_calnet_user_for_uid
 from boac.merged.cohort_filter_options import PROTECTED_COHORT_FILTERS_COENG, PROTECTED_COHORT_FILTERS_UWASC, CohortFilterOptions
 from boac.merged.sis_terms import current_term_id
@@ -165,7 +165,7 @@ def create_note_comment(parent_note, params, peer_advising_department_id=None):
     author = get_note_author_profile_of_current_user()
     if not author['author_role']:
         raise UnauthorizedRequestError('Unauthorized.')
-    return Note.create(
+    comment = Note.create(
         **author,
         attachments=attachments,
         body=body,
@@ -175,7 +175,57 @@ def create_note_comment(parent_note, params, peer_advising_department_id=None):
         sid=parent_note.sid,
         subject='',
     )
+    NoteRead.delete_for_note(parent_note.id, except_viewer_id=current_user.get_id())
+    NoteRead.find_or_create(viewer_id=current_user.get_id(), note_ids=[comment.id])
+    return comment
 
+
+def update_note_comment(params):
+    comment_id = params.get('id')
+    if not comment_id or not is_int(comment_id):
+        raise BadRequestError('Request has missing or invalid request parameters')
+    comment = Note.find_by_id(note_id=int(comment_id))
+    if not comment or not comment.parent_note_id or not can_current_user_edit_note(comment):
+        raise ResourceNotFoundError('Note not found')
+    body = process_input_from_rich_text_editor(params.get('body'))
+    if not body or not body.strip():
+        raise BadRequestError('Request has missing or invalid request parameters')
+
+    delete_ids_ = params.get('deleteAttachmentIds') or []
+    delete_ids_ = delete_ids_ if isinstance(delete_ids_, list) else str(delete_ids_).split(',')
+    delete_attachment_ids = [int(id_) for id_ in delete_ids_ if is_int(id_)]
+    attachments = get_note_attachments_from_http_post(tolerate_none=True)
+    attachment_limit = app.config['NOTES_ATTACHMENTS_MAX_PER_NOTE']
+    existing_attachment_count = len(comment.attachments) - len(delete_attachment_ids)
+    if existing_attachment_count + len(attachments) > attachment_limit:
+        raise BadRequestError(f'No more than {attachment_limit} attachments may be uploaded at once.')
+
+    comment = Note.update(
+        body=body,
+        contact_type=comment.contact_type,
+        is_draft=False,
+        is_private=comment.is_private,
+        note_id=comment.id,
+        set_date=comment.set_date,
+        sid=comment.sid,
+        subject=comment.subject,
+        topics=[topic.topic for topic in comment.topics],
+        note_template_id=comment.note_template_id,
+        updated_at=utc_now(),
+    )
+    for attachment_id in delete_attachment_ids:
+        comment = Note.delete_attachment(
+            note_id=comment.id,
+            attachment_id=attachment_id,
+        )
+    for attachment in attachments:
+        comment = Note.add_attachment(
+            note_id=comment.id,
+            attachment=attachment,
+        )
+    NoteRead.delete_for_note(comment.id, except_viewer_id=current_user.get_id())
+    NoteRead.delete_for_note(comment.parent_note_id, except_viewer_id=current_user.get_id())
+    return comment
 
 def put_notifications(student):
     sid = student['sid']

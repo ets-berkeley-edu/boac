@@ -44,6 +44,7 @@ from boac.api.util import (
     get_note_topics_from_http_post,
     get_template_attachment_ids_from_http_post,
     is_valid_date_string,
+    update_note_comment,
     validate_note_contact_type,
 )
 from boac.externals import data_loch
@@ -84,7 +85,12 @@ def get_note(note_id):
 @app.route('/api/notes/<note_id>/mark_read', methods=['POST'])
 @advising_data_access_required
 def mark_note_read(note_id):
-    if NoteRead.find_or_create(current_user.get_id(), note_id):
+    note_ids = [note_id]
+    if is_int(note_id):
+        comments = Note.get_notes_by_parent_id(int(note_id))
+        note_ids.extend([comment.id for comment in comments])
+    reads = NoteRead.find_or_create(current_user.get_id(), note_ids)
+    if reads and len(reads):
         return tolerant_jsonify({'status': 'created'}, status=201)
     else:
         raise BadRequestError(f'Failed to mark note {note_id} as read by user {current_user.uid}')
@@ -121,61 +127,15 @@ def add_note_comment():
         raise ResourceNotFoundError('Note not found')
     pam_membership = get_department_membership_with_role(current_user, 'peer_advisor_manager')
     peer_advising_department_id = pam_membership.get('peerAdvisingDepartmentId', None) if pam_membership else None
-    comment = create_note_comment(parent_note, request.form, peer_advising_department_id)
-    note_read = NoteRead.find_or_create(current_user.get_id(), comment.id)
-    return tolerant_jsonify(get_boac_note_as_compatible_json(note=comment, note_read=note_read))
+    comment = create_note_comment(parent_note, params, peer_advising_department_id)
+    return tolerant_jsonify(get_boac_note_as_compatible_json(note=comment, note_read=True))
 
 
 @app.route('/api/note/edit_comment', methods=['POST'])
 @advising_data_access_required
 def edit_note_comment():
-    params = request.form
-    comment_id = params.get('id')
-    if not comment_id or not is_int(comment_id):
-        raise BadRequestError('Request has missing or invalid request parameters')
-    comment = Note.find_by_id(note_id=int(comment_id))
-    if not comment or not comment.parent_note_id:
-        raise ResourceNotFoundError('Note not found')
-    if not can_current_user_edit_note(comment):
-        raise ResourceNotFoundError('Note not found')
-
-    body = process_input_from_rich_text_editor(params.get('body'))
-    if not body or not body.strip():
-        raise BadRequestError('Request has missing or invalid request parameters')
-
-    delete_ids_ = params.get('deleteAttachmentIds') or []
-    delete_ids_ = delete_ids_ if isinstance(delete_ids_, list) else str(delete_ids_).split(',')
-    delete_attachment_ids = [int(id_) for id_ in delete_ids_ if is_int(id_)]
-    attachments = get_note_attachments_from_http_post(tolerate_none=True)
-    attachment_limit = app.config['NOTES_ATTACHMENTS_MAX_PER_NOTE']
-    existing_attachment_count = len(comment.attachments) - len(delete_attachment_ids)
-    if existing_attachment_count + len(attachments) > attachment_limit:
-        raise BadRequestError(f'No more than {attachment_limit} attachments may be uploaded at once.')
-
-    comment = Note.update(
-        body=body,
-        contact_type=comment.contact_type,
-        is_draft=False,
-        is_private=comment.is_private,
-        note_id=comment.id,
-        set_date=comment.set_date,
-        sid=comment.sid,
-        subject=comment.subject,
-        topics=[topic.topic for topic in comment.topics],
-        note_template_id=comment.note_template_id,
-    )
-    for attachment_id in delete_attachment_ids:
-        comment = Note.delete_attachment(
-            note_id=comment.id,
-            attachment_id=attachment_id,
-        )
-    for attachment in attachments:
-        comment = Note.add_attachment(
-            note_id=comment.id,
-            attachment=attachment,
-        )
-    note_read = NoteRead.find_or_create(current_user.get_id(), comment.id)
-    return tolerant_jsonify(get_boac_note_as_compatible_json(note=comment, note_read=note_read))
+    comment = update_note_comment(request.form)
+    return tolerant_jsonify(get_boac_note_as_compatible_json(note=comment, note_read=True))
 
 
 @app.route('/api/note/delete_comment/<comment_id>', methods=['DELETE'])
@@ -257,7 +217,7 @@ def update_note():
             topics=topics,
             note_template_id=note_template_id,
         )
-        note_read = NoteRead.find_or_create(current_user.get_id(), note_id)
+        note_read = NoteRead.find_or_create(current_user.get_id(), [note_id])
         api_json = get_boac_note_as_compatible_json(note=note, note_read=note_read)
     return tolerant_jsonify(api_json)
 
@@ -366,7 +326,7 @@ def add_attachments(note_id):
     return tolerant_jsonify(
         get_boac_note_as_compatible_json(
             note=note,
-            note_read=NoteRead.find_or_create(current_user.get_id(), note_id),
+            note_read=NoteRead.find_or_create(current_user.get_id(), [note_id]),
         ),
     )
 
@@ -386,7 +346,7 @@ def remove_attachment(note_id, attachment_id):
     return tolerant_jsonify(
         get_boac_note_as_compatible_json(
             note=note,
-            note_read=NoteRead.find_or_create(current_user.get_id(), note_id),
+            note_read=NoteRead.find_or_create(current_user.get_id(), [note_id]),
         ),
     )
 

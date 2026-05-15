@@ -607,7 +607,7 @@ def note_to_compatible_json(
         attachments=None,
         note_read=False,
 ):
-    # We have legacy notes and notes created via BOAC. The following sets a standard for the front-end.
+    # We have legacy notes and notes created via BOA. The following sets a standard for the front-end.
     omit_note_body = note.get('is_private') and not current_user.can_access_private_notes
     data_source = note.get('data_source') if note.get('eform_id') else None
     return {
@@ -632,7 +632,7 @@ def note_to_compatible_json(
         'subcategory': note.get('note_subcategory'),
         'subject': note.get('subject'),
         'topics': topics,
-        'updatedAt': resolve_sis_updated_at(note),
+        'updatedAt': to_iso_format(note.get('updated_at')) if note.get('parent_note_id') else resolve_sis_updated_at(note),
         'updatedBy': note.get('updated_by'),
     }
 

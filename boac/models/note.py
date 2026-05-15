@@ -609,6 +609,7 @@ class Note(Base):
             template_attachment_ids=(),
             topics=(),
             note_template_id=None,
+            updated_at=None,
     ):
         note = cls.find_by_id(note_id=note_id)
 
@@ -631,6 +632,8 @@ class Note(Base):
                         note_ids=[note.id],
                         s3_path=template_attachment.path_to_attachment,
                     )
+            if updated_at:
+                note.updated_at = updated_at
             std_commit()
             db.session.refresh(note)
 
@@ -747,8 +750,8 @@ class Note(Base):
         sql = f"""
             SELECT id FROM notes
             WHERE deleted_at IS NULL
-                AND sid = :sid
-                {'AND is_draft IS FALSE' if exclude_draft_notes else ''}
+              AND sid = :sid
+              {'AND is_draft IS FALSE' if exclude_draft_notes else ''}
         """
         results = db.session.execute(text(sql), {'sid': sid})
         note_ids = [row['id'] for row in results.mappings()]

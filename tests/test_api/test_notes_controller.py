@@ -189,7 +189,7 @@ class TestGetNote:
         assert note['body'] == note['message']
         assert note['read'] is False
         # Mark as read and re-test
-        NoteRead.find_or_create(AuthorizedUser.get_id_per_uid(admin_uid), note['id'])
+        NoteRead.find_or_create(AuthorizedUser.get_id_per_uid(admin_uid), [note['id']])
         assert _api_note_by_id(client=client, note_id=mock_coe_advising_note.id)['read'] is True
 
     def test_restrictions_on_draft_note(self, client, fake_auth, mock_note_draft):
@@ -549,9 +549,14 @@ class TestAddNoteComment:
         )
 
     def test_advisor_note_comment(self, client, fake_auth, mock_advising_note):
-        """Advisor with note access can comment on a note."""
-        body = 'A very interesting comment!'
+        """Advisor with note access can comment on a note, marking it unread for other users."""
+        # Other user reads the note
+        fake_auth.login(asc_advisor_uid)
+        _api_mark_note_read(client, mock_advising_note.id)
+
+        # This user comments on the note
         fake_auth.login(l_s_major_advisor_uid)
+        body = 'A very interesting comment!'
         api_json = self._api_add_note_comment(
             body=body,
             client=client,
@@ -561,11 +566,29 @@ class TestAddNoteComment:
         assert api_json['parentNoteId'] == mock_advising_note.id
         assert api_json['peerAdvisingDepartmentId'] is None
         assert api_json['sid'] == mock_advising_note.sid
+        # Comment marked read by its author
+        comment_author_id = AuthorizedUser.get_id_per_uid(api_json['author']['uid'])
+        notes_read = NoteRead.get_notes_read_by_user(viewer_id=comment_author_id, note_ids=[api_json['id']])
+        assert len(notes_read) == 1
+
+        # Note and comment marked unread for other user
+        asc_advisor_id = AuthorizedUser.get_id_per_uid(asc_advisor_uid)
+        notes_read = NoteRead.get_notes_read_by_user(viewer_id=asc_advisor_id, note_ids=[mock_advising_note.id, api_json['id']])
+        assert len(notes_read) == 0
+
+        # Note and comment marked unread for note author
+        note_author_id = AuthorizedUser.get_id_per_uid(mock_advising_note.author_uid)
+        notes_read = NoteRead.get_notes_read_by_user(viewer_id=note_author_id, note_ids=[mock_advising_note.id, api_json['id']])
+        assert len(notes_read) == 0
 
     def test_advisor_peer_advising_note_comment(self, client, fake_auth, mock_navcal_peer_advising_note):
-        """Advisor with note access can comment on a Peer Advising note."""
-        body = 'Comment on a NAVCAL peer advising note from an ASC advisor'
+        """Advisor with note access can comment on a Peer Advising note, marking it unread for other users."""
+        # Other user reads the note
+        fake_auth.login(l_s_major_advisor_uid)
+        _api_mark_note_read(client, mock_navcal_peer_advising_note.id)
+
         fake_auth.login(asc_advisor_uid)
+        body = 'Comment on a NAVCAL peer advising note from an ASC advisor'
         api_json = self._api_add_note_comment(
             body=body,
             client=client,
@@ -575,6 +598,20 @@ class TestAddNoteComment:
         assert api_json['parentNoteId'] == mock_navcal_peer_advising_note.id
         assert api_json['peerAdvisingDepartmentId'] is None
         assert api_json['sid'] == mock_navcal_peer_advising_note.sid
+        # Comment marked read by its author
+        comment_author_id = AuthorizedUser.get_id_per_uid(api_json['author']['uid'])
+        notes_read = NoteRead.get_notes_read_by_user(viewer_id=comment_author_id, note_ids=[api_json['id']])
+        assert len(notes_read) == 1
+
+        # Note and comment marked unread for other user
+        l_s_advisor_id = AuthorizedUser.get_id_per_uid(l_s_major_advisor_uid)
+        notes_read = NoteRead.get_notes_read_by_user(viewer_id=l_s_advisor_id, note_ids=[mock_navcal_peer_advising_note.id, api_json['id']])
+        assert len(notes_read) == 0
+
+        # Note and comment marked unread for note author
+        note_author_id = AuthorizedUser.get_id_per_uid(mock_navcal_peer_advising_note.author_uid)
+        notes_read = NoteRead.get_notes_read_by_user(viewer_id=note_author_id, note_ids=[mock_navcal_peer_advising_note.id, api_json['id']])
+        assert len(notes_read) == 0
 
     def test_pam_peer_advising_note_comment(self, client, fake_auth, mock_navcal_peer_advising_note):
         """Peer Advising Manager can comment on a Peer Advising note from the same department."""
@@ -623,6 +660,195 @@ class TestAddNoteComment:
         }
         response = client.post(
             '/api/note/add_comment',
+            buffered=True,
+            content_type='multipart/form-data',
+            data=data,
+        )
+        assert response.status_code == expected_status_code
+        return response.json
+
+
+class TestEditNoteComment:
+
+    def test_unauthorized_note_comment(self, client, fake_auth, mock_advising_note_with_comments):
+        """Unauthorized user cannot edit a note comment."""
+        comments = Note.get_notes_by_parent_id(mock_advising_note_with_comments.id)
+        for uid in [None, coe_advisor_no_advising_data_uid, l_s_director_no_advising_data_uid, ce3_navcal_peer_advisor_uid]:
+            if uid:
+                fake_auth.login(uid)
+            self._api_edit_note_comment(
+                body='Hack the body!',
+                client=client,
+                comment_id=comments[0].id,
+                parent_note_id=mock_advising_note_with_comments.id,
+                expected_status_code=401,
+            )
+
+    def test_admin_note_comment(self, client, fake_auth, mock_advising_note_with_comments):
+        """Admin user cannot edit a note comment."""
+        comments = Note.get_notes_by_parent_id(mock_advising_note_with_comments.id)
+        fake_auth.login(admin_uid)
+        self._api_edit_note_comment(
+            body='With great power comes great responsibility.',
+            client=client,
+            comment_id=comments[0].id,
+            parent_note_id=mock_advising_note_with_comments.id,
+            expected_status_code=404,
+        )
+
+    def test_advisor_nonexistent_note_comment(self, client, fake_auth, mock_advising_note_with_comments):
+        """Advisor with note access cannot edit nonexistent comment."""
+        fake_auth.login(l_s_major_advisor_uid)
+        self._api_edit_note_comment(
+            body='An orphan comment',
+            client=client,
+            comment_id=9999,
+            parent_note_id=mock_advising_note_with_comments.id,
+            expected_status_code=404,
+        )
+
+    def test_advisor_note_comment(self, client, fake_auth, mock_advising_note_with_comments):
+        """Advisor with note access can edit their own note comment, marking it unread for other users."""
+        # Other user reads the note
+        fake_auth.login(asc_advisor_uid)
+        _api_mark_note_read(client, mock_advising_note_with_comments.id)
+
+        # Comment author edits their comment
+        fake_auth.login(ce3_advisor_uid)
+        comments = Note.get_notes_by_parent_id(mock_advising_note_with_comments.id)
+        comment = next((c for c in comments if c.author_uid == ce3_advisor_uid), None)
+        body = 'A very interesting edit to this comment!'
+        api_json = self._api_edit_note_comment(
+            body=body,
+            client=client,
+            comment_id=comment.id,
+            parent_note_id=mock_advising_note_with_comments.id,
+        )
+        assert api_json['body'].strip().replace(' ', '') == body.strip().replace(' ', '')
+        assert api_json['parentNoteId'] == mock_advising_note_with_comments.id
+        assert api_json['peerAdvisingDepartmentId'] is None
+        assert api_json['sid'] == mock_advising_note_with_comments.sid
+        assert api_json['updatedAt']
+        assert api_json['createdAt'] != api_json['updatedAt']
+        # Comment marked read by its author
+        comment_author_id = AuthorizedUser.get_id_per_uid(api_json['author']['uid'])
+        notes_read = NoteRead.get_notes_read_by_user(viewer_id=comment_author_id, note_ids=[api_json['id']])
+        assert len(notes_read) == 1
+
+        # Note and comment marked unread for other user
+        asc_advisor_id = AuthorizedUser.get_id_per_uid(asc_advisor_uid)
+        notes_read = NoteRead.get_notes_read_by_user(viewer_id=asc_advisor_id, note_ids=[mock_advising_note_with_comments.id, api_json['id']])
+        assert len(notes_read) == 0
+
+        # Note and comment marked unread for note author
+        note_author_id = AuthorizedUser.get_id_per_uid(mock_advising_note_with_comments.author_uid)
+        notes_read = NoteRead.get_notes_read_by_user(viewer_id=note_author_id, note_ids=[mock_advising_note_with_comments.id, api_json['id']])
+        assert len(notes_read) == 0
+
+    def test_advisor_peer_advising_note_comment(self, client, fake_auth, mock_navcal_peer_advising_note_with_comments):
+        """Advisor with note access can edit their own comment on a Peer Advising note, marking it unread for other users."""
+        # Other user reads the note
+        fake_auth.login(asc_advisor_uid)
+        _api_mark_note_read(client, mock_navcal_peer_advising_note_with_comments.id)
+
+        fake_auth.login(l_s_major_advisor_uid)
+        comments = Note.get_notes_by_parent_id(mock_navcal_peer_advising_note_with_comments.id)
+        comment = next((c for c in comments if c.author_uid == l_s_major_advisor_uid), None)
+        body = 'Edited comment on a NAVCAL peer advising note from an CE3 advisor'
+        api_json = self._api_edit_note_comment(
+            body=body,
+            client=client,
+            comment_id=comment.id,
+            parent_note_id=mock_navcal_peer_advising_note_with_comments.id,
+        )
+        assert api_json['body'].strip().replace(' ', '') == body.strip().replace(' ', '')
+        assert api_json['parentNoteId'] == mock_navcal_peer_advising_note_with_comments.id
+        assert api_json['peerAdvisingDepartmentId'] is None
+        assert api_json['sid'] == mock_navcal_peer_advising_note_with_comments.sid
+        assert api_json['updatedAt']
+        assert api_json['createdAt'] != api_json['updatedAt']
+        # Comment marked read by its author
+        comment_author_id = AuthorizedUser.get_id_per_uid(api_json['author']['uid'])
+        notes_read = NoteRead.get_notes_read_by_user(viewer_id=comment_author_id, note_ids=[api_json['id']])
+        assert len(notes_read) == 1
+
+        # Note and comment marked unread for other user
+        asc_advisor_id = AuthorizedUser.get_id_per_uid(asc_advisor_uid)
+        notes_read = NoteRead.get_notes_read_by_user(
+            viewer_id=asc_advisor_id,
+            note_ids=[mock_navcal_peer_advising_note_with_comments.id, api_json['id']],
+        )
+        assert len(notes_read) == 0
+
+        # Note and comment marked unread for note author
+        note_author_id = AuthorizedUser.get_id_per_uid(mock_navcal_peer_advising_note_with_comments.author_uid)
+        notes_read = NoteRead.get_notes_read_by_user(
+            viewer_id=note_author_id,
+            note_ids=[mock_navcal_peer_advising_note_with_comments.id, api_json['id']],
+        )
+        assert len(notes_read) == 0
+
+    def test_pam_peer_advising_note_comment(self, client, fake_auth, mock_navcal_peer_advising_note_with_comments):
+        """Peer Advising Manager can edit their own comment on a Peer Advising note from the same department."""
+        navcal_department = PeerAdvisingDepartment.get_department_by_name('NAVCAL')
+
+        fake_auth.login(ce3_navcal_peer_advisor_manager_uid)
+        comments = Note.get_notes_by_parent_id(mock_navcal_peer_advising_note_with_comments.id)
+        comment = next((c for c in comments if c.author_uid == ce3_navcal_peer_advisor_manager_uid), None)
+        body = 'Edited comment on a NAVCAL peer advising note from a NAVCAL peer advising manager'
+        api_json = self._api_edit_note_comment(
+            body=body,
+            client=client,
+            comment_id=comment.id,
+            parent_note_id=mock_navcal_peer_advising_note_with_comments.id,
+        )
+        assert api_json['body'].strip().replace(' ', '') == body.strip().replace(' ', '')
+        assert api_json['parentNoteId'] == mock_navcal_peer_advising_note_with_comments.id
+        assert api_json['peerAdvisingDepartmentId'] == navcal_department.id
+        assert api_json['sid'] == mock_navcal_peer_advising_note_with_comments.sid
+        assert api_json['updatedAt']
+        assert api_json['createdAt'] != api_json['updatedAt']
+
+    def test_pam_cross_dept_peer_advising_note_comment(self, client, fake_auth, mock_navcal_peer_advising_note_with_comments):
+        """Peer Advising Manager can edit their own comment on a Peer Advising note from a different department."""
+        department = PeerAdvisingDepartment.get_department_by_name('Mechanical Engineering')
+
+        fake_auth.login(coe_advisor_uid)
+        comments = Note.get_notes_by_parent_id(mock_navcal_peer_advising_note_with_comments.id)
+        comment = next((c for c in comments if c.author_uid == coe_advisor_uid), None)
+        body = 'Edited comment on a NAVCAL peer advising note from a Mechanical Engineering peer advising manager'
+        api_json = self._api_edit_note_comment(
+            body=body,
+            client=client,
+            comment_id=comment.id,
+            parent_note_id=mock_navcal_peer_advising_note_with_comments.id,
+        )
+        assert api_json['body'].strip().replace(' ', '') == body.strip().replace(' ', '')
+        assert api_json['parentNoteId'] == mock_navcal_peer_advising_note_with_comments.id
+        assert api_json['peerAdvisingDepartmentId'] == department.id
+        assert api_json['sid'] == mock_navcal_peer_advising_note_with_comments.sid
+        assert api_json['updatedAt']
+        assert api_json['createdAt'] != api_json['updatedAt']
+
+
+    @classmethod
+    def _api_edit_note_comment(
+            cls,
+            body,
+            client,
+            comment_id,
+            parent_note_id,
+            attachments=None,
+            expected_status_code=200,
+    ):
+        data = {
+            'id': comment_id,
+            'parentNoteId': parent_note_id,
+            'body': body,
+            'attachments': attachments,
+        }
+        response = client.post(
+            '/api/note/edit_comment',
             buffered=True,
             content_type='multipart/form-data',
             data=data,
@@ -741,15 +967,15 @@ class TestMarkNoteRead:
 
     def test_mark_read_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
-        assert client.post('/api/notes/11667051-00001/mark_read').status_code == 401
+        _api_mark_note_read(client, '11667051-00001', expected_status_code=401)
 
     def test_user_without_advising_data_access(self, client, fake_auth):
         """Denies access to a user who cannot access notes and appointments."""
         fake_auth.login(coe_advisor_no_advising_data_uid)
-        assert client.post('/api/notes/11667051-00001/mark_read').status_code == 401
+        _api_mark_note_read(client, '11667051-00001', expected_status_code=401)
 
-    def test_mark_note_read(self, client, fake_auth):
-        """Marks a note as read."""
+    def test_mark_external_note_read(self, client, fake_auth):
+        """Marks legacy notes and eForms as read."""
         fake_auth.login(coe_advisor_uid)
         all_notes_unread = _get_student_notifications(client, 61889)['note']
         assert len(all_notes_unread)
@@ -757,22 +983,16 @@ class TestMarkNoteRead:
             assert note['read'] is False
 
         # SIS notes
-        response = client.post('/api/notes/11667051-00001/mark_read')
-        assert response.status_code == 201
-        response = client.post('/api/notes/11667051-00003/mark_read')
-        assert response.status_code == 201
+        _api_mark_note_read(client, '11667051-00001')
+        _api_mark_note_read(client, '11667051-00003')
         # ASC note
-        response = client.post('/api/notes/11667051-139379/mark_read')
-        assert response.status_code == 201
+        _api_mark_note_read(client, '11667051-139379')
         # Data Science note
-        response = client.post('/api/notes/11667051-20190801112456/mark_read')
-        assert response.status_code == 201
+        _api_mark_note_read(client, '11667051-20190801112456')
         # E&I note
-        response = client.post('/api/notes/11667051-151620/mark_read')
-        assert response.status_code == 201
+        _api_mark_note_read(client, '11667051-151620')
         # SIS eForm
-        response = client.post('/api/notes/eform-10096/mark_read')
-        assert response.status_code == 201
+        _api_mark_note_read(client, 'eform-10096')
 
         notifications = _get_student_notifications(client, 61889)
         all_notes_after_read = notifications['note']
@@ -804,6 +1024,29 @@ class TestMarkNoteRead:
         assert all_eforms_after_read[1]['read'] is False
         assert all_eforms_after_read[2]['id'] == 'eform-10096'
         assert all_eforms_after_read[2]['read'] is True
+
+    def test_mark_boa_note_with_coments_read(self, client, fake_auth, mock_advising_note_with_comments):
+        """Marks a BOA note read, as well as each of its comments."""
+        fake_auth.login(coe_advisor_uid)
+        notes_unread = _get_student_notifications(client, coe_student['uid'])['note']
+        assert len(notes_unread)
+        for note in notes_unread:
+            assert note['read'] is False
+            if note['id'] == mock_advising_note_with_comments:
+              for comment in note.get['comments']:
+                  assert comment['read'] is False
+
+        _api_mark_note_read(client, mock_advising_note_with_comments.id)
+
+        notes = _get_student_notifications(client, coe_student['uid'])['note']
+        assert len(notes)
+        for note in notes:
+            if note['id'] == mock_advising_note_with_comments:
+              assert note['read'] is True
+              for comment in note.get['comments']:
+                  assert comment['read'] is True
+            else:
+                assert note['read'] is False
 
 
 class TestUpdateNotes:
@@ -1384,3 +1627,12 @@ def _api_note_attachments_upload(
         )
         assert response.status_code == expected_status_code
         return response.json
+
+def _api_mark_note_read(
+    client,
+    note_id,
+    expected_status_code=201,
+):
+    response = client.post(f'/api/notes/{note_id}/mark_read')
+    assert response.status_code == expected_status_code
+    return response.json

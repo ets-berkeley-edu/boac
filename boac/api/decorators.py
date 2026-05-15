@@ -71,7 +71,6 @@ def advising_data_access_required(func):
         if is_authorized or _api_key_ok():
             return func(*args, **kw)
         else:
-            app.logger.error(current_user.to_api_json())
             app.logger.warning(f'Unauthorized request to {request.path}')
             return login_manager.unauthorized()
     return _advising_data_access_required

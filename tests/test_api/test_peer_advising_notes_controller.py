@@ -28,6 +28,7 @@ import json
 from boac import std_commit
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.note import Note
+from boac.models.note_read import NoteRead
 from boac.models.peer_advising_department import PeerAdvisingDepartment
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 from tests.util import mock_advising_note_s3_bucket
@@ -318,8 +319,7 @@ class TestPeerAdvisorAddNoteComment:
 
     @classmethod
     def setup_class(cls):
-        author_uid = ce3_navcal_peer_advisor_uid
-        peer_advisor_user_id = AuthorizedUser.get_id_per_uid(author_uid)
+        peer_advisor_user_id = AuthorizedUser.get_id_per_uid(ce3_navcal_peer_advisor_uid)
         memberships = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(peer_advisor_user_id)
         cls.ce3_navcal_peer_advising_department_id = memberships[0]['peer_advising_department_id']
 
@@ -368,6 +368,11 @@ class TestPeerAdvisorAddNoteComment:
 
     def test_peer_advisor_note_comment(self, client, fake_auth, mock_navcal_peer_advising_note):
         """Peer advisor can comment on a Peer Advising note within their department."""
+        # Peer Advising Manager reads a peer advisor's note
+        fake_auth.login(ce3_navcal_peer_advisor_manager_uid)
+        _api_mark_note_read(client, mock_navcal_peer_advising_note.id)
+
+        # Another Peer Advisor comments on the note
         body = 'A very interesting comment!'
         fake_auth.login(ce3_navcal_peer_advisor_2_uid)
         api_json = self._api_add_note_comment(
@@ -379,6 +384,23 @@ class TestPeerAdvisorAddNoteComment:
         assert api_json['parentNoteId'] == mock_navcal_peer_advising_note.id
         assert api_json['peerAdvisingDepartmentId'] == self.ce3_navcal_peer_advising_department_id
         assert api_json['sid'] == mock_navcal_peer_advising_note.sid
+        # Comment marked read by its author
+        comment_author_id = AuthorizedUser.get_id_per_uid(api_json['author']['uid'])
+        notes_read = NoteRead.get_notes_read_by_user(viewer_id=comment_author_id, note_ids=[api_json['id']])
+        assert len(notes_read) == 1
+
+        # Note and comment marked unread for Peer Advising Manager
+        manager_id = AuthorizedUser.get_id_per_uid(ce3_navcal_peer_advisor_manager_uid)
+        notes_read = NoteRead.get_notes_read_by_user(
+            viewer_id=manager_id,
+            note_ids=[mock_navcal_peer_advising_note.id, api_json['id']],
+        )
+        assert len(notes_read) == 0
+
+        # Note and comment marked unread for note author
+        note_author_id = AuthorizedUser.get_id_per_uid(mock_navcal_peer_advising_note.author_uid)
+        notes_read = NoteRead.get_notes_read_by_user(viewer_id=note_author_id, note_ids=[mock_navcal_peer_advising_note.id, api_json['id']])
+        assert len(notes_read) == 0
 
 
     @classmethod
@@ -409,8 +431,7 @@ class TestPeerAdvisorEditNoteComment:
 
     @classmethod
     def setup_class(cls):
-        author_uid = ce3_navcal_peer_advisor_uid
-        peer_advisor_user_id = AuthorizedUser.get_id_per_uid(author_uid)
+        peer_advisor_user_id = AuthorizedUser.get_id_per_uid(ce3_navcal_peer_advisor_uid)
         memberships = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(peer_advisor_user_id)
         cls.ce3_navcal_peer_advising_department_id = memberships[0]['peer_advising_department_id']
 
@@ -459,31 +480,58 @@ class TestPeerAdvisorEditNoteComment:
         comments = Note.get_notes_by_parent_id(mock_navcal_peer_advising_note_with_comments.id)
         fake_auth.login(ce3_navcal_peer_advisor_2_uid)
         for comment in comments:
-            self._api_edit_note_comment(
-                comment_id=comment.id,
-                body='A comment that has no business being here',
-                client=client,
-                parent_note_id=mock_navcal_peer_advising_note_with_comments.id,
-                expected_status_code=404,
-            )
+            if comment.author_uid != ce3_navcal_peer_advisor_2_uid:
+              self._api_edit_note_comment(
+                  comment_id=comment.id,
+                  body='A comment that has no business being here',
+                  client=client,
+                  parent_note_id=mock_navcal_peer_advising_note_with_comments.id,
+                  expected_status_code=404,
+              )
 
     def test_authorized_peer_advisor_note_comment(self, client, fake_auth, mock_navcal_peer_advising_note_with_comments):
         """Peer advisor can edit their own Peer Advising note comment."""
+        # Peer Advising Manager reads the note, marking the comment read as well
+        fake_auth.login(ce3_navcal_peer_advisor_manager_uid)
+        _api_mark_note_read(client, mock_navcal_peer_advising_note_with_comments.id)
+
+        # Comment author edits the comment
         body = 'A very interesting comment!'
         comments = Note.get_notes_by_parent_id(mock_navcal_peer_advising_note_with_comments.id)
-        fake_auth.login(ce3_navcal_peer_advisor_uid)
-        for comment in comments:
-            if comment.author_uid == ce3_navcal_peer_advisor_uid:
-                api_json = self._api_edit_note_comment(
-                    comment_id=comment.id,
-                    body=body,
-                    client=client,
-                    parent_note_id=mock_navcal_peer_advising_note_with_comments.id,
-                )
-                assert api_json['body'].strip().replace(' ', '') == body.strip().replace(' ', '')
-                assert api_json['peerAdvisingDepartmentId'] == self.ce3_navcal_peer_advising_department_id
-                assert api_json['sid'] == mock_navcal_peer_advising_note_with_comments.sid
+        fake_auth.login(ce3_navcal_peer_advisor_2_uid)
+        comment = next((c for c in comments if c.author_uid == ce3_navcal_peer_advisor_2_uid), None)
+        api_json = self._api_edit_note_comment(
+            comment_id=comment.id,
+            body=body,
+            client=client,
+            parent_note_id=mock_navcal_peer_advising_note_with_comments.id,
+        )
+        assert api_json['body'].strip().replace(' ', '') == body.strip().replace(' ', '')
+        assert api_json['peerAdvisingDepartmentId'] == self.ce3_navcal_peer_advising_department_id
+        assert api_json['sid'] == mock_navcal_peer_advising_note_with_comments.sid
+        assert api_json['updatedAt']
+        assert api_json['createdAt'] != api_json['updatedAt']
 
+        # Comment marked read by its author
+        comment_author_id = AuthorizedUser.get_id_per_uid(api_json['author']['uid'])
+        notes_read = NoteRead.get_notes_read_by_user(viewer_id=comment_author_id, note_ids=[api_json['id']])
+        assert len(notes_read) == 1
+
+        # Note and comment marked unread for Peer Advising Manager
+        manager_id = AuthorizedUser.get_id_per_uid(ce3_navcal_peer_advisor_manager_uid)
+        notes_read = NoteRead.get_notes_read_by_user(
+            viewer_id=manager_id,
+            note_ids=[mock_navcal_peer_advising_note_with_comments.id, api_json['id']],
+        )
+        assert len(notes_read) == 0
+
+        # Note and comment marked unread for note author
+        note_author_id = AuthorizedUser.get_id_per_uid(mock_navcal_peer_advising_note_with_comments.author_uid)
+        notes_read = NoteRead.get_notes_read_by_user(
+            viewer_id=note_author_id,
+            note_ids=[mock_navcal_peer_advising_note_with_comments.id, api_json['id']],
+        )
+        assert len(notes_read) == 0
 
     @classmethod
     def _api_edit_note_comment(
@@ -780,3 +828,13 @@ def _api_note_attachments_upload(
         )
         assert response.status_code == expected_status_code
         return response.json
+
+
+def _api_mark_note_read(
+    client,
+    note_id,
+    expected_status_code=201,
+):
+    response = client.post(f'/api/notes/{note_id}/mark_read')
+    assert response.status_code == expected_status_code
+    return response.json
