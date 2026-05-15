@@ -113,7 +113,10 @@ def register_routes(app):  #noqa: PLR0915
 
             session_uid = None
             if current_user and current_user.uid:
-                session_uid = f'[UID {current_user.uid}]'
+                if current_user.is_admin:
+                    session_uid = f'[admin UID {current_user.uid}]'
+                else:
+                    session_uid = f'[UID {current_user.uid}]'
 
             log_message_elements = [
                 client_ip_address,
