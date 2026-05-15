@@ -179,7 +179,7 @@
           :id="`peer-advisor-note-${note.id}-comments`"
           class="note-comments grid-cell"
         >
-          <AdvisingNoteComments
+          <AdvisingComments
             class="pl-5"
             :class="{'sr-only': !isExpanded(note)}"
             :note="note"
@@ -220,7 +220,7 @@ import {deleteNote} from '@/api/notes'
 import {getPeerAdvisingDepartmentById} from '@/lib/berkeley-department'
 import {isPeerAdvisorManager} from '@/lib/boa-user'
 import {useContextStore} from '@/stores/context'
-import AdvisingNoteComments from '@/components/note/comment/AdvisingNoteComments'
+import AdvisingComments from '@/components/comment/AdvisingComments'
 import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
 import AuthorDetails from '@/components/note/AuthorDetails'
 import EditAdvisingNote from '@/components/note/EditAdvisingNote.vue'

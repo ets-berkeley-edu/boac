@@ -367,11 +367,11 @@
             </div>
           </footer>
         </div>
-        <AdvisingNoteComments
+        <AdvisingComments
           v-if="commentsEnabled(message)"
           class="pb-3 px-6"
           :class="{'sr-only': !isExpanded(message)}"
-          :note="message"
+          :parent="message"
         />
       </article>
     </div>
@@ -424,7 +424,7 @@ import {
 import AcademicTimelineCategory from '@/components/student/profile/academic-timeline/AcademicTimelineCategory.vue'
 import AdvisingAppointment from '@/components/appointment/AdvisingAppointment'
 import AdvisingNote from '@/components/note/AdvisingNote'
-import AdvisingNoteComments from '@/components/note/comment/AdvisingNoteComments'
+import AdvisingComments from '@/components/comment/AdvisingComments'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import AuthorDetails from '@/components/note/AuthorDetails'
 import EditAdvisingNote from '@/components/note/EditAdvisingNote'
@@ -530,6 +530,9 @@ onMounted(() => {
   refreshSearchIndex()
   if (currentUser.canAccessAdvisingData) {
     eventHandlers.value = {
+      'comment-added': onCommentAdded,
+      'comment-deleted': onCommentDeleted,
+      'comment-updated': onCommentUpdated,
       'note-creation-is-starting': onNoteCreateStartEvent,
       'note-created': afterNoteCreated,
       'note-updated': note => props.onNoteUpdated(note).then(refreshSearchIndex),
@@ -736,6 +739,30 @@ const onClickOpenMessage = message => {
   }
   open(message)
   putFocusNextTick(`${activeTab.value}-close-message-${message.id}`, {scroll: false})
+}
+
+const onCommentAdded = comment => {
+  const message = find(props.messages, ['id', comment.parentId])
+  if (message) {
+    message.comments.push(comment)
+  }
+}
+
+const onCommentDeleted = ids => {
+  const message = find(props.messages, ['id', ids.parentId])
+  if (message) {
+    remove(message.comments, {'id': ids.commentId})
+  }
+}
+
+const onCommentUpdated = comment => {
+  const message = find(props.messages, ['id', comment.parentId])
+  if (message) {
+    const existingCommentIndex = findIndex(message.comments, {'id': comment.id})
+    if (existingCommentIndex >= 0) {
+      message.comments.splice(existingCommentIndex, 1, comment)
+    }
+  }
 }
 
 const onNoteCreateStartEvent = event => {

@@ -30,6 +30,7 @@ from sqlalchemy.dialects.postgresql import ARRAY
 
 from boac import db, std_commit
 from boac.lib.util import to_iso_format, utc_now
+from boac.merged.advising_note import get_note_author_summary
 from boac.models.base import Base
 from boac.models.comment_attachment import CommentAttachment
 from boac.models.comment_parent import CommentParent
@@ -150,14 +151,20 @@ class Comment(Base):
         return {
             'id': self.id,
             'commentParentId': self.comment_parent_id,
-            'authorUid': self.author_uid,
-            'authorName': self.author_name,
-            'authorRole': self.author_role,
-            'authorDeptCodes': self.author_dept_codes,
+            'author': get_note_author_summary({
+                'authorUid': self.author_uid,
+                'authorName': self.author_name,
+                'authorRole': self.author_role,
+                'authorDeptCodes': self.author_dept_codes,
+            }),
             'body': self.body,
             'message': self.body,
             'attachments': [a.to_api_json() for a in self.attachments if not a.deleted_at],
             'createdAt': to_iso_format(self.created_at),
-            'updatedAt': to_iso_format(self.updated_at),
+            'updatedAt': self.resolve_updated_at(),
             'deletedAt': to_iso_format(self.deleted_at),
         }
+
+    def resolve_updated_at(self):
+        if self.created_at and self.updated_at and (self.updated_at - self.created_at).seconds:
+            return to_iso_format(self.updated_at)

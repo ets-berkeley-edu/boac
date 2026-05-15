@@ -12,7 +12,7 @@
         class="note-attachment-inner-label font-size-16 align-center d-flex flex-wrap justify-center"
         :class="{
           'text-medium-emphasis': disabled,
-          'cursor-pointer': !(isUploadingAttachments || disabled || attachmentLimitReached)
+          'cursor-pointer': canAddAttachments
         }"
         :for="inputId"
       >
@@ -28,7 +28,7 @@
           :id="`${inputId}-btn`"
           class="bg-white"
           color="black"
-          :disabled="isUploadingAttachments || disabled || attachmentLimitReached"
+          :disabled="!canAddAttachments"
           density="comfortable"
           tabindex="-1"
           type="file"
@@ -46,7 +46,7 @@
         class="border-sm choose-file-for-note-attachment rounded"
         :class="{'border-md border-error': !!attachmentError}"
         :clearable="false"
-        :disabled="isUploadingAttachments || disabled || attachmentLimitReached"
+        :disabled="!canAddAttachments"
         flat
         hide-details
         :loading="isUploadingAttachments ? 'primary' : false"
@@ -129,7 +129,7 @@
 </template>
 
 <script setup>
-import {computed, onBeforeMount, onBeforeUnmount, onMounted, reactive, ref, watch} from 'vue'
+import {computed, onBeforeMount, onBeforeUnmount, reactive, ref, watch} from 'vue'
 import {each, size} from 'lodash'
 import {mdiAlert, mdiPaperclip} from '@mdi/js'
 import {storeToRefs} from 'pinia'
@@ -196,13 +196,20 @@ const attachmentError = ref(undefined)
 const attachmentLimitReached = computed(() => {
   return size(props.attachments) >= contextStore.config.maxAttachmentsPerNote
 })
-const canRemoveAttachments = ref(false)
 const currentUser = reactive(contextStore.currentUser)
 const inputId = computed(() => `${props.idPrefix}-choose-file-for-note-attachment`)
 const isFocused = ref(false)
 const {isUploadingAttachments} = storeToRefs(noteStore)
 let progressBarAlert
 const progressBarId = computed(() => `${props.idPrefix}-attachment-progress`)
+const canAddAttachments = computed(() => {
+  return !isUploadingAttachments.value && !props.disabled && !attachmentLimitReached.value && canUserEditNote(props.note, currentUser)
+})
+const canRemoveAttachments = computed(() => {
+  return !props.isReadOnly && (
+    ['createPeerAdvisorNote', 'editTemplate'].includes(noteStore.mode) || canUserEditNote(props.note, currentUser)
+  )
+})
 
 watch(isUploadingAttachments, v => {
   const el = attachmentFileInput.value ? attachmentFileInput.value.$el : null
@@ -234,11 +241,6 @@ watch(isUploadingAttachments, v => {
 
 onBeforeMount(() => {
   addFileDropEventListeners()
-})
-
-onMounted(() => {
-  canRemoveAttachments.value = !props.isReadOnly
-    && (['createPeerAdvisorNote', 'editTemplate'].includes(noteStore.mode) || canUserEditNote(props.note, currentUser))
 })
 
 onBeforeUnmount(() => {
