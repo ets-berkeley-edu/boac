@@ -25,7 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from datetime import datetime
 
-from sqlalchemy import text
+from sqlalchemy import and_, text
 
 from boac import db, std_commit
 
@@ -48,22 +48,37 @@ class NoteRead(db.Model):
         self.note_id = note_id
 
     @classmethod
-    def find_or_create(cls, viewer_id, note_id):
-        note_id = str(note_id)
-        sql = """
-            INSERT INTO notes_read (created_at, note_id, viewer_id) VALUES (now(), :note_id, :viewer_id)
-            ON CONFLICT DO NOTHING;
-        """
-        db.session.execute(text(sql), {
-            'note_id': note_id,
-            'viewer_id': viewer_id,
-        })
+    def delete_for_note(cls, note_id, except_viewer_id=None):
+        criteria = [
+            cls.note_id == str(note_id),
+        ]
+        if except_viewer_id:
+            criteria.append(cls.viewer_id != except_viewer_id)
+
+        for row in cls.query.filter(and_(*criteria)).all():
+            db.session.delete(row)
         std_commit()
-        return cls.query.filter(cls.viewer_id == viewer_id, cls.note_id == note_id).first()
+
+    @classmethod
+    def find_or_create(cls, viewer_id, note_ids):
+        params = {
+            'viewer_id': viewer_id,
+        }
+        values = []
+        for index, note_id in enumerate(note_ids):
+            values.append(f'(now(), :note_id_{index}, :viewer_id)')
+            params[f'note_id_{index}'] = note_id
+
+        sql = f"""INSERT INTO notes_read (created_at, note_id, viewer_id) VALUES
+                  {', '.join(values)}
+            ON CONFLICT DO NOTHING;"""
+        db.session.execute(text(sql), params)
+        std_commit()
+        return cls.query.filter(NoteRead.viewer_id == viewer_id, NoteRead.note_id.in_([str(note_id) for note_id in note_ids])).all()
 
     @classmethod
     def get_notes_read_by_user(cls, viewer_id, note_ids):
-        return cls.query.filter(NoteRead.viewer_id == viewer_id, NoteRead.note_id.in_(note_ids)).all()
+        return cls.query.filter(NoteRead.viewer_id == viewer_id, NoteRead.note_id.in_([str(note_id) for note_id in note_ids])).all()
 
     @classmethod
     def when_user_read_note(cls, viewer_id, note_id):

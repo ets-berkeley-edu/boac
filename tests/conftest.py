@@ -42,6 +42,7 @@ import boac.factory
 from boac import std_commit
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.note import Note
+from boac.models.note_read import NoteRead
 from boac.models.note_template import NoteTemplate
 from boac.models.note_template_attachment import NoteTemplateAttachment
 from boac.models.peer_advising_department import PeerAdvisingDepartment
@@ -283,8 +284,69 @@ def mock_advising_note(app, db):
         topics=['collaborative synergies', 'integrated architectures', 'vertical solutions', 'Other / Reason not listed'],
     )
     Note.refresh_search_index()
+    std_commit(allow_test_environment=True)
     yield note
     Note.delete(note_id=note.id)
+    Note.refresh_search_index()
+    std_commit(allow_test_environment=True)
+
+
+@pytest.fixture
+def mock_advising_note_with_comments(app, db, fake_auth, mock_advising_note):
+    """Create advising note with comments."""
+    asc_advisor_uid = '1081940'
+    ce3_advisor_uid = '2525'
+
+    # Add a comment from the note author
+    fake_auth.login(mock_advising_note.author_uid)
+    author_comment = Note.create(
+        author_uid=mock_advising_note.author_uid,
+        author_name='COE Add Visor',
+        author_role='advisor',
+        author_dept_codes=['UWASC'],
+        sid=mock_advising_note.sid,
+        body='A comment from the note author.',
+        parent_note_id=mock_advising_note.id,
+        subject='',
+    )
+    db.session.add(author_comment)
+    logout_user()
+
+    # Add a comment from an advisor in the same department
+    fake_auth.login(asc_advisor_uid)
+    dept_comment = Note.create(
+        author_uid=asc_advisor_uid,
+        author_name='Milt Deacon',
+        author_role='advisor',
+        author_dept_codes=['UWASC'],
+        sid=mock_advising_note.sid,
+        body='A comment from an advisor in the author\'s department.',
+        parent_note_id=mock_advising_note.id,
+        subject='',
+    )
+    db.session.add(dept_comment)
+    logout_user()
+
+    # Add a comment from an advisor in a different department
+    fake_auth.login(ce3_advisor_uid)
+    comment = Note.create(
+        author_uid=ce3_advisor_uid,
+        author_name='Grigsby Columbo',
+        author_role='advisor',
+        author_dept_codes=['ZCEEE'],
+        sid=mock_advising_note.sid,
+        body='A comment from an advisor in a different department.',
+        parent_note_id=mock_advising_note.id,
+        subject='',
+    )
+    db.session.add(comment)
+    logout_user()
+
+    Note.refresh_search_index()
+    std_commit(allow_test_environment=True)
+    yield Note.find_by_id(note_id=mock_advising_note.id)
+
+    Note.delete(note_id=mock_advising_note.id)
     Note.refresh_search_index()
     std_commit(allow_test_environment=True)
 
@@ -336,182 +398,6 @@ def mock_note_template(app, db):
             yield NoteTemplate.find_by_id(note_template.id)
 
             NoteTemplate.delete(note_template_id=note_template.id)
-
-
-@pytest.fixture
-def mock_private_advising_note(app, db):
-    """Create a private advising note with attachment (mock s3)."""
-    note = _create_mock_note(
-        app=app,
-        attachment='fixtures/mock_advising_note_attachment_1.txt',
-        author_dept_codes=['ZCEEE'],
-        author_uid='2525',
-        db=db,
-        is_private=True,
-    )
-    yield note
-    Note.delete(note_id=note.id)
-    std_commit(allow_test_environment=True)
-
-
-@pytest.fixture
-def user_factory(app, db):
-    def _user_factory(
-            automate_degree_progress_permission=None,
-            can_access_canvas_data=True,
-            dept_codes=None,
-            degree_progress_permission=None,
-            has_calnet_record=True,
-            is_admin=False,
-    ):
-        return _create_user(
-            app=app,
-            automate_degree_progress_permission=automate_degree_progress_permission,
-            can_access_canvas_data=can_access_canvas_data,
-            db=db,
-            degree_progress_permission=degree_progress_permission,
-            dept_codes=dept_codes or ['COENG'],
-            has_calnet_record=has_calnet_record,
-            is_admin=is_admin,
-        )
-    return _user_factory
-
-
-def pytest_itemcollected(item):
-    """Print docstrings during test runs for more readable output."""
-    par = item.parent.obj
-    node = item.obj
-    pref = par.__doc__.strip() if par.__doc__ else par.__class__.__name__
-    suf = node.__doc__.strip() if node.__doc__ else node.__name__
-    if pref or suf:
-        item._nodeid = ' '.join((pref, suf))
-
-
-def _create_mock_note(
-        app,
-        attachment,
-        author_dept_codes,
-        author_uid,
-        db,
-        is_draft=False,
-        is_private=False,
-        topics=(),
-):
-    with mock_advising_note_s3_bucket(app):
-        base_dir = app.config['BASE_DIR']
-        attachment = f'{base_dir}/{attachment}'
-        with open(attachment, 'r') as file:
-            note = Note.create(
-                attachments=[
-                    {
-                        'name': attachment.rsplit('/', 1)[-1],
-                        'byte_stream': file.read(),
-                    },
-                ],
-                author_uid=author_uid,
-                author_name='Joni Mitchell CC',
-                author_role='Director',
-                author_dept_codes=author_dept_codes,
-                body="""
-                    My darling dime store thief, in the War of Independence
-                    Rock 'n Roll rang sweet as victory, under neon signs
-                """,
-                is_draft=is_draft,
-                is_private=is_private,
-                sid='11667051',
-                subject='In France they kiss on main street',
-                topics=topics,
-            )
-            db.session.add(note)
-            std_commit(allow_test_environment=True)
-            return note
-
-
-def _create_user(
-        app,
-        automate_degree_progress_permission,
-        can_access_canvas_data,
-        db,
-        dept_codes,
-        degree_progress_permission,
-        has_calnet_record,
-        is_admin,
-):
-    from sqlalchemy import create_engine
-    from sqlalchemy.sql import text
-
-    from boac.models.json_cache import insert_row as insert_in_json_cache
-    from boac.models.university_dept import UniversityDept
-    from boac.models.university_dept_member import UniversityDeptMember
-
-    uid = str(round(time.time() * 1000))
-    csid = datetime.now().strftime('%H%M%S%f')
-    data_loch_test_data = [DATA_LOCH_TEST_DATA_BY_DEPT[dept_code] for dept_code in dept_codes]
-    first_name = ''.join(random.choices(string.ascii_uppercase, k=6))
-    last_name = ''.join(random.choices(string.ascii_uppercase, k=6))
-
-    if data_loch_test_data:
-        sql = ''
-        for data_loch_row in data_loch_test_data:
-            def _to_sql_value(value):
-                return 'NULL' if value is None else f"'{value}'"
-
-            advisor_attributes = data_loch_row['advisor_attributes']
-            advisor_role = data_loch_row['advisor_role']
-            sql += f"""
-                INSERT INTO boac_advisor.advisor_attributes
-                (sid, uid, first_name, last_name, title, dept_code, email, campus_email)
-                VALUES
-                (
-                    '{csid}', '{uid}', '{first_name}', '{last_name}', 'Academic Advisor',
-                    {_to_sql_value(advisor_attributes['dept_code'])}, NULL, '{uid}@berkeley.edu'
-                );
-                INSERT INTO boac_advisor.advisor_roles
-                (sid, uid, advisor_type_code, advisor_type, instructor_type_code, instructor_type, academic_program_code, academic_program, cs_permissions)
-                VALUES
-                (
-                    '{csid}', '{uid}', {_to_sql_value(advisor_role['advisor_type_code'])}, 'College Advisor', 'ADV', 'Advisor Only',
-                    {_to_sql_value(advisor_role['academic_program_code'])},
-                    {_to_sql_value(advisor_role['academic_program_description'])},
-                    {_to_sql_value(advisor_role['cs_permissions'])}
-                );
-            """  # noqa: E501
-        with create_engine(app.config['DATA_LOCH_RDS_URI']).connect() as conn:
-            conn.execute(text(sql))
-            conn.commit()
-
-    if has_calnet_record:
-        insert_in_json_cache(
-            f'calnet_user_for_uid_{uid}',
-            {
-                'uid': uid,
-                'csid': csid,
-                'firstName': first_name,
-                'lastName': last_name,
-                'name': f'{first_name} {last_name}',
-            },
-        )
-    is_coe = 'COENG' in dept_codes
-    authorized_user = AuthorizedUser(
-        automate_degree_progress_permission=is_coe if automate_degree_progress_permission is None else automate_degree_progress_permission,
-        can_access_canvas_data=can_access_canvas_data,
-        created_by='0',
-        degree_progress_permission=degree_progress_permission,
-        is_admin=is_admin,
-        uid=uid,
-    )
-    db.session.add(authorized_user)
-    for dept_code in dept_codes:
-        university_dept = UniversityDept.find_by_dept_code(dept_code)
-        UniversityDeptMember.create_or_update_membership(
-            university_dept_id=university_dept.id,
-            authorized_user_id=authorized_user.id,
-            role='advisor',
-            automate_membership=True,
-        )
-
-    std_commit(allow_test_environment=True)
-    return authorized_user
 
 
 @pytest.fixture
@@ -601,20 +487,22 @@ def mock_navcal_peer_advising_note(fake_auth, db):
 @pytest.fixture
 def mock_navcal_peer_advising_note_with_comments(fake_auth, db, mock_navcal_peer_advising_note):
     """Create a NAVCAL Peer Advising Note with comments."""
-    peer_advisor_author_uid = '1133400'
-    advisor_uid = '2525'
-    foreign_dept_advisor_uid = '1133399'
+    navcal_peer_advisor_author_uid = '1133400'
+    navcal_peer_advisor_uid = '188444'
+    navcal_peer_advising_manager_uid = '2525'
+    mech_eng_peer_advising_manager_uid = '1133399'
+    non_pam_advisor_uid = '242881'
     navcal_department = PeerAdvisingDepartment.get_department_by_name('NAVCAL')
     mech_eng_department = PeerAdvisingDepartment.get_department_by_name('Mechanical Engineering')
 
-    # Add a comment from a peer advisor
-    fake_auth.login(peer_advisor_author_uid)
+    # Add a comment from the note author
+    fake_auth.login(navcal_peer_advisor_author_uid)
     peer_comment = Note.create(
-        author_uid=peer_advisor_author_uid,
+        author_uid=navcal_peer_advisor_author_uid,
         author_name='Peer',
         author_role='peer_advisor',
         author_dept_codes=[],
-        sid='9000000000',
+        sid=mock_navcal_peer_advising_note.sid,
         body='A comment from a peer.',
         parent_note_id=mock_navcal_peer_advising_note.id,
         peer_advising_department_id=navcal_department.id,
@@ -623,15 +511,15 @@ def mock_navcal_peer_advising_note_with_comments(fake_auth, db, mock_navcal_peer
     db.session.add(peer_comment)
     logout_user()
 
-    # Add a comment from an advisor in the same department
-    fake_auth.login(advisor_uid)
+    # Add a comment from another peer advisor
+    fake_auth.login(navcal_peer_advisor_uid)
     peer_comment = Note.create(
-        author_uid=advisor_uid,
-        author_name='Grigsby Columbo',
-        author_role='peer_advisor_manager',
+        author_uid=navcal_peer_advisor_uid,
+        author_name='Peer',
+        author_role='peer_advisor',
         author_dept_codes=[],
-        sid='9000000000',
-        body='A comment from the advisor.',
+        sid=mock_navcal_peer_advising_note.sid,
+        body='A comment from a peer.',
         parent_note_id=mock_navcal_peer_advising_note.id,
         peer_advising_department_id=navcal_department.id,
         subject='',
@@ -639,20 +527,52 @@ def mock_navcal_peer_advising_note_with_comments(fake_auth, db, mock_navcal_peer
     db.session.add(peer_comment)
     logout_user()
 
-    # Add a comment from an advisor in a different department
-    fake_auth.login(foreign_dept_advisor_uid)
-    peer_comment = Note.create(
-        author_uid=foreign_dept_advisor_uid,
+    # Add a comment from a Peer Advising Manager in the same department
+    fake_auth.login(navcal_peer_advising_manager_uid)
+    dept_advisor_comment = Note.create(
+        author_uid=navcal_peer_advising_manager_uid,
+        author_name='Grigsby Columbo',
+        author_role='peer_advisor_manager',
+        author_dept_codes=[],
+        sid=mock_navcal_peer_advising_note.sid,
+        body='A comment from the advisor.',
+        parent_note_id=mock_navcal_peer_advising_note.id,
+        peer_advising_department_id=navcal_department.id,
+        subject='',
+    )
+    db.session.add(dept_advisor_comment)
+    logout_user()
+
+    # Add a comment from Peer Advising Manager in a different department
+    fake_auth.login(mech_eng_peer_advising_manager_uid)
+    advisor_comment = Note.create(
+        author_uid=mech_eng_peer_advising_manager_uid,
         author_name='Joni Mitchell',
         author_role='peer_advisor_manager',
         author_dept_codes=[],
-        sid='9000000000',
+        sid=mock_navcal_peer_advising_note.sid,
         body='A comment from a different department.',
         parent_note_id=mock_navcal_peer_advising_note.id,
         peer_advising_department_id=mech_eng_department.id,
         subject='',
     )
-    db.session.add(peer_comment)
+    db.session.add(advisor_comment)
+    logout_user()
+
+    # Add a comment from non-Peer Advising Manager
+    fake_auth.login(non_pam_advisor_uid)
+    advisor_comment = Note.create(
+        author_uid=non_pam_advisor_uid,
+        author_name='Joni Mitchell',
+        author_role='peer_advisor_manager',
+        author_dept_codes=[],
+        sid=mock_navcal_peer_advising_note.sid,
+        body='A comment from a different department.',
+        parent_note_id=mock_navcal_peer_advising_note.id,
+        peer_advising_department_id=None,
+        subject='',
+    )
+    db.session.add(advisor_comment)
     logout_user()
 
     std_commit(allow_test_environment=True)
@@ -662,3 +582,180 @@ def mock_navcal_peer_advising_note_with_comments(fake_auth, db, mock_navcal_peer
     std_commit(allow_test_environment=True)
 
 
+@pytest.fixture
+def mock_private_advising_note(app, db):
+    """Create a private advising note with attachment (mock s3)."""
+    note = _create_mock_note(
+        app=app,
+        attachment='fixtures/mock_advising_note_attachment_1.txt',
+        author_dept_codes=['ZCEEE'],
+        author_uid='2525',
+        db=db,
+        is_private=True,
+    )
+    yield note
+    Note.delete(note_id=note.id)
+    std_commit(allow_test_environment=True)
+
+
+@pytest.fixture
+def user_factory(app, db):
+    def _user_factory(
+            automate_degree_progress_permission=None,
+            can_access_canvas_data=True,
+            dept_codes=None,
+            degree_progress_permission=None,
+            has_calnet_record=True,
+            is_admin=False,
+    ):
+        return _create_user(
+            app=app,
+            automate_degree_progress_permission=automate_degree_progress_permission,
+            can_access_canvas_data=can_access_canvas_data,
+            db=db,
+            degree_progress_permission=degree_progress_permission,
+            dept_codes=dept_codes or ['COENG'],
+            has_calnet_record=has_calnet_record,
+            is_admin=is_admin,
+        )
+    return _user_factory
+
+
+def pytest_itemcollected(item):
+    """Print docstrings during test runs for more readable output."""
+    par = item.parent.obj
+    node = item.obj
+    pref = par.__doc__.strip() if par.__doc__ else par.__class__.__name__
+    suf = node.__doc__.strip() if node.__doc__ else node.__name__
+    if pref or suf:
+        item._nodeid = ' '.join((pref, suf))
+
+
+def _create_mock_note(
+        app,
+        attachment,
+        author_dept_codes,
+        author_uid,
+        db,
+        is_draft=False,
+        is_private=False,
+        topics=(),
+):
+    with mock_advising_note_s3_bucket(app):
+        base_dir = app.config['BASE_DIR']
+        attachment = f'{base_dir}/{attachment}'
+        with open(attachment, 'r') as file:
+            note = Note.create(
+                attachments=[
+                    {
+                        'name': attachment.rsplit('/', 1)[-1],
+                        'byte_stream': file.read(),
+                    },
+                ],
+                author_uid=author_uid,
+                author_name='Joni Mitchell CC',
+                author_role='Director',
+                author_dept_codes=author_dept_codes,
+                body="""
+                    My darling dime store thief, in the War of Independence
+                    Rock 'n Roll rang sweet as victory, under neon signs
+                """,
+                is_draft=is_draft,
+                is_private=is_private,
+                sid='11667051',
+                subject='In France they kiss on main street',
+                topics=topics,
+            )
+            author_id = AuthorizedUser.get_id_per_uid(author_uid)
+            note_reads = NoteRead.find_or_create(author_id, [note.id])
+            db.session.add(note)
+            db.session.add(note_reads[0])
+            std_commit(allow_test_environment=True)
+            return note
+
+
+def _create_user(
+        app,
+        automate_degree_progress_permission,
+        can_access_canvas_data,
+        db,
+        dept_codes,
+        degree_progress_permission,
+        has_calnet_record,
+        is_admin,
+):
+    from sqlalchemy import create_engine
+    from sqlalchemy.sql import text
+
+    from boac.models.json_cache import insert_row as insert_in_json_cache
+    from boac.models.university_dept import UniversityDept
+    from boac.models.university_dept_member import UniversityDeptMember
+
+    uid = str(round(time.time() * 1000))
+    csid = datetime.now().strftime('%H%M%S%f')
+    data_loch_test_data = [DATA_LOCH_TEST_DATA_BY_DEPT[dept_code] for dept_code in dept_codes]
+    first_name = ''.join(random.choices(string.ascii_uppercase, k=6))
+    last_name = ''.join(random.choices(string.ascii_uppercase, k=6))
+
+    if data_loch_test_data:
+        sql = ''
+        for data_loch_row in data_loch_test_data:
+            def _to_sql_value(value):
+                return 'NULL' if value is None else f"'{value}'"
+
+            advisor_attributes = data_loch_row['advisor_attributes']
+            advisor_role = data_loch_row['advisor_role']
+            sql += f"""
+                INSERT INTO boac_advisor.advisor_attributes
+                (sid, uid, first_name, last_name, title, dept_code, email, campus_email)
+                VALUES
+                (
+                    '{csid}', '{uid}', '{first_name}', '{last_name}', 'Academic Advisor',
+                    {_to_sql_value(advisor_attributes['dept_code'])}, NULL, '{uid}@berkeley.edu'
+                );
+                INSERT INTO boac_advisor.advisor_roles
+                (sid, uid, advisor_type_code, advisor_type, instructor_type_code, instructor_type, academic_program_code, academic_program, cs_permissions)
+                VALUES
+                (
+                    '{csid}', '{uid}', {_to_sql_value(advisor_role['advisor_type_code'])}, 'College Advisor', 'ADV', 'Advisor Only',
+                    {_to_sql_value(advisor_role['academic_program_code'])},
+                    {_to_sql_value(advisor_role['academic_program_description'])},
+                    {_to_sql_value(advisor_role['cs_permissions'])}
+                );
+            """  # noqa: E501
+        with create_engine(app.config['DATA_LOCH_RDS_URI']).connect() as conn:
+            conn.execute(text(sql))
+            conn.commit()
+
+    if has_calnet_record:
+        insert_in_json_cache(
+            f'calnet_user_for_uid_{uid}',
+            {
+                'uid': uid,
+                'csid': csid,
+                'firstName': first_name,
+                'lastName': last_name,
+                'name': f'{first_name} {last_name}',
+            },
+        )
+    is_coe = 'COENG' in dept_codes
+    authorized_user = AuthorizedUser(
+        automate_degree_progress_permission=is_coe if automate_degree_progress_permission is None else automate_degree_progress_permission,
+        can_access_canvas_data=can_access_canvas_data,
+        created_by='0',
+        degree_progress_permission=degree_progress_permission,
+        is_admin=is_admin,
+        uid=uid,
+    )
+    db.session.add(authorized_user)
+    for dept_code in dept_codes:
+        university_dept = UniversityDept.find_by_dept_code(dept_code)
+        UniversityDeptMember.create_or_update_membership(
+            university_dept_id=university_dept.id,
+            authorized_user_id=authorized_user.id,
+            role='advisor',
+            automate_membership=True,
+        )
+
+    std_commit(allow_test_environment=True)
+    return authorized_user
