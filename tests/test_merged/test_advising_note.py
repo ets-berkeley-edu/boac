@@ -27,7 +27,6 @@ import io
 from datetime import datetime, timedelta
 from zipfile import ZipFile
 
-import pytest
 import pytz
 from dateutil.parser import parse
 
@@ -395,7 +394,6 @@ class TestMergedAdvisingNote:
         assert notes[1]['noteSnippet'].startswith('...pity the founder')
         assert notes[2]['noteSnippet'].startswith('I am <strong>confounded</strong>')
 
-    @pytest.mark.skip(reason='TODO: This test randomly fails. Transient failures in Travis-land are a time-suck.')
     def test_search_advising_notes_paginates_new_and_old(self, fake_auth):
         fake_auth.login(coe_advisor)
         for i in range(5):
@@ -420,7 +418,7 @@ class TestMergedAdvisingNote:
         notes = results['notes']
         total_note_count = results['totalNoteCount']
         assert len(notes) == 3
-        assert notes[0]['noteSnippet'] == 'Planned redundancy - <strong>Confounded</strong> note 5'
+        assert notes[0]['noteSnippet'] == 'Planned redundancy - <strong>Confounded</strong> note 1'
         assert notes[1]['noteSnippet'].startswith('...pity the founder')
         assert notes[2]['noteSnippet'].startswith('I am <strong>confounded</strong>')
 

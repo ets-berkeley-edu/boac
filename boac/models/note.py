@@ -564,7 +564,7 @@ class Note(Base):
             """
             if not is_count_query:
                 sql += f"""
-                    ORDER BY notes.updated_at DESC, fts.rank DESC
+                    ORDER BY notes.updated_at DESC, fts.rank DESC, notes.id DESC
                     OFFSET {offset} LIMIT {limit}
                 """
             return db.session.execute(text(sql), params).mappings()
