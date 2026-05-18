@@ -71,9 +71,9 @@
           :disabled="!!(isUpdatingAttachments || noteStore.boaSessionExpired)"
           :id-prefix="`note-${note.id}`"
           :is-downloadable="true"
+          :is-read-only="!!note.legacySource || !canUserEditNote(note, currentUser)"
           label-class="text-medium-emphasis"
           :note="note"
-          :read-only="!!note.legacySource || !canUserEditNote(note, currentUser)"
           :remove="removeAttachmentByIndex"
         />
       </div>

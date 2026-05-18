@@ -203,7 +203,7 @@ const {isUploadingAttachments} = storeToRefs(noteStore)
 let progressBarAlert
 const progressBarId = computed(() => `${props.idPrefix}-attachment-progress`)
 const canAddAttachments = computed(() => {
-  return !isUploadingAttachments.value && !props.disabled && !attachmentLimitReached.value && canUserEditNote(props.note, currentUser)
+  return !isUploadingAttachments.value && !props.disabled && !attachmentLimitReached.value
 })
 const canRemoveAttachments = computed(() => {
   return !props.isReadOnly && (

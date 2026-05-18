@@ -1,22 +1,44 @@
 <template>
-  <section class="note-comments">
+  <section class="advising-comments">
     <div class="font-size-16 font-weight-bold text-medium-emphasis my-2" :class="{'sr-only': !size(parent.comments)}">Comments</div>
     <article
       v-for="comment in parent.comments"
       :key="comment.id"
+      v-intersect="{
+        handler: (isIntersecting) => markRead(isIntersecting, comment),
+        options: {
+          scrollMargin: '-64px 0px -64px 0px',
+          threshold: 1
+        }}"
       class="border-t-sm d-flex justify-space-between py-2 pl-2"
     >
       <div v-if="!editingComment || editingComment.id !== comment.id" class="flex-grow-1 pr-3">
-        <div class="d-flex align-center text-body-1 mb-2">
-          <span class="sr-only">comment </span>
-          <span class="font-weight-bold pr-1">From:&nbsp;</span>
-          <AuthorDetails
-            :author="comment.author"
-            :id-prefix="`${idPrefix}-comment-${comment.id}`"
-            :peer-advising-department-id="comment.peerAdvisingDepartmentId"
-          />
+        <div class="d-flex justify-space-between">
+          <div class="d-flex align-center text-body-1 mb-2">
+            <span class="sr-only">comment </span>
+            <span class="font-weight-bold pr-1">From:&nbsp;</span>
+            <AuthorDetails
+              :author="comment.author"
+              :id-prefix="`${idPrefix}-comment-${comment.id}`"
+              :peer-advising-department-id="comment.peerAdvisingDepartmentId"
+            />
+          </div>
+          <v-badge
+            class="advising-comment-new"
+            :class="{'show': !comment.read}"
+            color="info"
+            inline
+          >
+            <template #badge>
+              <span class="font-weight-black text-caption text-uppercase">new</span>
+            </template>
+          </v-badge>
         </div>
-        <div :id="`${idPrefix}-comment-${comment.id}-text`" v-html="comment.body" />
+        <div
+          :id="`${idPrefix}-comment-${comment.id}-text`"
+          class="advising-comment-text"
+          v-html="comment.body"
+        />
         <AdvisingNoteAttachments
           v-if="size(comment.attachments)"
           :attachments="comment.attachments"
@@ -35,6 +57,7 @@
         class="pb-2"
         :comment="editingComment"
         :id-prefix="`${idPrefix}-comment-${editingComment.id}`"
+        :parent="parent"
         :save="onUpdateComment"
       />
       <footer v-if="!editingComment || editingComment.id !== comment.id" class="academic-timeline-column-date">
@@ -98,7 +121,7 @@
         :cancel="onCancelAdd"
         class="pb-2"
         :id-prefix="`${idPrefix}-comment-new`"
-        :parent-note-id="parent.id"
+        :parent="parent"
         :save="createComment"
       />
     </div>
@@ -118,6 +141,7 @@
 
 <script setup lang="ts">
 import {computed, ref} from 'vue'
+import {createCssTransition} from 'vuetify/util/transitions'
 import {findIndex, includes, size, truncate} from 'lodash'
 import {mdiPlus} from '@mdi/js'
 import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments'
@@ -148,6 +172,8 @@ const isCreatingComment = ref(false)
 
 const idPrefix = computed(() => `${props.parent.type}-${props.parent.id}`)
 const isDeletingComment = computed(() => !!deletingComment.value)
+
+createCssTransition('mark-read-transition')
 
 const onCancelAdd = () => {
   isCreatingComment.value = false
@@ -224,6 +250,12 @@ const createComment = (id, body, attachments) => {
   })
 }
 
+const markRead = (isIntersecting, comment) => {
+  if (isIntersecting && !comment.read) {
+    comment.read = true
+  }
+}
+
 const onUpdateComment = (id, body, attachments, deleteAttachmentIds) => {
   let update
   if (isPeerAdvisor(currentUser)) {
@@ -250,7 +282,17 @@ const onUpdateComment = (id, body, attachments, deleteAttachmentIds) => {
 .academic-timeline-column-date{
   margin-right: -24px;
 }
-.note-comments :deep(ul), .note-comments :deep(ol) {
+.advising-comment-new {
+  margin-top: 2px;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 250ms ease-in, visibility 0ms ease-in 250ms;
+}
+.advising-comment-new.show {
+  visibility: visible;
+  opacity: 1;
+}
+.advising-comments :deep(ul), .advising-comments :deep(ol) {
   padding-left: 25px;
 }
 </style>
