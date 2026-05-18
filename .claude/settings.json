@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git *)",
+      "Bash(npm run *)"
+    ],
+    "deny": [
+      "Bash(git push*)",
+      "Read(**/.env.local)",
+      "Read(**/.env.*.local)"
+    ]
+  }
+}
