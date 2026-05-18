@@ -28,7 +28,7 @@
       :disabled="isSaving || isUpdatingAttachments"
       :id-prefix="idPrefix"
       :is-downloadable="!isSaving"
-      :note="comment || {parentNoteId: parentNoteId}"
+      :note="getComment()"
       :remove="removeAttachmentByIndex"
     />
     <div class="d-flex pt-2">
@@ -75,10 +75,9 @@ const props = defineProps({
     required: true,
     type: String
   },
-  parentNoteId: {
-    default: undefined,
-    required: false,
-    type: [Number, String]
+  parent: {
+    required: true,
+    type: Object
   },
   save: {
     required: true,
@@ -110,6 +109,18 @@ const addCommentAttachments = attachments => {
   })
 }
 
+const getComment = () => {
+  if (props.comment) {
+    return props.comment
+  }
+  return {
+    author: {
+      uid: contextStore.currentUser.uid
+    },
+    parentNoteId: parent.id,
+    peerAdvisingDepartmentId: parent.peerAdvisingDepartmentId
+  }
+}
 const onClickCancel = () => {
   commentAttachments.value = []
   commentText.value = ''
