@@ -278,6 +278,89 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
             utils.assert_non_existence(visible_body)
             utils.assert_non_existence(visible_attachments)
 
+    # COMMENTS
+
+    COMMENT_SAVE_ERROR = By.ID, 'edit-comment-input-error'
+
+    @staticmethod
+    def add_comment_button_loc(note):
+        return By.ID, f'note-{note.record_id}-add-comment-btn'
+
+    @staticmethod
+    def new_comment_text_area_loc(note):
+        return By.XPATH, f'//div[@id="note-{note.record_id}-comment-new-text"]//div[@role="textbox"]'
+
+    @staticmethod
+    def new_comment_save_loc(note):
+        return By.ID, f'note-{note.record_id}-comment-new-save-btn'
+
+    @staticmethod
+    def new_comment_cancel_loc(note):
+        return By.ID, f'note-{note.record_id}-comment-new-cancel-btn'
+
+    @staticmethod
+    def comment_body_loc(note, comment):
+        return By.ID, f'note-{note.record_id}-comment-{comment.comment_id}-text'
+
+    @staticmethod
+    def comment_edit_button_loc(note, comment):
+        return By.ID, f'note-{note.record_id}-comment-{comment.comment_id}-edit-btn'
+
+    @staticmethod
+    def comment_delete_button_loc(note, comment):
+        return By.ID, f'note-{note.record_id}-comment-{comment.comment_id}-delete-btn'
+
+    @staticmethod
+    def edit_comment_text_area_loc(note, comment):
+        return By.XPATH, f'//div[@id="note-{note.record_id}-comment-{comment.comment_id}-text"]//div[@role="textbox"]'
+
+    @staticmethod
+    def edit_comment_save_loc(note, comment):
+        return By.ID, f'note-{note.record_id}-comment-{comment.comment_id}-save-btn'
+
+    @staticmethod
+    def edit_comment_cancel_loc(note, comment):
+        return By.ID, f'note-{note.record_id}-comment-{comment.comment_id}-cancel-btn'
+
+    def click_add_comment_button(self, note):
+        app.logger.debug(f'Clicking Add Comment button for note {note.record_id}')
+        self.wait_for_element_and_click(self.add_comment_button_loc(note))
+
+    def save_new_comment(self, note):
+        app.logger.debug('Saving new comment')
+        self.wait_for_element_and_click(self.new_comment_save_loc(note))
+        self.when_not_present(self.new_comment_save_loc(note), utils.get_short_timeout())
+
+    def cancel_new_comment(self, note):
+        app.logger.debug('Canceling new comment')
+        self.wait_for_element_and_click(self.new_comment_cancel_loc(note))
+        self.when_not_present(self.new_comment_cancel_loc(note), utils.get_short_timeout())
+
+    def add_comment(self, note, comment):
+        app.logger.info(f'Adding comment to note {note.record_id}')
+        self.click_add_comment_button(note)
+        self.wait_for_textbox_and_send_keys(self.new_comment_text_area_loc(note), comment.body)
+        self.save_new_comment(note)
+
+    def click_edit_comment_button(self, note, comment):
+        app.logger.debug(f'Clicking edit button for comment {comment.comment_id}')
+        self.wait_for_element_and_click(self.comment_edit_button_loc(note, comment))
+
+    def save_edit_comment(self, note, comment):
+        app.logger.debug('Saving comment edit')
+        self.wait_for_element_and_click(self.edit_comment_save_loc(note, comment))
+        self.when_not_present(self.edit_comment_save_loc(note, comment), utils.get_short_timeout())
+
+    def delete_comment(self, note, comment):
+        app.logger.info(f'Deleting comment {comment.comment_id} from note {note.record_id}')
+        self.wait_for_element_and_click(self.comment_delete_button_loc(note, comment))
+        self.confirm_delete_or_discard()
+        self.when_not_present(self.comment_body_loc(note, comment), utils.get_short_timeout())
+
+    def comment_body_text(self, note, comment):
+        loc = self.comment_body_loc(note, comment)
+        return self.element(loc).text if self.is_present(loc) else None
+
     # EDIT / DELETE
 
     DRAFT_NOTE_WARNING = By.XPATH, '//div[text()=" You are editing a draft note. "]'
