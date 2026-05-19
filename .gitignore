@@ -40,3 +40,6 @@ vite.config.*.timestamp-*
 # BEA
 geckodriver.log
 bea/downloads/*
+
+# Claude
+.claude/settings.local.json
