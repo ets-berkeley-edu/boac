@@ -38,6 +38,16 @@ class NoteComment(object):
         self.data['comment_id'] = value
 
     @property
+    def attachments(self):
+        if 'attachments' not in self.data:
+            self.data['attachments'] = []
+        return self.data['attachments']
+
+    @attachments.setter
+    def attachments(self, value):
+        self.data['attachments'] = value
+
+    @property
     def body(self):
         return self.data.get('body')
 

@@ -643,3 +643,75 @@ class TestNoteMgmt:
     def test_deleted_comment_not_visible(self):
         assert not self.student_page.is_present(self.student_page.comment_body_loc(self.note_1, self.comment_1))
         assert len(boa_utils.get_note_comments(self.note_1)) == 0
+
+    # COMMENT ATTACHMENTS
+
+    def test_add_comment_add_remove_attachment(self):
+        self.homepage.load_page()
+        self.homepage.log_out()
+        self.homepage.dev_auth(self.test.advisor)
+        self.student_page.load_page(self.test_student)
+        self.student_page.show_notes()
+        self.student_page.expand_item(self.note_2)
+        self.student_page.click_add_comment_button(self.note_2)
+        self.student_page.wait_for_textbox_and_send_keys(
+            self.student_page.new_comment_text_area_loc(self.note_2),
+            'A comment with an attachment to forget',
+        )
+        self.student_page.add_attachments_to_new_comment(self.note_2, self.comment_2, self.valid_attachments[0:1])
+        self.student_page.remove_attachments_from_new_comment(self.note_2, self.comment_2, self.valid_attachments[0:1])
+        self.student_page.cancel_new_comment(self.note_2)
+        assert not self.comment_2.attachments
+
+    def test_add_comment_attachment_too_big(self):
+        self.student_page.click_add_comment_button(self.note_2)
+        path = f'{utils.attachments_dir()}/{self.too_big_attachments[0].file_name}'
+        self.student_page.when_present(self.student_page.new_comment_attachment_input_loc(self.note_2), utils.get_short_timeout())
+        self.student_page.element(self.student_page.new_comment_attachment_input_loc(self.note_2)).send_keys(path)
+        self.student_page.when_present(self.student_page.new_comment_attachment_error_loc(self.note_2), utils.get_short_timeout())
+        self.student_page.cancel_new_comment(self.note_2)
+
+    def test_add_comment_with_attachment(self):
+        self.comment_2.body = f'Comment 2 body {utils.get_test_identifier()}'
+        self.student_page.click_add_comment_button(self.note_2)
+        self.student_page.wait_for_textbox_and_send_keys(
+            self.student_page.new_comment_text_area_loc(self.note_2),
+            self.comment_2.body,
+        )
+        self.student_page.add_attachments_to_new_comment(self.note_2, self.comment_2, self.valid_attachments[0:1])
+        self.student_page.save_new_comment(self.note_2)
+        comments = boa_utils.get_note_comments(self.note_2)
+        assert len(comments) == 1
+        self.comment_2.comment_id = comments[0].comment_id
+        visible = self.student_page.visible_comment_attachments(self.note_2, self.comment_2)
+        assert self.valid_attachments[0].file_name.lower() in visible
+
+    def test_edit_comment_add_attachment(self):
+        self.student_page.click_edit_comment_button(self.note_2, self.comment_2)
+        self.student_page.add_attachments_to_existing_comment(self.note_2, self.comment_2, self.valid_attachments[1:2])
+        self.student_page.save_edit_comment(self.note_2, self.comment_2)
+        visible = self.student_page.visible_comment_attachments(self.note_2, self.comment_2)
+        for a in self.comment_2.attachments:
+            assert a.file_name.lower() in visible
+
+    def test_edit_comment_remove_attachment(self):
+        attach_to_remove = self.comment_2.attachments[0]
+        self.student_page.click_edit_comment_button(self.note_2, self.comment_2)
+        self.student_page.remove_attachments_from_existing_comment(self.note_2, self.comment_2, [attach_to_remove])
+        self.student_page.save_edit_comment(self.note_2, self.comment_2)
+        visible = self.student_page.visible_comment_attachments(self.note_2, self.comment_2)
+        assert attach_to_remove.file_name.lower() not in visible
+
+    def test_non_author_cannot_delete_comment_attachment(self):
+        self.homepage.load_page()
+        self.homepage.log_out()
+        self.homepage.dev_auth(self.other_advisor)
+        self.student_page.load_page(self.test_student)
+        self.student_page.show_notes()
+        self.student_page.expand_item(self.note_2)
+        visible = self.student_page.visible_comment_attachments(self.note_2, self.comment_2)
+        for i, a in enumerate(self.comment_2.attachments):
+            assert a.file_name.lower() in visible
+            assert not self.student_page.is_present(
+                self.student_page.comment_attachment_remove_btn_loc(self.note_2, self.comment_2, i),
+            )
