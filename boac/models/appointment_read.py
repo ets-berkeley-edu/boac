@@ -58,6 +58,14 @@ class AppointmentRead(db.Model):
         return appointment_read
 
     @classmethod
+    def delete_for_appointment_except_viewer(cls, appointment_id, keep_viewer_id):
+        cls.query.filter(
+            cls.appointment_id == str(appointment_id),
+            cls.viewer_id != keep_viewer_id,
+        ).delete(synchronize_session=False)
+        std_commit()
+
+    @classmethod
     def was_read_by(cls, viewer_id, appointment_id):
         appointment_read = cls.query.filter(
             AppointmentRead.viewer_id == viewer_id,
