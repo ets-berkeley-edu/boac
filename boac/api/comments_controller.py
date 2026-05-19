@@ -32,6 +32,7 @@ from boac.api.errors import BadRequestError, ResourceNotFoundError
 from boac.api.util import get_note_attachments_from_http_post, get_note_author_profile_of_current_user
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import is_int, process_input_from_rich_text_editor
+from boac.models.appointment_read import AppointmentRead
 from boac.models.comment import Comment
 from boac.models.comment_parent import CommentParent, comment_parent_type_enum
 
@@ -64,6 +65,13 @@ def create_comment():
         body=body,
         attachments=attachments,
     )
+    if parent_type == 'appointment':
+        viewer_id = current_user.get_id()
+        AppointmentRead.delete_for_appointment_except_viewer(
+            appointment_id=parent_id,
+            keep_viewer_id=viewer_id,
+        )
+        AppointmentRead.find_or_create(viewer_id=viewer_id, appointment_id=parent_id)
     return tolerant_jsonify({
         **comment.to_api_json(),
         'parentType': comment_parent.parent_type,
