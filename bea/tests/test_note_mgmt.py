@@ -34,6 +34,7 @@ from selenium.webdriver.support.wait import WebDriverWait as Wait
 
 from bea.config.bea_test_config import BEATestConfig
 from bea.models.notes_and_appts.note import Note
+from bea.models.notes_and_appts.note_comment import NoteComment
 from bea.models.notes_and_appts.topic import Topic, Topics
 from bea.test_utils import boa_utils, nessie_timeline_utils, utils
 
@@ -51,6 +52,9 @@ class TestNoteMgmt:
     test_student = test.students[0]
 
     app.logger.info(f'Advisor UID {test.advisor.uid}, director UID {director.uid}, other advisor UID {other_advisor.uid}')
+
+    comment_1 = NoteComment()
+    comment_2 = NoteComment()
 
     note_1 = Note({'advisor': test.advisor})
     note_2 = Note({'advisor': test.advisor})
@@ -575,3 +579,67 @@ class TestNoteMgmt:
                 ec.presence_of_element_located(self.api_notes_page.NOTE_NOT_FOUND_MSG),
             )
             assert not os.listdir(utils.default_download_dir())
+
+    # COMMENTS
+
+    def test_comment_body_required(self):
+        self.homepage.load_page()
+        self.homepage.log_out()
+        self.homepage.dev_auth(self.test.advisor)
+        self.student_page.load_page(self.test_student)
+        self.student_page.show_notes()
+        self.student_page.expand_item(self.note_1)
+        self.student_page.click_add_comment_button(self.note_1)
+        self.student_page.wait_for_element_and_click(self.student_page.new_comment_save_loc(self.note_1))
+        self.student_page.when_present(self.student_page.COMMENT_SAVE_ERROR, utils.get_short_timeout())
+
+    def test_add_comment_and_cancel(self):
+        self.student_page.wait_for_textbox_and_send_keys(
+            self.student_page.new_comment_text_area_loc(self.note_1),
+            'A comment to forget',
+        )
+        self.student_page.cancel_new_comment(self.note_1)
+        self.student_page.when_present(self.student_page.add_comment_button_loc(self.note_1), utils.get_short_timeout())
+
+    def test_add_comment(self):
+        self.comment_1.body = f'Comment 1 body {utils.get_test_identifier()}'
+        self.student_page.add_comment(self.note_1, self.comment_1)
+        comments = boa_utils.get_note_comments(self.note_1)
+        assert len(comments) == 1
+        self.comment_1.comment_id = comments[0].comment_id
+        assert self.student_page.comment_body_text(self.note_1, self.comment_1) == self.comment_1.body
+
+    def test_edit_comment(self):
+        self.comment_1.body = f'{self.comment_1.body} - EDITED'
+        self.student_page.click_edit_comment_button(self.note_1, self.comment_1)
+        self.student_page.wait_for_textbox_and_send_keys(
+            self.student_page.edit_comment_text_area_loc(self.note_1, self.comment_1),
+            self.comment_1.body,
+        )
+        self.student_page.save_edit_comment(self.note_1, self.comment_1)
+        assert self.student_page.comment_body_text(self.note_1, self.comment_1) == self.comment_1.body
+
+    def test_non_author_sees_comment(self):
+        self.homepage.load_page()
+        self.homepage.log_out()
+        self.homepage.dev_auth(self.other_advisor)
+        self.student_page.load_page(self.test_student)
+        self.student_page.show_notes()
+        self.student_page.expand_item(self.note_1)
+        assert self.student_page.comment_body_text(self.note_1, self.comment_1) == self.comment_1.body
+
+    def test_non_author_cannot_edit_comment(self):
+        assert not self.student_page.is_present(self.student_page.comment_edit_button_loc(self.note_1, self.comment_1))
+
+    def test_admin_can_delete_comment(self):
+        self.homepage.load_page()
+        self.homepage.log_out()
+        self.homepage.dev_auth()
+        self.student_page.load_page(self.test_student)
+        self.student_page.show_notes()
+        self.student_page.expand_item(self.note_1)
+        self.student_page.delete_comment(self.note_1, self.comment_1)
+
+    def test_deleted_comment_not_visible(self):
+        assert not self.student_page.is_present(self.student_page.comment_body_loc(self.note_1, self.comment_1))
+        assert len(boa_utils.get_note_comments(self.note_1)) == 0

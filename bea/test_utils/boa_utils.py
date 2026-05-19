@@ -39,6 +39,7 @@ from bea.models.department import Department, PeerAdvisingDepartment
 from bea.models.department_membership import DepartmentMembership
 from bea.models.notes_and_appts.note import Note
 from bea.models.notes_and_appts.note_attachment import NoteAttachment
+from bea.models.notes_and_appts.note_comment import NoteComment
 from bea.models.notes_and_appts.note_template import NoteTemplate
 from bea.models.notes_and_appts.timeline_record_source import TimelineRecordSource
 from bea.models.student import Student
@@ -582,6 +583,19 @@ def get_student_notes(student):
     results = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
     return get_notes_from_pg_db_result(results, student)
+
+
+def get_note_comments(note):
+    sql = f"""SELECT id, body FROM notes
+               WHERE parent_note_id = '{note.record_id}'
+                 AND deleted_at IS NULL
+            ORDER BY created_at ASC, id ASC"""
+    app.logger.info(sql)
+    results = db.session.execute(text(sql))
+    std_commit(allow_test_environment=True)
+    return [NoteComment({'comment_id': str(row['id']),
+                         'body': utils.strip_tags_and_whitespace(row['body'])})
+            for row in results.mappings()]
 
 
 def get_notes_by_ids(ids):
