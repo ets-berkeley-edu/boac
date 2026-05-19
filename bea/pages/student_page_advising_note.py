@@ -361,6 +361,76 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
         loc = self.comment_body_loc(note, comment)
         return self.element(loc).text if self.is_present(loc) else None
 
+    # Comment attachments
+
+    @staticmethod
+    def new_comment_attachment_input_loc(note):
+        return By.ID, f'note-{note.record_id}-comment-new-choose-file-for-note-attachment'
+
+    @staticmethod
+    def new_comment_attachment_error_loc(note):
+        return By.ID, f'note-{note.record_id}-comment-new-attachment-error'
+
+    @staticmethod
+    def new_comment_attachment_delete_btn_loc(note, attachment):
+        return By.XPATH, f'//ul[@id="note-{note.record_id}-comment-new-attachments-list"]//li[contains(., "{attachment.file_name}")]//button'
+
+    @staticmethod
+    def edit_comment_attachment_input_loc(note, comment):
+        return By.ID, f'note-{note.record_id}-comment-{comment.comment_id}-choose-file-for-note-attachment'
+
+    @staticmethod
+    def edit_comment_attachment_error_loc(note, comment):
+        return By.ID, f'note-{note.record_id}-comment-{comment.comment_id}-attachment-error'
+
+    @staticmethod
+    def edit_comment_attachment_delete_btn_loc(note, comment, attachment):
+        list_id = f'note-{note.record_id}-comment-{comment.comment_id}-attachments-list'
+        return By.XPATH, f'//ul[@id="{list_id}"]//li[contains(., "{attachment.file_name}")]//button'
+
+    @staticmethod
+    def comment_attachment_remove_btn_loc(note, comment, index):
+        return By.ID, f'remove-note-{note.record_id}-comment-{comment.comment_id}-attachment-{index}-btn'
+
+    def add_attachments_to_new_comment(self, note, comment, attachments):
+        for a in attachments:
+            app.logger.info(f'Adding attachment {a.file_name} to new comment on note {note.record_id}')
+            path = f'{utils.attachments_dir()}/{a.file_name}'
+            self.when_present(self.new_comment_attachment_input_loc(note), utils.get_short_timeout())
+            self.element(self.new_comment_attachment_input_loc(note)).send_keys(path)
+            self.when_present(self.new_comment_attachment_delete_btn_loc(note, a), utils.get_medium_timeout())
+            comment.attachments.append(a)
+
+    def remove_attachments_from_new_comment(self, note, comment, attachments):
+        for a in attachments:
+            app.logger.info(f'Removing attachment {a.file_name} from new comment on note {note.record_id}')
+            self.wait_for_element_and_click(self.new_comment_attachment_delete_btn_loc(note, a))
+            self.when_not_present(self.new_comment_attachment_delete_btn_loc(note, a), utils.get_short_timeout())
+            comment.attachments.remove(a)
+
+    def add_attachments_to_existing_comment(self, note, comment, attachments):
+        for a in attachments:
+            app.logger.info(f'Adding attachment {a.file_name} to comment {comment.comment_id} on note {note.record_id}')
+            path = f'{utils.attachments_dir()}/{a.file_name}'
+            self.when_present(self.edit_comment_attachment_input_loc(note, comment), utils.get_short_timeout())
+            self.element(self.edit_comment_attachment_input_loc(note, comment)).send_keys(path)
+            self.when_present(self.edit_comment_attachment_delete_btn_loc(note, comment, a), utils.get_medium_timeout())
+            comment.attachments.append(a)
+
+    def remove_attachments_from_existing_comment(self, note, comment, attachments):
+        for a in attachments:
+            app.logger.info(f'Removing attachment {a.file_name} from comment {comment.comment_id} on note {note.record_id}')
+            self.wait_for_element_and_click(self.edit_comment_attachment_delete_btn_loc(note, comment, a))
+            self.when_not_present(self.edit_comment_attachment_delete_btn_loc(note, comment, a), utils.get_short_timeout())
+            comment.attachments.remove(a)
+
+    def visible_comment_attachments(self, note, comment):
+        loc = By.XPATH, (
+            f'//ul[@id="note-{note.record_id}-comment-{comment.comment_id}-attachments-list"]'
+            f'//span[contains(@class, "truncate-with-ellipsis")]'
+        )
+        return [el.text.strip().lower() for el in self.elements(loc)]
+
     # EDIT / DELETE
 
     DRAFT_NOTE_WARNING = By.XPATH, '//div[text()=" You are editing a draft note. "]'
