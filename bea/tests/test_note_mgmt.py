@@ -644,6 +644,15 @@ class TestNoteMgmt:
         assert not self.student_page.is_present(self.student_page.comment_body_loc(self.note_1, self.comment_1))
         assert len(boa_utils.get_note_comments(self.note_1)) == 0
 
+    def test_admin_cannot_add_comment(self):
+        self.student_page.click_add_comment_button(self.note_1)
+        self.student_page.wait_for_textbox_and_send_keys(
+            self.student_page.new_comment_text_area_loc(self.note_1),
+            'An admin comment attempt',
+        )
+        assert not self.student_page.element(self.student_page.new_comment_save_loc(self.note_1)).is_enabled()
+        self.student_page.cancel_new_comment(self.note_1)
+
     # COMMENT ATTACHMENTS
 
     def test_add_comment_add_remove_attachment(self):
