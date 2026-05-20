@@ -84,6 +84,8 @@ ALTER TABLE IF EXISTS ONLY public.notes DROP CONSTRAINT IF EXISTS notes_peer_adv
 ALTER TABLE IF EXISTS ONLY public.notes DROP CONSTRAINT IF EXISTS notes_note_template_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.note_templates DROP CONSTRAINT IF EXISTS note_templates_peer_advising_department_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.notes DROP CONSTRAINT IF EXISTS notes_parent_note_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.comments_read DROP CONSTRAINT IF EXISTS comments_read_comment_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.comments_read DROP CONSTRAINT IF EXISTS comments_read_viewer_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.comment_attachments DROP CONSTRAINT IF EXISTS comment_attachments_comment_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.comments DROP CONSTRAINT IF EXISTS comments_comment_parent_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.comment_attachments DROP CONSTRAINT IF EXISTS comment_attachments_comment_id_path_to_attachment_unique_constraint;
@@ -107,6 +109,8 @@ DROP INDEX IF EXISTS public.idx_advisor_author_index;
 DROP INDEX IF EXISTS public.idx_advisor_author_name_uid_idx;
 DROP INDEX IF EXISTS public.idx_notes_fts_index;
 DROP INDEX IF EXISTS public.idx_notes_fts_index_id_idx;
+DROP INDEX IF EXISTS public.comments_read_comment_id_idx;
+DROP INDEX IF EXISTS public.comments_read_viewer_id_idx;
 DROP INDEX IF EXISTS public.comment_attachments_comment_id_idx;
 DROP INDEX IF EXISTS public.comment_parents_parent_id_parent_type_idx;
 DROP INDEX IF EXISTS public.comments_author_uid_idx;
@@ -156,6 +160,7 @@ ALTER TABLE IF EXISTS ONLY public.note_template_topics DROP CONSTRAINT IF EXISTS
 ALTER TABLE IF EXISTS ONLY public.note_templates DROP CONSTRAINT IF EXISTS note_templates_pkey;
 ALTER TABLE IF EXISTS ONLY public.note_topics DROP CONSTRAINT IF EXISTS note_topics_pkey;
 ALTER TABLE IF EXISTS ONLY public.notes DROP CONSTRAINT IF EXISTS notes_pkey;
+ALTER TABLE IF EXISTS ONLY public.comments_read DROP CONSTRAINT IF EXISTS comments_read_pkey;
 ALTER TABLE IF EXISTS ONLY public.comment_attachments DROP CONSTRAINT IF EXISTS comment_attachments_pkey;
 ALTER TABLE IF EXISTS ONLY public.comments DROP CONSTRAINT IF EXISTS comments_pkey;
 ALTER TABLE IF EXISTS ONLY public.comment_parents DROP CONSTRAINT IF EXISTS comment_parents_pkey;
@@ -181,6 +186,7 @@ ALTER TABLE IF EXISTS public.json_cache ALTER COLUMN id DROP DEFAULT;
 
 DROP MATERIALIZED VIEW IF EXISTS public.advisor_author_index;
 DROP MATERIALIZED VIEW IF EXISTS public.notes_fts_index;
+DROP TABLE IF EXISTS public.comments_read;
 DROP TABLE IF EXISTS public.comment_attachments;
 DROP SEQUENCE IF EXISTS public.comment_attachments_id_seq;
 DROP TABLE IF EXISTS public.comments;
