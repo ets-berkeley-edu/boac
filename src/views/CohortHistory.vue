@@ -88,16 +88,19 @@
 
 <script setup>
 import {get, isEmpty} from 'lodash'
-import {onMounted, ref} from 'vue'
+import {computed, onMounted, ref} from 'vue'
+import {useRoute} from 'vue-router'
 import AdmitDataWarning from '@/components/admit/AdmitDataWarning.vue'
 import CohortPageHeader from '@/components/cohort/CohortPageHeader.vue'
 import Date from '@/components/util/Date.vue'
 import Pagination from '@/components/util/Pagination'
 import {getCohortEvents} from '@/api/cohort'
-import {lastNameFirst, putFocusNextTick, scrollToTop, studentRoutePath} from '@/lib/utils'
+import {lastNameFirst, putFocusNextTick, scrollToTop, studentRoutePath, toInt} from '@/lib/utils'
 import {useCohortStore} from '@/stores/cohort-edit-session'
+import {loadCohort} from '@/stores/cohort-edit-session/cohort-edit-session-utils'
 import {useContextStore} from '@/stores/context'
 
+const cohortId = ref(0)
 const cohortStore = useCohortStore()
 const contextStore = useContextStore()
 
@@ -110,9 +113,28 @@ const totalEventsCount = ref(0)
 
 contextStore.loadingStart()
 
+const sortByKey = computed(() => cohortStore.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy')
+
 onMounted(() => {
-  goToPage(1)
+  init().then(() => {
+    goToPage(1)
+  })
 })
+
+const init = () => {
+  return new Promise(resolve => {
+    if (cohortStore && cohortStore.cohortId) {
+      cohortId.value = cohortStore.cohortId
+      resolve()
+    } else {
+      cohortId.value = toInt(get(useRoute(), 'params.id'))
+      const orderBy = get(currentUser.preferences, sortByKey.value)
+      const termId = get(currentUser.preferences, 'termId')
+      cohortStore.resetSession()
+      loadCohort(cohortId.value, orderBy, termId).then(resolve)
+    }
+  })
+}
 
 const goToPage = page => {
   return new Promise(resolve => {
@@ -120,7 +142,7 @@ const goToPage = page => {
     offset.value = (page - 1) * itemsPerPage.value
     contextStore.loadingStart()
     scrollToTop(10)
-    getCohortEvents(cohortStore.cohortId, offset.value, itemsPerPage.value).then(data => {
+    getCohortEvents(cohortId.value, offset.value, itemsPerPage.value).then(data => {
       totalEventsCount.value = data.count
       events.value = data.events
       contextStore.loadingComplete()

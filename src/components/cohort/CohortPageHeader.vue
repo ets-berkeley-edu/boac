@@ -147,7 +147,7 @@
           color="anchor"
           :disabled="isModifiedSinceLastSearch"
           variant="text"
-          to="/cohort/history"
+          :to="`/cohort/${cohortId}/history`"
         >
           <span class="sr-only">Cohort</span>&nbsp;History
         </v-btn>
