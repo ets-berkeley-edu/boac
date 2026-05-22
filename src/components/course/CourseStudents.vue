@@ -15,7 +15,7 @@
     disable-sort
     :headers="headers"
     hide-default-footer
-    hover
+    :hover="$vuetify.display.width > mobileBreakpoint"
     :items="section.students"
     :items-per-page="-1"
     :row-props="data => {
@@ -441,6 +441,9 @@ const onFocus = row => {
 }
 .height-when-canvas-site-count-5 {
   min-height: 20%;
+}
+.stacked-table.v-data-table :deep(tr:hover) {
+  background: rgb(var(--v-theme-surface-light)) !important;
 }
 .student-avatar-container {
   min-width: 136px;
