@@ -4,12 +4,6 @@
     <article
       v-for="comment in parent.comments"
       :key="comment.id"
-      v-intersect="{
-        handler: (isIntersecting) => markRead(isIntersecting, comment),
-        options: {
-          scrollMargin: '-64px 0px -64px 0px',
-          threshold: 1
-        }}"
       class="border-t-sm d-flex justify-space-between py-2 pl-2"
     >
       <div v-if="!editingComment || editingComment.id !== comment.id" class="flex-grow-1 pr-3">
@@ -141,8 +135,7 @@
 
 <script setup lang="ts">
 import {computed, ref} from 'vue'
-import {createCssTransition} from 'vuetify/util/transitions'
-import {findIndex, includes, size, truncate} from 'lodash'
+import {findIndex, size, truncate} from 'lodash'
 import {mdiPlus} from '@mdi/js'
 import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments'
 import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
@@ -151,6 +144,7 @@ import EditComment from '@/components/comment/EditComment'
 import TimelineDate from '@/components/student/profile/TimelineDate'
 import {addComment, deleteComment, updateComment} from '@/api/comments'
 import {addNoteComment, deleteNoteComment, updateNoteComment} from '@/api/notes'
+import {isExternalCommentParent} from '@/lib/comment'
 import {addPeerAdvisingNoteComment, updatePeerAdvisingNoteComment} from '@/api/peer-advising-notes'
 import {alertScreenReader, putFocusNextTick, stripHtmlAndTrim} from '@/lib/utils'
 import {canUserEditNote} from '@/lib/note.js'
@@ -172,8 +166,6 @@ const isCreatingComment = ref(false)
 
 const idPrefix = computed(() => `${props.parent.type}-${props.parent.id}`)
 const isDeletingComment = computed(() => !!deletingComment.value)
-
-createCssTransition('mark-read-transition')
 
 const onCancelAdd = () => {
   isCreatingComment.value = false
@@ -212,7 +204,7 @@ const onClickEdit = comment => {
 
 const onConfirmDelete = () => {
   if (deletingComment.value) {
-    const doDelete = includes(['appointment', 'eForm'], props.parent.type) ? deleteComment : deleteNoteComment
+    const doDelete = isExternalCommentParent(props.parent.type) ? deleteComment : deleteNoteComment
     const index = findIndex(props.parent.comments, {'id': deletingComment.value.id})
     const lastItemIndex = size(props.parent.comments) - 1
     doDelete(props.parent.id, deletingComment.value.id).then(() => {
@@ -233,7 +225,7 @@ const createComment = (id, body, attachments) => {
   let create
   if (isPeerAdvisor(currentUser)) {
     create = addPeerAdvisingNoteComment
-  } else if (includes(['appointment', 'eForm'], props.parent.type)) {
+  } else if (isExternalCommentParent(props.parent.type)) {
     create = addComment
   } else {
     create = addNoteComment
@@ -250,17 +242,11 @@ const createComment = (id, body, attachments) => {
   })
 }
 
-const markRead = (isIntersecting, comment) => {
-  if (isIntersecting && !comment.read) {
-    comment.read = true
-  }
-}
-
 const onUpdateComment = (id, body, attachments, deleteAttachmentIds) => {
   let update
   if (isPeerAdvisor(currentUser)) {
     update = updatePeerAdvisingNoteComment
-  } else if (includes(['appointment', 'eForm'], props.parent.type)) {
+  } else if (isExternalCommentParent(props.parent.type)) {
     update = updateComment
   } else {
     update = updateNoteComment

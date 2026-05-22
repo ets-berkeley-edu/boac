@@ -30,6 +30,7 @@ from flask import current_app as app
 from flask_login import current_user
 
 from boac.api.decorators import advising_data_access_required
+from boac.api.util import mark_comments_read_for_parent
 from boac.lib.http import tolerant_jsonify
 from boac.lib.sis_advising import get_legacy_attachment_stream
 from boac.models.appointment_read import AppointmentRead
@@ -38,7 +39,10 @@ from boac.models.appointment_read import AppointmentRead
 @app.route('/api/appointments/<appointment_id>/mark_read', methods=['POST'])
 @advising_data_access_required
 def mark_appointment_read(appointment_id):
-    return tolerant_jsonify(AppointmentRead.find_or_create(current_user.get_id(), appointment_id).to_api_json())
+    viewer_id = current_user.get_id()
+    appointment_read = AppointmentRead.find_or_create(viewer_id, appointment_id)
+    mark_comments_read_for_parent(viewer_id, appointment_id, ['appointment'])
+    return tolerant_jsonify(appointment_read.to_api_json())
 
 
 @app.route('/api/appointments/attachment/<attachment_id>', methods=['GET'])

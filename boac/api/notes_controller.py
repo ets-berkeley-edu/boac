@@ -44,6 +44,7 @@ from boac.api.util import (
     get_note_topics_from_http_post,
     get_template_attachment_ids_from_http_post,
     is_valid_date_string,
+    mark_comments_read_for_parent,
     update_note_comment,
     validate_note_contact_type,
 )
@@ -63,6 +64,7 @@ from boac.merged.advising_note import (
     get_zip_stream,
 )
 from boac.models.cohort_filter import CohortFilter
+from boac.models.comment_parent import EFORM_COMMENT_PARENT_TYPES
 from boac.models.curated_group import CuratedGroup
 from boac.models.note import Note
 from boac.models.note_attachment import NoteAttachment
@@ -85,11 +87,14 @@ def get_note(note_id):
 @app.route('/api/notes/<note_id>/mark_read', methods=['POST'])
 @advising_data_access_required
 def mark_note_read(note_id):
+    viewer_id = current_user.get_id()
     note_ids = [note_id]
     if is_int(note_id):
         comments = Note.get_notes_by_parent_id(int(note_id))
         note_ids.extend([comment.id for comment in comments])
-    reads = NoteRead.find_or_create(current_user.get_id(), note_ids)
+    else:
+        mark_comments_read_for_parent(viewer_id, note_id, EFORM_COMMENT_PARENT_TYPES)
+    reads = NoteRead.find_or_create(viewer_id, note_ids)
     if reads and len(reads):
         return tolerant_jsonify({'status': 'created'}, status=201)
     else:

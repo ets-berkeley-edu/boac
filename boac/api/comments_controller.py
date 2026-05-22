@@ -29,10 +29,13 @@ from flask_login import current_user
 
 from boac.api.decorators import admin_required, advising_data_access_required
 from boac.api.errors import BadRequestError, ResourceNotFoundError
-from boac.api.util import get_note_attachments_from_http_post, get_note_author_profile_of_current_user
+from boac.api.util import (
+    get_note_attachments_from_http_post,
+    get_note_author_profile_of_current_user,
+    record_external_comment_read_state,
+)
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import is_int, process_input_from_rich_text_editor
-from boac.models.appointment_read import AppointmentRead
 from boac.models.comment import Comment
 from boac.models.comment_parent import CommentParent, comment_parent_type_enum
 
@@ -65,26 +68,21 @@ def create_comment():
         body=body,
         attachments=attachments,
     )
-    if parent_type == 'appointment':
-        viewer_id = current_user.get_id()
-        AppointmentRead.delete_for_appointment_except_viewer(
-            appointment_id=parent_id,
-            keep_viewer_id=viewer_id,
-        )
-        AppointmentRead.find_or_create(viewer_id=viewer_id, appointment_id=parent_id)
+    viewer_id = current_user.get_id()
+    record_external_comment_read_state(comment, viewer_id, parent_type, parent_id)
     return tolerant_jsonify({
-        **comment.to_api_json(),
+        **comment.to_api_json(read=True),
         'parentType': comment_parent.parent_type,
         'parentId': comment_parent.parent_id,
     })
 
 
-def _comment_json_with_parent(comment):
+def _comment_json_with_parent(comment, read=False):
     comment_parent = CommentParent.find_by_id(comment.comment_parent_id)
     if not comment_parent:
         raise ResourceNotFoundError('Comment not found')
     return {
-        **comment.to_api_json(),
+        **comment.to_api_json(read=read),
         'parentType': comment_parent.parent_type,
         'parentId': comment_parent.parent_id,
     }
@@ -93,9 +91,7 @@ def _comment_json_with_parent(comment):
 def _load_comment_for_mutation(comment_id):
     if not comment_id or not is_int(comment_id):
         raise BadRequestError('Request has missing or invalid request parameters')
-    app.logger.error(comment_id)
     comment = Comment.find_by_id(int(comment_id))
-    app.logger.error(comment)
     if not comment:
         raise ResourceNotFoundError('Comment not found')
     return comment
@@ -122,7 +118,17 @@ def update_comment():
         raise BadRequestError(f'No more than {attachment_limit} attachments may be uploaded at once.')
 
     comment.update(body=body, delete_attachment_ids=delete_attachment_ids, new_attachments=attachments)
-    return tolerant_jsonify(_comment_json_with_parent(comment))
+    viewer_id = current_user.get_id()
+    comment_parent = CommentParent.find_by_id(comment.comment_parent_id)
+    if comment_parent:
+        record_external_comment_read_state(
+            comment,
+            viewer_id,
+            comment_parent.parent_type,
+            comment_parent.parent_id,
+            after_edit=True,
+        )
+    return tolerant_jsonify(_comment_json_with_parent(comment, read=True))
 
 
 @app.route('/api/comments/delete/<comment_id>', methods=['DELETE'])
