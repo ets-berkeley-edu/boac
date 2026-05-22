@@ -106,14 +106,14 @@ const routes:RouteRecordRaw[] = [
         meta: {groupsType: 'curated'}
       },
       {
-        path: '/cohort/history',
-        component: CohortHistory,
-        name: 'Cohort History'
-      },
-      {
         path: '/cohort/:id',
         component: Cohort,
         name: 'Cohort'
+      },
+      {
+        path: '/cohort/:id/history',
+        component: CohortHistory,
+        name: 'Cohort History'
       },
       {
         path: '/course/:termId/:sectionId',
