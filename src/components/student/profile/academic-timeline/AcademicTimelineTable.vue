@@ -686,6 +686,9 @@ const markRead = message => {
       markAppointmentRead(message.id)
     }
   }
+  if (size(message.comments)) {
+    each(message.comments, c => { c.read = true })
+  }
 }
 
 const messagesPerType = type => {

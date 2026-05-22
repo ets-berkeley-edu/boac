@@ -147,7 +147,7 @@ class Comment(Base):
         db.session.refresh(self)
         return self
 
-    def to_api_json(self):
+    def to_api_json(self, read=False):
         return {
             'id': self.id,
             'commentParentId': self.comment_parent_id,
@@ -163,6 +163,7 @@ class Comment(Base):
             'createdAt': to_iso_format(self.created_at),
             'updatedAt': self.resolve_updated_at(),
             'deletedAt': to_iso_format(self.deleted_at),
+            'read': bool(read),
         }
 
     def resolve_updated_at(self):

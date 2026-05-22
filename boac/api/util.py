@@ -41,9 +41,12 @@ from boac.merged.calnet import get_calnet_user_for_uid
 from boac.merged.cohort_filter_options import PROTECTED_COHORT_FILTERS_COENG, PROTECTED_COHORT_FILTERS_UWASC, CohortFilterOptions
 from boac.merged.sis_terms import current_term_id
 from boac.models.alert import Alert
+from boac.models.appointment_read import AppointmentRead
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
 from boac.models.comment import Comment
+from boac.models.comment_parent import EFORM_COMMENT_PARENT_TYPES
+from boac.models.comment_read import CommentRead
 from boac.models.curated_group import CuratedGroup
 from boac.models.degree_progress_course import ACCENT_COLOR_CODES
 from boac.models.note import Note, note_contact_type_enum
@@ -152,6 +155,33 @@ def construct_phantom_cohort(domain, filters, **kwargs):
         filter_criteria=translate_filters_to_cohort_criteria(filters, domain),
     )
     return cohort.to_api_json(**kwargs)
+
+
+def invalidate_parent_read_after_external_comment(parent_type, parent_id, viewer_id):
+    if parent_type == 'appointment':
+        AppointmentRead.delete_for_appointment_except_viewer(
+            appointment_id=parent_id,
+            keep_viewer_id=viewer_id,
+        )
+    elif parent_type in EFORM_COMMENT_PARENT_TYPES:
+        NoteRead.delete_for_note(parent_id, except_viewer_id=viewer_id)
+
+
+def mark_comments_read_for_parent(viewer_id, parent_id, parent_types):
+    """Mark all Comment rows for parent_id across one or more comment_parent types as read."""
+    pairs = [(pt, str(parent_id)) for pt in parent_types]
+    grouped = Comment.get_comments_by_parents(pairs)
+    comment_ids = [c.id for group in grouped.values() for c in group]
+    if comment_ids:
+        CommentRead.find_or_create(viewer_id=viewer_id, comment_ids=comment_ids)
+    return comment_ids
+
+
+def record_external_comment_read_state(comment, viewer_id, parent_type, parent_id, *, after_edit=False):
+    if after_edit:
+        CommentRead.delete_for_comment(comment_id=comment.id, except_viewer_id=viewer_id)
+    CommentRead.find_or_create(viewer_id=viewer_id, comment_ids=[comment.id])
+    invalidate_parent_read_after_external_comment(parent_type, parent_id, viewer_id)
 
 
 def create_note_comment(parent_note, params, peer_advising_department_id=None):
@@ -316,17 +346,22 @@ def _attach_external_comments(appointments, eforms):
         if parent_type and e.get('id') is not None:
             pairs.append((parent_type, str(e['id'])))
     grouped = Comment.get_comments_by_parents(pairs)
+    all_comment_ids = [c.id for group in grouped.values() for c in group]
+    reads_set = set()
+    if all_comment_ids:
+        read_rows = CommentRead.get_comments_read_by_user(current_user.get_id(), all_comment_ids)
+        reads_set = {r.comment_id for r in read_rows}
     for a in appointments:
         if a.get('id') is None:
             a['comments'] = []
             continue
-        a['comments'] = [c.to_api_json() for c in grouped.get(('appointment', str(a['id'])), [])]
+        a['comments'] = [c.to_api_json(read=c.id in reads_set) for c in grouped.get(('appointment', str(a['id'])), [])]
     for e in eforms:
         parent_type = e.get('parentType')
         if not parent_type or e.get('id') is None:
             e['comments'] = []
             continue
-        e['comments'] = [c.to_api_json() for c in grouped.get((parent_type, str(e['id'])), [])]
+        e['comments'] = [c.to_api_json(read=c.id in reads_set) for c in grouped.get((parent_type, str(e['id'])), [])]
 
 
 def get_current_user_profile():

@@ -37,6 +37,8 @@ comment_parent_type_enum = ENUM(
     create_type=False,
 )
 
+EFORM_COMMENT_PARENT_TYPES = ('course_load_eform', 'cpp_change_eform', 'late_drop_eform')
+
 
 class CommentParent(db.Model):
     __tablename__ = 'comment_parents'
