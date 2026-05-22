@@ -173,6 +173,14 @@
             variant="text"
             @click="remove"
           />
+          <AreYouSureModal
+            v-model="isDeleteWarningModalOpen"
+            button-label-confirm="Close"
+            :function-confirm="confirmDeleteWarning"
+            modal-header="Cannot remove filter"
+          >
+            You cannot remove the last filter from a saved cohort.
+          </AreYouSureModal>
         </div>
         <div v-if="isModifyingFilter" class="align-center d-flex">
           <ProgressButton
@@ -229,6 +237,7 @@ import {
 import {DateTime} from 'luxon'
 import {onMounted, ref, watch} from 'vue'
 import AccessibleDateInput from '@/components/util/AccessibleDateInput'
+import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
 import FilterCategorySelect from '@/components/cohort/FilterCategorySelect'
 import FilterSelect from '@/components/cohort/FilterSelect'
 import ProgressButton from '@/components/util/ProgressButton'
@@ -250,6 +259,7 @@ const currentUser = useContextStore().currentUser
 const disableUpdateButton = ref(false)
 const errorPerRangeInput = ref(undefined)
 const filter = ref(undefined)
+const isDeleteWarningModalOpen = ref(false)
 const isExistingFilter = ref(undefined)
 const isModifyingFilter = ref(false)
 const isUpdatingExistingFilter = ref(false)
@@ -373,6 +383,12 @@ watch(selectedOption, () => {
 onMounted(() => {
   reset()
 })
+
+const confirmDeleteWarning = () => {
+  isDeleteWarningModalOpen.value = false
+  alertScreenReader('Closed')
+  putFocusNextTick('delete-curated-group-button')
+}
 
 const formatGPA = value => {
   // Prepend zero in case input is, for example, '.2'. No harm done if input has a leading zero.
@@ -524,12 +540,21 @@ const rangeMinLabel = () => {
 }
 
 const remove = () => {
-  cohortStore.removeFilter(props.position)
-  const ownerUid = get(cohortStore.owner, 'uid') || currentUser.uid
-  updateFilterOptions(cohortStore.domain, ownerUid, cohortStore.filters).then(noop)
-  cohortStore.setEditMode(null)
-  putFocusNextTick('filter-select-primary-new')
-  alertScreenReader(`${filter.value.label.primary} filter removed`)
+  if (cohortStore.filters.length === 1) {
+    if (cohortStore.cohortId) {
+      isDeleteWarningModalOpen.value = true
+    } else {
+      cohortStore.resetSession()
+      cohortStore.stashOriginalFilters()
+    }
+  } else {
+    cohortStore.removeFilter(props.position)
+    const ownerUid = get(cohortStore.owner, 'uid') || currentUser.uid
+    updateFilterOptions(cohortStore.domain, ownerUid, cohortStore.filters).then(noop)
+    cohortStore.setEditMode(null)
+    putFocusNextTick('filter-select-primary-new')
+    alertScreenReader(`${filter.value.label.primary} filter removed`)
+  }
 }
 
 const reset = () => {
