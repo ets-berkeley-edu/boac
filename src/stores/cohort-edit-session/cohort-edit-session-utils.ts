@@ -76,7 +76,11 @@ export function resetFiltersToLastApply() {
     const cohortStore = useCohortStore()
     cohortStore.restoreOriginalFilters()
     cohortStore.setEditMode(null)
-    cohortStore.setModifiedSinceLastSearch(false)
+    if (cohortStore.originalFilters.length) {
+      cohortStore.setModifiedSinceLastSearch(false)
+    } else {
+      cohortStore.setModifiedSinceLastSearch(undefined)
+    }
 
     const domain = String(cohortStore.domain)
     const filters = cohortStore.filters
