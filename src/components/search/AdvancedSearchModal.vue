@@ -133,7 +133,7 @@
                 @change="onChangeIncludeNotes"
               >
                 <template #label>
-                  Notes &amp; Appointments
+                  Notes, Appointments, and eForms
                 </template>
               </v-checkbox>
             </div>
@@ -146,7 +146,7 @@
                 variant="outlined"
               >
                 <v-card-title>
-                  <h2 class="notes-and-appointments-filters-header">Filters for notes and appointments</h2>
+                  <h2 class="notes-and-appointments-filters-header">Filters for notes, appointments, and eForms</h2>
                 </v-card-title>
                 <v-card-text class="w-100">
                   <div class="px-3">

@@ -25,7 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from collections import defaultdict
 
-from sqlalchemy import tuple_
+from sqlalchemy import func, tuple_
 from sqlalchemy.dialects.postgresql import ARRAY
 
 from boac import db, std_commit
@@ -57,6 +57,51 @@ class Comment(Base):
     @classmethod
     def find_by_id(cls, comment_id):
         return cls.query.filter_by(id=comment_id).filter(cls.deleted_at == None).first()  # noqa: E711
+
+    @classmethod
+    def search_by_parent_types(
+            cls,
+            parent_types,
+            search_phrases=None,
+            author_uid=None,
+            datetime_from=None,
+            datetime_to=None,
+            offset=0,
+            limit=20,
+    ):
+        if not parent_types:
+            return {'rows': [], 'total_matching_count': 0}
+
+        query = (
+            db.session.query(cls, CommentParent.parent_type, CommentParent.parent_id)
+            .join(CommentParent, cls.comment_parent_id == CommentParent.id)
+            .filter(
+                cls.deleted_at == None,  # noqa: E711
+                CommentParent.deleted_at == None,  # noqa: E711
+                CommentParent.parent_type.in_(parent_types),
+            )
+        )
+        if search_phrases:
+            for phrase in search_phrases:
+                query = query.filter(cls.body.ilike(f'%{phrase}%'))
+        if author_uid:
+            query = query.filter(cls.author_uid == author_uid)
+        if datetime_from:
+            query = query.filter(cls.created_at >= datetime_from)
+        if datetime_to:
+            query = query.filter(cls.created_at < datetime_to)
+
+        total_matching_count = query.with_entities(func.count(cls.id)).scalar() or 0
+        rows = (
+            query.order_by(cls.created_at.desc(), cls.id.desc())
+            .offset(offset)
+            .limit(limit)
+            .all()
+        )
+        return {
+            'rows': rows,
+            'total_matching_count': total_matching_count,
+        }
 
     @classmethod
     def get_comments_by_parents(cls, pairs):
