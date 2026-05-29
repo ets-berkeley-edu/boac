@@ -29,6 +29,7 @@ from selenium.webdriver.common.by import By
 
 from bea.pages.create_note_modal import CreateNoteModal
 from bea.pages.student_page_timeline import StudentPageTimeline
+from bea.test_utils import utils
 
 
 class StudentPageEForm(StudentPageTimeline, CreateNoteModal):
@@ -90,3 +91,80 @@ class StudentPageEForm(StudentPageTimeline, CreateNoteModal):
 
     def expanded_e_form_term(self, e_form):
         return self.el_text_if_exists(self.e_form_data_loc(e_form, 'Term'))
+
+    # COMMENTS
+
+    @staticmethod
+    def e_form_add_comment_button_loc(e_form):
+        return By.ID, f'eForm-{e_form.record_id}-add-comment-btn'
+
+    @staticmethod
+    def e_form_new_comment_text_area_loc(e_form):
+        return By.XPATH, f'//div[@id="eForm-{e_form.record_id}-comment-new-text"]//div[@role="textbox"]'
+
+    @staticmethod
+    def e_form_new_comment_save_loc(e_form):
+        return By.ID, f'eForm-{e_form.record_id}-comment-new-save-btn'
+
+    @staticmethod
+    def e_form_new_comment_cancel_loc(e_form):
+        return By.ID, f'eForm-{e_form.record_id}-comment-new-cancel-btn'
+
+    @staticmethod
+    def e_form_comment_body_loc(e_form, comment):
+        return By.ID, f'eForm-{e_form.record_id}-comment-{comment.comment_id}-text'
+
+    @staticmethod
+    def e_form_comment_edit_button_loc(e_form, comment):
+        return By.ID, f'eForm-{e_form.record_id}-comment-{comment.comment_id}-edit-btn'
+
+    @staticmethod
+    def e_form_comment_delete_button_loc(e_form, comment):
+        return By.ID, f'eForm-{e_form.record_id}-comment-{comment.comment_id}-delete-btn'
+
+    @staticmethod
+    def e_form_edit_comment_text_area_loc(e_form, comment):
+        return By.XPATH, f'//div[@id="eForm-{e_form.record_id}-comment-{comment.comment_id}-text"]//div[@role="textbox"]'
+
+    @staticmethod
+    def e_form_edit_comment_save_loc(e_form, comment):
+        return By.ID, f'eForm-{e_form.record_id}-comment-{comment.comment_id}-save-btn'
+
+    def click_add_e_form_comment_button(self, e_form):
+        app.logger.debug(f'Clicking Add Comment button for eForm {e_form.record_id}')
+        self.wait_for_element_and_click(self.e_form_add_comment_button_loc(e_form))
+
+    def save_new_e_form_comment(self, e_form):
+        app.logger.debug('Saving new eForm comment')
+        self.wait_for_element_and_click(self.e_form_new_comment_save_loc(e_form))
+        self.when_not_present(self.e_form_new_comment_save_loc(e_form), utils.get_short_timeout())
+
+    def cancel_new_e_form_comment(self, e_form):
+        app.logger.debug('Canceling new eForm comment')
+        self.wait_for_element_and_click(self.e_form_new_comment_cancel_loc(e_form))
+        self.when_not_present(self.e_form_new_comment_cancel_loc(e_form), utils.get_short_timeout())
+
+    def add_e_form_comment(self, e_form, comment):
+        app.logger.info(f'Adding comment to eForm {e_form.record_id}')
+        self.click_add_e_form_comment_button(e_form)
+        self.wait_for_textbox_and_send_keys(self.e_form_new_comment_text_area_loc(e_form), comment.body)
+        self.save_new_e_form_comment(e_form)
+
+    def click_edit_e_form_comment_button(self, e_form, comment):
+        app.logger.debug(f'Clicking edit button for eForm comment {comment.comment_id}')
+        self.wait_for_element_and_click(self.e_form_comment_edit_button_loc(e_form, comment))
+
+    def save_edit_e_form_comment(self, e_form, comment):
+        app.logger.debug('Saving eForm comment edit')
+        self.wait_for_element_and_click(self.e_form_edit_comment_save_loc(e_form, comment))
+        self.when_not_present(self.e_form_edit_comment_save_loc(e_form, comment), utils.get_short_timeout())
+
+    def delete_e_form_comment(self, e_form, comment):
+        app.logger.info(f'Deleting comment {comment.comment_id} from eForm {e_form.record_id}')
+        self.wait_for_element_and_click(self.e_form_comment_delete_button_loc(e_form, comment))
+        self.confirm_delete_or_discard()
+        self.when_not_present(self.e_form_comment_body_loc(e_form, comment), utils.get_short_timeout())
+
+    def e_form_comment_body_text(self, e_form, comment):
+        loc = self.e_form_comment_body_loc(e_form, comment)
+        return self.element(loc).text if self.is_present(loc) else None

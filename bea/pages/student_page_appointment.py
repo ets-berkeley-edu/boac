@@ -118,3 +118,80 @@ class StudentPageAppointment(StudentPageTimeline, CreateNoteModal):
 
     def expanded_appt_attachments(self, appt):
         return [el.text.strip().lower() for el in self.item_attachment_els(appt)]
+
+    # COMMENTS
+
+    @staticmethod
+    def appt_add_comment_button_loc(appt):
+        return By.ID, f'appointment-{appt.record_id}-add-comment-btn'
+
+    @staticmethod
+    def appt_new_comment_text_area_loc(appt):
+        return By.XPATH, f'//div[@id="appointment-{appt.record_id}-comment-new-text"]//div[@role="textbox"]'
+
+    @staticmethod
+    def appt_new_comment_save_loc(appt):
+        return By.ID, f'appointment-{appt.record_id}-comment-new-save-btn'
+
+    @staticmethod
+    def appt_new_comment_cancel_loc(appt):
+        return By.ID, f'appointment-{appt.record_id}-comment-new-cancel-btn'
+
+    @staticmethod
+    def appt_comment_body_loc(appt, comment):
+        return By.ID, f'appointment-{appt.record_id}-comment-{comment.comment_id}-text'
+
+    @staticmethod
+    def appt_comment_edit_button_loc(appt, comment):
+        return By.ID, f'appointment-{appt.record_id}-comment-{comment.comment_id}-edit-btn'
+
+    @staticmethod
+    def appt_comment_delete_button_loc(appt, comment):
+        return By.ID, f'appointment-{appt.record_id}-comment-{comment.comment_id}-delete-btn'
+
+    @staticmethod
+    def appt_edit_comment_text_area_loc(appt, comment):
+        return By.XPATH, f'//div[@id="appointment-{appt.record_id}-comment-{comment.comment_id}-text"]//div[@role="textbox"]'
+
+    @staticmethod
+    def appt_edit_comment_save_loc(appt, comment):
+        return By.ID, f'appointment-{appt.record_id}-comment-{comment.comment_id}-save-btn'
+
+    def click_add_appt_comment_button(self, appt):
+        app.logger.debug(f'Clicking Add Comment button for appointment {appt.record_id}')
+        self.wait_for_element_and_click(self.appt_add_comment_button_loc(appt))
+
+    def save_new_appt_comment(self, appt):
+        app.logger.debug('Saving new appointment comment')
+        self.wait_for_element_and_click(self.appt_new_comment_save_loc(appt))
+        self.when_not_present(self.appt_new_comment_save_loc(appt), utils.get_short_timeout())
+
+    def cancel_new_appt_comment(self, appt):
+        app.logger.debug('Canceling new appointment comment')
+        self.wait_for_element_and_click(self.appt_new_comment_cancel_loc(appt))
+        self.when_not_present(self.appt_new_comment_cancel_loc(appt), utils.get_short_timeout())
+
+    def add_appt_comment(self, appt, comment):
+        app.logger.info(f'Adding comment to appointment {appt.record_id}')
+        self.click_add_appt_comment_button(appt)
+        self.wait_for_textbox_and_send_keys(self.appt_new_comment_text_area_loc(appt), comment.body)
+        self.save_new_appt_comment(appt)
+
+    def click_edit_appt_comment_button(self, appt, comment):
+        app.logger.debug(f'Clicking edit button for appointment comment {comment.comment_id}')
+        self.wait_for_element_and_click(self.appt_comment_edit_button_loc(appt, comment))
+
+    def save_edit_appt_comment(self, appt, comment):
+        app.logger.debug('Saving appointment comment edit')
+        self.wait_for_element_and_click(self.appt_edit_comment_save_loc(appt, comment))
+        self.when_not_present(self.appt_edit_comment_save_loc(appt, comment), utils.get_short_timeout())
+
+    def delete_appt_comment(self, appt, comment):
+        app.logger.info(f'Deleting comment {comment.comment_id} from appointment {appt.record_id}')
+        self.wait_for_element_and_click(self.appt_comment_delete_button_loc(appt, comment))
+        self.confirm_delete_or_discard()
+        self.when_not_present(self.appt_comment_body_loc(appt, comment), utils.get_short_timeout())
+
+    def appt_comment_body_text(self, appt, comment):
+        loc = self.appt_comment_body_loc(appt, comment)
+        return self.element(loc).text if self.is_present(loc) else None

@@ -598,6 +598,38 @@ def get_note_comments(note):
             for row in results.mappings()]
 
 
+def get_appt_comments(appt):
+    sql = f"""SELECT c.id, c.body
+               FROM comments c
+               JOIN comment_parents cp ON c.comment_parent_id = cp.id
+              WHERE cp.parent_type = 'appointment'
+                AND cp.parent_id = '{appt.record_id}'
+                AND c.deleted_at IS NULL
+           ORDER BY c.created_at ASC, c.id ASC"""
+    app.logger.info(sql)
+    results = db.session.execute(text(sql))
+    std_commit(allow_test_environment=True)
+    return [NoteComment({'comment_id': str(row['id']),
+                         'body': utils.strip_tags_and_whitespace(row['body'])})
+            for row in results.mappings()]
+
+
+def get_e_form_comments(e_form):
+    sql = f"""SELECT c.id, c.body
+               FROM comments c
+               JOIN comment_parents cp ON c.comment_parent_id = cp.id
+              WHERE cp.parent_type IN ('late_drop_eform', 'cpp_change_eform', 'course_load_eform')
+                AND cp.parent_id = '{e_form.record_id}'
+                AND c.deleted_at IS NULL
+           ORDER BY c.created_at ASC, c.id ASC"""
+    app.logger.info(sql)
+    results = db.session.execute(text(sql))
+    std_commit(allow_test_environment=True)
+    return [NoteComment({'comment_id': str(row['id']),
+                         'body': utils.strip_tags_and_whitespace(row['body'])})
+            for row in results.mappings()]
+
+
 def get_notes_by_ids(ids):
     sql = f'SELECT * FROM notes WHERE id IN ({utils.in_op(ids)})'
     app.logger.info(sql)
