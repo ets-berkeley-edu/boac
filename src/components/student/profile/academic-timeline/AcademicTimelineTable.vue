@@ -598,6 +598,9 @@ const close = message => {
   }
   if (isExpanded(message)) {
     pull(openMessages.value, message.transientId)
+    if (size(message.comments)) {
+      each(message.comments, c => { c.read = true })
+    }
   }
   if (openMessages.value.length === 0) {
     allExpanded.value = false
@@ -685,9 +688,6 @@ const markRead = message => {
     } else if (message.type === 'appointment') {
       markAppointmentRead(message.id)
     }
-  }
-  if (size(message.comments)) {
-    each(message.comments, c => { c.read = true })
   }
 }
 
