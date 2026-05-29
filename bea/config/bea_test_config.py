@@ -38,6 +38,15 @@ from bea.test_utils import boa_utils, nessie_timeline_utils, nessie_utils, utils
 
 class BEATestConfig(BEATestBaseConfigs):
 
+    def appt_mgmt(self):
+        self.set_base_configs(opts={'include_inactive': True})
+        self.set_test_students(count=app.config['MAX_NOTES_OR_APPTS_STUDENTS_COUNT'], opts={'appts': True})
+        all_sids = nessie_utils.get_all_student_sids()
+        calendly_sids = nessie_timeline_utils.get_sids_with_calendly_appts()
+        ycbm_sids = nessie_timeline_utils.get_sids_with_ycbm_appts()
+        non_legacy_sids = set(all_sids) & (set(calendly_sids) | set(ycbm_sids))
+        self.test_students = [s for s in self.students if s.sid in non_legacy_sids]
+
     def appts_content(self):
         limit = app.config['MAX_NOTES_OR_APPTS_STUDENTS_COUNT']
         self.set_base_configs(opts={'include_inactive': True})
@@ -117,6 +126,10 @@ class BEATestConfig(BEATestBaseConfigs):
                 self.test_cases.append(BEATestCase(student=student,
                                                    note=e_form,
                                                    test_case_id=f'UID {student.uid} {e_form.record_id}'))
+
+    def e_form_mgmt(self):
+        self.set_base_configs(opts={'include_inactive': True})
+        self.set_test_students(count=app.config['MAX_NOTES_OR_APPTS_STUDENTS_COUNT'], opts={'e_forms': True})
 
     def filtered_admits(self):
         self.set_dept(Department.ZCEEE)
