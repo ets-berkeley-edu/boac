@@ -234,6 +234,7 @@ class Note(Base):
               AND n.deleted_at IS NULL
               AND n.is_draft IS FALSE
               AND n.is_private IS FALSE
+              AND n.parent_note_id IS NULL
               AND n.peer_advising_department_id = :peer_advising_department_id
               {f" AND to_char(n.created_at, 'YYYY-MM') = '{timeframe_month}'" if timeframe_month else ''}
             GROUP BY n.id, a.id, t.topic
