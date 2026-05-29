@@ -182,7 +182,7 @@
           <AdvisingComments
             class="pl-5"
             :class="{'sr-only': !isExpanded(note)}"
-            :note="note"
+            :parent="note"
           />
         </div>
       </article>
@@ -210,7 +210,7 @@
 <script setup lang="ts">
 import {DateTime} from 'luxon'
 import {computed, ref} from 'vue'
-import {get, replace, size, truncate} from 'lodash'
+import {each, get, replace, size, truncate} from 'lodash'
 import {mdiCloseCircle} from '@mdi/js'
 import {useDisplay} from 'vuetify'
 import type {Note} from '@/lib/types'
@@ -336,6 +336,7 @@ const toggleShowHide = (note: Note) => {
   const index = expandedNoteIds.value.indexOf(note.id)
   if (index > -1) {
     expandedNoteIds.value.splice(index, 1)
+    each(note.comments, c => { c.read = true })
     putFocusNextTick(`open-peer-advising-${note.id}`, {scroll: false})
   } else {
     expandedNoteIds.value.push(note.id)

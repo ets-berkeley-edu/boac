@@ -17,16 +17,6 @@
               :peer-advising-department-id="comment.peerAdvisingDepartmentId"
             />
           </div>
-          <v-badge
-            class="advising-comment-new"
-            :class="{'show': !comment.read}"
-            color="info"
-            inline
-          >
-            <template #badge>
-              <span class="font-weight-black text-caption text-uppercase">new</span>
-            </template>
-          </v-badge>
         </div>
         <div
           :id="`${idPrefix}-comment-${comment.id}-text`"
@@ -86,6 +76,7 @@
             :date="comment.createdAt"
             :include-time-of-day="comment.createdAt.length > 10"
             class="mb-2"
+            :class="{'font-weight-bold': !comment.read && comment.createdAt === comment.updatedAt}"
           />
         </div>
         <div v-if="comment.updatedAt && comment.createdAt !== comment.updatedAt" class="pl-2">
@@ -95,6 +86,7 @@
             :date="comment.updatedAt"
             :include-time-of-day="comment.updatedAt.length > 10"
             class="mb-2"
+            :class="{'font-weight-bold': !comment.read}"
           />
         </div>
       </footer>
@@ -267,16 +259,6 @@ const onUpdateComment = (id, body, attachments, deleteAttachmentIds) => {
 <style scoped>
 .academic-timeline-column-date{
   margin-right: -24px;
-}
-.advising-comment-new {
-  margin-top: 2px;
-  visibility: hidden;
-  opacity: 0;
-  transition: opacity 250ms ease-in, visibility 0ms ease-in 250ms;
-}
-.advising-comment-new.show {
-  visibility: visible;
-  opacity: 1;
 }
 .advising-comments :deep(ul), .advising-comments :deep(ol) {
   padding-left: 25px;
