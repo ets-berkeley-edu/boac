@@ -19,7 +19,11 @@
         :items="searchStore.searchHistory"
         label="Basic Search"
         list-label="Previous Searches"
-        :menu-props="{attach: '#basic-search-container', 'location': 'bottom'}"
+        :menu-props="{
+          attach: '#basic-search-container',
+          location: 'bottom',
+          style: 'z-index: unset;'
+        }"
         :on-submit="search"
         :on-toggle-menu="isOpen => isMenuOpen = isOpen"
         :on-update-focused="isFocused => searchStore.setIsFocusOnSearch(isFocused)"
