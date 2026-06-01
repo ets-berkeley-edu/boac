@@ -348,6 +348,7 @@ const toggleShowHide = (note: Note) => {
 <style>
 .peer-advising-notes .academic-timeline-column-date {
   margin-right: -8px !important;
+  min-width: 13rem;
   width: 13rem;
 }
 </style>

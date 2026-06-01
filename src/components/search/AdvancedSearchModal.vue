@@ -261,7 +261,7 @@
                         list-label="Note Student List"
                         :maxlength="56"
                         :menu-props="{
-                          attach: '#search-options-note-student',
+                          attach: '#search-options-note-student-container',
                           'content-class': currentUser.inDemoMode ? 'demo-mode-blur' : ''
                         }"
                         min-width="12rem"

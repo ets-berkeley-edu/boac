@@ -51,6 +51,7 @@
   .v-file-input.v-input--focused,
   .v-list-item:focus::after,
   .v-list-item:focus-within::after,
+  .v-list-item[aria-selected="true"]::after,
   .v-pagination:focus,
   .v-selection-control--focus-visible .v-selection-control__input::before,
   a:not(.v-btn):focus,
@@ -106,14 +107,17 @@
       --v-theme-overlay-multiplier: 1 !important;
     }
   }
-  .v-list-item:focus > .v-list-item__overlay {
+  .v-list-item:focus > .v-list-item__overlay,
+  .v-list-item[aria-selected="true"] > .v-list-item__overlay {
     opacity: calc(var(--v-focus-opacity) * var(--v-theme-overlay-multiplier)) !important;
   }
-  .v-list-item:focus::after {
+  .v-list-item:focus::after,
+  .v-list-item[aria-selected="true"]::after {
     opacity: calc(0.25 * var(--v-theme-overlay-multiplier));
   }
   .v-menu .v-list-item:focus::after,
   .v-menu .v-list-item:focus-within::after,
+  .v-menu .v-list-item[aria-selected="true"]::after,
   .v-menu .v-list-item .v-btn.v-btn--block:focus::after,
   .v-pagination .v-pagination__list .v-btn:focus::after {
     box-shadow: inset 0 0 0.125rem 0.125rem white;
@@ -195,6 +199,7 @@
   .v-file-input.v-input--focused,
   .v-list-item:focus-visible::after,
   .v-list-item:focus-within::after,
+  .v-list-item[aria-selected="true"]::after,
   .v-pagination:focus-visible,
   .v-selection-control--focus-visible .v-selection-control__input::before,
   a:not(.v-btn):focus-visible,
@@ -250,14 +255,17 @@
       --v-theme-overlay-multiplier: 1 !important;
     }
   }
-  .v-list-item:focus-visible > .v-list-item__overlay {
+  .v-list-item:focus-visible > .v-list-item__overlay,
+  .v-list-item[aria-selected="true"] > .v-list-item__overlay {
     opacity: calc(var(--v-focus-opacity) * var(--v-theme-overlay-multiplier)) !important;
   }
-  .v-list-item:focus-visible::after {
+  .v-list-item:focus-visible::after,
+  .v-list-item[aria-selected="true"]::after {
     opacity: calc(0.25 * var(--v-theme-overlay-multiplier));
   }
   .v-menu .v-list-item:focus-visible::after,
   .v-menu .v-list-item:focus-within::after,
+  .v-menu .v-list-item[aria-selected="true"]::after,
   .v-menu .v-list-item .v-btn.v-btn--block:focus-visible::after,
   .v-pagination .v-pagination__list .v-btn:focus-visible::after {
     box-shadow: inset 0 0 0.125rem 0.125rem white;
