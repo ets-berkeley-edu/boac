@@ -818,6 +818,228 @@ def get_ycbm_advising_appointments(sid):
     return safe_execute_rds(sql, sid=sid)
 
 
+def get_advising_appointments_by_ids(ids):
+    if not ids:
+        return []
+    ids = [str(i) for i in ids]
+    rows = []
+    found_ids = set()
+
+    sql = f"""
+        SELECT
+            an.sid, an.id, an.note_body, an.advisor_sid, aa.uid AS advisor_uid,
+            an.created_by, an.created_at, an.updated_at, an.note_category, an.note_subcategory,
+            spi.uid, spi.first_name, spi.last_name, aa.first_name AS advisor_first_name,
+            aa.last_name AS advisor_last_name
+        FROM {sis_advising_notes_schema()}.advising_appointments an
+        LEFT JOIN {sis_advising_notes_schema()}.advising_appointment_advisors aa ON an.advisor_sid = aa.sid
+        LEFT JOIN {student_schema()}.student_profile_index spi ON an.sid = spi.sid
+        WHERE an.id = ANY(%(ids)s)
+        ORDER BY an.created_at DESC, an.id DESC"""
+    for row in safe_execute_rds(sql, ids=ids) or []:
+        rows.append(row)
+        found_ids.add(str(row.get('id')))
+
+    remaining_ids = [i for i in ids if i not in found_ids]
+    if remaining_ids:
+        calendly_sql = f"""
+            SELECT
+                ca.student_sid AS sid, ca.id, NULL AS note_body, ca.host_sid AS advisor_sid,
+                ca.host_uid AS advisor_uid, 'Calendly' AS created_by, ca.created_at, ca.updated_at,
+                NULL AS note_category, NULL AS note_subcategory, spi.uid, spi.first_name, spi.last_name,
+                ca.host_name AS advisor_first_name, NULL AS advisor_last_name
+            FROM {advising_appointments_schema()}.calendly_advising_appointments ca
+            LEFT JOIN {student_schema()}.student_profile_index spi ON ca.student_sid = spi.sid
+            WHERE ca.id = ANY(%(ids)s) AND ca.is_rescheduled IS FALSE"""
+        for row in safe_execute_rds(calendly_sql, ids=remaining_ids) or []:
+            rows.append(row)
+            found_ids.add(str(row.get('id')))
+
+    remaining_ids = [i for i in ids if i not in found_ids]
+    if remaining_ids:
+        ycbm_sql = f"""
+            SELECT
+                ya.student_sid AS sid, ya.id, ya.details AS note_body, NULL AS advisor_sid,
+                NULL AS advisor_uid, 'YCBM' AS created_by, ya.starts_at AS created_at, NULL AS updated_at,
+                NULL AS note_category, NULL AS note_subcategory, spi.uid, spi.first_name, spi.last_name,
+                ya.advisor_name AS advisor_first_name, NULL AS advisor_last_name
+            FROM {advising_appointments_schema()}.ycbm_advising_appointments ya
+            LEFT JOIN {student_schema()}.student_profile_index spi ON ya.student_sid = spi.sid
+            WHERE ya.id = ANY(%(ids)s)"""
+        rows.extend(safe_execute_rds(ycbm_sql, ids=remaining_ids) or [])
+
+    return rows
+
+
+_EFORM_TABLES_BY_PARENT_TYPE = {
+    'late_drop_eform': 'student_late_drop_eforms',
+    'cpp_change_eform': 'student_cpp_change_eforms',
+    'course_load_eform': 'student_course_load_eforms',
+}
+
+_EFORM_SEARCH_COLUMNS = {
+    'student_late_drop_eforms': (
+        'course_display_name', 'course_title', 'requested_action', 'eform_status', 'eform_type',
+        'grading_basis_description', 'requested_grading_basis_description', 'student_name',
+    ),
+    'student_cpp_change_eforms': (
+        'academic_plan_name', 'academic_program_name', 'academic_subplan_name', 'to_academic_plan_name',
+        'to_academic_program_name', 'to_academic_subplan_name', 'eform_action_description', 'eform_status',
+        'eform_type', 'student_name', 'academic_plan_type_description',
+    ),
+    'student_course_load_eforms': (
+        'request_type_description', 'academic_standing_description', 'eform_status', 'eform_type',
+        'eform_last_user_name', 'eform_orig_user_name',
+    ),
+}
+
+
+def get_sis_eforms_by_ids(parent_type_to_ids):
+    rows = []
+    schema = sis_advising_notes_schema()
+    for parent_type, ids in parent_type_to_ids.items():
+        if not ids:
+            continue
+        table = _EFORM_TABLES_BY_PARENT_TYPE.get(parent_type)
+        if not table:
+            continue
+        if table == 'student_late_drop_eforms':
+            sql = f"""
+                SELECT
+                    id, course_display_name, course_title, created_at, '{table}' AS data_source, eform_id,
+                    eform_status, eform_type, NULLIF(grading_basis_description, ' ') AS grading_basis_description,
+                    requested_action,
+                    NULLIF(requested_grading_basis_description, ' ') AS requested_grading_basis_description,
+                    requested_units_taken, section_id, section_num, sid, student_name, term_id, units_taken, updated_at
+                FROM {schema}.{table}
+                WHERE id = ANY(%(ids)s)"""
+        elif table == 'student_cpp_change_eforms':
+            sql = f"""
+                SELECT
+                    id, academic_career_code, academic_plan_code, academic_plan_name, academic_plan_type_description,
+                    academic_program_code, academic_program_name, academic_subplan_code, academic_subplan_name, created_at,
+                    '{table}' AS data_source, degree_expected_term_id, eform_action_description, eform_id,
+                    eform_status, eform_type, overlap_course_1, overlap_course_2, overlap_course_3, overlap_course_4,
+                    overlap_course_5, requirement_term_id, sid, student_name, to_academic_plan_code,
+                    to_academic_plan_requirement_term_id, to_academic_plan_name, to_academic_program_code,
+                    to_academic_program_name, to_academic_subplan_code, to_academic_subplan_name,
+                    to_academic_subplan_requirement_term_id, to_degree_expected_term_id, to_requirement_term_id, updated_at
+                FROM {schema}.{table}
+                WHERE id = ANY(%(ids)s)"""
+        else:
+            sql = f"""
+                SELECT
+                    id, academic_career_code, academic_standing_status, academic_standing_description,
+                    request_type || ' (' || request_type_description || ')' AS action,
+                    '{table}' AS data_source, eform_id, eform_last_user_uid, eform_last_user_name,
+                    eform_orig_user_name, eform_status, eform_type, request_type, request_type_description,
+                    requested_reduced_units, sid, term_enrolled_units, term_id, term_waitlist_units, created_at, updated_at
+                FROM {schema}.{table}
+                WHERE id = ANY(%(ids)s)"""
+        rows.extend(safe_execute_rds(sql, ids=ids))
+    return rows
+
+
+def _eform_text_search_clause(table, search_phrases):
+    columns = _EFORM_SEARCH_COLUMNS.get(table, ())
+    if not search_phrases or not columns:
+        return 'TRUE', {}
+    clauses = []
+    params = {}
+    for phrase_index, phrase in enumerate(search_phrases):
+        column_clauses = []
+        for column_index, column in enumerate(columns):
+            param_name = f'{table}_phrase_{phrase_index}_{column_index}'
+            column_clauses.append(f'CAST({column} AS TEXT) ILIKE %({param_name})s')
+            params[param_name] = f'%{phrase}%'
+        clauses.append('(' + ' OR '.join(column_clauses) + ')')
+    return ' AND '.join(clauses), params
+
+
+def _search_single_sis_eform_table(table, search_phrases=None, student_csid=None, datetime_from=None, datetime_to=None):
+    schema = sis_advising_notes_schema()
+    text_clause, text_params = _eform_text_search_clause(table, search_phrases)
+    where_clauses = [text_clause]
+    params = dict(text_params)
+    if student_csid:
+        where_clauses.append('sid = %(student_csid)s')
+        params['student_csid'] = student_csid
+    if datetime_from:
+        where_clauses.append('created_at >= %(datetime_from)s')
+        params['datetime_from'] = datetime_from
+    if datetime_to:
+        where_clauses.append('created_at < %(datetime_to)s')
+        params['datetime_to'] = datetime_to
+    where_sql = ' AND '.join(where_clauses)
+    if table == 'student_late_drop_eforms':
+        from_sql = f'{schema}.{table}'
+        select_sql = f"""
+            SELECT
+                id, course_display_name, course_title, created_at, '{table}' AS data_source, eform_id,
+                eform_status, eform_type, NULLIF(grading_basis_description, ' ') AS grading_basis_description,
+                requested_action,
+                NULLIF(requested_grading_basis_description, ' ') AS requested_grading_basis_description,
+                requested_units_taken, section_id, section_num, sid, student_name, term_id, units_taken, updated_at
+            FROM {from_sql}
+            WHERE {where_sql}"""
+    elif table == 'student_cpp_change_eforms':
+        from_sql = f'{schema}.{table}'
+        select_sql = f"""
+            SELECT
+                id, academic_career_code, academic_plan_code, academic_plan_name, academic_plan_type_description,
+                academic_program_code, academic_program_name, academic_subplan_code, academic_subplan_name, created_at,
+                '{table}' AS data_source, degree_expected_term_id, eform_action_description, eform_id,
+                eform_status, eform_type, overlap_course_1, overlap_course_2, overlap_course_3, overlap_course_4,
+                overlap_course_5, requirement_term_id, sid, student_name, to_academic_plan_code,
+                to_academic_plan_requirement_term_id, to_academic_plan_name, to_academic_program_code,
+                to_academic_program_name, to_academic_subplan_code, to_academic_subplan_name,
+                to_academic_subplan_requirement_term_id, to_degree_expected_term_id, to_requirement_term_id, updated_at
+            FROM {from_sql}
+            WHERE {where_sql}"""
+    else:
+        from_sql = f'{schema}.{table}'
+        select_sql = f"""
+            SELECT
+                id, academic_career_code, academic_standing_status, academic_standing_description,
+                request_type || ' (' || request_type_description || ')' AS action,
+                '{table}' AS data_source, eform_id, eform_last_user_uid, eform_last_user_name,
+                eform_orig_user_name, eform_status, eform_type, request_type, request_type_description,
+                requested_reduced_units, sid, term_enrolled_units, term_id, term_waitlist_units, created_at, updated_at
+            FROM {from_sql}
+            WHERE {where_sql}"""
+    count_sql = f'SELECT COUNT(*) FROM {from_sql} WHERE {where_sql}'
+    total_matching_count = safe_execute_rds(count_sql, **params)[0]['count']
+    rows = safe_execute_rds(select_sql, **params)
+    return rows or [], total_matching_count
+
+
+def search_sis_eforms(
+    search_phrases=None,
+    student_csid=None,
+    datetime_from=None,
+    datetime_to=None,
+    offset=0,
+    limit=20,
+):
+    rows = []
+    total_matching_count = 0
+    for table in _EFORM_SEARCH_COLUMNS:
+        table_rows, table_count = _search_single_sis_eform_table(
+            table,
+            search_phrases=search_phrases,
+            student_csid=student_csid,
+            datetime_from=datetime_from,
+            datetime_to=datetime_to,
+        )
+        rows.extend(table_rows)
+        total_matching_count += table_count
+    rows.sort(key=lambda row: (row.get('created_at'), str(row.get('id'))), reverse=True)
+    return {
+        'rows': rows[offset:offset + limit],
+        'total_matching_count': total_matching_count,
+    }
+
+
 def search_advising_appointments(
     search_phrase,
     advisor_uid=None,

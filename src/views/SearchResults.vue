@@ -44,7 +44,7 @@
           <li class="font-size-15 pt-1">Abbreviations of section titles may not return results; <strong>COMPSCI 161</strong> instead of <strong>CS 161</strong>.</li>
         </ul>
       </div>
-      <div v-if="results.totalAdmitCount || results.totalStudentCount || results.totalCourseCount || size(results.appointments) || size(results.notes)">
+      <div v-if="results.totalAdmitCount || results.totalStudentCount || results.totalCourseCount || size(results.appointments) || size(results.notes) || size(results.eforms)">
         <v-tabs
           v-model="tab"
           aria-label="Search results"
@@ -196,11 +196,19 @@
                   :results-type="item.key"
                   :search-phrase="searchPhraseSubmitted"
                 />
-                <AppointmentSnippet
-                  v-for="appointment in results.appointments"
-                  :key="appointment.id"
-                  :appointment="appointment"
-                />
+                <template v-for="appointment in results.appointments">
+                  <AppointmentSnippet
+                    v-if="!appointment.kind || appointment.kind === 'appointment'"
+                    :key="`appointment-${appointment.id}`"
+                    :appointment="appointment"
+                  />
+                  <CommentSnippet
+                    v-else
+                    :key="`appointment-comment-${appointment.id}`"
+                    :result="appointment"
+                    parent-label="appointment"
+                  />
+                </template>
                 <div class="text-center py-2">
                   <v-divider class="mb-4" />
 
@@ -221,6 +229,45 @@
                   <SectionSpinner :loading="loadingAdditionalAppointments" />
                 </div>
               </div>
+              <div v-if="item.key === 'eForm'">
+                <SearchResultsHeader
+                  class="mb-2 mt-4"
+                  :count-in-view="size(results.eforms)"
+                  :count-total="results.totalEformCount"
+                  :results-type="item.key"
+                  :search-phrase="searchPhraseSubmitted"
+                />
+                <template v-for="eform in results.eforms">
+                  <EformSnippet
+                    v-if="!eform.kind || eform.kind === 'eform'"
+                    :key="`eform-${eform.id}`"
+                    :result="eform"
+                  />
+                  <CommentSnippet
+                    v-else
+                    :key="`eform-comment-${eform.id}`"
+                    :result="eform"
+                    parent-label="eForm"
+                  />
+                </template>
+                <div class="text-center py-2">
+                  <v-divider class="mb-4" />
+                  <v-btn
+                    v-if="hasMoreEformsToShow"
+                    id="fetch-more-eforms"
+                    :disabled="loadingAdditionalEforms"
+                    color="primary"
+                    variant="outlined"
+                    size="large"
+                    rounded="lg"
+                    class="px-6"
+                    :prepend-icon="mdiChevronDown"
+                    text="Show additional eForms"
+                    @click.prevent="fetchMoreEforms"
+                  />
+                  <SectionSpinner :loading="loadingAdditionalEforms" />
+                </div>
+              </div>
             </v-tabs-window-item>
           </template>
         </v-tabs>
@@ -232,11 +279,13 @@
 <script setup>
 import {concat, each, extend, get, merge, size, trim} from 'lodash'
 import {computed, onMounted, reactive, ref} from 'vue'
-import {mdiAccountSchool, mdiCalendarCheck, mdiChevronDown, mdiHumanGreeting, mdiHumanMaleBoardPoll, mdiNoteEditOutline} from '@mdi/js'
+import {mdiAccountSchool, mdiCalendarCheck, mdiChevronDown, mdiFileDocumentEditOutline, mdiHumanGreeting, mdiHumanMaleBoardPoll, mdiNoteEditOutline} from '@mdi/js'
 import {useRoute, useRouter} from 'vue-router'
 import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
 import AdvisingNoteSnippet from '@/components/search/AdvisingNoteSnippet'
 import AppointmentSnippet from '@/components/search/AppointmentSnippet'
+import CommentSnippet from '@/components/search/CommentSnippet'
+import EformSnippet from '@/components/search/EformSnippet'
 import CuratedGroupSelector from '@/components/curated/dropdown/CuratedGroupSelector'
 import SearchResultsHeader from '@/components/search/SearchResultsHeader'
 import SectionSpinner from '@/components/util/SectionSpinner'
@@ -253,6 +302,7 @@ const router = useRouter()
 const searchStore = useSearchStore()
 
 const appointmentsQuery = {limit: 20, offset: 0}
+const eformsQuery = {limit: 20, offset: 0}
 const currentUser = contextStore.currentUser
 const hasMoreAppointmentsToShow = computed(() => {
   return size(results.appointments) >= appointmentsQuery.limit + appointmentsQuery.offset
@@ -260,11 +310,15 @@ const hasMoreAppointmentsToShow = computed(() => {
 const hasMoreNotesToShow = computed(() => {
   return size(results.notes) >= notesQuery.limit + notesQuery.offset
 })
+const hasMoreEformsToShow = computed(() => {
+  return size(results.eforms) >= eformsQuery.limit + eformsQuery.offset
+})
 const hasSearchResults = computed(() => {
-  return !!(results.totalStudentCount || results.totalCourseCount || results.totalAdmitCount || size(results.notes) || size(results.appointments))
+  return !!(results.totalStudentCount || results.totalCourseCount || results.totalAdmitCount || size(results.notes) || size(results.appointments) || size(results.eforms))
 })
 const loading = computed(() => contextStore.loading)
 const loadingAdditionalAppointments = ref(false)
+const loadingAdditionalEforms = ref(false)
 const loadingAdditionalNotes = ref(false)
 const noteAndAppointmentOptions = reactive({
   advisorCsid: undefined,
@@ -280,13 +334,15 @@ const results = reactive({
   admits: [],
   appointments: [],
   courses: [],
+  eforms: [],
   notes: [],
   students: [],
   totalAdmitCount: 0,
   totalCourseCount: 0,
   totalStudentCount: 0,
   totalNoteCount: undefined,
-  totalAppointmentCount: undefined
+  totalAppointmentCount: undefined,
+  totalEformCount: undefined
 })
 const srSearchResultsSummary = ref('')
 const searchPhraseSubmitted = ref(undefined)
@@ -303,6 +359,7 @@ const tabs = computed(() => {
   push('course', results.totalCourseCount || 0, searchStore.includeCourses, mdiHumanMaleBoardPoll)
   push('note', size(results.notes), searchStore.includeNotes, mdiNoteEditOutline)
   push('appointment', size(results.appointments), searchStore.includeNotes, mdiCalendarCheck)
+  push('eForm', size(results.eforms), searchStore.includeNotes, mdiFileDocumentEditOutline)
   return tabs
 })
 
@@ -340,7 +397,12 @@ onMounted(() => {
           includeNotesAndAppointments,
           searchStore.includeStudents,
           extend({}, noteAndAppointmentOptions, appointmentsQuery),
-          extend({}, noteAndAppointmentOptions, notesQuery)
+          extend({}, noteAndAppointmentOptions, notesQuery),
+          undefined,
+          undefined,
+          undefined,
+          includeNotesAndAppointments,
+          extend({}, noteAndAppointmentOptions, eformsQuery)
         )
       )
     }
@@ -381,6 +443,9 @@ const getTabLabel = item => {
   case 'appointment':
     label = `${item.count}${hasMoreAppointmentsToShow.value ? '+' : ''}`
     break
+  case 'eForm':
+    label = `${item.count}${hasMoreEformsToShow.value ? '+' : ''}`
+    break
   case 'course':
     label = `${courseCount}${!courseCount || courseCount === results.totalCourseCount ? '' : '+' }`
     break
@@ -415,6 +480,35 @@ const fetchMoreAppointments = () => {
       putFocusNextTick('fetch-more-appointments')
     }).finally(() => {
       loadingAdditionalAppointments.value = false
+    })
+}
+
+const fetchMoreEforms = () => {
+  eformsQuery.offset = eformsQuery.offset + eformsQuery.limit
+  eformsQuery.limit = 20
+  loadingAdditionalEforms.value = true
+  search(
+    searchStore.queryText,
+    false,
+    false,
+    false,
+    false,
+    null,
+    null,
+    undefined,
+    undefined,
+    undefined,
+    true,
+    extend({}, noteAndAppointmentOptions, eformsQuery)
+  )
+    .then(data => {
+      results.eforms = concat(results.eforms, data.eforms)
+      const nowShowing = size(results.eforms)
+      const total = results.totalEformCount === null ? null : formatCount(results.totalEformCount)
+      alertScreenReader(total ? `Now showing ${nowShowing} of ${total} eForms.` : `Now showing ${nowShowing} eForms.`)
+      putFocusNextTick('fetch-more-eforms')
+    }).finally(() => {
+      loadingAdditionalEforms.value = false
     })
 }
 
@@ -471,6 +565,12 @@ const buildSearchResultsSummary = () => {
   if (apptCount) {
     const suffix = results.totalAppointmentCount === null && hasMoreAppointmentsToShow.value ? '+' : ''
     parts.push(`${formatCount(apptCount)} ${pluralize('appointment', apptCount)}${suffix}`)
+  }
+
+  const eformCount = results.totalEformCount === null ? size(results.eforms) : toInt(results.totalEformCount, 0)
+  if (eformCount) {
+    const suffix = results.totalEformCount === null && hasMoreEformsToShow.value ? '+' : ''
+    parts.push(`${formatCount(eformCount)} ${pluralize('eForm', eformCount)}${suffix}`)
   }
 
   return parts.length ? `Search results include ${parts.join(', ')}.` : ''

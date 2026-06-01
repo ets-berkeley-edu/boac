@@ -46,6 +46,7 @@ from boac.lib import util
 from boac.lib.http import tolerant_jsonify
 from boac.merged.admitted_student import search_for_admitted_students
 from boac.merged.advising_appointment import search_advising_appointments
+from boac.merged.advising_eform import search_advising_eforms
 from boac.merged.advising_note import get_note_author_summary, search_advising_notes
 from boac.merged.calnet import get_uid_for_csid
 from boac.merged.sis_terms import current_term_id
@@ -69,14 +70,15 @@ def search():
         'students': util.get(params, 'students'),
         'courses': util.get(params, 'courses'),
         'notes': util.get(params, 'notes'),
+        'eforms': util.get(params, 'eForms', util.get(params, 'notes')),
     }
-    if not domain['students'] and not domain['courses'] and not domain['notes'] and not domain['appointments']:
+    if not domain['students'] and not domain['courses'] and not domain['notes'] and not domain['appointments'] and not domain['eforms']:
         raise BadRequestError('No search domain specified')
-    if not len(search_phrase) and not (domain['notes'] or domain['appointments']):
+    if not len(search_phrase) and not (domain['notes'] or domain['appointments'] or domain['eforms']):
         raise BadRequestError('Invalid or empty search input')
     if domain['courses'] and not current_user.can_access_canvas_data:
         raise ForbiddenRequestError('Unauthorized to search courses')
-    if (domain['notes'] or domain['appointments']) and not current_user.can_access_advising_data:
+    if (domain['notes'] or domain['appointments'] or domain['eforms']) and not current_user.can_access_advising_data:
         raise ForbiddenRequestError('Unauthorized to search notes and appointments')
 
     feed = {}
@@ -94,6 +96,9 @@ def search():
 
     if domain['notes']:
         feed.update(_notes_search(search_phrase, params))
+
+    if domain['eforms']:
+        feed.update(_eform_search(search_phrase, params, include_body_search=not params.get('departmentCodes')))
 
     return tolerant_jsonify(feed)
 
@@ -320,6 +325,62 @@ def _appointments_search(search_phrase, params):
         datetime_to=datetime_to,
         offset=offset,
         limit=limit,
+    )
+
+
+def _eform_search(search_phrase, params, include_body_search=True):
+    note_options = util.get(params, 'noteOptions', {})
+    appointment_options = util.get(params, 'appointmentOptions', {})
+    eform_options = util.get(params, 'eformOptions', {})
+    options = {**note_options, **appointment_options, **eform_options}
+    advisor_uid = options.get('advisorUid')
+    advisor_csid = options.get('advisorCsid')
+    student_csid = options.get('studentCsid')
+    limit = int(util.get(options, 'limit', 20))
+    offset = int(util.get(options, 'offset', 0))
+
+    date_from = options.get('dateFrom')
+    date_to = options.get('dateTo')
+
+    if not len(search_phrase) and not (advisor_uid or advisor_csid or student_csid or date_from or date_to):
+        # Filters such as topic apply to notes only, not eForms.
+        return {
+            'eforms': [],
+            'totalEformCount': 0,
+        }
+
+    if advisor_csid and not advisor_uid:
+        advisor_uid = get_uid_for_csid(app, advisor_csid)
+
+    if date_from:
+        try:
+            datetime_from = util.localized_timestamp_to_utc(f'{date_from}T00:00:00')
+        except ValueError:
+            raise BadRequestError('Invalid dateFrom value')
+    else:
+        datetime_from = None
+
+    if date_to:
+        try:
+            datetime_to = util.localized_timestamp_to_utc(f'{date_to}T00:00:00') + timedelta(days=1)
+        except ValueError:
+            raise BadRequestError('Invalid dateTo value')
+    else:
+        datetime_to = None
+
+    if datetime_from and datetime_to and datetime_to <= datetime_from:
+        raise BadRequestError('dateFrom must be less than dateTo')
+
+    return search_advising_eforms(
+        search_phrase=search_phrase,
+        advisor_uid=advisor_uid,
+        advisor_csid=advisor_csid,
+        student_csid=student_csid,
+        datetime_from=datetime_from,
+        datetime_to=datetime_to,
+        offset=offset,
+        limit=limit,
+        include_body_search=include_body_search,
     )
 
 

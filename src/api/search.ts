@@ -29,9 +29,12 @@ export function search(
   noteOptions: object,
   orderBy?: string,
   offset?: number,
-  limit?: number
+  limit?: number,
+  includeEforms?: boolean,
+  eformOptions?: object
 ) {
   $_track(phrase)
+  const includeAdvisingDomains = includeNotes || includeAppointments || !!includeEforms
   return axios
     .post(`${utils.apiBaseUrl()}/api/search`, {
       searchPhrase: phrase,
@@ -39,8 +42,10 @@ export function search(
       students: includeStudents,
       courses: includeCourses,
       notes: includeNotes,
+      eForms: includeEforms ?? includeAdvisingDomains,
       appointmentOptions: appointmentOptions || {},
       noteOptions: noteOptions || {},
+      eformOptions: eformOptions || appointmentOptions || {},
       orderBy: orderBy || 'first_name',
       offset: offset || 0,
       limit: limit || 50

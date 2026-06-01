@@ -24,7 +24,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 import json
-import re
 
 from dateutil.tz import tzutc
 from flask import current_app as app
@@ -34,9 +33,17 @@ from boac.externals import data_loch
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.sis_advising import get_sis_advising_attachments, get_sis_advising_topics, resolve_sis_created_at, resolve_sis_updated_at
 from boac.lib.util import TEXT_SEARCH_PATTERN, get_benchmarker, join_if_present, search_result_text_snippet
+from boac.merged.advising_search import (
+    build_comment_search_result,
+    get_students_by_sid,
+    merge_search_feed,
+    parse_search_phrases,
+    resolved_comment_total_count,
+)
 from boac.merged.calnet import get_calnet_users_for_csids, get_uid_for_csid
 from boac.models.appointment_read import AppointmentRead
 from boac.models.authorized_user import AuthorizedUser
+from boac.models.comment import Comment
 
 """Provide advising appointment data from local and external sources."""
 
@@ -130,14 +137,15 @@ def search_advising_appointments(
     benchmark = get_benchmarker('search_advising_appointments')
     benchmark('begin')
 
-    if search_phrase:
-        search_terms = list({t.group(0) for t in list(re.finditer(TEXT_SEARCH_PATTERN, search_phrase)) if t})
+    search_terms = parse_search_phrases(search_phrase)
+    if search_terms:
         search_phrase = ' & '.join(search_terms)
     else:
-        search_terms = []
+        search_phrase = ''
 
     advisor_uid = get_uid_for_csid(app, advisor_csid) if (not advisor_uid and advisor_csid) else advisor_uid
 
+    fetch_limit = offset + limit
     benchmark('begin loch appointments query')
     loch_results = data_loch.search_advising_appointments(
         search_phrase=search_phrase,
@@ -148,18 +156,43 @@ def search_advising_appointments(
         topic=topic,
         datetime_from=datetime_from,
         datetime_to=datetime_to,
-        offset=offset,
-        limit=limit,
+        offset=0,
+        limit=fetch_limit,
     )
     benchmark('end loch appointments query')
 
     benchmark('begin  loch appointments parsing')
-    appointments_feed = _get_loch_appointments_search_results(loch_results['rows'], search_terms)
+    body_feed = _get_loch_appointments_search_results(loch_results['rows'], search_terms)
+    for row in body_feed:
+        row['kind'] = 'appointment'
     benchmark('end loch appointments parsing')
 
+    body_total = loch_results['total_matching_count']
+    comment_feed = []
+    comment_total = 0
+    if not department_codes and not topic:
+        benchmark('begin appointment comments query')
+        comment_results = Comment.search_by_parent_types(
+            parent_types=['appointment'],
+            search_phrases=search_terms or None,
+            author_uid=advisor_uid,
+            datetime_from=datetime_from,
+            datetime_to=datetime_to,
+            offset=0,
+            limit=fetch_limit,
+        )
+        benchmark('end appointment comments query')
+        comment_feed = _get_appointment_comment_search_results(
+            comment_results['rows'],
+            search_terms,
+            student_csid=student_csid,
+        )
+        comment_total = resolved_comment_total_count(comment_results, comment_feed, fetch_limit)
+
+    appointments_feed = merge_search_feed(body_feed, comment_feed, offset, limit)
     return {
         'appointments': appointments_feed,
-        'totalAppointmentCount': loch_results['total_matching_count'],
+        'totalAppointmentCount': body_total + comment_total,
     }
 
 
@@ -220,6 +253,51 @@ def appointment_to_compatible_json(appointment, topics=(), attachments=None, eve
     if event:
         api_json.update(event)
     return api_json
+
+
+def _get_appointment_comment_search_results(comment_rows, search_terms, student_csid=None):
+    if not comment_rows:
+        return []
+
+    appointment_ids = [parent_id for _, _, parent_id in comment_rows]
+    appointment_rows = data_loch.get_advising_appointments_by_ids(appointment_ids)
+    appointments_by_id = {str(row.get('id')): row for row in appointment_rows}
+
+    resolved_rows = []
+    for comment, parent_type, parent_id in comment_rows:
+        appointment = appointments_by_id.get(str(parent_id))
+        if not appointment:
+            continue
+        sid = appointment.get('sid')
+        if student_csid and sid != student_csid:
+            continue
+        details = (appointment.get('note_body') or '').strip() or join_if_present(
+            ', ',
+            [appointment.get('note_category'), appointment.get('note_subcategory')],
+        )
+        resolved_rows.append((comment, parent_type, parent_id, appointment, details))
+
+    students_by_sid = get_students_by_sid([row[3].get('sid') for row in resolved_rows])
+    results = []
+    for comment, parent_type, parent_id, appointment, details in resolved_rows:
+        row = build_comment_search_result(
+            comment,
+            parent_type,
+            parent_id,
+            search_terms,
+            appointment.get('sid'),
+            students_by_sid,
+            kind='commentOnAppointment',
+            extra_fields={
+                'appointment': {
+                    'id': appointment.get('id'),
+                    'details': details,
+                },
+            },
+        )
+        if row:
+            results.append(row)
+    return results
 
 
 def _get_loch_appointments_search_results(loch_results, search_terms):
