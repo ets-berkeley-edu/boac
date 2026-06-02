@@ -36,6 +36,31 @@ def parse_search_phrases(search_phrase):
     return list({t.group(0) for t in re.finditer(TEXT_SEARCH_PATTERN, search_phrase) if t})
 
 
+# Display-title prefixes from advising_eform._eform_summary_text and src/lib/note.ts.
+# Tokens listed only appear in the label, not in typical SIS field values.
+_EFORM_DISPLAY_TITLE_PREFIX_STRIP = (
+    ('Career Program Plan eForm', frozenset({'Career', 'eForm'})),
+    ('Reduced Course Load eForm', frozenset({'Course', 'Load', 'eForm'})),
+    ('Late Change of Schedule Request eForm', frozenset({'Late', 'Change', 'Schedule', 'Request', 'eForm'})),
+)
+
+
+def parse_search_phrases_for_eforms(search_phrase):
+    """Drop label-only tokens when the query includes a known eForm display-title prefix."""
+    terms = parse_search_phrases(search_phrase)
+    if not terms:
+        return terms
+    phrase = str(search_phrase).replace('\u2013', ' ').replace('\u2014', ' ').lower()
+    strip_tokens = set()
+    for prefix, tokens in _EFORM_DISPLAY_TITLE_PREFIX_STRIP:
+        if prefix.lower() in phrase:
+            strip_tokens |= tokens
+    if not strip_tokens:
+        return terms
+    stripped = [term for term in terms if term not in strip_tokens]
+    return stripped or terms
+
+
 def merge_search_feed(body_feed, comment_feed, offset, limit):
     combined = body_feed + comment_feed
     combined.sort(key=lambda row: row.get('createdAt') or '', reverse=True)
