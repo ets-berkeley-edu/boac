@@ -1374,6 +1374,14 @@ def get_minors():
     return safe_execute_rds(sql)
 
 
+def get_subplans():
+    sql = f"""SELECT DISTINCT sp.subplan AS subplan
+        FROM {student_schema()}.student_profile_index spi
+        JOIN {student_schema()}.subplans sp ON sp.sid = spi.sid AND spi.academic_career_status = 'active'
+        ORDER BY subplan"""
+    return safe_execute_rds(sql)
+
+
 def get_other_visa_types():
     sql = f"""SELECT DISTINCT visa_type FROM {student_schema()}.visas
         WHERE visa_status = 'G' and visa_type NOT IN ('F1','J1','PR')"""
@@ -1418,6 +1426,7 @@ def get_students_query(  # noqa: C901, PLR0912, PLR0913, PLR0915
     search_phrase=None,
     sids=(),
     student_holds=None,
+    subplans=None,
     transfer=None,
     underrepresented=None,
     unit_ranges=None,
@@ -1595,6 +1604,10 @@ def get_students_query(  # noqa: C901, PLR0912, PLR0913, PLR0915
         query_tables += f' LEFT JOIN {student_schema()}.minors min ON min.sid = spi.sid'
         query_filter += " AND min.minor = ANY(%(minors)s) AND maj.college NOT LIKE 'Graduate%%'"
         query_bindings.update({'minors': minors})
+    if subplans:
+        query_tables += f' LEFT JOIN {student_schema()}.subplans sp ON sp.sid = spi.sid'
+        query_filter += ' AND sp.subplan = ANY(%(subplans)s)'
+        query_bindings.update({'subplans': subplans})
     if student_holds is True:
         query_tables += f' JOIN {student_schema()}.student_holds sh ON sh.sid = spi.sid'
     if transfer is not None:

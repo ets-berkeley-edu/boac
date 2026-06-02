@@ -258,6 +258,12 @@ def minors():
     return [{'name': minor, 'value': minor} for minor in minor_results]
 
 
+@stow('cohort_filter_options_subplans')
+def subplans():
+    results = [row['subplan'] for row in data_loch.get_subplans()]
+    return [{'name': subplan, 'value': subplan} for subplan in results]
+
+
 @stow('cohort_filter_options_graduate_programs')
 def graduate_programs():
     results = [row['major'] for row in data_loch.get_graduate_programs()]
