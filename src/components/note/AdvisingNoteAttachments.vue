@@ -78,7 +78,7 @@
         variant="tonal"
       />
       <v-alert
-        v-if="attachmentLimitReached"
+        v-if="!isReadOnly && attachmentLimitReached"
         :id="`${idPrefix}-attachment-limit`"
         class="bg-white w-100 my-1"
         density="compact"
@@ -261,6 +261,7 @@ const downloadUrl = (attachment) => {
 }
 
 const onAttachmentsInput = files => {
+  attachmentError.value = null
   if (size(files)) {
     const pluralized = pluralize('attachment', files.length)
     alertScreenReader(`Adding ${pluralized}`)

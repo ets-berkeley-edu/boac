@@ -431,6 +431,7 @@ def _get_local_notes_search_results(local_results, cutoff, search_terms):
             text = subject if omit_note_body else join_if_present(' - ', [subject, note.get('body')])
             results.append({
                 'id': note.get('id'),
+                'parentNoteId': note.get('parentNoteId'),
                 'studentSid': sid,
                 'studentUid': student_row.get('uid'),
                 'studentName': join_if_present(' ', [student_row.get('first_name'), student_row.get('last_name')]),

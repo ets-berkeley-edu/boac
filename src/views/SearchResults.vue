@@ -89,7 +89,7 @@
               :id="`search-results-tab-panel-${item.key}s`"
               :aria-labelledby="`search-results-tab-${item.key}s`"
               :aria-selected="item.key === tab"
-              class="bg-white px-4"
+              class="bg-white px-8 px-md-4"
               role="tabpanel"
               :value="item.key"
             >
