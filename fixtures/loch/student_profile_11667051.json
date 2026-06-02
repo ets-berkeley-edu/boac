@@ -65,7 +65,8 @@
                 "degreeProgramUrl": "http://guide.berkeley.edu/undergraduate/degree-programs/english/",
                 "description": "English BA",
                 "program": "Undergrad Letters & Science",
-                "status": "Active"
+                "status": "Active",
+                "subplan": "Creative Writing"
             },
             {
                 "degreeProgramUrl": "http://guide.berkeley.edu/undergraduate/degree-programs/nuclear-engineering/",

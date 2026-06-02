@@ -50,6 +50,7 @@ class TestCohortFilter:
         levels = ['Junior']
         majors = ['Environmental Economics & Policy', 'Gender and Women\'s Studies']
         minors = ['Physics UG']
+        subplans = ['Creative Writing']
         unit_ranges = [
             'numrange(0, 5, \'[]\')',
             'numrange(30, NULL, \'[)\')',
@@ -65,6 +66,7 @@ class TestCohortFilter:
                 'levels': levels,
                 'majors': majors,
                 'minors': minors,
+                'subplans': subplans,
                 'unitRanges': unit_ranges,
             },
         )
@@ -78,6 +80,7 @@ class TestCohortFilter:
             'levels': levels,
             'majors': majors,
             'minors': minors,
+            'subplans': subplans,
             'unitRanges': unit_ranges,
         }
         for key, expected_value in expected.items():

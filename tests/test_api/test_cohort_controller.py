@@ -558,6 +558,7 @@ class TestCohortCreate:
                 {'key': 'intendedMajors', 'value': 'Public Health BA'},
                 {'key': 'intendedMajors', 'value': 'Mathematics'},
                 {'key': 'minors', 'value': 'Physics UG'},
+                {'key': 'subplans', 'value': 'Creative Writing'},
             ],
         }
         cohort = api_cohort_create(client, data)
@@ -585,6 +586,10 @@ class TestCohortCreate:
         minors = criteria.get('minors')
         assert len(minors) == 1
         assert 'Physics UG' in minors
+        # Subplans
+        subplans = criteria.get('subplans')
+        assert len(subplans) == 1
+        assert 'Creative Writing' in subplans
 
     def test_admin_creation_of_asc_cohort(self, client, fake_auth):
         """Admin can use ASC criteria."""

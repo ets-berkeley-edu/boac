@@ -421,6 +421,7 @@ def _query_students(
         minors=criteria.get('minors'),
         offset=offset,
         order_by=order_by,
+        subplans=criteria.get('subplans'),
         sids_only=sids_only,
         term_id=term_id,
         transfer=criteria.get('transfer'),

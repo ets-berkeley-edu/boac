@@ -578,6 +578,12 @@ CREATE TABLE student.minors
     minor VARCHAR NOT NULL
 );
 
+CREATE TABLE student.subplans
+(
+    sid VARCHAR NOT NULL,
+    subplan VARCHAR NOT NULL
+);
+
 CREATE TABLE student.student_degrees
 (
     sid VARCHAR NOT NULL,
@@ -2494,6 +2500,11 @@ INSERT INTO student.minors
 VALUES
 ('11667051', 'Computer Science UG'),
 ('11667051', 'Physics UG');
+
+INSERT INTO student.subplans
+(sid, subplan)
+VALUES
+('11667051', 'Creative Writing');
 
 INSERT INTO student.student_degrees
 (sid, plan, date_awarded, term_id)
