@@ -2,14 +2,14 @@
   <div
     :id="`advising-note-search-result-${note.id}`"
     :class="{'demo-mode-blur': currentUser.inDemoMode}"
-    class="mt-2"
+    class="mt-3"
   >
     <h3 class="advising-note-search-result-header">
       <router-link
         v-if="note.studentUid"
         :id="`link-to-student-${note.studentUid}`"
         :class="{'demo-mode-blur': currentUser.inDemoMode}"
-        :to="`${studentRoutePath(note.studentUid, currentUser.inDemoMode)}#timeline-note-${note.id}`"
+        :to="`${studentRoutePath(note.studentUid, currentUser.inDemoMode)}#${timelineAnchor}`"
         class="advising-note-search-result-header-link"
         v-html="note.studentName"
       />
@@ -22,7 +22,10 @@
       />
       ({{ note.studentSid }})
     </h3>
-    <div class="ml-1">
+    <div>
+      <div v-if="note.parentNoteId" class="font-size-14 font-weight-bold text-medium-emphasis mb-1">
+        Comment on advising note
+      </div>
       <div
         :id="`advising-note-search-result-snippet-${note.id}`"
         class="advising-note-search-result-snippet"
@@ -44,6 +47,7 @@
 </template>
 
 <script setup>
+import {computed} from 'vue'
 import {get} from 'lodash'
 import Date from '@/components/util/Date.vue'
 import {studentRoutePath} from '@/lib/utils'
@@ -60,4 +64,11 @@ const contextStore = useContextStore()
 const currentUser = contextStore.currentUser
 const timestamp = get(props.note, 'updatedAt') || get(props.note, 'createdAt')
 const timezone = contextStore.config.timezone
+
+const timelineAnchor = computed(() => {
+  if (props.note.parentNoteId) {
+    return `timeline-note-${props.note.parentNoteId}_comment-${props.note.id}`
+  }
+  return `timeline-note-${props.note.id}`
+})
 </script>

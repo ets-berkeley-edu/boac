@@ -3,6 +3,7 @@
     <div class="font-size-16 font-weight-bold text-medium-emphasis my-2" :class="{'sr-only': !size(parent.comments)}">Comments</div>
     <article
       v-for="comment in parent.comments"
+      :id="`timeline-${parent.type}-${parent.id}_comment-${comment.id}`"
       :key="comment.id"
       class="border-t-sm d-flex justify-space-between py-2 pl-2"
     >
@@ -91,7 +92,7 @@
         </div>
       </footer>
     </article>
-    <div v-if="!editingComment" class="border-t-sm pt-2">
+    <div v-if="!editingComment" class="border-t-sm pl-2 pt-2">
       <v-btn
         v-if="!isCreatingComment"
         :id="`${idPrefix}-add-comment-btn`"

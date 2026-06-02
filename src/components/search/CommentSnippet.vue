@@ -2,7 +2,7 @@
   <div
     :id="`comment-search-result-${result.id}`"
     :class="{'demo-mode-blur': currentUser.inDemoMode}"
-    class="advising-note-search-result mt-2"
+    class="advising-note-search-result mt-3"
   >
     <h3 v-if="result.student" class="advising-note-search-result-header">
       <router-link
@@ -24,18 +24,15 @@
     </h3>
     <div v-if="!result.student">
       <h3 class="advising-note-search-result-header">
-        <span class="font-weight-500">
-          Comment on advising {{ parentLabel }} for
-          <span aria-hidden="true">SID</span><span class="sr-only">S I D</span>
-          {{ result.studentSid }}
-        </span>
+        <span aria-hidden="true">SID</span><span class="sr-only">S I D</span>
+        {{ result.studentSid }}
       </h3>
-      <div>
-        <i>No student record found.</i>
+      <div class="font-weight-500 text-medium-emphasis">
+        No student record found.
       </div>
     </div>
-    <div class="ml-1">
-      <div class="font-size-15 font-weight-bold text-medium-emphasis mb-1">
+    <div>
+      <div class="font-size-14 font-weight-bold text-medium-emphasis mb-1">
         Comment on advising {{ parentLabel }}
       </div>
       <div
@@ -84,8 +81,8 @@ const snippet = computed(() => props.result.snippet)
 const timelineAnchor = computed(() => {
   const parentId = props.result.parentId || props.result.appointment?.id || props.result.id
   if (props.parentLabel === 'appointment') {
-    return `timeline-appointment-${parentId}`
+    return `timeline-appointment-${parentId}_comment-${props.result.id}`
   }
-  return `timeline-eForm-${parentId}`
+  return `timeline-eForm-${parentId}_comment-${props.result.id}`
 })
 </script>

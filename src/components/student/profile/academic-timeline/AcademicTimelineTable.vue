@@ -548,18 +548,18 @@ onMounted(() => {
       contextStore.setEventHandler(eventType, handler)
     })
   }
-  const permalink = decodeStudentUriAnchor()
-  if (permalink) {
-    const obj = find(props.messages, function(m) {
+  const target = decodeStudentUriAnchor()
+  if (target) {
+    const message = find(props.messages, function(m) {
       // Legacy advising notes have string IDs; BOA-created advising notes have integer IDs.
-      if (m.id && m.id.toString() === permalink.messageId && m.type.toLowerCase() === permalink.messageType) {
+      if (m.id && m.id.toString() === target.messageId && m.type.toLowerCase() === target.messageType) {
         return true
       }
     })
-    if (obj) {
+    if (message) {
       isShowingAll.value = true
       nextTick(() => {
-        scrollToPermalink(obj)
+        scrollToPermalink(message, target.commentId)
       })
     }
   }
@@ -847,10 +847,14 @@ const refreshSearchIndex = () => {
   })
 }
 
-const scrollToPermalink = message => {
+const scrollToPermalink = (message, commentId) => {
+  const targetComment = commentId ? `_comment-${commentId}` : ''
   isShowingAll.value = true
   open(message)
-  putFocusNextTick(`timeline-${message.type}-${message.id}`, {scrollBlock: 'start'})
+  putFocusNextTick(
+    `timeline-${message.type}-${message.id}${targetComment}`,
+    {scrollBlock: commentId ? 'center' : 'start'}
+  )
 }
 
 const toggleExpandAll = () => {

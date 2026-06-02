@@ -35,6 +35,7 @@
           <span v-if="!appointment.appointmentTitle">{{ summaryHeading }}</span>
         </h3>
         <div
+          v-if="appointment.details"
           :id="`appointment-${appointment.id}-details`"
           class="py-3"
           v-html="appointment.details"

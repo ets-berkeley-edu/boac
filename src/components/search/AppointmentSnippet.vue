@@ -2,7 +2,7 @@
   <div
     :id="`appointment-search-result-${appointment.id}`"
     :class="{'demo-mode-blur': currentUser.inDemoMode}"
-    class="advising-note-search-result mt-2"
+    class="advising-note-search-result mt-3"
   >
     <h3 v-if="appointment.student" class="advising-note-search-result-header">
       <router-link
@@ -24,16 +24,14 @@
     </h3>
     <div v-if="!appointment.student">
       <h3 class="advising-note-search-result-header">
-        <span class="font-weight-500">
-          Appointment for <span aria-hidden="true">SID</span><span class="sr-only">S I D</span>
-          {{ appointment.studentSid }}
-        </span>
+        <span aria-hidden="true">SID</span><span class="sr-only">S I D</span>
+        {{ appointment.studentSid }}
       </h3>
-      <div>
-        <i>No student record found.</i>
+      <div class="font-weight-500 text-medium-emphasis">
+        No student record found.
       </div>
     </div>
-    <div class="ml-1">
+    <div>
       <div
         :id="`appointment-search-result-snippet-${appointment.id}`"
         class="advising-note-search-result-snippet"

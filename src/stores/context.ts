@@ -62,12 +62,15 @@ export const useContextStore = defineStore('context', {
     dismissServiceAnnouncement() {
       this.dismissedServiceAnnouncement = true
     },
-    loadingComplete(putFocusElementId?: string) {
+    loadingComplete(putFocusElementId?: string, skipPutFocus?: boolean) {
       if (!get(this.config, 'isProduction')) {
         // eslint-disable-next-line no-console
         console.log(`Page loaded in ${(new Date().getTime() - (this.loadingStartTime || 0)) / 1000} seconds`)
       }
       this.loading = false
+      if (skipPutFocus) {
+        return false
+      }
       const callable = () => {
         let element: HTMLElement | null
         if (putFocusElementId) {

@@ -40,34 +40,34 @@
     </div>
     <section
       :id="`note-${note.id}-is-open`"
-      class="note-body"
+      class="note-body pb-4"
       :class="{'sr-only': !isOpen}"
     >
       <div v-if="(note.subject || note.isDraft) && note.message" class="open-note-message-container py-3">
         <span :id="`note-${note.id}-message-open`" v-html="note.message" />
       </div>
-      <div v-if="!note.subject && !note.message && note.eForm" class="py-3">
+      <div v-if="!note.subject && !note.message && note.eForm" class="pt-2">
         <AdvisingEForm :note="note" />
       </div>
-      <div v-if="!note.eForm && note.legacySource" class="font-italic text-medium-emphasis">
+      <div v-if="!note.eForm && note.legacySource" class="font-italic text-medium-emphasis pt-2">
         (note imported from {{ note.legacySource }})
       </div>
       <AdvisingNoteTopics
         v-if="note.topics && size(note.topics)"
-        class="mt-5"
+        class="pt-4"
         label-class="text-medium-emphasis"
         :note="note"
         read-only
       />
-      <div v-if="note.contactType" class="mt-5">
+      <div v-if="note.contactType" class="pt-4">
         <div class="font-size-16 font-weight-bold text-medium-emphasis">Contact Type</div>
         <div :id="`note-${note.id}-contact-type`">{{ note.contactType }}</div>
       </div>
-      <div v-if="showNoteAttachmentsWidget" class="note-attachments-container mt-1">
+      <div v-if="showNoteAttachmentsWidget" class="note-attachments-container pt-4">
         <AdvisingNoteAttachments
           :add="addNoteAttachments"
           :attachments="note.attachments || []"
-          class="attachments-edit py-3"
+          class="attachments-edit"
           :disabled="!!(isUpdatingAttachments || noteStore.boaSessionExpired)"
           :id-prefix="`note-${note.id}`"
           :is-downloadable="true"

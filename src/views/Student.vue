@@ -88,10 +88,9 @@ onMounted(() => {
         })
       }
     })
-    const permalink = decodeStudentUriAnchor()
-    const putFocusElementId = permalink ? `timeline-${permalink.messageType}-${permalink.messageId}` : 'page-header'
     // If custom scroll-to-note is happening then skip the default put-focus-on-h1.
-    contextStore.loadingComplete(putFocusElementId)
+    const focusTarget = decodeStudentUriAnchor()
+    contextStore.loadingComplete('page-header', !!focusTarget)
   })
 })
 

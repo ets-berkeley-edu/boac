@@ -1,5 +1,5 @@
 import numeral from 'numeral'
-import {concat, head, initial, isNil, isNumber, join, last, toLower, trim} from 'lodash'
+import {concat, get, head, initial, isNil, isNumber, join, last, toLower, trim} from 'lodash'
 import {nextTick} from 'vue'
 import type {BoaUser, CuratedGroup, HasName, ScreenReaderAlert} from '@/lib/types'
 import type {Cohort} from '@/lib/types-cohorts'
@@ -82,11 +82,12 @@ export function decodeStudentUriAnchor() {
   let decoded: (object | undefined) = undefined
   const anchor = location.hash
   if (anchor) {
-    const match = anchor.match(/^#permalink-(\w+)-([\d\w-]+)/)
+    const match = anchor.match(/^#timeline-(\w+)-([0-9a-z]+(?:-[0-9a-z]+)*)(?:_comment-)?([\d]+)?/)
     if (match && match.length > 2) {
       decoded = {
         messageType: match[1].toLowerCase(),
-        messageId: match[2]
+        messageId: match[2],
+        commentId: get(match, 3)
       }
     }
   }
