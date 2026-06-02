@@ -33,7 +33,7 @@ from boac.merged.advising_search import (
     build_comment_search_result,
     get_students_by_sid,
     merge_search_feed,
-    parse_search_phrases,
+    parse_search_phrases_for_eforms,
     resolved_comment_total_count,
     student_search_feed,
 )
@@ -62,7 +62,7 @@ def search_advising_eforms(
     benchmark = get_benchmarker('search_advising_eforms')
     benchmark('begin')
 
-    search_terms = parse_search_phrases(search_phrase)
+    search_terms = parse_search_phrases_for_eforms(search_phrase)
 
     advisor_uid = get_uid_for_csid(app, advisor_csid) if (not advisor_uid and advisor_csid) else advisor_uid
 
