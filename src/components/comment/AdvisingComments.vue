@@ -77,7 +77,7 @@
             :date="comment.createdAt"
             :include-time-of-day="comment.createdAt.length > 10"
             class="mb-2"
-            :class="{'font-weight-bold': !comment.read && comment.createdAt === comment.updatedAt}"
+            :class="{'unread-message': !comment.read && comment.createdAt === comment.updatedAt}"
           />
         </div>
         <div v-if="comment.updatedAt && comment.createdAt !== comment.updatedAt" class="pl-2">
@@ -87,7 +87,7 @@
             :date="comment.updatedAt"
             :include-time-of-day="comment.updatedAt.length > 10"
             class="mb-2"
-            :class="{'font-weight-bold': !comment.read}"
+            :class="{'unread-message': !comment.read}"
           />
         </div>
       </footer>

@@ -135,7 +135,7 @@
               :message="message"
             />
           </div>
-          <div class="column-message" :class="{'font-weight-bold': !message.read}">
+          <div class="column-message" :class="{'unread-message': !message.read}">
             <div class="d-flex flex-column">
               <v-btn
                 v-if="isExpanded(message) && (!editModeNoteId || message.id !== editModeNoteId)"
@@ -910,6 +910,9 @@ const userCanDelete = message => {
 .message-row.expanded .academic-timeline-column-date {
   min-width: 12rem;
   width: 12rem;
+}
+.unread-message {
+  font-weight: bold;
 }
 </style>
 

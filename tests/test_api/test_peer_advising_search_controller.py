@@ -120,7 +120,7 @@ class TestPeerAdvisingNoteSearch:
         self._assert(api_json, note_count=0, student_count=0)
 
     def test_search_excludes_same_dept_non_pam_note(self, client, fake_auth, mock_ce3_advising_note):  # noqa: ARG002
-        """Does not include a peer advising note created by a non-PAM advisor in the same department."""
+        """Does not include a note created bxy a non-PAM advisor in the same department."""
         fake_auth.login(ce3_navcal_peer_advisor_uid)
         navcal_department = PeerAdvisingDepartment.get_department_by_name('NAVCAL')
         api_json = _api_search(client, 'darling', peer_advising_department_id=navcal_department.id)
