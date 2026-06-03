@@ -355,7 +355,7 @@
                 </div>
                 <span v-if="!message.updatedAt && !message.createdAt" class="sr-only">No last-updated date</span>
                 <router-link
-                  v-if="['eForm', 'note'].includes(message.type) && message.id !== editModeNoteId"
+                  v-if="['appointment', 'eForm', 'note'].includes(message.type) && message.id !== editModeNoteId"
                   :id="`advising-${message.type}-permalink-${message.id}`"
                   class="d-inline-block mt-2"
                   :to="`#timeline-${message.type}-${message.id}`"
