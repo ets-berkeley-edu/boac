@@ -130,8 +130,10 @@ def add_note_comment():
     parent_note = Note.find_by_id(note_id=parent_note_id)
     if not parent_note or not can_current_user_access_note(parent_note):
         raise ResourceNotFoundError('Note not found')
-    pam_membership = get_department_membership_with_role(current_user, 'peer_advisor_manager')
-    peer_advising_department_id = pam_membership.get('peerAdvisingDepartmentId', None) if pam_membership else None
+    peer_advising_department_id = None
+    if (parent_note.peer_advising_department_id):
+        pam_membership = get_department_membership_with_role(current_user, 'peer_advisor_manager')
+        peer_advising_department_id = pam_membership.get('peerAdvisingDepartmentId', None) if pam_membership else None
     comment = create_note_comment(parent_note, params, peer_advising_department_id)
     return tolerant_jsonify(get_boac_note_as_compatible_json(note=comment, note_read=True))
 

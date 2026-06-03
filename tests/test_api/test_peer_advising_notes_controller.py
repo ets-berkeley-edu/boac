@@ -374,7 +374,7 @@ class TestPeerAdvisorAddNoteComment:
 
         # Another Peer Advisor comments on the note
         body = 'A very interesting comment!'
-        fake_auth.login(ce3_navcal_peer_advisor_2_uid)
+        fake_auth.login(ce3_navcal_peer_advisor_uid)
         api_json = self._api_add_note_comment(
             body=body,
             client=client,
@@ -498,8 +498,8 @@ class TestPeerAdvisorEditNoteComment:
         # Comment author edits the comment
         body = 'A very interesting comment!'
         comments = Note.get_notes_by_parent_id(mock_navcal_peer_advising_note_with_comments.id)
-        fake_auth.login(ce3_navcal_peer_advisor_2_uid)
-        comment = next((c for c in comments if c.author_uid == ce3_navcal_peer_advisor_2_uid), None)
+        fake_auth.login(ce3_navcal_peer_advisor_uid)
+        comment = next((c for c in comments if c.author_uid == ce3_navcal_peer_advisor_uid), None)
         api_json = self._api_edit_note_comment(
             comment_id=comment.id,
             body=body,

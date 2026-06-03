@@ -292,6 +292,25 @@ def mock_advising_note(app, db):
 
 
 @pytest.fixture
+def mock_ce3_advising_note(app, db):
+    """Create CE3 advising note with attachment (mock s3)."""
+    note = _create_mock_note(
+        app=app,
+        attachment='fixtures/mock_advising_note_attachment_1.txt',
+        author_dept_codes=['ZCEEE'],
+        author_uid='5405613',
+        db=db,
+        topics=['Other / Reason not listed'],
+    )
+    Note.refresh_search_index()
+    std_commit(allow_test_environment=True)
+    yield note
+    Note.delete(note_id=note.id)
+    Note.refresh_search_index()
+    std_commit(allow_test_environment=True)
+
+
+@pytest.fixture
 def mock_advising_note_with_comments(app, db, fake_auth, mock_advising_note):
     """Create advising note with comments."""
     asc_advisor_uid = '1081940'
@@ -365,6 +384,7 @@ def mock_note_draft(app, db):
     )
     yield note
     Note.delete(note_id=note.id)
+    Note.refresh_search_index()
     std_commit(allow_test_environment=True)
 
 
@@ -446,19 +466,21 @@ def mock_eop_peer_advising_note(fake_auth, db):
         topics=['topic1', 'topic2', 'topic3'],
     )
     db.session.add(note)
+    Note.refresh_search_index()
     std_commit(allow_test_environment=True)
     logout_user()
 
     yield Note.find_by_id(note.id)
 
     Note.delete(note.id)
+    Note.refresh_search_index()
     std_commit(allow_test_environment=True)
 
 
 @pytest.fixture
 def mock_navcal_peer_advising_note(fake_auth, db):
     """Create a CE3 NAVCAL Peer Advising Note."""
-    peer_advisor_author_uid = '1133400'
+    peer_advisor_author_uid = '188444'
     fake_auth.login(peer_advisor_author_uid)
 
     navcal_department = PeerAdvisingDepartment.get_department_by_name('NAVCAL')
@@ -475,20 +497,53 @@ def mock_navcal_peer_advising_note(fake_auth, db):
         topics=['topic1', 'topic2', 'topic3'],
     )
     db.session.add(note)
+    Note.refresh_search_index()
     std_commit(allow_test_environment=True)
     logout_user()
 
     yield Note.find_by_id(note.id)
 
     Note.delete(note.id)
+    Note.refresh_search_index()
+    std_commit(allow_test_environment=True)
+
+
+@pytest.fixture
+def mock_navcal_peer_advising_manager_note(fake_auth, db):
+    """CE3 NAVCAL Peer Advising Note created by a Peer Advising Manager."""
+    peer_advising_manager_uid = '2525'
+    fake_auth.login(peer_advising_manager_uid)
+
+    navcal_department = PeerAdvisingDepartment.get_department_by_name('NAVCAL')
+    # Create the note
+    note = Note.create(
+        author_uid=peer_advising_manager_uid,
+        author_name='Grigsby Columbo',
+        author_role='peer_advisor_manager',
+        author_dept_codes=[],
+        sid='9000000000',
+        body='Whoopsy daisy yoo hoo!',
+        peer_advising_department_id=navcal_department.id,
+        subject='Test Note',
+        topics=['topic1', 'topic2', 'topic3'],
+    )
+    db.session.add(note)
+    Note.refresh_search_index()
+    std_commit(allow_test_environment=True)
+    logout_user()
+
+    yield Note.find_by_id(note.id)
+
+    Note.delete(note.id)
+    Note.refresh_search_index()
     std_commit(allow_test_environment=True)
 
 
 @pytest.fixture
 def mock_navcal_peer_advising_note_with_comments(fake_auth, db, mock_navcal_peer_advising_note):
     """Create a NAVCAL Peer Advising Note with comments."""
-    navcal_peer_advisor_author_uid = '1133400'
-    navcal_peer_advisor_uid = '188444'
+    navcal_peer_advisor_author_uid = '188444'
+    navcal_peer_advisor_uid = '1133400'
     navcal_peer_advising_manager_uid = '2525'
     mech_eng_peer_advising_manager_uid = '1133399'
     non_pam_advisor_uid = '242881'
@@ -559,26 +614,27 @@ def mock_navcal_peer_advising_note_with_comments(fake_auth, db, mock_navcal_peer
     db.session.add(advisor_comment)
     logout_user()
 
-    # Add a comment from non-Peer Advising Manager
+    # Add a comment from an advisor who is not a Peer Advisor Manager
     fake_auth.login(non_pam_advisor_uid)
     advisor_comment = Note.create(
         author_uid=non_pam_advisor_uid,
-        author_name='Joni Mitchell',
-        author_role='peer_advisor_manager',
+        author_name='Mort Korn',
+        author_role='advisor',
         author_dept_codes=[],
         sid=mock_navcal_peer_advising_note.sid,
-        body='A comment from a different department.',
+        body='A comment from a regular non-PAM advisor.',
         parent_note_id=mock_navcal_peer_advising_note.id,
         peer_advising_department_id=None,
         subject='',
     )
     db.session.add(advisor_comment)
     logout_user()
-
+    Note.refresh_search_index()
     std_commit(allow_test_environment=True)
     yield Note.find_by_id(mock_navcal_peer_advising_note.id)
 
     Note.delete(mock_navcal_peer_advising_note.id)
+    Note.refresh_search_index()
     std_commit(allow_test_environment=True)
 
 
@@ -593,8 +649,11 @@ def mock_private_advising_note(app, db):
         db=db,
         is_private=True,
     )
+    Note.refresh_search_index()
+    std_commit(allow_test_environment=True)
     yield note
     Note.delete(note_id=note.id)
+    Note.refresh_search_index()
     std_commit(allow_test_environment=True)
 
 
@@ -668,6 +727,7 @@ def _create_mock_note(
             )
             author_id = AuthorizedUser.get_id_per_uid(author_uid)
             note_reads = NoteRead.find_or_create(author_id, [note.id])
+            Note.refresh_search_index()
             db.session.add(note)
             db.session.add(note_reads[0])
             std_commit(allow_test_environment=True)

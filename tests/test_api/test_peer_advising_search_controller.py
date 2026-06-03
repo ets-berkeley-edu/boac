@@ -28,6 +28,10 @@ import simplejson as json
 from boac.models.peer_advising_department import PeerAdvisingDepartment
 
 ce3_navcal_peer_advisor_uid = '1133400'
+ce3_pam_advisor_uid = '2525'
+ce3_non_pam_advisor_uid = '5405613'
+coe_mech_peer_advisor_uid = '1913062'
+eop_peer_advisor_uid = '1563405'
 
 
 class TestPeerAdvisingNoteSearch:
@@ -49,11 +53,106 @@ class TestPeerAdvisingNoteSearch:
         navcal_department = PeerAdvisingDepartment.get_department_by_name('NAVCAL')
         _api_search(client, ' \t  ', peer_advising_department_id=navcal_department.id, expected_status_code=400)
 
-    def test_peer_advising_search_includes_notes_if_requested(self, client, fake_auth):
+    def test_peer_advising_search_notes_no_notes(self, client, fake_auth):
         """Does not include any notes if the notes do not exist."""
         fake_auth.login(ce3_navcal_peer_advisor_uid)
         navcal_department = PeerAdvisingDepartment.get_department_by_name('NAVCAL')
+        api_json = _api_search(client, 'Anastasia', peer_advising_department_id=navcal_department.id)
+        self._assert(api_json, note_count=0, student_count=0)
+
+    def test_peer_advising_search_notes_no_match(
+            self,
+            client,
+            fake_auth,
+            mock_navcal_peer_advising_note,  # noqa: ARG002
+            mock_navcal_peer_advising_note_with_comments,  # noqa: ARG002
+        ):
+        """Does not include any notes if none match the search query."""
+        fake_auth.login(ce3_navcal_peer_advisor_uid)
+        navcal_department = PeerAdvisingDepartment.get_department_by_name('NAVCAL')
         api_json = _api_search(client, 'Brigitte', peer_advising_department_id=navcal_department.id)
+        self._assert(api_json, note_count=0, student_count=0)
+
+    def test_peer_advising_search_includes_peer_notes(
+            self,
+            client,
+            fake_auth,
+            mock_navcal_peer_advising_note,  # noqa: ARG002
+            mock_navcal_peer_advising_note_with_comments,  # noqa: ARG002
+        ):
+        """Includes notes created by other peer advisors in the same department."""
+        fake_auth.login(ce3_navcal_peer_advisor_uid)
+        navcal_department = PeerAdvisingDepartment.get_department_by_name('NAVCAL')
+        api_json = _api_search(client, 'Anastasia', peer_advising_department_id=navcal_department.id)
+        self._assert(api_json, note_count=1, student_count=0)
+
+        api_json = _api_search(client, 'a comment', peer_advising_department_id=navcal_department.id)
+        self._assert(api_json, note_count=1, student_count=0)
+
+    def test_peer_advising_search_includes_pam_notes(self, client, fake_auth, mock_navcal_peer_advising_manager_note):  # noqa: ARG002
+        """Includes notes created by a Peer Advisor Manager in the same department."""
+        fake_auth.login(ce3_navcal_peer_advisor_uid)
+        navcal_department = PeerAdvisingDepartment.get_department_by_name('NAVCAL')
+        api_json = _api_search(client, 'daisy', peer_advising_department_id=navcal_department.id)
+        self._assert(api_json, note_count=1, student_count=0)
+
+    def test_search_excludes_foreign_dept_peer_notes(
+            self,
+            client,
+            fake_auth,
+            mock_navcal_peer_advising_note,  # noqa: ARG002
+            mock_navcal_peer_advising_note_with_comments,  # noqa: ARG002
+        ):
+        """Does not include notes or comments created by peer advisors outside the department."""
+        fake_auth.login(eop_peer_advisor_uid)
+        eop_department = PeerAdvisingDepartment.get_department_by_name('Educational Opportunity Program')
+        api_json = _api_search(client, 'Anastasia', peer_advising_department_id=eop_department.id)
+        self._assert(api_json, note_count=0, student_count=0)
+
+        api_json = _api_search(client, 'comment', peer_advising_department_id=eop_department.id)
+        self._assert(api_json, note_count=0, student_count=0)
+
+    def test_excludes_foreign_dept_pam_notes(self, client, fake_auth, mock_navcal_peer_advising_manager_note):  # noqa: ARG002
+        """Does not include a note created by Peer Advisor Manager outside the department."""
+        fake_auth.login(eop_peer_advisor_uid)
+        eop_department = PeerAdvisingDepartment.get_department_by_name('Educational Opportunity Program')
+        api_json = _api_search(client, 'daisy', peer_advising_department_id=eop_department.id)
+        self._assert(api_json, note_count=0, student_count=0)
+
+    def test_search_excludes_same_dept_non_pam_note(self, client, fake_auth, mock_ce3_advising_note):  # noqa: ARG002
+        """Does not include a peer advising note created by a non-PAM advisor in the same department."""
+        fake_auth.login(ce3_navcal_peer_advisor_uid)
+        navcal_department = PeerAdvisingDepartment.get_department_by_name('NAVCAL')
+        api_json = _api_search(client, 'darling', peer_advising_department_id=navcal_department.id)
+        self._assert(api_json, note_count=0, student_count=0)
+
+        fake_auth.login(eop_peer_advisor_uid)
+        eop_department = PeerAdvisingDepartment.get_department_by_name('Educational Opportunity Program')
+        api_json = _api_search(client, 'darling', peer_advising_department_id=eop_department.id)
+        self._assert(api_json, note_count=0, student_count=0)
+
+    def test_search_excludes_pam_comment_foreign_dept_peer_note(
+            self,
+            client,
+            fake_auth,
+            mock_navcal_peer_advising_note_with_comments,  # noqa: ARG002
+        ):
+        """Does not include a peer advising note from a different department and commented on by Peer Advisor Manager in the same department."""
+        fake_auth.login(coe_mech_peer_advisor_uid)
+        mech_eng_department = PeerAdvisingDepartment.get_department_by_name('Mechanical Engineering')
+        api_json = _api_search(client, 'a comment', peer_advising_department_id=mech_eng_department.id)
+        self._assert(api_json, note_count=0, student_count=0)
+
+    def test_search_excludes_pam_comment_non_peer_note(
+            self,
+            client,
+            fake_auth,
+            mock_advising_note_with_comments,  # noqa: ARG002
+        ):
+        """Does not include a non-peer note commented on by a Peer Advisor Manager in the same department."""
+        fake_auth.login(ce3_navcal_peer_advisor_uid)
+        navcal_department = PeerAdvisingDepartment.get_department_by_name('NAVCAL')
+        api_json = _api_search(client, 'a comment', peer_advising_department_id=navcal_department.id)
         self._assert(api_json, note_count=0, student_count=0)
 
 
