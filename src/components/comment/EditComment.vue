@@ -53,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import {get, isEmpty, reject, trim} from 'lodash'
+import {clone, get, isEmpty, reject, trim} from 'lodash'
 import {onMounted, ref} from 'vue'
 import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments'
 import ProgressButton from '@/components/util/ProgressButton'
@@ -95,7 +95,7 @@ const isUpdatingAttachments = ref(false)
 
 onMounted(() => {
   if (props.comment) {
-    commentAttachments.value = props.comment.attachments
+    commentAttachments.value = clone(props.comment.attachments)
     commentText.value = props.comment.body
   }
 })
