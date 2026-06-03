@@ -209,8 +209,8 @@
 
 <script setup lang="ts">
 import {DateTime} from 'luxon'
-import {computed, ref} from 'vue'
-import {each, get, replace, size, truncate} from 'lodash'
+import {computed, onMounted, onUnmounted, ref} from 'vue'
+import {each, find, get, remove, replace, size, truncate} from 'lodash'
 import {mdiCloseCircle} from '@mdi/js'
 import {useDisplay} from 'vuetify'
 import type {Note} from '@/lib/types'
@@ -256,6 +256,14 @@ const editingNoteId = ref<number | undefined>()
 const expandedNoteIds = ref<number[]>([])
 const noteForDelete = ref<Note | undefined>()
 const showDeleteConfirmation = computed(() => !!noteForDelete.value)
+
+onMounted(() => {
+  contextStore.setEventHandler('comment-deleted', onCommentDeleted)
+})
+
+onUnmounted(() => {
+  contextStore.removeEventHandler('comment-deleted', onCommentDeleted)
+})
 
 const afterEditAdvisingNote = async (updatedNote: Note, putFocusId: string) => {
   editingNoteId.value = undefined
@@ -330,6 +338,13 @@ const isExpanded = (note: Note) => expandedNoteIds.value.includes(note.id)
 const onClickDeleteNote = (note: Note) => {
   // The following opens the "Are you sure?" modal
   noteForDelete.value = note
+}
+
+const onCommentDeleted = ids => {
+  const note = find(props.notes, {'id': ids.parentId})
+  if (note) {
+    remove(note.comments, {'id': ids.commentId})
+  }
 }
 
 const toggleShowHide = (note: Note) => {
