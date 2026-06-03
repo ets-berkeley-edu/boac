@@ -150,7 +150,9 @@
                 </v-card-title>
                 <v-card-text class="w-100">
                   <div class="px-3">
-                    <label class="form-control-label" for="search-option-note-filters-topic"><span class="sr-only">Search Notes by </span>Topic</label>
+                    <label class="form-control-label" for="search-option-note-filters-topic">
+                      <span class="sr-only">Search Notes by Topic (notes only)</span>Topic<span class="notes-only-hint text-medium-emphasis" aria-hidden="true"> (notes only)</span>
+                    </label>
                     <div>
                       <select
                         id="search-option-note-filters-topic"
@@ -172,7 +174,7 @@
                     </div>
                     <div class="pt-4">
                       <div id="note-filters-posted-by-label" class="form-control-label">
-                        <span class="sr-only">Search Notes </span>Posted By
+                        <span class="sr-only">Search Notes Posted By (notes only)</span>Posted By<span class="notes-only-hint text-medium-emphasis" aria-hidden="true"> (notes only)</span>
                       </div>
                       <v-radio-group
                         v-model="model.postedBy"
@@ -628,5 +630,8 @@ const suggestStudents = debounce(query => {
   color: rgb(var(--v-theme-primary));
   font-size: 18px;
   font-weight: bolder;
+}
+.notes-only-hint {
+  font-size: 14px;
 }
 </style>
