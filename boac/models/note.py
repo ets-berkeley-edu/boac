@@ -131,6 +131,15 @@ class Note(Base):
         return cls.query.filter(criteria).all()
 
     @classmethod
+    def find_peer_notes_by_ids(cls, peer_advising_department_id, note_ids):
+        criteria = and_(
+            cls.id.in_(note_ids),
+            cls.peer_advising_department_id == peer_advising_department_id,
+            cls.deleted_at == None,  # noqa: E711
+        )
+        return cls.query.filter(criteria).all()
+
+    @classmethod
     def get_notes_by_parent_id(cls, parent_note_id):
         criteria = and_(cls.parent_note_id == parent_note_id, cls.deleted_at == None)  # noqa: E711
         return cls.query.filter(criteria).order_by(asc(cls.created_at), asc(cls.id)).all()

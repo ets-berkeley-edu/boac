@@ -166,11 +166,27 @@ def search_peer_advising_notes():
         )
 
         # The front-end needs full-blown note objects because they are editable by the current-user.
-        note_ids = [n['id'] for n in search_results.get('notes', [])]
+        note_ids = []
+        for n in search_results.get('notes', []):
+            note_ids.append(n['id'])
+            if n['parentNoteId']:
+                note_ids.append(n['parentNoteId'])
         notes_json = []
-        if note_ids:
-            notes = Note.find_by_ids(note_ids)
-            all_sids = [note.sid for note in notes]
+        if len(note_ids):
+            notes_and_comments = Note.find_peer_notes_by_ids(peer_advising_department_id, note_ids)
+            notes = []
+            comments_by_note_id = {}
+            append_note = notes.append
+
+            def append_comment(comment):
+                comment_json = comment.to_api_json()
+                comments_by_note_id.setdefault(comment.parent_note_id, []).append({
+                    **comment_json,
+                    'author': get_note_author_summary(comment_json),
+                })
+            for item in notes_and_comments:
+                (append_comment if item.parent_note_id else append_note)(item)
+            all_sids = list({note.sid for note in notes})
             students_by_sid = {s['sid']: s for s in get_basic_student_data(sids=all_sids)}
 
             for note in notes:
@@ -179,6 +195,7 @@ def search_peer_advising_notes():
                 notes_json.append({
                     **note_json,
                     'author': get_note_author_summary(note_json),
+                    'comments': comments_by_note_id.get(note.id, []),
                     'student': {
                         'sid': student['sid'],
                         'uid': student['uid'],

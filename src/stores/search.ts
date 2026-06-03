@@ -54,6 +54,7 @@ export const useSearchStore: StoreDefinition = defineStore('search', {
       this.includeCourses = currentUser.canAccessCanvasData
       this.includeNotes = currentUser.canAccessAdvisingData
       this.includeStudents = true
+      this.isSearching = false
     },
     resetAutocompleteInput() {this.autocompleteInputResetKey++},
     setAuthor(value: string | null) {this.author = value},
