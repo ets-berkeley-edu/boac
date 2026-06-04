@@ -1,9 +1,10 @@
 <template>
   <div>
     <v-btn
-      id="show-hide-personal-details"
+      id="show-hide-peer-note-count-by-month"
       aria-controls="peer-note-count-by-month"
       :aria-expanded="isExpanded"
+      class="justify-start px-0 w-100"
       color="primary"
       variant="text"
       @click="onClickExpand"
@@ -29,8 +30,8 @@
       </div>
     </v-btn>
     <v-expand-transition>
-      <div v-if="isExpanded && report">
-        <div v-if="!report.length" class="font-italic pl-6 pr-16 py-2 text-medium-emphasis">
+      <div v-if="isExpanded && report" id="peer-note-count-by-month" class="w-100">
+        <div v-if="!report.length" class="font-italic py-2 text-medium-emphasis">
           The {{ peerAdvisingDepartment.name }} Peer Advising department created no notes prior to {{ currentMonthLabel }}.
         </div>
         <div v-if="report.length">
@@ -39,7 +40,7 @@
             :id="`peer-note-counts-year-${year.label}`"
             :key="index"
             :class="{'mt-1': index === 0, 'mt-3': index > 0}"
-            class="ml-2 rounded-lg v-card-border"
+            class="rounded-lg v-card-border w-100"
             flat
           >
             <v-card-title class="bg-primary font-size-14">
@@ -171,9 +172,6 @@ th {
 td {
   border: 1px solid;
   padding: 6px 12px;
-}
-#show-hide-personal-details {
-  margin-left: -16px;
 }
 .v-card-border {
   border: 1px solid rgb(var(--v-theme-primary));
