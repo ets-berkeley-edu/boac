@@ -164,16 +164,11 @@ def search_peer_advising_notes():
             offset=int(util.get(params, 'offset', 0)),
             peer_advisor_uid=peer_advisor_uid,
         )
-
         # The front-end needs full-blown note objects because they are editable by the current-user.
-        note_ids = []
-        for n in search_results.get('notes', []):
-            note_ids.append(n['id'])
-            if n['parentNoteId']:
-                note_ids.append(n['parentNoteId'])
+        note_ids = [n['id'] for n in search_results.get('notes', [])]
         notes_json = []
         if len(note_ids):
-            notes_and_comments = Note.find_peer_notes_by_ids(peer_advising_department_id, note_ids)
+            notes_and_comments = Note.find_peer_notes_and_comments_by_ids(peer_advising_department_id, note_ids)
             notes = []
             comments_by_note_id = {}
             append_note = notes.append
