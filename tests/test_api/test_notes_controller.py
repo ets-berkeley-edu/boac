@@ -672,7 +672,7 @@ class TestEditNoteComment:
 
     def test_unauthorized_note_comment(self, client, fake_auth, mock_advising_note_with_comments):
         """Unauthorized user cannot edit a note comment."""
-        comments = Note.get_notes_by_parent_id(mock_advising_note_with_comments.id)
+        comments = Note.get_note_comments_by_parent_ids([mock_advising_note_with_comments.id])
         for uid in [None, coe_advisor_no_advising_data_uid, l_s_director_no_advising_data_uid, ce3_navcal_peer_advisor_uid]:
             if uid:
                 fake_auth.login(uid)
@@ -686,7 +686,7 @@ class TestEditNoteComment:
 
     def test_admin_note_comment(self, client, fake_auth, mock_advising_note_with_comments):
         """Admin user cannot edit a note comment."""
-        comments = Note.get_notes_by_parent_id(mock_advising_note_with_comments.id)
+        comments = Note.get_note_comments_by_parent_ids([mock_advising_note_with_comments.id])
         fake_auth.login(admin_uid)
         self._api_edit_note_comment(
             body='With great power comes great responsibility.',
@@ -715,7 +715,7 @@ class TestEditNoteComment:
 
         # Comment author edits their comment
         fake_auth.login(ce3_advisor_uid)
-        comments = Note.get_notes_by_parent_id(mock_advising_note_with_comments.id)
+        comments = Note.get_note_comments_by_parent_ids([mock_advising_note_with_comments.id])
         comment = next((c for c in comments if c.author_uid == ce3_advisor_uid), None)
         body = 'A very interesting edit to this comment!'
         api_json = self._api_edit_note_comment(
@@ -752,7 +752,7 @@ class TestEditNoteComment:
         _api_mark_note_read(client, mock_navcal_peer_advising_note_with_comments.id)
 
         fake_auth.login(l_s_major_advisor_uid)
-        comments = Note.get_notes_by_parent_id(mock_navcal_peer_advising_note_with_comments.id)
+        comments = Note.get_note_comments_by_parent_ids([mock_navcal_peer_advising_note_with_comments.id])
         comment = next((c for c in comments if c.author_uid == l_s_major_advisor_uid), None)
         body = 'Edited comment on a NAVCAL peer advising note from an CE3 advisor'
         api_json = self._api_edit_note_comment(
@@ -793,7 +793,7 @@ class TestEditNoteComment:
         navcal_department = PeerAdvisingDepartment.get_department_by_name('NAVCAL')
 
         fake_auth.login(ce3_navcal_peer_advisor_manager_uid)
-        comments = Note.get_notes_by_parent_id(mock_navcal_peer_advising_note_with_comments.id)
+        comments = Note.get_note_comments_by_parent_ids([mock_navcal_peer_advising_note_with_comments.id])
         comment = next((c for c in comments if c.author_uid == ce3_navcal_peer_advisor_manager_uid), None)
         body = 'Edited comment on a NAVCAL peer advising note from a NAVCAL peer advising manager'
         api_json = self._api_edit_note_comment(
@@ -814,7 +814,7 @@ class TestEditNoteComment:
         department = PeerAdvisingDepartment.get_department_by_name('Mechanical Engineering')
 
         fake_auth.login(coe_advisor_uid)
-        comments = Note.get_notes_by_parent_id(mock_navcal_peer_advising_note_with_comments.id)
+        comments = Note.get_note_comments_by_parent_ids([mock_navcal_peer_advising_note_with_comments.id])
         comment = next((c for c in comments if c.author_uid == coe_advisor_uid), None)
         body = 'Edited comment on a NAVCAL peer advising note from a Mechanical Engineering peer advising manager'
         api_json = self._api_edit_note_comment(

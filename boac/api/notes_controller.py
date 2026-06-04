@@ -90,7 +90,7 @@ def mark_note_read(note_id):
     viewer_id = current_user.get_id()
     note_ids = [note_id]
     if is_int(note_id):
-        comments = Note.get_notes_by_parent_id(int(note_id))
+        comments = Note.get_note_comments_by_parent_ids([int(note_id)])
         note_ids.extend([comment.id for comment in comments])
     else:
         mark_comments_read_for_parent(viewer_id, note_id, EFORM_COMMENT_PARENT_TYPES)

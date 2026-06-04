@@ -501,7 +501,7 @@ def get_boa_note_comments_as_compatible_json(note, children_by_parent_id=None):
     if note.parent_note_id:
         return []
     if children_by_parent_id is None:
-        child_notes = Note.get_notes_by_parent_id(parent_note_id=note.id)
+        child_notes = Note.get_note_comments_by_parent_ids(parent_note_ids=[note.id])
         accessible = [c for c in child_notes if can_current_user_access_note(c)]
     else:
         accessible = children_by_parent_id.get(note.id, [])
