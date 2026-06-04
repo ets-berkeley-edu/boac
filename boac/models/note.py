@@ -27,7 +27,7 @@ import json
 import threading
 
 from flask import current_app as app
-from sqlalchemy import and_, asc, desc
+from sqlalchemy import and_, asc, desc, or_
 from sqlalchemy.dialects.postgresql import ARRAY, ENUM
 from sqlalchemy.sql import text
 
@@ -131,9 +131,12 @@ class Note(Base):
         return cls.query.filter(criteria).all()
 
     @classmethod
-    def find_peer_notes_by_ids(cls, peer_advising_department_id, note_ids):
+    def find_peer_notes_and_comments_by_ids(cls, peer_advising_department_id, note_ids):
         criteria = and_(
-            cls.id.in_(note_ids),
+            or_(
+                cls.id.in_(note_ids),
+                cls.parent_note_id.in_(note_ids),
+            ),
             cls.peer_advising_department_id == peer_advising_department_id,
             cls.deleted_at == None,  # noqa: E711
         )
@@ -433,19 +436,22 @@ class Note(Base):
             peer_advisor_uid=None,
     ):
         def _get_fts_union_query(is_count_query=False):
+            # Get the ids of notes that match and the parent_note_ids of comments that match the query text.
             author_filter = ""
             if peer_advisor_uid is not None:
                 author_filter = "AND n.author_uid = :peer_advisor_uid"
             fts_rank_sql = f"""
                 SELECT {'COUNT(DISTINCT fts.id)' if is_count_query else 'DISTINCT ON (fts.id) fts.id, fts.rank'} FROM (
-                    SELECT id, ts_rank(fts_index, to_tsquery('english', :query_text || ':*')) AS rank
-                    FROM notes_fts_index
+                    SELECT COALESCE(n.parent_note_id, n.id) AS id, ts_rank(fts_index, to_tsquery('english', :query_text || ':*')) AS rank
+                    FROM notes_fts_index i
+                    JOIN notes n ON i.id = n.id
                     WHERE fts_index @@ to_tsquery('english', :query_text || ':*')
                     UNION
                     SELECT id, 0 AS rank
                     FROM notes
                     WHERE sid = ANY(:sids)
                         AND peer_advising_department_id = :peer_advising_department_id
+                        AND parent_note_id IS NULL
                 ) AS fts
                 JOIN notes n ON n.id = fts.id
                 WHERE n.peer_advising_department_id = :peer_advising_department_id
