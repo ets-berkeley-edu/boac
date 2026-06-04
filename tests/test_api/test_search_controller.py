@@ -29,6 +29,8 @@ import simplejson as json
 from boac import std_commit
 from boac.externals import data_loch
 from boac.models.authorized_user import AuthorizedUser
+from boac.models.comment import Comment
+from boac.models.comment_parent import CommentParent
 from boac.models.note import Note
 
 admin_uid = '2040'
@@ -608,6 +610,16 @@ class TestNoteSearch:
         api_json = _api_search(client, 'vocation', notes=True)
         self._assert(api_json, note_count=1, note_ids=['2718281828-00001'])
 
+    def test_search_finds_note_comment_match(self, client, fake_auth, mock_advising_note_with_comments):
+        """Note search returns a result with parentNoteId when a comment body matches the query."""
+        parent_note = mock_advising_note_with_comments
+        fake_auth.login(coe_advisor_uid)
+        api_json = _api_search(client, 'note author', notes=True)
+        notes = api_json['notes']
+        comment_results = [n for n in notes if n.get('parentNoteId') == parent_note.id]
+        assert len(comment_results) >= 1
+        assert comment_results[0]['studentSid'] == parent_note.sid
+
 
 class TestAppointmentSearch:
     """Appointments search API."""
@@ -790,6 +802,123 @@ class TestAppointmentSearch:
             appointment_options={'departmentCodes': ['EGCEE']},
         )
         self._assert(api_json, appointment_count=1)
+
+    def test_search_finds_appointment_comment(self, client, fake_auth):
+        """Search finds an appointment via comment body text, returned as kind=commentOnAppointment."""
+        comment_parent = CommentParent.find_or_create('appointment', '11667051-00010')
+        comment = Comment.create(
+            comment_parent_id=comment_parent.id,
+            author_uid=coe_advisor_uid,
+            author_name='COE Advisor',
+            author_role='advisor',
+            author_dept_codes=['COENG'],
+            body='A pterodactyl has exceptional wingspan.',
+        )
+        try:
+            fake_auth.login(coe_advisor_uid)
+            api_json = _api_search(client, 'pterodactyl', appointments=True)
+            appointments = api_json['appointments']
+            comment_results = [a for a in appointments if a.get('kind') == 'commentOnAppointment']
+            assert len(comment_results) == 1
+            result = comment_results[0]
+            assert result['studentSid'] == '11667051'
+            assert result['parentType'] == 'appointment'
+            assert result['parentId'] == '11667051-00010'
+            assert 'pterodactyl' in result['snippet']
+        finally:
+            comment.soft_delete()
+
+
+class TestEformSearch:
+    """eForm search API."""
+
+    def test_search_eforms_excluded_unless_requested(self, client, fake_auth):
+        """Excludes eForms from results when neither notes nor eForms param is set."""
+        fake_auth.login(coe_advisor_uid)
+        api_json = _api_search(client, 'Unit Change', students=True)
+        assert 'eforms' not in api_json
+
+    def test_search_eforms_included_when_notes_requested(self, client, fake_auth):
+        """Includes eForms in results when notes param is true."""
+        fake_auth.login(coe_advisor_uid)
+        api_json = _api_search(client, 'Unit Change', notes=True)
+        assert 'eforms' in api_json
+
+    def test_search_eforms_body(self, client, fake_auth):
+        """Finds a late-drop eForm by body content."""
+        fake_auth.login(coe_advisor_uid)
+        api_json = _api_search(client, 'Unit Change', eforms=True)
+        eforms = api_json['eforms']
+        assert len(eforms) >= 1
+        assert api_json['totalEformCount'] >= 1
+        eform = next((e for e in eforms if e.get('studentSid') == '11667051'), None)
+        assert eform is not None
+        assert eform['kind'] == 'eform'
+        assert eform['parentType'] == 'late_drop_eform'
+        assert eform['student']['sid'] == '11667051'
+
+    def test_search_eforms_by_student_csid(self, client, fake_auth):
+        """Filters eForm results by student SID."""
+        fake_auth.login(coe_advisor_uid)
+        api_json = _api_search(
+            client,
+            'Late Grading Basis Change',
+            eforms=True,
+            note_options={'studentCsid': '9000000000'},
+        )
+        eforms = api_json['eforms']
+        assert len(eforms) == 1
+        assert eforms[0]['studentSid'] == '9000000000'
+        assert eforms[0]['kind'] == 'eform'
+
+    def test_search_eforms_comment(self, client, fake_auth):
+        """Finds an eForm via comment body text, returned as kind=commentOnEform."""
+        comment_parent = CommentParent.find_or_create('late_drop_eform', 'eform-10096')
+        comment = Comment.create(
+            comment_parent_id=comment_parent.id,
+            author_uid=coe_advisor_uid,
+            author_name='COE Advisor',
+            author_role='advisor',
+            author_dept_codes=['COENG'],
+            body='A bougainvillea grows along the fence.',
+        )
+        try:
+            fake_auth.login(coe_advisor_uid)
+            api_json = _api_search(client, 'bougainvillea', eforms=True)
+            eforms = api_json['eforms']
+            assert len(eforms) == 1
+            result = eforms[0]
+            assert result['kind'] == 'commentOnEform'
+            assert result['studentSid'] == '11667051'
+            assert result['parentType'] == 'late_drop_eform'
+            assert result['parentId'] == 'eform-10096'
+            assert 'bougainvillea' in result['snippet']
+        finally:
+            comment.soft_delete()
+
+    def test_search_eforms_comment_excludes_other_student(self, client, fake_auth):
+        """Eform comment search filtered by student SID excludes comments on other students' eForms."""
+        comment_parent = CommentParent.find_or_create('late_drop_eform', 'eform-10096')
+        comment = Comment.create(
+            comment_parent_id=comment_parent.id,
+            author_uid=coe_advisor_uid,
+            author_name='COE Advisor',
+            author_role='advisor',
+            author_dept_codes=['COENG'],
+            body='A frangipani blooms in summer.',
+        )
+        try:
+            fake_auth.login(coe_advisor_uid)
+            # eform-10096 belongs to student 11667051; filtering for 9000000000 should return nothing
+            api_json = _api_search(
+                client,
+                'frangipani',
+                eforms=True,
+                note_options={'studentCsid': '9000000000'},
+            )
+            assert api_json['eforms'] == []
+        finally:
+            comment.soft_delete()
 
 
 class TestAdmittedStudentSearch:
@@ -1027,6 +1156,7 @@ def _api_search(
         phrase,
         appointments=False,
         courses=False,
+        eforms=False,
         notes=False,
         students=False,
         appointment_options=None,
@@ -1036,21 +1166,24 @@ def _api_search(
         limit=None,
         expected_status_code=200,
 ):
+    payload = {
+        'appointments': appointments,
+        'courses': courses,
+        'notes': notes,
+        'students': students,
+        'searchPhrase': phrase,
+        'appointmentOptions': appointment_options,
+        'noteOptions': note_options,
+        'orderBy': order_by,
+        'offset': offset,
+        'limit': limit,
+    }
+    if eforms:
+        payload['eForms'] = True
     response = client.post(
         '/api/search',
         content_type='application/json',
-        data=json.dumps({
-            'appointments': appointments,
-            'courses': courses,
-            'notes': notes,
-            'students': students,
-            'searchPhrase': phrase,
-            'appointmentOptions': appointment_options,
-            'noteOptions': note_options,
-            'orderBy': order_by,
-            'offset': offset,
-            'limit': limit,
-        }),
+        data=json.dumps(payload),
     )
     assert response.status_code == expected_status_code
     return response.json
