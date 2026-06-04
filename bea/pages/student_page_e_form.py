@@ -23,6 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 import re
+import time
 
 from flask import current_app as app
 from selenium.webdriver.common.by import By
@@ -39,6 +40,7 @@ class StudentPageEForm(StudentPageTimeline, CreateNoteModal):
     E_FORMS_BUTTON = (By.ID, 'timeline-tab-eForm')
     SHOW_HIDE_E_FORMS_BUTTON = (By.ID, 'toggle-expand-all-eForms')
     E_FORM_MSG_ROW = By.XPATH, '//article[contains(@id, "timeline-eForm-")]'
+    TIMELINE_E_FORMS_QUERY_INPUT = (By.ID, 'timeline-eForms-query-input')
 
     def show_e_forms(self):
         app.logger.info('Checking eForms tab')
@@ -46,6 +48,15 @@ class StudentPageEForm(StudentPageTimeline, CreateNoteModal):
         if self.is_present(self.SHOW_HIDE_E_FORMS_BUTTON) and 'Show?' in self.element(
                 self.SHOW_HIDE_E_FORMS_BUTTON).text:
             self.wait_for_element_and_click(self.SHOW_HIDE_E_FORMS_BUTTON)
+
+    def search_within_timeline_e_forms(self, query):
+        app.logger.info(f"Searching for '{query}'")
+        self.scroll_to_top()
+        self.wait_for_textbox_and_send_keys(self.TIMELINE_E_FORMS_QUERY_INPUT, query)
+        time.sleep(1)
+
+    def visible_e_form_ids(self):
+        return self.visible_collapsed_item_ids('eForm')
 
     @staticmethod
     def e_form_data_loc(e_form, label):

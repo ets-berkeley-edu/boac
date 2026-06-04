@@ -194,6 +194,19 @@ class SearchResultsPage(ListViewAdmitPages):
                 self.wait_for_element_and_click(self.NOTE_RESULTS_BUTTON)
             assert self.is_note_in_search_result(note)
 
+    @staticmethod
+    def note_comment_search_result_loc(comment):
+        return By.ID, f'advising-note-search-result-{comment.comment_id}'
+
+    def assert_note_comment_result_present(self, comment):
+        count = self.wait_for_note_search_result_count()
+        if count == '20+':
+            app.logger.info(f'Skipping test with comment {comment.comment_id} because there are too many results')
+        else:
+            if count != '0':
+                self.wait_for_element_and_click(self.NOTE_RESULTS_BUTTON)
+            assert self.is_present(self.note_comment_search_result_loc(comment))
+
     def assert_note_result_not_present(self, note):
         count = self.wait_for_note_search_result_count()
         if count == '20+':
@@ -281,6 +294,46 @@ class SearchResultsPage(ListViewAdmitPages):
 
     def appt_result_date(self, appt):
         return self.el_text_if_exists((By.ID, f'appointment-created-at-date-{appt.record_id}'))
+
+    @staticmethod
+    def comment_result_loc(comment):
+        return By.ID, f'comment-search-result-{comment.comment_id}'
+
+    def assert_appt_comment_result_present(self, comment):
+        count = self.wait_for_appt_search_result_count()
+        if count == '20+':
+            app.logger.info(f'Skipping test with comment {comment.comment_id} because there are too many results')
+        else:
+            if count != '0':
+                self.wait_for_element_and_click(self.APPT_RESULTS_BUTTON)
+            assert self.is_present(self.comment_result_loc(comment))
+
+    # EFORMS
+
+    EFORM_RESULTS_BUTTON = By.ID, 'search-results-tab-eForms'
+    EFORM_RESULTS_COUNT = By.ID, 'search-results-count-eForms'
+
+    def eform_results_count(self):
+        self.wait_for_spinner()
+        return self.element(self.EFORM_RESULTS_COUNT).text
+
+    def wait_for_eform_search_result_count(self):
+        self.wait_for_spinner(timeout=utils.get_medium_timeout())
+        if self.is_present(self.NO_RESULTS_MSG):
+            count = '0'
+        else:
+            count = self.eform_results_count()
+        app.logger.info(f'eForm search results count is {count}')
+        return count
+
+    def assert_eform_comment_result_present(self, comment):
+        count = self.wait_for_eform_search_result_count()
+        if count == '20+':
+            app.logger.info(f'Skipping test with comment {comment.comment_id} because there are too many results')
+        else:
+            if count != '0':
+                self.wait_for_element_and_click(self.EFORM_RESULTS_BUTTON)
+            assert self.is_present(self.comment_result_loc(comment))
 
     # GROUPS
 
