@@ -25,11 +25,13 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import pytest
 
+from boac.models.appointment_read import AppointmentRead
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.comment import Comment
 from boac.models.comment_attachment import CommentAttachment
 from boac.models.comment_parent import CommentParent
 from boac.models.comment_read import CommentRead
+from boac.models.note_read import NoteRead
 from tests.util import mock_advising_note_s3_bucket
 
 coe_advisor_uid = '1133399'
@@ -42,8 +44,21 @@ EFORM_PARENT_ID = 'eform-10096'
 
 
 @pytest.fixture
-def mock_comment(db):
+def mock_appointment_comment(db):
     comment_parent = CommentParent.find_or_create(parent_type='appointment', parent_id=APPOINTMENT_PARENT_ID)
+    return Comment.create(
+        author_uid=coe_advisor_uid,
+        author_name='COE Advisor',
+        author_role='advisor',
+        author_dept_codes=['COENG'],
+        comment_parent_id=comment_parent.id,
+        body='A test comment body.',
+    )
+
+
+@pytest.fixture
+def mock_eform_comment(db):
+    comment_parent = CommentParent.find_or_create(parent_type='course_load_eform', parent_id=EFORM_PARENT_ID)
     return Comment.create(
         author_uid=coe_advisor_uid,
         author_name='COE Advisor',
@@ -193,6 +208,62 @@ class TestCreateComment:
         )
         assert len(comments_read) == 1
 
+    def test_create_comment_appointment_marked_unread(self, client, fake_auth):
+        """Appointment is marked unread by everyone except the comment author."""
+        # First mark the appointment read for other users
+        l_s_major_advisor_id = AuthorizedUser.get_id_per_uid(l_s_major_advisor_uid)
+        AppointmentRead.find_or_create(viewer_id=l_s_major_advisor_id, appointment_id=APPOINTMENT_PARENT_ID)
+        admin_id = AuthorizedUser.get_id_per_uid(admin_uid)
+        AppointmentRead.find_or_create(viewer_id=admin_id, appointment_id=APPOINTMENT_PARENT_ID)
+        for user_id in [l_s_major_advisor_id, admin_id] :
+            appointments_read = AppointmentRead.get_appointments_read_by_user(
+                viewer_id=user_id,
+                appointment_ids=[APPOINTMENT_PARENT_ID],
+            )
+            assert len(appointments_read) == 1
+
+        fake_auth.login(coe_advisor_uid)
+        _api_create_comment(
+            client=client,
+            parent_type='appointment',
+            parent_id=APPOINTMENT_PARENT_ID,
+            body='Adding a new comment makes the appointment unread.',
+        )
+        for user_id in [l_s_major_advisor_id, admin_id] :
+            appointments_read = AppointmentRead.get_appointments_read_by_user(
+                viewer_id=user_id,
+                appointment_ids=[APPOINTMENT_PARENT_ID],
+            )
+            assert len(appointments_read) == 0
+
+    def test_create_comment_eform_marked_unread(self, client, fake_auth):
+        """Eform is marked unread by everyone except the comment author."""
+        # First mark the eForm read for other users
+        l_s_major_advisor_id = AuthorizedUser.get_id_per_uid(l_s_major_advisor_uid)
+        NoteRead.find_or_create(viewer_id=l_s_major_advisor_id, note_ids=[EFORM_PARENT_ID])
+        admin_id = AuthorizedUser.get_id_per_uid(admin_uid)
+        NoteRead.find_or_create(viewer_id=admin_id, note_ids=[EFORM_PARENT_ID])
+        for user_id in [l_s_major_advisor_id, admin_id] :
+            eforms_read = NoteRead.get_notes_read_by_user(
+                viewer_id=user_id,
+                note_ids=[EFORM_PARENT_ID],
+            )
+            assert len(eforms_read) == 1
+
+        fake_auth.login(coe_advisor_uid)
+        _api_create_comment(
+            client=client,
+            parent_type='course_load_eform',
+            parent_id=EFORM_PARENT_ID,
+            body='Adding a new comment makes the eForm unread.',
+        )
+        for user_id in [l_s_major_advisor_id, admin_id] :
+            eforms_read = NoteRead.get_notes_read_by_user(
+                viewer_id=user_id,
+                note_ids=[EFORM_PARENT_ID],
+            )
+            assert len(eforms_read) == 0
+
     def test_create_comment_with_raw_url_in_body(self, client, fake_auth):
         """URL in comment body is wrapped in an anchor tag."""
         fake_auth.login(coe_advisor_uid)
@@ -228,21 +299,21 @@ class TestCreateComment:
 
 class TestUpdateComment:
 
-    def test_not_authenticated(self, client, mock_comment):
+    def test_not_authenticated(self, client, mock_appointment_comment):
         """Returns 401 if not authenticated."""
         _api_update_comment(
             client=client,
-            comment_id=mock_comment.id,
+            comment_id=mock_appointment_comment.id,
             body='Updated body',
             expected_status_code=401,
         )
 
-    def test_user_without_advising_data_access(self, client, fake_auth, mock_comment):
+    def test_user_without_advising_data_access(self, client, fake_auth, mock_appointment_comment):
         """Denies access to a user who cannot access advising data."""
         fake_auth.login(coe_advisor_no_advising_data_uid)
         _api_update_comment(
             client=client,
-            comment_id=mock_comment.id,
+            comment_id=mock_appointment_comment.id,
             body='Updated body',
             expected_status_code=401,
         )
@@ -277,101 +348,155 @@ class TestUpdateComment:
             expected_status_code=404,
         )
 
-    def test_cannot_update_another_users_comment(self, client, fake_auth, mock_comment):
+    def test_cannot_update_another_users_comment(self, client, fake_auth, mock_appointment_comment):
         """Returns 404 when a user tries to edit another user's comment."""
-        assert mock_comment.author_uid != l_s_major_advisor_uid
-        original_body = mock_comment.body
+        assert mock_appointment_comment.author_uid != l_s_major_advisor_uid
+        original_body = mock_appointment_comment.body
         fake_auth.login(l_s_major_advisor_uid)
         _api_update_comment(
             client=client,
-            comment_id=mock_comment.id,
+            comment_id=mock_appointment_comment.id,
             body='Unauthorized update attempt',
             expected_status_code=404,
         )
-        assert Comment.find_by_id(mock_comment.id).body == original_body
+        assert Comment.find_by_id(mock_appointment_comment.id).body == original_body
 
-    def test_missing_body(self, client, fake_auth, mock_comment):
+    def test_missing_body(self, client, fake_auth, mock_appointment_comment):
         """Returns 400 if the updated body is missing."""
-        fake_auth.login(mock_comment.author_uid)
+        fake_auth.login(mock_appointment_comment.author_uid)
         _api_update_comment(
             client=client,
-            comment_id=mock_comment.id,
+            comment_id=mock_appointment_comment.id,
             body=None,
             expected_status_code=400,
         )
 
-    def test_empty_body(self, client, fake_auth, mock_comment):
+    def test_empty_body(self, client, fake_auth, mock_appointment_comment):
         """Returns 400 if the updated body is whitespace only."""
-        fake_auth.login(mock_comment.author_uid)
+        fake_auth.login(mock_appointment_comment.author_uid)
         _api_update_comment(
             client=client,
-            comment_id=mock_comment.id,
+            comment_id=mock_appointment_comment.id,
             body='   ',
             expected_status_code=400,
         )
 
-    def test_update_comment(self, client, fake_auth, mock_comment):
+    def test_update_comment(self, client, fake_auth, mock_appointment_comment):
         """Author can update the body of their own comment."""
-        fake_auth.login(mock_comment.author_uid)
+        fake_auth.login(mock_appointment_comment.author_uid)
         new_body = 'This is the updated comment body.'
         api_json = _api_update_comment(
             client=client,
-            comment_id=mock_comment.id,
+            comment_id=mock_appointment_comment.id,
             body=new_body,
         )
-        assert api_json['id'] == mock_comment.id
+        assert api_json['id'] == mock_appointment_comment.id
         assert api_json['body'].strip().replace(' ', '') == new_body.strip().replace(' ', '')
         assert api_json['parentType'] == 'appointment'
         assert api_json['parentId'] == APPOINTMENT_PARENT_ID
         assert api_json['read'] is True
 
-    def test_update_comment_with_raw_url_in_body(self, client, fake_auth, mock_comment):
+    def test_update_comment_with_raw_url_in_body(self, client, fake_auth, mock_appointment_comment):
         """URL in updated body is wrapped in an anchor tag."""
-        fake_auth.login(mock_comment.author_uid)
+        fake_auth.login(mock_appointment_comment.author_uid)
         api_json = _api_update_comment(
             client=client,
-            comment_id=mock_comment.id,
+            comment_id=mock_appointment_comment.id,
             body='See registrar.berkeley.edu for details',
         )
         assert 'href' in api_json['body']
 
-    def test_update_comment_marked_read_for_author(self, client, fake_auth, mock_comment):
+    def test_update_comment_marked_read_for_author(self, client, fake_auth, mock_appointment_comment):
         """Updated comment is marked read for its author."""
-        fake_auth.login(mock_comment.author_uid)
+        fake_auth.login(mock_appointment_comment.author_uid)
         _api_update_comment(
             client=client,
-            comment_id=mock_comment.id,
+            comment_id=mock_appointment_comment.id,
             body='Updated body.',
         )
-        author_id = AuthorizedUser.get_id_per_uid(mock_comment.author_uid)
+        author_id = AuthorizedUser.get_id_per_uid(mock_appointment_comment.author_uid)
         comments_read = CommentRead.get_comments_read_by_user(
             viewer_id=author_id,
-            comment_ids=[mock_comment.id],
+            comment_ids=[mock_appointment_comment.id],
         )
         assert len(comments_read) == 1
 
-    def test_update_invalidates_read_for_others(self, client, fake_auth, mock_comment):
-        """Editing a comment removes the read marker for all other viewers."""
+    def test_update_invalidates_read_for_others(self, client, fake_auth, mock_appointment_comment):
+        """Editing a comment removes the comment read marker for all other viewers."""
         other_user_id = AuthorizedUser.get_id_per_uid(l_s_major_advisor_uid)
-        CommentRead.find_or_create(viewer_id=other_user_id, comment_ids=[mock_comment.id])
-        assert len(CommentRead.get_comments_read_by_user(viewer_id=other_user_id, comment_ids=[mock_comment.id])) == 1
+        CommentRead.find_or_create(viewer_id=other_user_id, comment_ids=[mock_appointment_comment.id])
+        assert len(CommentRead.get_comments_read_by_user(viewer_id=other_user_id, comment_ids=[mock_appointment_comment.id])) == 1
 
-        fake_auth.login(mock_comment.author_uid)
+        fake_auth.login(mock_appointment_comment.author_uid)
         _api_update_comment(
             client=client,
-            comment_id=mock_comment.id,
+            comment_id=mock_appointment_comment.id,
             body='An edit that others have not yet read.',
         )
 
-        assert len(CommentRead.get_comments_read_by_user(viewer_id=other_user_id, comment_ids=[mock_comment.id])) == 0
+        assert len(CommentRead.get_comments_read_by_user(viewer_id=other_user_id, comment_ids=[mock_appointment_comment.id])) == 0
 
-    def test_update_comment_add_attachment(self, app, client, fake_auth, mock_comment):
+    def test_edit_comment_appointment_marked_unread(self, client, fake_auth, mock_appointment_comment):
+        """Appointment is marked unread by everyone except the comment author."""
+        # First mark the appointment read for other users
+        l_s_major_advisor_id = AuthorizedUser.get_id_per_uid(l_s_major_advisor_uid)
+        AppointmentRead.find_or_create(viewer_id=l_s_major_advisor_id, appointment_id=APPOINTMENT_PARENT_ID)
+        admin_id = AuthorizedUser.get_id_per_uid(admin_uid)
+        AppointmentRead.find_or_create(viewer_id=admin_id, appointment_id=APPOINTMENT_PARENT_ID)
+        for user_id in [l_s_major_advisor_id, admin_id] :
+            appointments_read = AppointmentRead.get_appointments_read_by_user(
+                viewer_id=user_id,
+                appointment_ids=[APPOINTMENT_PARENT_ID],
+            )
+            assert len(appointments_read) == 1
+
+        fake_auth.login(coe_advisor_uid)
+        _api_update_comment(
+            client=client,
+            comment_id=mock_appointment_comment.id,
+            body='Editing a comment makes the appointment unread.',
+        )
+        for user_id in [l_s_major_advisor_id, admin_id] :
+            appointments_read = AppointmentRead.get_appointments_read_by_user(
+                viewer_id=user_id,
+                appointment_ids=[APPOINTMENT_PARENT_ID],
+            )
+            assert len(appointments_read) == 0
+
+    def test_create_comment_eform_marked_unread(self, client, fake_auth, mock_eform_comment):
+        """Eform is marked unread by everyone except the comment author."""
+        # First mark the eForm read for other users
+        l_s_major_advisor_id = AuthorizedUser.get_id_per_uid(l_s_major_advisor_uid)
+        NoteRead.find_or_create(viewer_id=l_s_major_advisor_id, note_ids=[EFORM_PARENT_ID])
+        admin_id = AuthorizedUser.get_id_per_uid(admin_uid)
+        NoteRead.find_or_create(viewer_id=admin_id, note_ids=[EFORM_PARENT_ID])
+        for user_id in [l_s_major_advisor_id, admin_id] :
+            eforms_read = NoteRead.get_notes_read_by_user(
+                viewer_id=user_id,
+                note_ids=[EFORM_PARENT_ID],
+            )
+            assert len(eforms_read) == 1
+
+        fake_auth.login(coe_advisor_uid)
+        _api_update_comment(
+            client=client,
+            comment_id=mock_eform_comment.id,
+            body='Editing a comment makes the eForm unread.',
+        )
+        for user_id in [l_s_major_advisor_id, admin_id] :
+            eforms_read = NoteRead.get_notes_read_by_user(
+                viewer_id=user_id,
+                note_ids=[EFORM_PARENT_ID],
+            )
+            assert len(eforms_read) == 0
+
+    def test_update_comment_add_attachment(self, app, client, fake_auth, mock_appointment_comment):
         """Author can add an attachment when updating a comment."""
-        fake_auth.login(mock_comment.author_uid)
+        fake_auth.login(mock_appointment_comment.author_uid)
         base_dir = app.config['BASE_DIR']
         with mock_advising_note_s3_bucket(app):
             data = {
-                'id': mock_comment.id,
+                'id': mock_appointment_comment.id,
                 'body': 'Updated with an attachment.',
                 'attachment[0]': open(f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt', 'rb'),
             }
@@ -426,17 +551,17 @@ class TestUpdateComment:
 
 class TestDeleteComment:
 
-    def test_not_authenticated(self, client, mock_comment):
+    def test_not_authenticated(self, client, mock_appointment_comment):
         """Returns 401 if not authenticated."""
-        response = client.delete(f'/api/comments/delete/{mock_comment.id}')
+        response = client.delete(f'/api/comments/delete/{mock_appointment_comment.id}')
         assert response.status_code == 401
 
-    def test_non_admin_cannot_delete(self, client, fake_auth, mock_comment):
+    def test_non_admin_cannot_delete(self, client, fake_auth, mock_appointment_comment):
         """Non-admin user cannot delete a comment."""
         fake_auth.login(coe_advisor_uid)
-        response = client.delete(f'/api/comments/delete/{mock_comment.id}')
+        response = client.delete(f'/api/comments/delete/{mock_appointment_comment.id}')
         assert response.status_code == 401
-        assert Comment.find_by_id(mock_comment.id) is not None
+        assert Comment.find_by_id(mock_appointment_comment.id) is not None
 
     def test_invalid_comment_id(self, client, fake_auth):
         """Returns 400 for a non-integer comment ID."""
@@ -450,10 +575,10 @@ class TestDeleteComment:
         response = client.delete('/api/comments/delete/9999999')
         assert response.status_code == 404
 
-    def test_admin_delete_comment(self, client, fake_auth, mock_comment):
+    def test_admin_delete_comment(self, client, fake_auth, mock_appointment_comment):
         """Admin can soft-delete a comment."""
         fake_auth.login(admin_uid)
-        comment_id = mock_comment.id
+        comment_id = mock_appointment_comment.id
         response = client.delete(f'/api/comments/delete/{comment_id}')
         assert response.status_code == 200
         assert Comment.find_by_id(comment_id) is None
