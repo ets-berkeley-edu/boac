@@ -48,18 +48,16 @@
         <v-tabs
           v-model="tab"
           aria-label="Search results"
-          :aria-orientation="$vuetify.display.mdAndUp ? 'horizontal' : 'vertical'"
-          class="ml-3"
+          :aria-orientation="horizontalTabs ? 'horizontal' : 'vertical'"
           density="comfortable"
-          :direction="$vuetify.display.mdAndUp ? 'horizontal' : 'vertical'"
+          :direction="horizontalTabs ? 'horizontal' : 'vertical'"
           :items="tabs"
-          mobile-breakpoint="md"
         >
           <template #tab="{item}">
             <v-tab
               :id="`search-results-tab-${item.key}s`"
               :aria-controls="`search-results-tab-panel-${item.key}s`"
-              class="border-s-sm border-e-sm border-t-sm mx-1 rounded-t-lg"
+              class="border-s-sm border-e-sm border-t-sm ml-1 rounded-t-lg"
               :class="{
                 'bg-white border-b-0': item.key === tab,
                 'bg-grey-lighten-4 border-b-md': item.key !== tab
@@ -280,6 +278,7 @@
 import {concat, each, extend, get, merge, size, trim} from 'lodash'
 import {computed, onMounted, reactive, ref} from 'vue'
 import {mdiAccountSchool, mdiCalendarCheck, mdiChevronDown, mdiFileDocumentEditOutline, mdiHumanGreeting, mdiHumanMaleBoardPoll, mdiNoteEditOutline} from '@mdi/js'
+import {useDisplay} from 'vuetify'
 import {useRoute, useRouter} from 'vue-router'
 import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
 import AdvisingNoteSnippet from '@/components/search/AdvisingNoteSnippet'
@@ -298,6 +297,7 @@ import {useContextStore} from '@/stores/context'
 import {useSearchStore} from '@/stores/search'
 
 const contextStore = useContextStore()
+const display = useDisplay()
 const router = useRouter()
 const searchStore = useSearchStore()
 
@@ -315,6 +315,9 @@ const hasMoreEformsToShow = computed(() => {
 })
 const hasSearchResults = computed(() => {
   return !!(results.totalStudentCount || results.totalCourseCount || results.totalAdmitCount || size(results.notes) || size(results.appointments) || size(results.eforms))
+})
+const horizontalTabs = computed(() => {
+  return display.width.value >= 1130 || (display.width.value < 960 && display.width.value > 850)
 })
 const loading = computed(() => contextStore.loading)
 const loadingAdditionalAppointments = ref(false)
