@@ -145,7 +145,7 @@ const publish = () => {
   isPublishing.value = true
   updateNote('Publishing note...').then(() => {
     isPublishing.value = false
-    props.exit()
+    props.exit('Note published')
   })
 }
 

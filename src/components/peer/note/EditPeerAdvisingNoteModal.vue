@@ -67,7 +67,7 @@
             class="pt-3"
             :discard="discardRequested"
             discard-button-label="Cancel"
-            :exit="() => closeModal('Closing modal')"
+            :exit="closeModal"
             publish-button-label="Save"
           />
           <AreYouSureModal

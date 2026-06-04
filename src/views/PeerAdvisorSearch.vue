@@ -134,7 +134,7 @@
 import {findIndex, get, map, orderBy, size, uniq} from 'lodash'
 import {computed, onMounted, onUnmounted, ref, watch} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
-import type {BoaUser, Note} from '@/lib/types'
+import type {BoaUser, Note, NoteComment} from '@/lib/types'
 import PeerAdvisingNotesTable from '@/components/peer/note/PeerAdvisingNotesTable.vue'
 import SectionSpinner from '@/components/util/SectionSpinner.vue'
 import ShowMyPeerAdvisingNotesToggle from '@/components/peer/note/ShowMyPeerAdvisingNotesToggle.vue'
@@ -144,6 +144,7 @@ import {getPeerAdvisorNoteById} from '@/api/peer-advising-notes'
 import {getUserByUid} from '@/api/user'
 import {useContextStore} from '@/stores/context'
 import {peerAdvisorSearch} from '@/api/search'
+import {updateNoteComments} from '@/lib/note'
 import {useSearchStore} from '@/stores/search'
 import PeerAdvisingStudentsTable from '@/components/peer/PeerAdvisingStudentsTable.vue'
 
@@ -212,9 +213,10 @@ onMounted(() => {
   } else {
     search(true, true)
   }
+  contextStore.setEventHandler('note-updated', onPeerAdvisingNoteUpdated)
 })
 
-onUnmounted(() => contextStore.removeEventHandler('peer-advising-note-created'))
+onUnmounted(() => contextStore.removeEventHandler('note-updated'))
 
 const clearResults = () => {
   router.push({path: '/home'})
@@ -234,6 +236,26 @@ const afterNoteEdit = (noteId: number) => {
       })
     }
   })
+}
+
+const onPeerAdvisingNoteUpdated = (note: Note|NoteComment) => {
+  const noteId = note.parentNoteId || note.id
+  const existingNoteIndex = findIndex(notes.value, {'id': noteId})
+  if (existingNoteIndex > -1) {
+    if (note.parentNoteId) {
+      const parentNote = notes.value[existingNoteIndex]
+      if (parentNote) {
+        updateNoteComments(parentNote, note as NoteComment)
+      } else {
+        search(true, false)
+      }
+    } else {
+      note.peerAdvisingDepartment = notes.value[existingNoteIndex].peerAdvisingDepartment
+      notes.value.splice(existingNoteIndex, 1, note)
+    }
+  } else {
+    search(true, false)
+  }
 }
 
 const search = (getNotes = true, getStudents = true) => {
