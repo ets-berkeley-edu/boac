@@ -143,8 +143,8 @@ class Note(Base):
         return cls.query.filter(criteria).all()
 
     @classmethod
-    def get_notes_by_parent_id(cls, parent_note_id):
-        criteria = and_(cls.parent_note_id == parent_note_id, cls.deleted_at == None)  # noqa: E711
+    def get_note_comments_by_parent_ids(cls, parent_note_ids):
+        criteria = and_(cls.parent_note_id.in_(parent_note_ids), cls.deleted_at == None)  # noqa: E711
         return cls.query.filter(criteria).order_by(asc(cls.created_at), asc(cls.id)).all()
 
     @classmethod
@@ -610,7 +610,6 @@ class Note(Base):
                 break
         return is_refreshing
 
-
     @classmethod
     def update(
             cls,
@@ -785,7 +784,7 @@ class Note(Base):
             for topic in note.topics:
                 topic.deleted_at = now
                 sqs_topic_messages.append(topic.to_sqs_json())
-            for comment in Note.get_notes_by_parent_id(note_id):
+            for comment in Note.get_note_comments_by_parent_ids([note_id]):
                 comment.deleted_at = now
             std_commit()
             if not note.is_draft and len(sqs_topic_messages):

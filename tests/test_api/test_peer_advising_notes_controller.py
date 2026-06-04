@@ -438,7 +438,7 @@ class TestPeerAdvisorEditNoteComment:
 
     def test_unauthorized_peer_advising_note_comment(self, client, fake_auth, mock_navcal_peer_advising_note_with_comments):
         """Unauthorized user cannot edit a Peer Advising note comment."""
-        comments = Note.get_notes_by_parent_id(mock_navcal_peer_advising_note_with_comments.id)
+        comments = Note.get_note_comments_by_parent_ids([mock_navcal_peer_advising_note_with_comments.id])
         for uid in [None, coe_advisor_no_advising_data_uid, qcadv_advisor_uid]:
             if uid:
                 fake_auth.login(uid)
@@ -453,7 +453,7 @@ class TestPeerAdvisorEditNoteComment:
 
     def test_admin_peer_advising_note_comment(self, client, fake_auth, mock_navcal_peer_advising_note_with_comments):
         """Admin user cannot edit a Peer Advising note comment."""
-        comments = Note.get_notes_by_parent_id(mock_navcal_peer_advising_note_with_comments.id)
+        comments = Note.get_note_comments_by_parent_ids([mock_navcal_peer_advising_note_with_comments.id])
         fake_auth.login(admin_uid)
         for comment in comments:
             self._api_edit_note_comment(
@@ -477,7 +477,7 @@ class TestPeerAdvisorEditNoteComment:
 
     def test_other_advisor_peer_advising_note_comment(self, client, fake_auth, mock_navcal_peer_advising_note_with_comments):
         """Peer advisor cannot edit another advisor's comment."""
-        comments = Note.get_notes_by_parent_id(mock_navcal_peer_advising_note_with_comments.id)
+        comments = Note.get_note_comments_by_parent_ids([mock_navcal_peer_advising_note_with_comments.id])
         fake_auth.login(ce3_navcal_peer_advisor_2_uid)
         for comment in comments:
             if comment.author_uid != ce3_navcal_peer_advisor_2_uid:
@@ -497,7 +497,7 @@ class TestPeerAdvisorEditNoteComment:
 
         # Comment author edits the comment
         body = 'A very interesting comment!'
-        comments = Note.get_notes_by_parent_id(mock_navcal_peer_advising_note_with_comments.id)
+        comments = Note.get_note_comments_by_parent_ids([mock_navcal_peer_advising_note_with_comments.id])
         fake_auth.login(ce3_navcal_peer_advisor_uid)
         comment = next((c for c in comments if c.author_uid == ce3_navcal_peer_advisor_uid), None)
         api_json = self._api_edit_note_comment(
