@@ -609,6 +609,19 @@ class TestNoteMgmt:
         self.comment_1.comment_id = comments[0].comment_id
         assert self.student_page.comment_body_text(self.note_1, self.comment_1) == self.comment_1.body
 
+    def test_search_new_note_comment(self):
+        self.student_page.log_out()
+        self.homepage.dev_auth()
+        self.api_admin_page.reindex_notes()
+        self.homepage.load_page()
+        self.homepage.log_out()
+        self.homepage.dev_auth(self.test.advisor)
+        self.homepage.enter_simple_search_and_hit_enter(self.comment_1.body)
+        self.search_results_page.assert_note_comment_result_present(self.comment_1)
+        self.student_page.load_page(self.test_student)
+        self.student_page.show_notes()
+        self.student_page.expand_item(self.note_1)
+
     def test_edit_comment(self):
         self.comment_1.body = f'{self.comment_1.body} - EDITED'
         self.student_page.click_edit_comment_button(self.note_1, self.comment_1)
@@ -618,6 +631,16 @@ class TestNoteMgmt:
         )
         self.student_page.save_edit_comment(self.note_1, self.comment_1)
         assert self.student_page.comment_body_text(self.note_1, self.comment_1) == self.comment_1.body
+
+    def test_search_edited_note_comment(self):
+        self.student_page.log_out()
+        self.homepage.dev_auth()
+        self.api_admin_page.reindex_notes()
+        self.homepage.load_page()
+        self.homepage.log_out()
+        self.homepage.dev_auth(self.test.advisor)
+        self.homepage.enter_simple_search_and_hit_enter(self.comment_1.body)
+        self.search_results_page.assert_note_comment_result_present(self.comment_1)
 
     def test_non_author_sees_comment(self):
         self.homepage.load_page()

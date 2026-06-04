@@ -26,7 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import pytest
 
 from bea.config.bea_test_config import BEATestConfig
-from bea.test_utils import utils
+from bea.test_utils import boa_utils, utils
 
 test = BEATestConfig()
 test.e_form_content()
@@ -94,3 +94,11 @@ class TestEFormDetail:
         visible = self.student_page.expanded_e_form_date_final(tc.note)
         expected = tc.note.updated_date.strftime('%m/%d/%Y %-l:%M:%S%p')
         utils.assert_equivalence(visible, expected)
+
+    def test_e_form_search(self, tc):
+        query = boa_utils.generate_e_form_search_query(tc.note)
+        if query:
+            self.student_page.show_e_forms()
+            self.student_page.search_within_timeline_e_forms(query)
+            visible = self.student_page.visible_e_form_ids()
+            utils.assert_actual_includes_expected(visible, tc.note.record_id)

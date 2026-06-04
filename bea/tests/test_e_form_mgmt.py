@@ -88,6 +88,13 @@ class TestEFormMgmt:
         self.comment_1.comment_id = matching[0].comment_id
         assert self.student_page.e_form_comment_body_text(self.test_e_form, self.comment_1) == self.comment_1.body
 
+    def test_search_new_e_form_comment(self):
+        self.homepage.enter_simple_search_and_hit_enter(self.comment_1.body)
+        self.search_results_page.assert_eform_comment_result_present(self.comment_1)
+        self.student_page.load_page(self.test_student)
+        self.student_page.show_e_forms()
+        self.student_page.expand_item(self.test_e_form)
+
     def test_edit_comment(self):
         self.comment_1.body = f'{self.comment_1.body} - EDITED'
         self.student_page.click_edit_e_form_comment_button(self.test_e_form, self.comment_1)
@@ -97,6 +104,10 @@ class TestEFormMgmt:
         )
         self.student_page.save_edit_e_form_comment(self.test_e_form, self.comment_1)
         assert self.student_page.e_form_comment_body_text(self.test_e_form, self.comment_1) == self.comment_1.body
+
+    def test_search_edited_e_form_comment(self):
+        self.homepage.enter_simple_search_and_hit_enter(self.comment_1.body)
+        self.search_results_page.assert_eform_comment_result_present(self.comment_1)
 
     def test_non_author_sees_comment(self):
         self.homepage.load_page()

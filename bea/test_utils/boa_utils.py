@@ -878,6 +878,10 @@ def generate_appt_search_query(appt):
     return search_string
 
 
+def generate_e_form_search_query(e_form):
+    return e_form.form_id or ''
+
+
 # COHORTS
 
 def set_filtered_cohort_id(cohort):
