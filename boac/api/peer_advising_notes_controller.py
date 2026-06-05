@@ -261,6 +261,12 @@ def get_notes_authored_by():
     )
     sids = [row['sid'] for row in rows]
     students_by_sid = {student['sid']: student for student in data_loch.get_basic_student_data(sids)}
+    note_ids = [row['id'] for row in rows]
+    comments = Note.get_note_comments_by_parent_ids(note_ids)
+    comments_by_note_id = {}
+    for comment in comments:
+        comments_by_note_id.setdefault(comment.parent_note_id, []).append(comment)
+
     for row in rows:
         note_id = row['id']
         note = next((n for n in notes if n['id'] == note_id), None)
@@ -274,7 +280,7 @@ def get_notes_authored_by():
                     'role': row['author_role'],
                 },
                 'body': row['body'],
-                'comments': get_boa_note_comments_as_compatible_json(row),
+                'comments': get_boa_note_comments_as_compatible_json(row, comments_by_note_id),
                 'contactType': row['contact_type'],
                 'peerAdvisingDepartmentId': peer_advising_department_id,
                 'sid': row['sid'],
