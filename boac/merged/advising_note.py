@@ -696,7 +696,7 @@ def _eform_to_json(eform):
         }
     elif eform.get('data_source') == 'student_course_load_eforms':
         api_json = {
-            'id': eform['id'],
+            'id': eform['eform_id'],
             'academicCareerCode': eform['academic_career_code'],
             'academicStandingStatus': eform['academic_standing_status'],
             'academicStandingDescription': eform['academic_standing_description'],
