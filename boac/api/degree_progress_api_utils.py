@@ -51,7 +51,9 @@ def clone_degree_template(template_id, name=None, sid=None):
         validate_template_upsert(name=name, template_id=template_id)
 
     created_by = current_user.get_id()
-    return clone(template, created_by, name=name, sid=sid)
+    cloned_template = clone(template, created_by, name=name, sid=sid)
+    std_commit()
+    return cloned_template
 
 
 def create_batch_degree_checks(template_id, sids):
