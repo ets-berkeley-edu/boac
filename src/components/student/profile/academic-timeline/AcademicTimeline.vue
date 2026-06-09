@@ -31,7 +31,7 @@
 
 <script setup>
 import {DateTime} from 'luxon'
-import {cloneDeep, each, find, findIndex, get, keys, remove, size} from 'lodash'
+import {cloneDeep, each, findIndex, get, keys, remove, size} from 'lodash'
 import {onMounted, onUnmounted, ref} from 'vue'
 import AcademicTimelineHeader from '@/components/student/profile/academic-timeline/AcademicTimelineHeader'
 import AcademicTimelineTable from '@/components/student/profile/academic-timeline/AcademicTimelineTable'
@@ -94,26 +94,28 @@ onMounted(() => {
 
 const onCreateOrUpdateNote = note => {
   return new Promise(resolve => {
-    if (note.sid === props.student.sid) {
-      const noteId = note.parentNoteId || note.id
-      const message = find(messages.value, ['id', noteId])
-      note.transientId = message ? message.transientId : noteId
+    if (note.sid !== props.student.sid) {
+      resolve()
+    }
+    const noteId = note.parentNoteId || note.id
+    const existingNoteIndex = findIndex(messages.value, {'id': noteId})
+    if (existingNoteIndex > -1) {
+      const message = messages.value[existingNoteIndex]
       if (message) {
-        const existingNoteIndex = findIndex(messages.value, {'id': noteId})
+        note.transientId = message.transientId
         if (note.parentNoteId) {
           updateNoteComments(message, note)
         } else {
           messages.value.splice(existingNoteIndex, 1, note)
         }
-      } else {
-        messages.value.push(note)
-        updateCountsPerType('note', countsPerType.value.note + 1)
       }
-      sortMessages()
-      resolve()
     } else {
-      resolve()
+      note.transientId = noteId
+      messages.value.push(note)
+      updateCountsPerType('note', countsPerType.value.note + 1)
     }
+    sortMessages()
+    resolve()
   })
 }
 
