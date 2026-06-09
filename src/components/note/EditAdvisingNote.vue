@@ -39,7 +39,7 @@
         </span>
       </transition>
     </div>
-    <div v-if="!isFetchingNote && !isPeerAdvisor(currentUser) && !model.peerAdvisingDepartmentId" class="mt-1">
+    <div v-if="!isPeerAdvisor(currentUser) && !model.peerAdvisingDepartmentId" class="mt-1">
       <label id="edit-note-subject-label" class="font-weight-bold" for="edit-note-subject">
         <span class="sr-only">Note </span>Subject
       </label>
