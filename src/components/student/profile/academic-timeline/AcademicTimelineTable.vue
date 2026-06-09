@@ -236,7 +236,7 @@
                     :on-click-open="() => onClickOpenMessage(message)"
                   />
                   <EditAdvisingNote
-                    v-if="['eForm', 'note'].includes(message.type) && message.id === editModeNoteId"
+                    v-if="['eForm', 'note'].includes(message.type) && editModeNoteId && message.id === editModeNoteId"
                     :after-cancel="afterNoteEditCancel"
                     :after-saved="afterEditAdvisingNote"
                     class="timeline-message-full-width pt-8"
@@ -535,7 +535,10 @@ onMounted(() => {
       'comment-updated': onCommentUpdated,
       'note-creation-is-starting': onNoteCreateStartEvent,
       'note-created': afterNoteCreated,
-      'note-updated': note => props.onNoteUpdated(note).then(refreshSearchIndex),
+      'note-updated': note => {
+        editModeNoteId.value = null
+        props.onNoteUpdated(note).then(refreshSearchIndex)
+      },
       'notes-created': noteIdsBySid => {
         const noteId = noteIdsBySid[props.student.sid]
         if (noteId) {
