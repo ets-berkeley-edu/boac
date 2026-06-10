@@ -38,14 +38,14 @@ class StudentPageEForm(StudentPageTimeline, CreateNoteModal):
     # E-FORMS
 
     E_FORMS_BUTTON = (By.ID, 'timeline-tab-eForm')
-    SHOW_HIDE_E_FORMS_BUTTON = (By.ID, 'toggle-expand-all-eForms')
+    SHOW_HIDE_E_FORMS_BUTTON = (By.ID, 'timeline-tab-eForm-previous-messages')
     E_FORM_MSG_ROW = By.XPATH, '//article[contains(@id, "timeline-eForm-")]'
     TIMELINE_E_FORMS_QUERY_INPUT = (By.ID, 'timeline-eForms-query-input')
 
     def show_e_forms(self):
         app.logger.info('Checking eForms tab')
         self.wait_for_element_and_click(self.E_FORMS_BUTTON)
-        if self.is_present(self.SHOW_HIDE_E_FORMS_BUTTON) and 'Show?' in self.element(
+        if self.is_present(self.SHOW_HIDE_E_FORMS_BUTTON) and 'Show' in self.element(
                 self.SHOW_HIDE_E_FORMS_BUTTON).text:
             self.wait_for_element_and_click(self.SHOW_HIDE_E_FORMS_BUTTON)
 
