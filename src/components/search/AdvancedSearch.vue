@@ -126,6 +126,10 @@ const search = () => {
         }
       }
       searchStore.setIsSearching(true)
+      searchStore.setIncludeAdmits(currentUser.canAccessAdmittedStudents)
+      searchStore.setIncludeCourses(currentUser.canAccessCanvasData)
+      searchStore.setIncludeNotes(currentUser.canAccessAdvisingData)
+      searchStore.setIncludeStudents(true)
       router.push(searchPage)
       addToSearchHistory(q).then(history => {
         searchStore.setSearchHistory(history)
