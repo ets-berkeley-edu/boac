@@ -42,7 +42,6 @@ from bea.test_utils import boa_utils, utils
 class StudentPage(CuratedAddSelector, StudentPageAdvisingNote, StudentPageAppointment, StudentPageEForm):
 
     def hit_student_page_url(self, student):
-        app.logger.info(f'Hitting student page URL for UID {student.uid}')
         self.driver.get(f'{boa_utils.get_boa_base_url()}/student/{student.uid}')
 
     def load_page(self, student):

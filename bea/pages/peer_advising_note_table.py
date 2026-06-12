@@ -62,10 +62,10 @@ class PeerAdvisingNoteTable(StudentPageAdvisingNote):
         self.when_present(self.peer_note_row(note), utils.get_medium_timeout())
 
     def peer_note_student(self, note):
-        return self.el_text_if_exists((By.XPATH, f'{self.peer_note_row_xpath(note)}/{self.peer_note_student_xpath(note)}'))
+        return self.el_text_if_exists((By.XPATH, f'{self.peer_note_row_xpath(note)}{self.peer_note_student_xpath(note)}'))
 
     def peer_note_body(self, note):
-        return self.el_text_if_exists((By.XPATH, f'{self.peer_note_row_xpath(note)}/{self.peer_note_body_xpath(note)}'), 'Has attachment(s)')
+        return self.el_text_if_exists((By.XPATH, f'{self.peer_note_row_xpath(note)}{self.peer_note_body_xpath(note)}'), 'Has attachment(s)')
 
     def peer_note_date(self, note):
         return self.el_text_if_exists(

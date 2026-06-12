@@ -43,6 +43,9 @@ class ApiAdminPage(ApiPage):
         app.logger.info('Reindexing BOA notes')
         base_url = boa_utils.get_boa_base_url()
         self.driver.get(f'{base_url}/api/admin/reindex/notes')
+        self.wait_for_element((By.XPATH, '//*[contains(text(), "started")]'), utils.get_short_timeout())
+        assert self.is_present((By.XPATH, '//*[contains(text(), "true")]'))
+        time.sleep(10)
         tries = 0
         max_tries = 60
         while tries <= max_tries:
@@ -59,3 +62,8 @@ class ApiAdminPage(ApiPage):
                     raise
                 else:
                     time.sleep(1)
+        time.sleep(1)
+        app.logger.info('Just double checking reindexing status')
+        self.driver.get(f'{base_url}/api/admin/status/reindex_notes')
+        self.wait_for_element((By.XPATH, '//*[contains(text(), "isActive")]'), utils.get_short_timeout())
+        assert self.is_present((By.XPATH, '//*[contains(text(), "false")]'))

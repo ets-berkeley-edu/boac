@@ -61,6 +61,14 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
         if self.is_present(self.SHOW_HIDE_NOTES_BUTTON) and 'Show' in self.element(self.SHOW_HIDE_NOTES_BUTTON).text:
             self.wait_for_element_and_click(self.SHOW_HIDE_NOTES_BUTTON)
 
+    def expand_all_notes(self):
+        self.when_present(self.TOGGLE_ALL_NOTES_BUTTON, utils.get_short_timeout())
+        if 'Expand' in self.element(self.TOGGLE_ALL_NOTES_BUTTON).text:
+            app.logger.info('Expanding all notes')
+            self.wait_for_element_and_click(self.TOGGLE_ALL_NOTES_BUTTON)
+        else:
+            app.logger.info('All notes already expanded')
+
     def toggle_my_notes(self):
         self.wait_for_element_and_click(self.FILTER_NOTES_BUTTON)
         time.sleep(1)
@@ -326,10 +334,10 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
         app.logger.debug(f'Clicking Add Comment button for note {note.record_id}')
         self.wait_for_element_and_click(self.add_comment_button_loc(note))
 
-    def save_new_comment(self, note):
+    def save_new_comment(self, note, timeout=None):
         app.logger.debug('Saving new comment')
         self.wait_for_element_and_click(self.new_comment_save_loc(note))
-        self.when_not_present(self.new_comment_save_loc(note), utils.get_short_timeout())
+        self.when_not_present(self.new_comment_save_loc(note), timeout or utils.get_short_timeout())
 
     def cancel_new_comment(self, note):
         app.logger.debug('Canceling new comment')
@@ -346,10 +354,15 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
         app.logger.debug(f'Clicking edit button for comment {comment.comment_id}')
         self.wait_for_element_and_click(self.comment_edit_button_loc(note, comment))
 
-    def save_edit_comment(self, note, comment):
+    def save_edit_comment(self, note, comment, timeout=None):
         app.logger.debug('Saving comment edit')
         self.wait_for_element_and_click(self.edit_comment_save_loc(note, comment))
-        self.when_not_present(self.edit_comment_save_loc(note, comment), utils.get_short_timeout())
+        self.when_not_present(self.edit_comment_save_loc(note, comment), timeout or utils.get_short_timeout())
+
+    def cancel_edit_comment(self, note, comment):
+        app.logger.debug('Canceling comment edit')
+        self.wait_for_element_and_click(self.edit_comment_cancel_loc(note, comment))
+        self.when_not_present(self.edit_comment_cancel_loc(note, comment), utils.get_short_timeout())
 
     def delete_comment(self, note, comment):
         app.logger.info(f'Deleting comment {comment.comment_id} from note {note.record_id}')
@@ -368,6 +381,10 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
         return By.ID, f'note-{note.record_id}-comment-new-choose-file-for-note-attachment'
 
     @staticmethod
+    def new_comment_attachment_limit_warning_loc(note):
+        return By.ID, f'note-{note.record_id}-comment-new-attachment-limit'
+
+    @staticmethod
     def new_comment_attachment_error_loc(note):
         return By.ID, f'note-{note.record_id}-comment-new-attachment-error'
 
@@ -378,6 +395,10 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
     @staticmethod
     def edit_comment_attachment_input_loc(note, comment):
         return By.ID, f'note-{note.record_id}-comment-{comment.comment_id}-choose-file-for-note-attachment'
+
+    @staticmethod
+    def edit_comment_attachment_limit_warning_loc(note, comment):
+        return By.ID, f'note-{note.record_id}-comment-{comment.comment_id}-attachment-limit'
 
     @staticmethod
     def edit_comment_attachment_error_loc(note, comment):
@@ -393,13 +414,14 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
         return By.ID, f'remove-note-{note.record_id}-comment-{comment.comment_id}-attachment-{index}-btn'
 
     def add_attachments_to_new_comment(self, note, comment, attachments):
-        for a in attachments:
-            app.logger.info(f'Adding attachment {a.file_name} to new comment on note {note.record_id}')
-            path = f'{utils.attachments_dir()}/{a.file_name}'
-            self.when_present(self.new_comment_attachment_input_loc(note), utils.get_short_timeout())
-            self.element(self.new_comment_attachment_input_loc(note)).send_keys(path)
-            self.when_present(self.new_comment_attachment_delete_btn_loc(note, a), utils.get_medium_timeout())
-            comment.attachments.append(a)
+        files = list(map(lambda a: f'{utils.attachments_dir()}/{a.file_name}', attachments))
+        files = '\n'.join(files)
+        app.logger.info(f'Adding attachments to new comment on note {note.record_id}: {files}')
+        self.when_present(self.new_comment_attachment_input_loc(note), utils.get_short_timeout())
+        self.element(self.new_comment_attachment_input_loc(note)).send_keys(files)
+        self.when_visible(self.new_comment_attachment_delete_btn_loc(note, attachments[-1]), utils.get_medium_timeout())
+        time.sleep(utils.get_click_sleep())
+        comment.attachments.extend(attachments)
 
     def remove_attachments_from_new_comment(self, note, comment, attachments):
         for a in attachments:

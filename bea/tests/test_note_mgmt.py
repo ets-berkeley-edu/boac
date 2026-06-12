@@ -55,6 +55,7 @@ class TestNoteMgmt:
 
     comment_1 = NoteComment()
     comment_2 = NoteComment()
+    comment_3 = NoteComment()
 
     note_1 = Note({'advisor': test.advisor})
     note_2 = Note({'advisor': test.advisor})
@@ -594,6 +595,8 @@ class TestNoteMgmt:
         self.student_page.when_present(self.student_page.COMMENT_SAVE_ERROR, utils.get_short_timeout())
 
     def test_add_comment_and_cancel(self):
+        self.student_page.show_notes()
+        self.student_page.expand_item(self.note_1)
         self.student_page.wait_for_textbox_and_send_keys(
             self.student_page.new_comment_text_area_loc(self.note_1),
             'A comment to forget',
@@ -602,6 +605,8 @@ class TestNoteMgmt:
         self.student_page.when_present(self.student_page.add_comment_button_loc(self.note_1), utils.get_short_timeout())
 
     def test_add_comment(self):
+        self.student_page.show_notes()
+        self.student_page.expand_item(self.note_1)
         self.comment_1.body = f'Comment 1 body {utils.get_test_identifier()}'
         self.student_page.add_comment(self.note_1, self.comment_1)
         comments = boa_utils.get_note_comments(self.note_1)
@@ -616,13 +621,13 @@ class TestNoteMgmt:
         self.homepage.load_page()
         self.homepage.log_out()
         self.homepage.dev_auth(self.test.advisor)
-        self.homepage.enter_simple_search_and_hit_enter(self.comment_1.body)
+        self.homepage.enter_simple_search_and_click_button(self.comment_1.body)
         self.search_results_page.assert_note_comment_result_present(self.comment_1)
+
+    def test_edit_comment(self):
         self.student_page.load_page(self.test_student)
         self.student_page.show_notes()
         self.student_page.expand_item(self.note_1)
-
-    def test_edit_comment(self):
         self.comment_1.body = f'{self.comment_1.body} - EDITED'
         self.student_page.click_edit_comment_button(self.note_1, self.comment_1)
         self.student_page.wait_for_textbox_and_send_keys(
@@ -633,13 +638,13 @@ class TestNoteMgmt:
         assert self.student_page.comment_body_text(self.note_1, self.comment_1) == self.comment_1.body
 
     def test_search_edited_note_comment(self):
-        self.student_page.log_out()
+        self.homepage.log_out()
         self.homepage.dev_auth()
         self.api_admin_page.reindex_notes()
         self.homepage.load_page()
         self.homepage.log_out()
         self.homepage.dev_auth(self.test.advisor)
-        self.homepage.enter_simple_search_and_hit_enter(self.comment_1.body)
+        self.homepage.enter_simple_search_and_click_button(self.comment_1.body)
         self.search_results_page.assert_note_comment_result_present(self.comment_1)
 
     def test_non_author_sees_comment(self):
@@ -664,10 +669,14 @@ class TestNoteMgmt:
         self.student_page.delete_comment(self.note_1, self.comment_1)
 
     def test_deleted_comment_not_visible(self):
+        self.student_page.show_notes()
+        self.student_page.expand_item(self.note_1)
         assert not self.student_page.is_present(self.student_page.comment_body_loc(self.note_1, self.comment_1))
         assert len(boa_utils.get_note_comments(self.note_1)) == 0
 
     def test_admin_cannot_add_comment(self):
+        self.student_page.show_notes()
+        self.student_page.expand_item(self.note_1)
         self.student_page.click_add_comment_button(self.note_1)
         self.student_page.wait_for_textbox_and_send_keys(
             self.student_page.new_comment_text_area_loc(self.note_1),
@@ -696,14 +705,20 @@ class TestNoteMgmt:
         assert not self.comment_2.attachments
 
     def test_add_comment_attachment_too_big(self):
+        self.student_page.load_page(self.test_student)
+        self.student_page.show_notes()
+        self.student_page.expand_item(self.note_2)
         self.student_page.click_add_comment_button(self.note_2)
         path = f'{utils.attachments_dir()}/{self.too_big_attachments[0].file_name}'
         self.student_page.when_present(self.student_page.new_comment_attachment_input_loc(self.note_2), utils.get_short_timeout())
         self.student_page.element(self.student_page.new_comment_attachment_input_loc(self.note_2)).send_keys(path)
-        self.student_page.when_present(self.student_page.new_comment_attachment_error_loc(self.note_2), utils.get_short_timeout())
+        self.student_page.when_present(self.student_page.new_comment_attachment_error_loc(self.note_2), utils.get_medium_timeout())
         self.student_page.cancel_new_comment(self.note_2)
 
     def test_add_comment_with_attachment(self):
+        self.student_page.load_page(self.test_student)
+        self.student_page.show_notes()
+        self.student_page.expand_item(self.note_2)
         self.comment_2.body = f'Comment 2 body {utils.get_test_identifier()}'
         self.student_page.click_add_comment_button(self.note_2)
         self.student_page.wait_for_textbox_and_send_keys(
@@ -711,26 +726,73 @@ class TestNoteMgmt:
             self.comment_2.body,
         )
         self.student_page.add_attachments_to_new_comment(self.note_2, self.comment_2, self.valid_attachments[0:1])
-        self.student_page.save_new_comment(self.note_2)
+        self.student_page.save_new_comment(self.note_2, timeout=utils.get_medium_timeout())
         comments = boa_utils.get_note_comments(self.note_2)
         assert len(comments) == 1
         self.comment_2.comment_id = comments[0].comment_id
         visible = self.student_page.visible_comment_attachments(self.note_2, self.comment_2)
         assert self.valid_attachments[0].file_name.lower() in visible
 
-    def test_edit_comment_add_attachment(self):
+    def test_add_comment_max_attachments(self):
+        self.student_page.load_page(self.test_student)
+        self.student_page.show_notes()
+        self.student_page.expand_item(self.note_1)
+        self.comment_3.body = f'Comment 3 body {utils.get_test_identifier()}'
+        self.student_page.click_add_comment_button(self.note_1)
+        visible = self.student_page.visible_comment_attachments(self.note_1, self.comment_3)
+        self.student_page.wait_for_textbox_and_send_keys(
+            self.student_page.new_comment_text_area_loc(self.note_1),
+            self.comment_3.body,
+        )
+        self.student_page.add_attachments_to_new_comment(self.note_1, self.comment_3, self.valid_attachments)
+        self.student_page.when_present(
+            self.student_page.new_comment_attachment_limit_warning_loc(self.note_1),
+            utils.get_short_timeout(),
+        )
+        self.student_page.save_new_comment(self.note_1, timeout=utils.get_long_timeout())
+        comments = boa_utils.get_note_comments(self.note_1)
+        assert len(comments) == 1
+        self.comment_3.comment_id = comments[0].comment_id
+        visible = self.student_page.visible_comment_attachments(self.note_1, self.comment_3)
+        assert len(visible) == 10
+
+    def test_edit_comment_no_dupe_attach_names(self):
+        self.student_page.load_page(self.test_student)
+        self.student_page.show_notes()
+        self.student_page.expand_item(self.note_2)
         self.student_page.click_edit_comment_button(self.note_2, self.comment_2)
-        self.student_page.add_attachments_to_existing_comment(self.note_2, self.comment_2, self.valid_attachments[1:2])
-        self.student_page.save_edit_comment(self.note_2, self.comment_2)
+        path = f'{utils.attachments_dir()}/{self.valid_attachments[0].file_name}'
+        self.student_page.when_present(
+            self.student_page.edit_comment_attachment_input_loc(self.note_2, self.comment_2),
+            utils.get_short_timeout(),
+        )
+        self.student_page.element(self.student_page.edit_comment_attachment_input_loc(self.note_2, self.comment_2)).send_keys(path)
+        self.student_page.when_present(
+            self.student_page.edit_comment_attachment_error_loc(self.note_2, self.comment_2),
+            utils.get_medium_timeout(),
+        )
+        self.student_page.cancel_edit_comment(self.note_2, self.comment_2)
+
+    def test_edit_comment_add_attachment(self):
+        self.student_page.load_page(self.test_student)
+        self.student_page.show_notes()
+        self.student_page.expand_item(self.note_2)
+        self.student_page.click_edit_comment_button(self.note_2, self.comment_2)
+        self.student_page.add_attachments_to_existing_comment(self.note_2, self.comment_2, self.valid_attachments[2:3])
+        self.student_page.save_edit_comment(self.note_2, self.comment_2, timeout=utils.get_medium_timeout())
         visible = self.student_page.visible_comment_attachments(self.note_2, self.comment_2)
+        assert len(visible) == 2
         for a in self.comment_2.attachments:
             assert a.file_name.lower() in visible
 
     def test_edit_comment_remove_attachment(self):
+        self.student_page.load_page(self.test_student)
+        self.student_page.show_notes()
+        self.student_page.expand_item(self.note_2)
         attach_to_remove = self.comment_2.attachments[0]
         self.student_page.click_edit_comment_button(self.note_2, self.comment_2)
         self.student_page.remove_attachments_from_existing_comment(self.note_2, self.comment_2, [attach_to_remove])
-        self.student_page.save_edit_comment(self.note_2, self.comment_2)
+        self.student_page.save_edit_comment(self.note_2, self.comment_2, timeout=utils.get_medium_timeout())
         visible = self.student_page.visible_comment_attachments(self.note_2, self.comment_2)
         assert attach_to_remove.file_name.lower() not in visible
 
