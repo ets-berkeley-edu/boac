@@ -162,7 +162,6 @@ class SearchResultsPage(ListViewAdmitPages):
         return self.is_present(self.NOTE_RESULTS_BUTTON)
 
     def note_results_count(self):
-        self.wait_for_spinner()
         return self.element(self.NOTE_RESULTS_COUNT).text
 
     def wait_for_note_search_result_rows(self):
@@ -175,7 +174,11 @@ class SearchResultsPage(ListViewAdmitPages):
 
     def wait_for_note_search_result_count(self):
         self.wait_for_spinner(timeout=utils.get_medium_timeout())
+        time.sleep(1)
+        assert self.is_present(self.RESULTS_LOADED_MSG)
+        time.sleep(1)
         if self.is_present(self.NO_RESULTS_MSG):
+            app.logger.info(self.element(self.NO_RESULTS_MSG).text)
             count = '0'
         else:
             count = self.note_results_count()
@@ -192,6 +195,7 @@ class SearchResultsPage(ListViewAdmitPages):
         else:
             if count != '0':
                 self.wait_for_element_and_click(self.NOTE_RESULTS_BUTTON)
+                time.sleep(1)
             assert self.is_note_in_search_result(note)
 
     @staticmethod
@@ -205,6 +209,7 @@ class SearchResultsPage(ListViewAdmitPages):
         else:
             if count != '0':
                 self.wait_for_element_and_click(self.NOTE_RESULTS_BUTTON)
+                time.sleep(1)
             assert self.is_present(self.note_comment_search_result_loc(comment))
 
     def assert_note_result_not_present(self, note):
@@ -251,7 +256,7 @@ class SearchResultsPage(ListViewAdmitPages):
         return By.XPATH, f'//a[contains(@href, "appointment-{appt.record_id}")]'
 
     def wait_for_appt_search_result_count(self):
-        self.wait_for_spinner()
+        self.wait_for_spinner(timeout=utils.get_medium_timeout())
         if self.is_present(self.NO_RESULTS_MSG):
             count = '0'
         else:
