@@ -39,6 +39,7 @@ def get_peer_advising_department_note_counts():
         JOIN notes n ON n.peer_advising_department_id = pd.id
        WHERE n.deleted_at IS NULL
          AND n.is_draft IS FALSE
+         AND n.parent_note_id IS NULL
        GROUP BY ud.dept_name, ud.dept_code, ud.id
     """
     return [row for row in db.session.execute(text(sql)).mappings()]
@@ -55,6 +56,7 @@ def get_granular_peer_advising_department_note_counts(university_dept_id):
           ON n.peer_advising_department_id = pd.id
              AND n.deleted_at IS NULL
              AND n.is_draft = FALSE
+             AND n.parent_note_id IS NULL
         WHERE pd.university_dept_id = :university_dept_id
         GROUP BY
             pd.name,
@@ -72,6 +74,7 @@ def get_peer_advising_note_author_count(peer_advising_department_id=None):
             n.peer_advising_department_id IS NOT NULL
             AND n.author_uid = au.uid
             AND n.deleted_at IS NULL
+            AND n.parent_note_id IS NULL
     """
     params = {}
     if peer_advising_department_id:
@@ -87,6 +90,8 @@ def get_peer_advising_note_count_since(peer_advising_department_id, timeframe_mo
       WHERE
         n.peer_advising_department_id = :peer_advising_department_id
         AND n.deleted_at IS NULL
+        AND n.parent_note_id IS NULL
+        AND n.parent_note_id IS NULL
         {f" AND to_char(n.created_at, 'YYYY-MM') = '{timeframe_month}'" if timeframe_month else ''}
     """
     params = {'peer_advising_department_id': peer_advising_department_id}
@@ -105,6 +110,7 @@ def get_all_peer_advising_notes(peer_advising_department_id):
               AND n.deleted_at IS NULL
               AND n.is_draft IS FALSE
               AND n.peer_advising_department_id = :peer_advising_department_id
+              AND n.parent_note_id IS NULL
             GROUP BY n.id, t.topic
             ORDER BY n.updated_at DESC
         """
@@ -177,6 +183,7 @@ def get_notes_created_by_peer_advisors(peer_advising_department_id, timeframe_mo
           n.peer_advising_department_id = :peer_advising_department_id
           AND n.author_role = 'peer_advisor'
           AND n.deleted_at IS NULL
+          AND n.parent_note_id IS NULL
           {f" AND to_char(n.created_at, 'YYYY-MM') = '{timeframe_month}'" if timeframe_month else ''}
         ORDER BY n.created_at DESC
     """
@@ -208,6 +215,7 @@ def get_peer_advising_note_template_usage(peer_advising_department_id):
         LEFT JOIN notes n
           ON n.note_template_id = nt.id
          AND n.deleted_at IS NULL
+         AND n.parent_note_id IS NULL
          AND n.peer_advising_department_id = nt.peer_advising_department_id
         WHERE nt.peer_advising_department_id = :peer_advising_department_id
           AND nt.deleted_at IS NULL
@@ -236,6 +244,7 @@ def get_total_peer_advising_notes(peer_advising_department_id=None):
         peer_advising_department_id {'= :peer_advising_department_id' if peer_advising_department_id else 'IS NOT NULL'}
         AND deleted_at IS NULL
         AND is_draft IS FALSE
+        AND parent_note_id IS NULL
     """
     if peer_advising_department_id:
         params['peer_advising_department_id'] = peer_advising_department_id

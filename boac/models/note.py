@@ -218,7 +218,9 @@ class Note(Base):
         sql = f"""
             SELECT u.uid, count(n.id) as note_count
             FROM authorized_users u
-            JOIN notes n ON n.author_uid = u.uid AND n.deleted_at IS NULL
+            JOIN notes n ON n.author_uid = u.uid
+              AND n.deleted_at IS NULL
+              AND n.parent_note_id IS NULL
             WHERE u.uid = ANY(:uids)
                 {'AND peer_advising_department_id = :peer_advising_department_id' if peer_advising_department_id else ''}
             GROUP BY u.uid
@@ -398,7 +400,9 @@ class Note(Base):
               n.sid, n.subject, n.created_at, n.updated_at, string_agg(t.topic, ', ') AS topics
             FROM notes n
             LEFT JOIN note_topics t ON (n.id = t.note_id AND t.deleted_at IS NULL)
-            WHERE n.deleted_at IS NULL AND n.is_draft IS FALSE
+            WHERE n.deleted_at IS NULL
+              AND n.is_draft IS FALSE
+              AND n.parent_note_id IS NULL
             GROUP BY
               n.author_uid, n.author_name, n.author_role, n.author_dept_codes, n.contact_type, n.is_private, n.set_date,
               n.sid, n.subject, n.created_at, n.updated_at
