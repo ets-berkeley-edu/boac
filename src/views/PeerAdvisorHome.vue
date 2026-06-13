@@ -61,6 +61,7 @@
         <v-btn
           v-if="notes.length && totalNoteCount > notes.length"
           id="fetch-more-notes"
+          :disabled="isFetchingNotes"
           text="Show additional advising notes"
           variant="text"
           @click.prevent="onClickShowMore"
