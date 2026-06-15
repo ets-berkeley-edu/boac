@@ -1,6 +1,7 @@
 <template>
   <div v-if="loading" class="spinner">
     <v-progress-circular
+      id="spinner-when-loading"
       color="primary"
       indeterminate
       :size="size"

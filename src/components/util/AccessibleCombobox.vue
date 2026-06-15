@@ -20,7 +20,6 @@
       hide-no-data
       :items="items"
       :list-props="{ariaLive: 'off'}"
-      :loading="isBusy"
       :maxlength="maxlength"
       :menu-icon="null"
       :menu-props="mergedMenuProps"
@@ -37,9 +36,9 @@
       @update:menu="onToggleMenu"
       @update:search="onUpdateSearch"
     >
-      <template #loader="{isActive}">
+      <template #append-inner>
         <v-progress-circular
-          v-if="isActive"
+          v-if="isBusy"
           class="mr-5"
           color="primary"
           indeterminate
@@ -53,9 +52,9 @@
           :id="`${idPrefix}-clear-btn`"
           :aria-label="`Clear ${label} Input`"
           class="d-flex align-self-center v-icon mx-1"
-          :class="{'disabled-opacity': !model}"
+          :class="{'disabled-opacity': !(model || query)}"
           density="compact"
-          :disabled="!model"
+          :disabled="!(model || query)"
           exact
           :icon="mdiCloseCircle"
           :ripple="false"
@@ -390,7 +389,7 @@ const summarizeResults = () => {
 </script>
 
 <style scoped>
-:deep(.v-field__loader) {
+:deep(.v-autocomplete .v-field__loader) {
   display: flex;
   align-items: center;
   height: 100%;
@@ -398,16 +397,19 @@ const summarizeResults = () => {
   padding-right: 1px;
   top: 0;
 }
-:deep(.v-field) {
+:deep(.v-autocomplete .v-field) {
   color: inherit !important;
 }
-:deep(.v-field input:disabled) {
+:deep(.v-autocomplete .v-field input:disabled) {
   cursor: text;
 }
-:deep(.v-input--horizontal .v-input__append) {
+:deep(.v-autocomplete .v-field .v-field__input) {
+  flex-wrap: nowrap !important;
+}
+:deep(.v-autocomplete .v-input--horizontal .v-input__append) {
   margin-inline-start: 0;
 }
-:deep(.v-input--horizontal.autocomplete-with-add-button .v-input__append) {
+:deep(.v-autocomplete .v-input--horizontal.autocomplete-with-add-button .v-input__append) {
   margin-inline-start: 16px;
 }
 </style>
