@@ -329,18 +329,22 @@ def search_advising_notes(
     local_notes_query_iteration = 0
     notes_feed = []
 
+    peer_student_sids = []
+    if peer_advising_department_id and search_phrase:
+        students = data_loch.match_students_by_name_or_sid(
+            phrases=list(filter(None, re.split(r'[- ]', search_phrase))),
+        )
+        peer_student_sids = [s.get('sid') for s in students]
+
     while True:
         benchmark(f'begin local notes query (iteration {local_notes_query_iteration})')
 
         if peer_advising_department_id:
-            students = data_loch.match_students_by_name_or_sid(
-                phrases=list(filter(None, re.split(r'[- ]', search_phrase))),
-            )
             local_search_results = Note.peer_advising_notes_search(
                 peer_advising_department_id=peer_advising_department_id,
                 peer_advisor_uid=peer_advisor_uid,
                 search_phrases=search_phrases,
-                sids=[s.get('sid') for s in students],
+                sids=peer_student_sids,
                 offset=(local_notes_query_batch_size * local_notes_query_iteration),
                 limit=local_notes_query_batch_size,
             )
