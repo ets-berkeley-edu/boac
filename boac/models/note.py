@@ -435,29 +435,39 @@ class Note(Base):
             limit=40,
             peer_advisor_uid=None,
     ):
-        def _get_fts_union_query(is_count_query=False):
+        def _get_fts_union_query():
             # Get the ids of notes that match and the parent_note_ids of comments that match the query text.
             author_filter = ""
             if peer_advisor_uid is not None:
                 author_filter = "AND n.author_uid = :peer_advisor_uid"
             fts_rank_sql = f"""
-                SELECT {'COUNT(DISTINCT fts.id)' if is_count_query else 'DISTINCT ON (fts.id) fts.id, fts.rank'} FROM (
-                    SELECT COALESCE(n.parent_note_id, n.id) AS id, ts_rank(fts_index, to_tsquery('english', :query_text || ':*')) AS rank
-                    FROM notes_fts_index i
-                    JOIN notes n ON i.id = n.id
-                    WHERE fts_index @@ to_tsquery('english', :query_text || ':*')
-                    UNION
-                    SELECT id, 0 AS rank
-                    FROM notes
-                    WHERE sid = ANY(:sids)
-                        AND peer_advising_department_id = :peer_advising_department_id
-                        AND parent_note_id IS NULL
-                ) AS fts
-                JOIN notes n ON n.id = fts.id
-                WHERE n.peer_advising_department_id = :peer_advising_department_id
-                    AND deleted_at IS NULL
-                    {author_filter}
-                {'' if is_count_query else 'OFFSET :offset LIMIT :limit'}
+                WITH fts AS (
+                    SELECT DISTINCT ON (sub.id) sub.id, sub.rank FROM (
+                        SELECT COALESCE(n.parent_note_id, n.id) AS id,
+                               ts_rank(fts_index, to_tsquery('english', :query_text || ':*')) AS rank
+                        FROM notes_fts_index i
+                        JOIN notes n ON i.id = n.id
+                        WHERE fts_index @@ to_tsquery('english', :query_text || ':*')
+                            AND n.peer_advising_department_id = :peer_advising_department_id
+                            AND n.deleted_at IS NULL
+                            {author_filter}
+                        UNION
+                        SELECT id, 0 AS rank
+                        FROM notes
+                        WHERE sid = ANY(:sids)
+                            AND peer_advising_department_id = :peer_advising_department_id
+                            AND parent_note_id IS NULL
+                    ) AS sub
+                    JOIN notes n ON n.id = sub.id
+                    WHERE n.peer_advising_department_id = :peer_advising_department_id
+                        AND n.deleted_at IS NULL
+                        {author_filter}
+                )
+                SELECT total.count AS total_matching_count, page.id, page.rank
+                FROM (SELECT COUNT(*) AS count FROM fts) total
+                LEFT JOIN LATERAL (
+                    SELECT id, rank FROM fts OFFSET :offset LIMIT :limit
+                ) page ON TRUE
             """
             params = {
                 'limit': limit,
@@ -468,11 +478,13 @@ class Note(Base):
             }
             if peer_advisor_uid is not None:
                 params['peer_advisor_uid'] = peer_advisor_uid
-            rows = db.session.execute(text(fts_rank_sql), params).mappings()
-            return rows.first()['count'] if is_count_query else rows
-        rows = [row for row in _get_fts_union_query()]
-        if rows:
-            note_id_by_rank = ', '.join([f"({row['id']}, {row['rank']})" for row in _get_fts_union_query()])
+            return db.session.execute(text(fts_rank_sql), params).mappings().all()
+
+        rows = _get_fts_union_query()
+        total_matching_count = rows[0]['total_matching_count'] if rows else 0
+        page_rows = [row for row in rows if row['id'] is not None]
+        if page_rows:
+            note_id_by_rank = ', '.join([f"({row['id']}, {row['rank']})" for row in page_rows])
             sql = f"""
                 SELECT n.*, COUNT(a.note_id) AS attachment_count
                 FROM notes n
@@ -485,9 +497,10 @@ class Note(Base):
             keys = search_results.keys()
         else:
             search_results = []
+            keys = []
         return {
             'results': [dict(zip(keys, row)) for row in search_results],
-            'total_matching_count': _get_fts_union_query(is_count_query=True),
+            'total_matching_count': total_matching_count,
         }
 
     @classmethod
