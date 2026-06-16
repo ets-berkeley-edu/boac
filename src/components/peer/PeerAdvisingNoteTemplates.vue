@@ -201,7 +201,7 @@ const deleteTemplateApi = () => {
     getNoteTemplatesForPeerAdvising(props.peerAdvisingDepartment.id).then(response => {
       noteTemplates.value = response
       showDeleteModal.value = false
-      alertScreenReader(`Note Template ${response.title} has been deleted.`)
+      alertScreenReader(`Deleted Note Template ${selectedNoteTemplate.value.title}.`)
     })
   })
 }

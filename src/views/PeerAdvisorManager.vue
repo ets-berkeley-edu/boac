@@ -20,8 +20,8 @@
     >
       <template #tab="{item}">
         <v-tab
-          :id="`peer-advising-management-tab-${item.key}s`"
-          :aria-controls="`peer-advising-management-tab-panel-${item.key}s`"
+          :id="`peer-advising-management-tab-${item.key}`"
+          :aria-controls="`peer-advising-management-tab-panel-${item.key}`"
           class="border-s-sm border-e-sm border-t-sm mx-1 rounded-t-lg"
           :class="{
             'bg-white border-b-0': item.key === tab,
@@ -35,7 +35,7 @@
           <template #default>
             <div class="font-size-12 font-weight-bold">
               <div
-                :id="`peer-advising-management-count-${item.key}s`"
+                :id="`peer-advising-management-count-${item.key}`"
                 class="text-uppercase"
                 :class="{'text-primary': item.key === tab, 'text-black': item.key !== tab}"
                 v-html="item.label"
@@ -46,14 +46,14 @@
       </template>
       <template #item="{item}">
         <v-tabs-window-item
-          :id="`peer-advising-management-tab-panel-${item.key}s`"
-          :aria-labelledby="`peer-advising-management-tab-${item.key}s`"
+          :id="`peer-advising-management-tab-panel-${item.key}`"
+          :aria-labelledby="`peer-advising-management-tab-${item.key}`"
           :aria-selected="item.key === tab"
           class="bg-white px-4"
           role="tabpanel"
           :value="item.key"
         >
-          <div v-if="item.key === 'account'" class="mt-3 mr-12">
+          <div v-if="item.key === 'accounts'" class="mt-3 mr-12">
             <PeerAdvisingAccountMgmt
               v-if="peerAdvisingDepartment"
               :is-refreshing="isRefreshing"
@@ -63,7 +63,10 @@
             />
           </div>
           <div v-if="item.key === 'templates'" class="pt-3">
-            <PeerAdvisingNoteTemplates :peer-advising-department="peerAdvisingDepartment" />
+            <PeerAdvisingNoteTemplates
+              v-if="peerAdvisingDepartment"
+              :peer-advising-department="peerAdvisingDepartment"
+            />
           </div>
           <div v-if="item.key === 'reporting'" class="pt-3">
             <PeerAdvisorManagerReports
@@ -97,9 +100,9 @@ const loading = computed(() => contextStore.loading)
 const peerAdvisingDepartment = ref<PeerAdvisingDepartment>()
 const route = useRoute()
 const router = useRouter()
-const tab = ref<string>('account')
+const tab = ref<string>('accounts')
 const tabs = [
-  {key: 'account', label: 'Account Management'},
+  {key: 'accounts', label: 'Account Management'},
   {key: 'templates', label: 'Note Templates'},
   {key: 'reporting', label: 'Reporting & Statistics'},
 ]
