@@ -37,7 +37,7 @@
         >
           <button
             v-if="!isExpanded(note)"
-            :id="`open-peer-advising-${note.id}`"
+            :id="`note-${note.id}-is-closed`"
             :aria-controls="`note-details-${note.id} note-actions-${note.id} note-dates-${note.id}`"
             :aria-expanded="false"
             :aria-label="`Message ${getNoteLabel(note, index)}`"
@@ -90,7 +90,7 @@
         </v-expand-transition>
         <div v-if="!isExpanded(note)" class="align-content-center created-date grid-cell text-no-wrap text-right">
           <TimelineDate
-            :id="`collapsed-note-${note.id}-updated-at`"
+            :id="`collapsed-note-${note.id}-created-at`"
             aria-hidden="true"
             :date="note.updatedAt || note.createdAt"
             :include-time-of-day="false"
@@ -142,7 +142,7 @@
             <div v-show="isExpanded(note)" :id="`note-dates-${note.id}`">
               <div class="text-no-wrap">
                 <div>
-                  <div :aria-hidden="true" class="font-size-14 text-medium-emphasis">Created:</div>
+                  <div aria-hidden="true" class="font-size-14 text-medium-emphasis">Created:</div>
                   <TimelineDate
                     :id="`expanded-note-${note.id}-created-at`"
                     :date="note.createdAt"
@@ -151,7 +151,7 @@
                   />
                 </div>
                 <div v-if="note.updatedAt" class="mt-2">
-                  <div :aria-hidden="true" class="font-size-14 text-medium-emphasis">Updated:</div>
+                  <div aria-hidden="true" class="font-size-14 text-medium-emphasis">Updated:</div>
                   <TimelineDate
                     :id="`expanded-note-${note.id}-updated-at`"
                     :date="note.updatedAt"
@@ -352,7 +352,7 @@ const toggleShowHide = (note: Note) => {
   if (index > -1) {
     expandedNoteIds.value.splice(index, 1)
     each(note.comments, c => { c.read = true })
-    putFocusNextTick(`open-peer-advising-${note.id}`, {scroll: false})
+    putFocusNextTick(`note-${note.id}-is-closed`, {scroll: false})
   } else {
     expandedNoteIds.value.push(note.id)
     putFocusNextTick(`close-peer-advising-${note.id}`, {scroll: false})
