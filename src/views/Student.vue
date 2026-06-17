@@ -1,7 +1,7 @@
 <template>
   <div v-if="!contextStore.loading">
     <div class="bg-sky-blue border-b-sm">
-      <StudentProfileHeader :student="student" />
+      <StudentProfileHeader v-if="student" :student="student" />
     </div>
     <h2 id="student-academic-status-header" class="sr-only">Academic Status</h2>
     <v-container
@@ -13,19 +13,19 @@
       <v-row no-gutters>
         <v-col class="border-e-sm py-2">
           <div class="sr-only">Units</div>
-          <StudentProfileUnits :student="student" />
+          <StudentProfileUnits v-if="student" :student="student" />
         </v-col>
         <v-col class="border-e-sm py-2">
           <div class="sr-only">GPA</div>
-          <StudentProfileGPA :student="student" />
+          <StudentProfileGPA v-if="student" :student="student" />
         </v-col>
       </v-row>
     </v-container>
     <div class="default-margins">
       <div class="border-b-sm">
-        <AcademicTimeline :student="student" />
+        <AcademicTimeline v-if="student" :student="student" />
       </div>
-      <StudentClasses class="mt-8" :student="student" />
+      <StudentClasses v-if="student" class="mt-8" :student="student" />
     </div>
     <AreYouSureModal
       v-model="showAreYouSureModal"
