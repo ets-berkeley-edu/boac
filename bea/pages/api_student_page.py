@@ -34,7 +34,7 @@ class ApiStudentPage(ApiPage):
 
     def load_data(self, student):
         app.logger.info(f'Hitting student API endpoint for UID {student.uid}')
-        self.driver.get(f'{boa_utils.get_boa_base_url()}/api/student/by_uid/{student.uid}')
+        self.driver.get(f'{boa_utils.get_boa_base_url(api=True)}/api/student/by_uid/{student.uid}')
         self.when_present(self.CONTENT, utils.get_short_timeout())
         return json.loads(self.element(self.CONTENT).text)
 

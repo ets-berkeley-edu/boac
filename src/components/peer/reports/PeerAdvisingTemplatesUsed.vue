@@ -23,7 +23,7 @@
               <span :id="`peer-advising-note-template-${noteTemplate.id}-title`">{{ noteTemplate.title }}</span>
             </td>
             <td class="font-weight-550 pr-3 text-right">
-              <span :id="`peer-advising-note-template-${noteTemplate.id}-usage-count`">{{ noteTemplate.usageCount }}</span>
+              <span :id="`peer-advising-note-template-${noteTemplate.id}-usage-count`">{{ numFormat(noteTemplate.usageCount) }}</span>
             </td>
           </tr>
         </tbody>
@@ -38,6 +38,7 @@
 <script setup lang="ts">
 import {get} from 'lodash'
 import type {PropType} from 'vue'
+import {numFormat} from '@/lib/utils'
 import type {PeerAdvisingManagerReport} from '@/lib/types-peer-advising'
 
 const props = defineProps({

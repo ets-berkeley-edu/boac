@@ -109,8 +109,8 @@ class PeerAdvisorPage(PeerAdvisingNoteTable):
         if self.is_present(self.PEER_NOTE_SCHEDULE_DIV):
             app.logger.info('Student schedule is already expanded')
         else:
-            self.wait_for_element_and_click(self.PEER_NOTE_SCHEDULE_TOGGLE)
-            self.when_present(self.PEER_NOTE_SCHEDULE_DIV, 2)
+            self.wait_for_element_and_click(self.PEER_NOTE_SCHEDULE_TOGGLE, utils.get_short_timeout())
+            self.when_present(self.PEER_NOTE_SCHEDULE_DIV, 3)
 
     def collapse_student_schedule(self):
         if self.is_present(self.PEER_NOTE_SCHEDULE_DIV):

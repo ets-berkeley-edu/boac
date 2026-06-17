@@ -23,7 +23,6 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 import datetime
-import time
 
 from flask import current_app as app
 from selenium.webdriver.common.by import By
@@ -38,22 +37,32 @@ class PeerAdvisingNoteTable(StudentPageAdvisingNote):
     SHOW_MORE_NOTES_BTN = By.ID, 'fetch-more-notes'
 
     def visible_peer_note_ids(self):
-        els = self.elements((By.XPATH, '//button[contains(@id, "open-peer-advising-")]'))
-        return [el.get_dom_attribute('id').split('-')[-1] for el in els]
+        els = self.elements((By.XPATH, '//button[contains(@id, "-is-closed")]'))
+        return [el.get_dom_attribute('id').split('-')[-3] for el in els]
 
     def show_more_peer_notes(self):
         self.wait_for_element_and_click(self.SHOW_MORE_NOTES_BTN)
-        time.sleep(5)
+        self.wait_for_spinner(timeout=utils.get_medium_timeout())
+
 
     @staticmethod
     def peer_note_row_xpath(note):
         return f'//article[@id="peer-advisor-note-{note.record_id}"]'
 
     def peer_note_student_xpath(self, note):
-        return f'//div[@id="peer-advisor-note-{note.record_id}-student"]'
+        return By.ID, f'peer-advisor-note-{note.record_id}-student'
 
     def peer_note_body_xpath(self, note):
-        return f'//div[@id="peer-advisor-note-{note.record_id}-details"]'
+        return By.ID, f'peer-advisor-note-details-{note.record_id}'
+
+    def peer_note_collapsed_date_xpath(self, note):
+        return By.ID, f'collapsed-note-{note.record_id}-created-at'
+
+    def peer_note_expand_button(self, note):
+        return By.ID, f'note-{note.record_id}-is-closed'
+
+    def peer_note_close_button(self, note):
+        return By.ID, f'close-peer-advising-{note.record_id}'
 
     def peer_note_row(self, note):
         return By.XPATH, self.peer_note_row_xpath(note)
@@ -62,14 +71,23 @@ class PeerAdvisingNoteTable(StudentPageAdvisingNote):
         self.when_present(self.peer_note_row(note), utils.get_medium_timeout())
 
     def peer_note_student(self, note):
-        return self.el_text_if_exists((By.XPATH, f'{self.peer_note_row_xpath(note)}{self.peer_note_student_xpath(note)}'))
+        return self.el_text_if_exists(self.peer_note_student_xpath(note))
+
+    def peer_note_body_collapsed(self, note):
+        return self.el_text_if_exists(
+            self.peer_note_expand_button(note),
+            text_to_remove='Has attachment(s)',
+        )
 
     def peer_note_body(self, note):
-        return self.el_text_if_exists((By.XPATH, f'{self.peer_note_row_xpath(note)}{self.peer_note_body_xpath(note)}'), 'Has attachment(s)')
-
-    def peer_note_date(self, note):
         return self.el_text_if_exists(
-            (By.XPATH, f'{self.peer_note_row_xpath(note)}//div[contains(@id, "updated-at")]'),
+            self.peer_note_body_xpath(note),
+            text_to_remove='Has attachment(s)',
+        )
+
+    def peer_note_date_collapsed(self, note):
+        return self.el_text_if_exists(
+            self.peer_note_collapsed_date_xpath(note),
             text_to_remove='Last updated on')
 
     @staticmethod
@@ -82,7 +100,7 @@ class PeerAdvisingNoteTable(StudentPageAdvisingNote):
 
     def peer_manager_note_date(self, note):
         return self.el_text_if_exists(
-            (By.XPATH, f'{self.peer_note_row_xpath(note)}//div[contains(@id, "updated-at")]'),
+            self.peer_note_collapsed_date_xpath(note),
             text_to_remove='Last updated on')
 
     @staticmethod
@@ -94,9 +112,16 @@ class PeerAdvisingNoteTable(StudentPageAdvisingNote):
 
     def expand_peer_note(self, note):
         app.logger.info(f'Expanding note {note.record_id}')
-        self.wait_for_element_and_click((By.ID, f'open-peer-advising-{note.record_id}'))
+        self.wait_for_element_and_click(self.peer_note_expand_button(note))
         self.when_visible((By.ID, f'note-{note.record_id}-body'), 2)
-        time.sleep(utils.get_click_sleep())
+
+    def collapse_peer_note(self, note):
+        if self.is_present(self.peer_note_close_button(note)):
+            app.logger.info(f'Collapsing peer advising note ID {note.record_id}')
+            self.click_element(self.peer_note_close_button(note))
+            self.when_visible(self.peer_note_expand_button(note), 2)
+        else:
+            app.logger.info(f'Peer advising note ID {note.record_id} is already collapsed')
 
     # EDIT / DELETE
 

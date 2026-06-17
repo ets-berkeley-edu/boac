@@ -35,13 +35,13 @@ from bea.test_utils import boa_utils, utils
 class ApiAdminPage(ApiPage):
 
     def load_cachejob(self):
-        self.driver.get(f'{boa_utils.get_boa_base_url()}/api/admin/cachejob')
+        self.driver.get(f'{boa_utils.get_boa_base_url(api=True)}/api/admin/cachejob')
         self.when_present(self.CONTENT, utils.get_short_timeout())
         return json.loads(self.element(self.CONTENT).text)
 
     def reindex_notes(self):
         app.logger.info('Reindexing BOA notes')
-        base_url = boa_utils.get_boa_base_url()
+        base_url = boa_utils.get_boa_base_url(api=True)
         self.driver.get(f'{base_url}/api/admin/reindex/notes')
         self.wait_for_element((By.XPATH, '//*[contains(text(), "started")]'), utils.get_short_timeout())
         assert self.is_present((By.XPATH, '//*[contains(text(), "true")]'))

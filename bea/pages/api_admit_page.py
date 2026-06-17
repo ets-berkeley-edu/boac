@@ -34,6 +34,6 @@ class ApiAdmitPage(ApiPage):
 
     def hit_endpoint(self, admit):
         app.logger.info(f'Hitting admit API endpoint for CS ID {admit.sid}')
-        self.driver.get(f'{boa_utils.get_boa_base_url()}/api/admit/by_sid/{admit.sid}')
+        self.driver.get(f'{boa_utils.get_boa_base_url(api=True)}/api/admit/by_sid/{admit.sid}')
         self.when_present(self.CONTENT, utils.get_short_timeout())
         return json.loads(self.element(self.CONTENT).text)

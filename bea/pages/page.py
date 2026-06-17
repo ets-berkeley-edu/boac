@@ -295,6 +295,11 @@ class Page(object):
     def scroll_to_top(self):
         self.driver.execute_script('window.scrollTo(0, 0);')
 
+    def scroll_to_element(self, locator):
+        element = self.element(locator)
+        self.driver.execute_script('arguments[0].scrollIntoView(true);', element)
+        time.sleep(0.5)
+
     def mouseover(self, element, horizontal_offset=None, vertical_offset=None):
         horizontal_offset = horizontal_offset or 0
         vertical_offset = vertical_offset or 0
