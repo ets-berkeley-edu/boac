@@ -47,7 +47,7 @@ class StudentPage(CuratedAddSelector, StudentPageAdvisingNote, StudentPageAppoin
     def load_page(self, student):
         app.logger.info(f'Loading student page for UID {student.uid}')
         self.hit_student_page_url(student)
-        self.wait_for_spinner()
+        self.wait_for_spinner(utils.get_medium_timeout())
 
     NOT_FOUND_MSG = By.XPATH, '//h1[text()="Not Found"]'
     TOGGLE_PERSONAL_DETAILS = By.ID, 'show-hide-personal-details'

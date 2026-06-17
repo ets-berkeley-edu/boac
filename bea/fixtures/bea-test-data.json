@@ -34,8 +34,8 @@
             {
                 "incomplete_sched_grades": [
                     {
-                        "min": "2023-03-17",
-                        "max": "2023-09-28"
+                        "min": "2026-03-17",
+                        "max": "2026-09-28"
                     }
                 ]
             },
@@ -110,7 +110,7 @@
             {
                 "coe_advisors": [
                     {
-                        "advisor": "117339"
+                        "advisor": "313512"
                     }
                 ],
                 "coe_ethnicities": [

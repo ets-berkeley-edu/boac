@@ -48,8 +48,8 @@ from bea.test_utils import utils
 from boac import db, std_commit
 
 
-def get_boa_base_url():
-    return app.config['BASE_URL']
+def get_boa_base_url(api=False):
+    return app.config['BASE_URL_API'] if api else app.config['BASE_URL']
 
 
 def get_peer_dept_id(peer_dept):
@@ -547,6 +547,7 @@ def get_sids_with_notes_of_src_boa(drafts=False):
                 FROM notes
                WHERE deleted_at IS NULL
                  AND is_private IS FALSE
+                 AND parent_note_id IS NULL
                  AND is_draft IS {'TRUE' if drafts else 'FALSE'}"""
     app.logger.info(sql)
     results = db.session.execute(text(sql))
@@ -559,7 +560,8 @@ def get_note_ids_by_subject(note, student=None):
     sid_clause = f" AND sid = '{student.sid}'" if student else ''
     sql = f"""SELECT id
                 FROM notes
-               WHERE deleted_at IS NULL{text_clause}{sid_clause}"""
+               WHERE deleted_at IS NULL
+                 AND notes.parent_note_id IS NULL{text_clause}{sid_clause}"""
     app.logger.info(sql)
     results = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
@@ -570,7 +572,8 @@ def get_note_sids_by_subject(note):
     sql = f"""SELECT sid
                 FROM notes
                WHERE subject = '{note.subject}'
-                 AND deleted_at IS NULL"""
+                 AND deleted_at IS NULL
+                 AND notes.parent_note_id IS NULL"""
     app.logger.info(sql)
     results = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
@@ -578,7 +581,7 @@ def get_note_sids_by_subject(note):
 
 
 def get_student_notes(student):
-    sql = f"SELECT * FROM notes WHERE sid = '{student.sid}'"
+    sql = f"SELECT * FROM notes WHERE sid = '{student.sid} AND parent_note_id IS NULL'"
     app.logger.info(sql)
     results = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
@@ -651,6 +654,7 @@ def get_peer_note_ids(peer, peer_dept_id, date=None):
                WHERE author_uid = '{peer.uid}'
                  AND peer_advising_department_id = '{peer_dept_id}'
                  AND deleted_at IS NULL
+                 AND parent_note_id IS NULL
                  {cond}
             ORDER BY updated_at DESC"""
     app.logger.info(sql)
@@ -664,6 +668,7 @@ def get_peer_dept_note_ids(peer_dept_id=None):
     sql = f"""SELECT id
                 FROM notes
                WHERE peer_advising_department_id {clause}
+                 AND parent_note_id IS NULL
                  AND deleted_at IS NULL
             ORDER BY updated_at DESC"""
     app.logger.info(sql)
@@ -679,7 +684,8 @@ def get_peer_dept_author_ct(peer_dept_id=None):
                 JOIN authorized_users
                   ON authorized_users.uid = notes.author_uid
                WHERE notes.peer_advising_department_id {clause}
-                 AND notes.deleted_at IS NULL"""
+                 AND notes.deleted_at IS NULL
+                 AND notes.parent_note_id IS NULL"""
     app.logger.info(sql)
     result = db.session.execute(text(sql)).mappings().first()
     std_commit(allow_test_environment=True)
@@ -694,6 +700,7 @@ def get_parent_dept_peer_note_ct(dept):
                 JOIN university_depts
                   ON peer_advising_departments.university_dept_id = university_depts.id
                WHERE notes.deleted_at IS NULL
+                 AND notes.parent_note_id IS NULL
                  AND university_depts.dept_code = '{dept.value['code']}'"""
     app.logger.info(sql)
     result = db.session.execute(text(sql)).mappings().first()

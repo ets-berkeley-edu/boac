@@ -378,8 +378,8 @@ class TestFilteredCohortEdits:
 
     def test_remove_advisor_coe_filter(self):
         self.filtered_students_page.cancel_cohort_update()
-        test.default_cohort.search_criteria.coe_advisors = []
         self.filtered_students_page.remove_filter_of_type('Advisor (COE)')
+        self.filtered_students_page.dismiss_warning_cannot_remove_filter()
         self.filtered_students_page.verify_student_filters_present(test.default_cohort)
 
     def test_rename_cohort(self):

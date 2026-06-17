@@ -32,6 +32,7 @@ ADMIN_USERNAME = 'secret'
 
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 BASE_URL = 'https://qa.boa.berkeley.edu'
+BASE_URL_API = 'https://qa.boa.berkeley.edu'
 
 BROWSER = 'chrome'
 BROWSER_BINARY_PATH = '/path/to/chrome'

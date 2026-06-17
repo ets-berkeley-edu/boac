@@ -39,9 +39,9 @@ class ApiNotesPage(Page):
 
     def load_attachment_page(self, attachment_file):
         app.logger.info(f'Hitting download endpoint for attachment at /api/notes/attachment/{attachment_file}')
-        self.driver.get(f'{boa_utils.get_boa_base_url()}/api/notes/attachment/{attachment_file}')
+        self.driver.get(f'{boa_utils.get_boa_base_url(api=True)}/api/notes/attachment/{attachment_file}')
         time.sleep(2)
 
     def load_download_page(self, student):
         app.logger.info(f'Hitting download endpoint for student notes at /api/notes/download_for_sid/{student.sid}')
-        self.driver.get(f'{boa_utils.get_boa_base_url()}/api/notes/download_for_sid/{student.sid}')
+        self.driver.get(f'{boa_utils.get_boa_base_url(api=True)}/api/notes/download_for_sid/{student.sid}')

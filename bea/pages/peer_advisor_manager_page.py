@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import time
 
 from flask import current_app as app
+from selenium.common import StaleElementReferenceException
 from selenium.webdriver.common.by import By
 
 from bea.pages.peer_advising_note_table import PeerAdvisingNoteTable
@@ -43,7 +44,7 @@ class PeerAdvisorManagerPage(PeerAdvisingNoteTable):
 
     # ACCT MGMT
 
-    ACCT_MGMT_TAB = By.ID, 'peer-advising-management-count-accounts'
+    ACCT_MGMT_TAB = By.ID, 'peer-advising-management-tab-accounts'
 
     def click_acct_mgmt_tab(self):
         app.logger.info('Clicking Acct Mgmt')
@@ -70,6 +71,7 @@ class PeerAdvisorManagerPage(PeerAdvisingNoteTable):
 
     def add_peer(self, student):
         app.logger.info(f'Looking up UID {student.uid}')
+        self.when_present(self.ADD_STUDENT_INPUT, utils.get_short_timeout())
         self.search_student_by_sid(student)
         self.wait_for_element_and_click(self.peer_auto_suggest_option(student))
         self.wait_for_element_and_click(self.ADD_STUDENT_BTN)
@@ -151,14 +153,21 @@ class PeerAdvisorManagerPage(PeerAdvisingNoteTable):
 
     # NOTE TEMPLATES
 
-    NOTE_TEMPLATES_TAB = By.ID, 'peer-advising-management-count-templatess'
+    NOTE_TEMPLATES_TAB = By.ID, 'peer-advising-management-tab-templates'
 
     def click_note_templates_tab(self):
         app.logger.info('Clicking Note Templates')
         self.wait_for_element_and_click(self.NOTE_TEMPLATES_TAB)
+        time.sleep(1)
+        try:
+            if self.is_present(self.LOADING_PEER_TEMPLATES_MSG):
+                self.when_not_present(self.LOADING_PEER_TEMPLATES_MSG, utils.get_medium_timeout())
+        except StaleElementReferenceException as e:
+            app.logger.debug(f'{e}')
 
     # Template table
 
+    LOADING_PEER_TEMPLATES_MSG = By.XPATH, '//div[contains(., "Loading Note Templates")]'
     NO_PEER_TEMPLATES_MSG = By.XPATH, '//div[contains(., "Click on Create new Note Template to add your first note template.")]'
 
     def visible_peer_template_ids(self):
@@ -236,7 +245,7 @@ class PeerAdvisorManagerPage(PeerAdvisingNoteTable):
         self.enter_peer_template_data(template)
         self.click_save_peer_template()
         self.set_new_template_id(template)
-        self.when_present(self.peer_template_row(template), 3)
+        self.when_present(self.peer_template_row(template), utils.get_short_timeout())
 
     # Edit
 
@@ -248,7 +257,7 @@ class PeerAdvisorManagerPage(PeerAdvisingNoteTable):
         self.click_edit_peer_template(template)
         self.enter_peer_template_data(template)
         self.click_save_peer_template()
-        self.when_present(self.peer_template_row(template), 3)
+        self.when_present(self.peer_template_row(template), utils.get_short_timeout())
 
     # Copy
 
@@ -270,7 +279,7 @@ class PeerAdvisorManagerPage(PeerAdvisingNoteTable):
 
     # REPORTING & STATISTICS
 
-    REPORTING_TAB = By.ID, 'peer-advising-management-tab-reportings'
+    REPORTING_TAB = By.ID, 'peer-advising-management-tab-reporting'
     CSV_DOWNLOAD_BUTTON = By.ID, 'download-csv'
 
     TTL_PEER_DEPT_NOTE_CT = By.ID, 'peer-advising-notes-total'
@@ -283,12 +292,13 @@ class PeerAdvisorManagerPage(PeerAdvisingNoteTable):
         return By.ID, f"open-notes-created-by-{peer.uid}-during-{date.strftime('%Y-%-m')}"
 
     def peer_notes_by_author_by_month_ct(self, peer, date):
-        return int(self.element(self.peer_notes_by_author_by_month_btn(peer, date)).text.split()[0])
+        visible = self.element(self.peer_notes_by_author_by_month_btn(peer, date)).text.split()[0]
+        return int(visible.replace(',', ''))
 
     def show_peer_notes_by_author_by_month_of_date(self, peer, date):
         app.logger.info(f"Expanding notes by UID {peer.uid} in {date.strftime('%Y-%-m')}")
         self.wait_for_element_and_click(self.peer_notes_by_author_by_month_btn(peer, date))
-        self.when_present(self.PEER_NOTE_TABLE, 3)
+        self.when_present(self.PEER_NOTE_TABLE, utils.get_short_timeout())
 
     def click_reporting_tab(self):
         app.logger.info('Clicking Reporting & Statistics')
@@ -296,12 +306,13 @@ class PeerAdvisorManagerPage(PeerAdvisingNoteTable):
 
     def peer_dept_ttl_note_ct(self):
         self.when_present(self.TTL_PEER_DEPT_NOTE_CT, utils.get_short_timeout())
-        return int(self.element(self.TTL_PEER_DEPT_NOTE_CT).text)
+        visible = self.element(self.TTL_PEER_DEPT_NOTE_CT).text
+        return int(visible.replace(',', ''))
 
     def peer_note_author_ct(self):
         self.when_present(self.TTL_PEER_DEPT_AUTHOR_CT, utils.get_short_timeout())
-        return int(self.element(self.TTL_PEER_DEPT_AUTHOR_CT).text)
-
+        return self.element(self.TTL_PEER_DEPT_AUTHOR_CT).text
+\
     def download_peer_note_csv(self):
         utils.prepare_download_dir()
         self.wait_for_element_and_click(self.CSV_DOWNLOAD_BUTTON)

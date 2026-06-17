@@ -242,7 +242,7 @@ class PassengerManifestPage(Pagination):
     def add_user_dept_roles(self, user):
         for membership in user.dept_memberships:
             app.logger.info(f'Adding UID {user.uid} department role {vars(membership)}')
-            self.wait_for_select_and_click_option(self.ADVISING_DEPT_SELECT, membership.dept.value['code'])
+            self.wait_for_select_and_click_option(self.ADVISING_DEPT_SELECT, membership.dept.value['name'])
             if membership.advisor_role == AdvisorRole.ADVISOR:
                 if membership.peer_advising_role and membership.peer_advising_role == PeerAdvisingRole.PEER_ADVISOR_MANAGER:
                     self.wait_for_select_and_click_option(

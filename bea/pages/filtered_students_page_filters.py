@@ -292,6 +292,12 @@ class FilteredStudentsPageFilters(FilteredStudentsPageResults):
         self.wait_for_element_and_click(self.filter_remove_button(filter_option))
         time.sleep(1)
 
+    def dismiss_warning_cannot_remove_filter(self):
+        visible = self.el_text_if_exists(self.ARE_YOU_SURE_CONFIRM_HEADER)
+        utils.assert_equivalence(visible, 'Cannot remove filter')
+        app.logger.info('Closing modal: "Cannot remove filter"')
+        self.wait_for_element_and_click(self.ARE_YOU_SURE_CONFIRM_BUTTON)
+
     def verify_student_filters_present(self, cohort):
         filters = cohort.search_criteria
         has_non_empty_filters = any([True for k, v in filters.data.items() if v])

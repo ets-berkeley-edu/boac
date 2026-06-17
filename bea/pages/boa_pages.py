@@ -43,6 +43,7 @@ class BoaPages(CreateNoteModal, SearchForm):
     NOT_FOUND = (By.XPATH, '//img[@alt="A silly boarding pass with the text, \'Error 404: Flight not found\'"]')
     ERROR_403 = (By.XPATH, '//div[text()=" HTTP error status: 403"]')
 
+    ARE_YOU_SURE_CONFIRM_HEADER = By.ID, 'are-you-sure-header'
     ARE_YOU_SURE_CONFIRM_BUTTON = By.ID, 'are-you-sure-confirm'
     ARE_YOU_SURE_CANCEL_BUTTON = By.ID, 'are-you-sure-cancel'
 

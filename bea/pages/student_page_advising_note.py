@@ -169,8 +169,16 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
         return self.el_text_if_exists((By.ID, f'note-{note.record_id}-university-department-of-peer-advisor'))
 
     def expanded_note_advisor_role(self, note):
+        advisor_name_el = self.element(self.expanded_note_advisor_loc(note))
         advisor_role_loc = By.ID, f'note-{note.record_id}-author-role'
-        return self.el_text_if_exists(advisor_role_loc)
+        self.mouseover(advisor_name_el)
+        time.sleep(utils.get_click_sleep())
+        if not self.is_present(advisor_role_loc):
+            self.click_element(self.expanded_note_advisor_loc(note))
+            time.sleep(utils.get_click_sleep())
+        advisor_role = self.el_text_if_exists(advisor_role_loc)
+        self.mouseover(advisor_name_el, horizontal_offset=-200)
+        return advisor_role
 
     def expanded_note_contact_type(self, note):
         contact_type_loc = By.ID, f'note-{note.record_id}-contact-type'

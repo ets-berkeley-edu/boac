@@ -87,7 +87,7 @@ class StudentPageTimeline(BoaPages):
         return ids
 
     def close_msg_button(self, item):
-        return By.XPATH, f'//article[@id="timeline-{self.item_type(item)}-{item.record_id}"]//button[contains(@id, "-close-message")]'
+        return By.XPATH, f'//article[@id="timeline-{self.item_type(item)}-{item.record_id}"]//button[contains(@id, "close-message")]'
 
     def visible_collapsed_item_data(self, item):
         item_type = self.item_type(item)
@@ -106,7 +106,7 @@ class StudentPageTimeline(BoaPages):
 
     def is_item_expanded(self, item):
         time.sleep(1)
-        self.is_present(self.expanded_item_loc(item)) and self.element(self.expanded_item_loc(item)).is_displayed()
+        return self.is_present(self.close_msg_button(item)) and self.element(self.close_msg_button(item)).is_displayed()
 
     def expand_item(self, item):
         item_type = self.item_type(item)
@@ -114,8 +114,8 @@ class StudentPageTimeline(BoaPages):
             app.logger.info(f'{item_type} ID {item.record_id} is already expanded')
         else:
             app.logger.info(f'Expanding {item_type} ID {item.record_id}')
-            self.scroll_to_top()
-            xpath = f'//div[@id="{item_type}-{item.record_id}-is-closed"]'
+            self.scroll_to_element(self.collapsed_item_loc(item))
+            xpath = f'//*[@id="{item_type}-{item.record_id}-is-closed"]'
             self.wait_for_element_and_click((By.XPATH, xpath))
         time.sleep(2)
 

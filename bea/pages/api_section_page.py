@@ -34,7 +34,7 @@ class ApiSectionPage(ApiPage):
 
     def get_data(self, term_id, ccn):
         app.logger.info(f'Getting data for section {ccn}')
-        self.driver.get(f'{boa_utils.get_boa_base_url()}/api/section/{term_id}/{ccn}')
+        self.driver.get(f'{boa_utils.get_boa_base_url(api=True)}/api/section/{term_id}/{ccn}')
         self.when_present(self.CONTENT, utils.get_short_timeout())
         return json.loads(self.element(self.CONTENT).text)
 

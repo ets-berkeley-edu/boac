@@ -296,10 +296,10 @@ class TestListView:
         utils.assert_equivalence(self.peer_page.peer_note_student(note_3_by_ls_peer), note_3_by_ls_peer.student.full_name)
 
     def test_collapsed_note_body(self):
-        utils.assert_actual_includes_expected(self.peer_page.peer_note_body(note_3_by_ls_peer), note_3_by_ls_peer.body)
+        utils.assert_actual_includes_expected(self.peer_page.peer_note_body_collapsed(note_3_by_ls_peer), note_3_by_ls_peer.body)
 
     def test_collapsed_note_date(self):
-        utils.assert_equivalence(self.peer_page.peer_note_date(note_3_by_ls_peer),
+        utils.assert_equivalence(self.peer_page.peer_note_date_collapsed(note_3_by_ls_peer),
                                  self.peer_page.peer_note_date_format(note_3_by_ls_peer))
 
     def test_expand_note(self):
@@ -333,10 +333,10 @@ class TestListView:
             self.peer_page.download_attachment(note_3_by_ls_peer, attach)
 
     def test_collapse_note(self):
-        self.peer_page.collapse_item(note_3_by_ls_peer)
+        self.peer_page.collapse_peer_note(note_3_by_ls_peer)
 
     def test_search_note_student(self):
-        self.peer_page.enter_simple_search_and_hit_enter(note_3_by_ls_peer.student.last_name)
+        self.peer_page.enter_simple_search_and_click_button(note_3_by_ls_peer.student.last_name)
         self.peer_search_page.assert_note_results_present()
         self.peer_page.wait_for_peer_note(note_1_by_ls_peer)
         self.peer_page.wait_for_peer_note(note_2_by_ls_peer)
@@ -344,11 +344,11 @@ class TestListView:
 
     def test_search_note_student_no_result(self):
         string = note_1_by_ls_peer.student.full_name[::-1]
-        self.peer_page.enter_simple_search_and_hit_enter(string)
+        self.peer_page.enter_simple_search_and_click_button(string)
         self.peer_search_page.assert_note_results_not_present()
 
     def test_search_note_body(self):
-        self.peer_page.enter_simple_search_and_hit_enter(test_ls.test_id)
+        self.peer_page.enter_simple_search_and_click_button(test_ls.test_id)
         self.peer_search_page.assert_note_results_present()
         self.peer_page.wait_for_peer_note(note_1_by_ls_peer)
         self.peer_page.wait_for_peer_note(note_2_by_ls_peer)
@@ -363,7 +363,7 @@ class TestListView:
         assert not self.peer_page.is_present(self.peer_page.peer_note_row(note_3_by_ls_peer))
 
     def test_foreign_pa_cannot_search_note(self):
-        self.peer_page.enter_simple_search_and_hit_enter(test_ls.test_id)
+        self.peer_page.enter_simple_search_and_click_button(test_ls.test_id)
         self.peer_search_page.assert_note_results_not_present()
 
     def test_domestic_pa_can_see_note(self):
@@ -375,7 +375,7 @@ class TestListView:
         self.peer_page.wait_for_peer_note(note_3_by_ls_peer)
 
     def test_domestic_pa_can_search_note(self):
-        self.peer_page.enter_simple_search_and_hit_enter(test_ls.test_id)
+        self.peer_page.enter_simple_search_and_click_button(test_ls.test_id)
         self.peer_search_page.assert_note_results_present()
         self.peer_page.wait_for_peer_note(note_1_by_ls_peer)
         self.peer_page.wait_for_peer_note(note_2_by_ls_peer)
@@ -404,7 +404,7 @@ class TestPAMListView:
         assert self.pam_page.is_present(self.pam_page.peer_manager_note_student_link(note_3_by_ls_peer))
 
     def test_collapsed_note_body(self):
-        utils.assert_actual_includes_expected(self.pam_page.peer_note_body(note_1_by_ls_peer), note_1_by_ls_peer.body)
+        utils.assert_actual_includes_expected(self.pam_page.peer_note_body_collapsed(note_1_by_ls_peer), note_1_by_ls_peer.body)
 
     def test_collapsed_note_date(self):
         utils.assert_equivalence(self.pam_page.peer_manager_note_date(note_1_by_ls_peer),
@@ -435,7 +435,7 @@ class TestPAMListView:
         utils.assert_equivalence(visible_attachments, attachment_files)
 
     def test_collapse_note(self):
-        self.pam_page.collapse_item(note_1_by_ls_peer)
+        self.pam_page.collapse_peer_note(note_1_by_ls_peer)
 
 
 @pytest.mark.usefixtures('page_objects')
@@ -462,7 +462,6 @@ class TestPAMNoteEditOnStudentPage:
         self.search_results_page.click_pam_link()
         self.pam_page.click_peer_notes(peer_1_in_ls)
         self.pam_page.click_peer_manager_note_student_link(note_1_by_ls_peer)
-        self.student_page.show_notes()
         self.student_page.verify_note(note_1_by_ls_peer, pam_in_ls)
 
     def test_edit_note_body_not_required(self):
@@ -496,12 +495,13 @@ class TestPAMNoteEditOnStudentPage:
 
     def test_verify_edits(self):
         note_1_by_ls_peer.updated_date = datetime.now()
-        self.student_page.click_close_msg(note_1_by_ls_peer)
+        self.student_page.collapse_item(note_1_by_ls_peer)
         self.student_page.verify_note(note_1_by_ls_peer, pam_in_ls)
 
     def test_no_foreign_pam_edits(self):
         self.homepage.switch_user(pam_in_coe)
         self.student_page.load_page(student_1_for_ls_peer_note)
+        self.student_page.show_notes()
         self.student_page.expand_item(note_1_by_ls_peer)
         assert not self.student_page.is_present(self.student_page.edit_note_button_loc(note_1_by_ls_peer))
 
@@ -547,12 +547,14 @@ class TestPeerNoteDeletion:
     def test_no_foreign_pam_deletes(self):
         self.homepage.switch_user(pam_in_coe)
         self.student_page.load_page(student_1_for_ls_peer_note)
+        self.student_page.show_notes()
         self.student_page.expand_item(note_1_by_ls_peer)
         assert not self.student_page.is_present(self.student_page.delete_note_button_loc(note_1_by_ls_peer))
 
     def test_student_page_deletion(self):
         self.homepage.switch_user(pam_in_ls)
         self.student_page.load_page(student_1_for_ls_peer_note)
+        self.student_page.show_notes()
         self.student_page.expand_item(note_1_by_ls_peer)
         self.student_page.delete_note(note_1_by_ls_peer)
         self.student_page.when_not_present(self.student_page.collapsed_item_loc(note_1_by_ls_peer), utils.get_short_timeout())
@@ -588,7 +590,7 @@ class TestPeerAdvisingReports:
         utils.assert_equivalence(visible_note_ct, expected_note_ct)
 
     def test_peer_advisor_note_author_ct(self):
-        expected_note_ct = boa_utils.get_peer_dept_author_ct(peer_dept_ls_id)
+        expected_note_ct = utils.number_with_thousands_separator(boa_utils.get_peer_dept_author_ct(peer_dept_ls_id))
         visible_note_ct = self.pam_page.peer_note_author_ct()
         utils.assert_equivalence(visible_note_ct, expected_note_ct)
 
@@ -604,7 +606,7 @@ class TestPeerAdvisingReports:
         assert note_2_by_ls_peer.record_id in visible_notes
 
     def test_collapsed_note_body(self):
-        utils.assert_equivalence(self.pam_page.peer_note_body(note_2_by_ls_peer), note_2_by_ls_peer.body)
+        utils.assert_equivalence(self.pam_page.peer_note_body_collapsed(note_2_by_ls_peer), note_2_by_ls_peer.body)
 
     def test_collapsed_note_date(self):
         utils.assert_equivalence(self.pam_page.peer_manager_note_date(note_2_by_ls_peer),
@@ -635,7 +637,7 @@ class TestPeerAdvisingReports:
         utils.assert_equivalence(visible_attachments, attachment_files)
 
     def test_collapse_note(self):
-        self.pam_page.collapse_item(note_2_by_ls_peer)
+        self.pam_page.collapse_peer_note(note_2_by_ls_peer)
 
     def test_peer_notes_csv(self):
         expected_note_ct = len(boa_utils.get_peer_dept_note_ids(peer_dept_ls_id))
