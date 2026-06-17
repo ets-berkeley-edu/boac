@@ -72,7 +72,7 @@
             :container-id="`filter-row-${position}`"
             :get-value="() => DateTime.fromISO(rangeMin).toJSDate()"
             :id-prefix="`filter-range-min-${position}`"
-            :max-date="DateTime.fromISO(rangeMax).toJSDate()"
+            :max-date="rangeMax ? DateTime.fromISO(rangeMax).toJSDate() : undefined"
             required
             :set-value="d => rangeMin = DateTime.fromJSDate(d).toISODate()"
           />
@@ -89,7 +89,7 @@
             :container-id="`filter-row-${position}`"
             :get-value="() => DateTime.fromISO(rangeMax).toJSDate()"
             :id-prefix="`filter-range-max-${position}`"
-            :min-date="DateTime.fromISO(rangeMin).toJSDate()"
+            :min-date="rangeMin ? DateTime.fromISO(rangeMin).toJSDate() : undefined"
             required
             :set-value="d => rangeMax = DateTime.fromJSDate(d).toISODate()"
           />
