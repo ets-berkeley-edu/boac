@@ -333,6 +333,7 @@ def search_advising_notes(
     if peer_advising_department_id and search_phrase:
         students = data_loch.match_students_by_name_or_sid(
             phrases=list(filter(None, re.split(r'[- ]', search_phrase))),
+            prefix_only=True,
         )
         peer_student_sids = [s.get('sid') for s in students]
 

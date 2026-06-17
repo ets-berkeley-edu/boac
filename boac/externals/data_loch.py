@@ -524,15 +524,18 @@ def match_advising_note_authors_by_name(prefixes, limit=None):
     return safe_execute_rds(sql, **prefix_kwargs)
 
 
-def match_students_by_name_or_sid(phrases, limit=None):
+def match_students_by_name_or_sid(phrases, limit=None, prefix_only=False):
     results = None
     phrases = [''.join(phrase.split('-')).replace('\'', '').upper() for phrase in phrases]
     if len(phrases) == 1:
         phrase = phrases[0]
         search_by_sid = phrase.isdigit()
-        results = _match_students_by_sid(phrase, limit) if search_by_sid else _match_students_by_name(phrase, limit)
+        if search_by_sid:
+            results = _match_students_by_sid(phrase, limit)
+        else:
+            results = _match_students_by_name(phrase, limit, prefix_only=prefix_only)
     elif len(phrases) > 1:
-        results = _search_for_students(phrases, limit)
+        results = _search_for_students(phrases, limit, prefix_only=prefix_only)
     return results
 
 
@@ -1875,13 +1878,17 @@ def _match_students_by_sid(sid, limit=None):
     return safe_execute_rds(sql, **{'starts_with': f'{sid}%'})
 
 
-def _match_students_by_name(phrase, limit=None):
+def _match_students_by_name(phrase, limit=None, prefix_only=False):
+    if prefix_only:
+        name_match = '(n.name LIKE %(starts_with)s OR n.email_address LIKE %(starts_with)s)'
+    else:
+        name_match = '(n.name LIKE %(contains)s OR n.email_address LIKE %(contains)s)'
     sql = f"""
         SELECT DISTINCT(s.sid), s.first_name, s.last_name, s.email_address, s.uid FROM (
             SELECT s.first_name, s.last_name, s.email_address, s.sid, s.uid
             FROM {student_schema()}.student_profile_index s
             JOIN {student_schema()}.student_names n ON
-                (n.name LIKE %(contains)s OR n.email_address LIKE %(contains)s)
+                {name_match}
                 AND n.sid = s.sid
             ORDER BY (
                 CASE
@@ -1899,7 +1906,7 @@ def _match_students_by_name(phrase, limit=None):
     })
 
 
-def _search_for_students(phrases, limit=None):
+def _search_for_students(phrases, limit=None, prefix_only=False):
     schema = student_schema()
     selects_for_intersect = []
     sql_params = {}
@@ -1915,15 +1922,19 @@ def _search_for_students(phrases, limit=None):
             """)
         else:
             sql_params[f'phrase_{index}_contains'] = f'%{phrase}%'
+            if prefix_only:
+                name_match = f'sn.name LIKE %(phrase_{index}_starts_with)s'
+            else:
+                name_match = f"""(
+                  sn.name LIKE %(phrase_{index}_starts_with)s
+                  OR sn.name LIKE %(phrase_{index}_contains)s
+                  OR sn.email_address LIKE %(phrase_{index}_contains)s
+               )"""
             selects_for_intersect.append(f"""
                SELECT spi.first_name, spi.last_name, spi.email_address, spi.sid, spi.uid
                FROM {schema}.student_profile_index spi
                JOIN {schema}.student_names sn ON
-               (
-                  sn.name LIKE %(phrase_{index}_starts_with)s
-                  OR sn.name LIKE %(phrase_{index}_contains)s
-                  OR sn.email_address LIKE %(phrase_{index}_contains)s
-               )
+               {name_match}
                AND sn.sid = spi.sid
             """)
         if index > 9:
