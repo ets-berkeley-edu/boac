@@ -159,7 +159,7 @@ class TestFilteredAdmitSorting:
 
     def test_cohort_sort_cs_id(self):
         cohort = test.searches[0]
-        self.filtered_admits_page.sort_by('cs_empl_id')
+        self.filtered_admits_page.sort_by('cs-empl-id')
         expected = nessie_filter_admits_utils.cohort_by_cs_empl_id(test, cohort.search_criteria)
         visible = self.filtered_admits_page.list_view_admit_sids(cohort)
         utils.assert_equivalence(visible, expected)

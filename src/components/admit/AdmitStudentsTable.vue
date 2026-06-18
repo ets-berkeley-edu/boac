@@ -62,7 +62,7 @@
           <span :id="`row-${index}-special-program-cep`">
             <span class="sr-only">C E P</span>
             <span v-if="!isNilOrBlank(student.specialProgramCep)">{{ student.specialProgramCep }}</span>
-            <span v-if="isNilOrBlank(student.specialProgramCep)"><span class="sr-only">No data</span></span>
+            <span v-if="isNilOrBlank(student.specialProgramCep)"><span aria-hidden="true">&mdash;</span><span class="sr-only">No data</span></span>
           </span>
         </td>
         <td class="pa-1">
@@ -72,7 +72,7 @@
         <td class="pa-1">
           <span :id="`row-${index}-first-generation-college`">
             <span class="sr-only">First generation</span>
-            <span v-if="isNilOrBlank(student.firstGenerationCollege)">&mdash;<span class="sr-only"> No data</span></span>
+            <span v-if="isNilOrBlank(student.firstGenerationCollege)"><span aria-hidden="true">&mdash;</span><span class="sr-only"> No data</span></span>
             <span v-if="!isNilOrBlank(student.firstGenerationCollege)">{{ student.firstGenerationCollege }}</span>
           </span>
         </td>
@@ -83,7 +83,7 @@
         <td class="pa-1">
           <span class="sr-only">Waiver</span>
           <span :id="`row-${index}-application-fee-waiver-flag`">
-            <span v-if="isNilOrBlank(student.applicationFeeWaiverFlag)">&mdash;<span class="sr-only">No data</span></span>
+            <span v-if="isNilOrBlank(student.applicationFeeWaiverFlag)"><span aria-hidden="true">&mdash;</span><span class="sr-only">No data</span></span>
             <span v-if="!isNil(student.applicationFeeWaiverFlag)">{{ student.applicationFeeWaiverFlag }}</span>
           </span>
         </td>

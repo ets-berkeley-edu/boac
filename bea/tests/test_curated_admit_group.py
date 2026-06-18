@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 import datetime
 import random
+import time
 
 import pytest
 from flask import current_app as app
@@ -100,7 +101,8 @@ class TestCuratedAdmitGroup:
         self.admit_page.load_page(self.admit.sid)
         self.admit_page.click_add_to_admissions_grp(self.admit)
         self.admit_page.click_create_new_grp(self.group_0)
-        assert not self.admit_page.element(self.admit_page.GROUP_SAVE_BUTTON).is_enabled()
+        self.admit_page.wait_for_element_and_click(self.admit_page.GROUP_SAVE_BUTTON)
+        self.admit_page.when_present(self.admit_page.MISSING_GROUP_NAME_MSG, utils.get_short_timeout())
 
     def test_group_name_max_255_chars(self):
         self.group_0.name = 'A llooooong title ' * 15
@@ -110,6 +112,7 @@ class TestCuratedAdmitGroup:
     def test_group_name_unique(self):
         self.group_0.name = self.cohort.name
         self.admit_page.enter_group_name(self.group_0)
+        self.admit_page.wait_for_element_and_click(self.admit_page.GROUP_SAVE_BUTTON)
         self.admit_page.when_present(self.admit_page.DUPE_GROUP_NAME_MSG, utils.get_short_timeout())
 
     def test_group_renamed(self):
@@ -225,6 +228,7 @@ class TestCuratedAdmitGroup:
 
     def test_group_shows_date_if_stale(self):
         self.curated_admits_page.load_page(self.group_4)
+        time.sleep(2)
         is_stale = self.curated_admits_page.is_present(
             self.curated_admits_page.data_update_date_heading(self.latest_update_date))
         if datetime.datetime.strptime(self.latest_update_date, '%b %d, %Y').date() == datetime.date.today():

@@ -44,7 +44,7 @@ class CuratedPages(CohortPages, CuratedModal):
 
     def load_page(self, group):
         self.driver.get(f'{boa_utils.get_boa_base_url()}/curated/{group.cohort_id}')
-        self.wait_for_spinner()
+        self.wait_for_spinner(utils.get_medium_timeout())
         self.hide_boa_footer()
 
     def hit_non_auth_group(self, group):

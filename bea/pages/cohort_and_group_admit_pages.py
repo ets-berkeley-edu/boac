@@ -36,7 +36,7 @@ class CohortAndGroupAdmitPages(CohortPages, ListViewAdmitPages):
     EXPORT_FERPA_CANCEL_BUTTON = By.ID, 'ferpa-reminder-cancel'
 
     def sort_by_cs_id(self):
-        self.sort_by('cs_empl_id')
+        self.sort_by('cs-empl-id')
 
     def click_export_ferpa_confirm(self):
         self.wait_for_element_and_click(self.ARE_YOU_SURE_CONFIRM_BUTTON)
