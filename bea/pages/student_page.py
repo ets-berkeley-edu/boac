@@ -51,7 +51,7 @@ class StudentPage(CuratedAddSelector, StudentPageAdvisingNote, StudentPageAppoin
 
     NOT_FOUND_MSG = By.XPATH, '//h1[text()="Not Found"]'
     TOGGLE_PERSONAL_DETAILS = By.ID, 'show-hide-personal-details'
-    ADDITIONAL_INFO_OUTER = By.XPATH, '//h3[text()=" Advisor(s) "]'
+    ADDITIONAL_INFO_OUTER = By.XPATH, '//h2[text()=" Advisor(s) "]'
 
     def is_personal_details_expanded(self):
         return self.is_present(self.ADDITIONAL_INFO_OUTER) and self.element(self.ADDITIONAL_INFO_OUTER).is_displayed()
@@ -62,7 +62,7 @@ class StudentPage(CuratedAddSelector, StudentPageAdvisingNote, StudentPageAppoin
             app.logger.info('Personal details tab is already expanded')
         else:
             app.logger.info('Expanding personal details tab')
-            self.wait_for_element_and_click(self.TOGGLE_PERSONAL_DETAILS)
+            self.click_element(self.TOGGLE_PERSONAL_DETAILS)
             self.when_present(self.ADDITIONAL_INFO_OUTER, utils.get_medium_timeout())
         time.sleep(1)
 
@@ -129,7 +129,7 @@ class StudentPage(CuratedAddSelector, StudentPageAdvisingNote, StudentPageAppoin
 
     def degree(self, field):
         time.sleep(1)
-        xpath = f'//h3[contains(text(), "Degree")]/following-sibling::div[contains(., "{field}")]'
+        xpath = f'//h2[contains(text(), "Degree")]/following-sibling::div[contains(., "{field}")]'
         deg_type_loc = By.XPATH, f'{xpath}/div[contains(@id, "student-bio-degree-type")]'
         deg_date_loc = By.XPATH, f'{xpath}/div[contains(@class, "text-medium-emphasis")][1]'
         return {
@@ -302,7 +302,7 @@ class StudentPage(CuratedAddSelector, StudentPageAdvisingNote, StudentPageAppoin
 
     @staticmethod
     def term_data_xpath(term_name):
-        return f'//h3[text()="{term_name}"]'
+        return f'//h4[text()="{term_name}"]'
 
     def term_data_heading(self, term_name):
         return By.XPATH, self.term_data_xpath(term_name)
@@ -346,7 +346,7 @@ class StudentPage(CuratedAddSelector, StudentPageAdvisingNote, StudentPageAppoin
 
     def visible_term_concurrent_enrollment(self, term_sis_id):
         self.wait_for_term_data(term_sis_id)
-        term_concurrent_enroll_loc = By.XPATH, f'//h3[@id="term-{term_sis_id}-header"]/following-sibling::span[text()="UCBX"]'
+        term_concurrent_enroll_loc = By.XPATH, f'//h4[@id="term-{term_sis_id}-header"]/following-sibling::span[text()="UCBX"]'
         return self.is_present(term_concurrent_enroll_loc)
 
     # COURSES

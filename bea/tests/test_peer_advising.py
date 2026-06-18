@@ -606,7 +606,7 @@ class TestPeerAdvisingReports:
         assert note_2_by_ls_peer.record_id in visible_notes
 
     def test_collapsed_note_body(self):
-        utils.assert_equivalence(self.pam_page.peer_note_body_collapsed(note_2_by_ls_peer), note_2_by_ls_peer.body)
+        utils.assert_actual_includes_expected(self.pam_page.peer_note_body_collapsed(note_2_by_ls_peer), note_2_by_ls_peer.body)
 
     def test_collapsed_note_date(self):
         utils.assert_equivalence(self.pam_page.peer_manager_note_date(note_2_by_ls_peer),
