@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import time
 
+import pytz
 from flask import current_app as app
 from selenium.webdriver.common.by import By
 
@@ -72,7 +73,7 @@ class StudentPageAppointment(StudentPageTimeline, CreateNoteModal):
 
     @staticmethod
     def appt_advisor_loc(appt):
-        return By.ID, f'appointment-{appt.record_id}-advisor-name'
+        return By.ID, f'note-{appt.record_id}-author-name'
 
     def collapsed_appt_detail(self, appt):
         return self.el_text_if_exists((By.ID, f'appointment-{appt.record_id}-details-closed'))
@@ -91,6 +92,13 @@ class StudentPageAppointment(StudentPageTimeline, CreateNoteModal):
 
     def expanded_appt_time_range(self, appt):
         return self.el_text_if_exists((By.ID, f'expanded-appointment-{appt.record_id}-appt-time-range'))
+
+    @staticmethod
+    def expected_appt_time_range(appt):
+        tz = pytz.timezone(app.config['TIMEZONE'])
+        start = appt.start_time.astimezone(tz).strftime('%-I:%M%p')
+        end = appt.end_time.astimezone(tz).strftime('%-I:%M%p')
+        return f'{start} - {end}'
 
     def expanded_appt_check_in_time(self, appt):
         return self.el_text_if_exists((By.ID, f'appointment-{appt.record_id}-checked-in-at'))
@@ -117,7 +125,7 @@ class StudentPageAppointment(StudentPageTimeline, CreateNoteModal):
         return self.els_text_if_exist((By.XPATH, f'//div[contains(@id, "appointment-{appt.record_id}-topic-")]'))
 
     def expanded_appt_attachments(self, appt):
-        return [el.text.strip().lower() for el in self.item_attachment_els(appt)]
+        return [el.get_attribute('innerText').strip().lower() for el in self.item_attachment_els(appt)]
 
     # COMMENTS
 
