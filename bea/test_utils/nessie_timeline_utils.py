@@ -430,11 +430,12 @@ def get_calendly_appts(student):
             status = 'Canceled'
         else:
             status = None
+        questions_and_answers = json.loads(row['questions_and_answers'] or '[]')
         appts.append(Appointment(data={
             'record_id': row['id'],
             'advisor': advisor,
             'cancel_reason': row['cancellation_reason'],
-            'detail': row['questions_and_answers'],
+            'detail': row['questions_and_answers'] if questions_and_answers else None,
             'end_time': (row['end_time'] and utils.date_to_local_tz(row['end_time'])),
             'source': TimelineRecordSource.CALENDLY,
             'start_time': (row['start_time'] and utils.date_to_local_tz(row['start_time'])),

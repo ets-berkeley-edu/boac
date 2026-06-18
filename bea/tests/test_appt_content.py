@@ -23,7 +23,6 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-import datetime
 import re
 
 import pytest
@@ -116,10 +115,8 @@ class TestApptContent:
 
     def test_expanded_times(self, tc):
         if tc.appt.source in [TimelineRecordSource.CALENDLY, TimelineRecordSource.YCBM]:
-            start = datetime.datetime.strftime(tc.appt.start_time, '%-l:%M %p')
-            end = datetime.datetime.strftime(tc.appt.end_time, '%-l:%M %p')
             utils.assert_actual_includes_expected(self.student_page.expanded_appt_time_range(tc.appt),
-                                                  f'{start} - {end}')
+                                                  self.student_page.expected_appt_time_range(tc.appt))
 
     def test_expanded_advisor(self, tc):
         # Appts have varying amounts of advisor info, just verify something's there
