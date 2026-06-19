@@ -83,13 +83,13 @@ class ListViewAdmitPages(Pagination, AdmitPages):
         try:
             app.logger.info(f'Checking visible data for CS ID {admit.sid}')
             admit_data = admit.admit_data
-            utils.assert_equivalence(self.visible_admit_cep(admit), (admit_data['special_program_cep'] or 'No data'))
+            utils.assert_equivalence(self.visible_admit_cep(admit), (admit_data['special_program_cep'] or '—'))
             utils.assert_equivalence(self.visible_admit_re_entry(admit), admit_data['reentry_status'])
             utils.assert_equivalence(
-                self.visible_admit_1st_gen_college(admit), (admit_data['first_generation_college'] or '—\nNo data'))
+                self.visible_admit_1st_gen_college(admit), (admit_data['first_generation_college'] or '—'))
             utils.assert_equivalence(self.visible_admit_urem(admit), admit_data['urem'])
             waiver = admit_data['application_fee_waiver_flag']
-            expected_waiver = waiver.replace('Waiver', '') if waiver else '—\nNo data'
+            expected_waiver = waiver.replace('Waiver', '') if waiver else '—'
             utils.assert_equivalence(self.visible_admit_fee_waiver(admit), expected_waiver)
             utils.assert_equivalence(self.visible_admit_fresh_trans(admit), admit_data['freshman_or_transfer'])
             utils.assert_equivalence(self.visible_admit_residency(admit), admit_data['residency_category'])
