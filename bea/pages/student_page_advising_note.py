@@ -187,8 +187,9 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
     def expanded_note_created_date(self, note):
         created_loc = By.ID, f'expanded-note-{note.record_id}-created-at'
         if self.is_present(created_loc):
-            text = self.element(created_loc).text.replace('Created on', '').replace('\n@\n', '\n')
-            return re.sub(r'/\s+/', ' ', text).strip()
+            return self.normalize_timeline_datetime_text(
+                self.element(created_loc).text.replace('Created on', ''),
+            )
         else:
             return None
 
@@ -223,8 +224,9 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
     def expanded_note_updated_date(self, note):
         updated_loc = By.ID, f'expanded-note-{note.record_id}-updated-at'
         if self.is_present(updated_loc):
-            text = self.element(updated_loc).text.replace('Last updated on', '').replace('\n@\n', '\n')
-            return re.sub(r'/\s+/', ' ', text).strip()
+            return self.normalize_timeline_datetime_text(
+                self.element(updated_loc).text.replace('Last updated on', ''),
+            )
         else:
             return None
 

@@ -63,6 +63,14 @@ class StudentPageTimeline(BoaPages):
         else:
             return item_time.strftime('%b %-d, %Y\n%-I:%M%p')
 
+    @staticmethod
+    def normalize_timeline_datetime_text(text):
+        if not text:
+            return text
+        text = re.sub(r'[\s\n]*@[\s\n]*', '\n', text)
+        text = re.sub(r'\n+at\n+', '\n', text, flags=re.IGNORECASE)
+        return text.strip()
+
     def visible_collapsed_item_ids(self, item_type):
         els = self.elements((By.XPATH, f"//*[self::div or self::h3][contains(@id, '{item_type}-') and contains(@id, '-is-closed')]"))
         ids = []
