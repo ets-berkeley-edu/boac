@@ -24,8 +24,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 import os
+from datetime import datetime
 
 import pytest
+from flask import current_app as app
 
 from bea.models.term import Term
 from bea.pages.admit_page import AdmitPage
@@ -74,6 +76,23 @@ ctx.push()
 def pytest_addoption(parser):
     parser.addoption('--browser', action='store', default=_app.config['BROWSER'])
     parser.addoption('--headless', action='store')
+
+
+@pytest.hookimpl(tryfirst=True, hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    """Take screenshot when a test case fails."""
+    # Execute the test
+    outcome = yield
+    result = outcome.get_result()
+
+    # Check if the test has failed
+    if result.when == "call" and result.failed:
+        driver = item.funcargs.get('page_objects')
+        if driver:
+            timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+            screenshot_path = f"{_app.config['SCREENSHOTS_DIR']}/{timestamp}_{item.name}.png"
+            app.logger.info(f'Saving screenshot: {screenshot_path}')
+            driver.save_screenshot(screenshot_path)
 
 
 @pytest.fixture(scope='session')
@@ -157,6 +176,6 @@ def page_objects(request):
             setattr(cls.obj, 'search_form', search_form)
             setattr(cls.obj, 'search_results_page', search_results_page)
             setattr(cls.obj, 'student_page', student_page)
-        yield
+        yield driver
     finally:
         WebDriverManager.quit_browser(driver)
