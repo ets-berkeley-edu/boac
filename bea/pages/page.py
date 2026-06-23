@@ -250,10 +250,7 @@ class Page(object):
 
     def wait_for_select_and_click_option(self, select_el_loc, option_str):
         self.wait_for_page_and_click(select_el_loc)
-        if self.driver.name == 'firefox':
-            self.click_element((By.XPATH, f'//option[normalize-space()="{option_str}"]'))
-        else:
-            self.matching_option(select_el_loc, option_str).click()
+        self.matching_option(select_el_loc, option_str).click()
 
     def matching_option(self, select_el_loc, option_str):
         select_el = Select(self.element(select_el_loc))
