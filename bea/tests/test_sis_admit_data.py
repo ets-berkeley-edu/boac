@@ -160,7 +160,7 @@ class TestAdmitPage:
         utils.assert_equivalence(self.admit_page.visa_planned(), planned)
 
     def test_first_gen_college(self, tc):
-        utils.assert_equivalence(self.admit_page.first_gen_college(), tc.student.admit_data['first_generation_college'])
+        utils.assert_equivalence(self.admit_page.first_gen_college() or '', tc.student.admit_data['first_generation_college'])
 
     def test_parent_1_educ(self, tc):
         utils.assert_equivalence(self.admit_page.parent_1_educ(), tc.student.admit_data['parent_1_education_level'])
