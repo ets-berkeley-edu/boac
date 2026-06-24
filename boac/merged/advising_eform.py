@@ -26,7 +26,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from flask import current_app as app
 
 from boac.externals import data_loch
-from boac.lib.sis_advising import resolve_sis_created_at, resolve_sis_updated_at
 from boac.lib.util import TEXT_SEARCH_PATTERN, get_benchmarker, join_if_present, search_result_text_snippet
 from boac.merged.advising_note import note_to_compatible_json
 from boac.merged.advising_search import (
@@ -72,7 +71,7 @@ def search_advising_eforms(
     if include_body_search:
         benchmark('begin loch eforms query')
         loch_results = data_loch.search_sis_eforms(
-            search_phrases=search_terms or None,
+            search_phrases=search_terms,
             student_csid=student_csid,
             datetime_from=datetime_from,
             datetime_to=datetime_to,
@@ -102,7 +101,7 @@ def search_advising_eforms(
     )
     comment_total = resolved_comment_total_count(comment_results, comment_feed, fetch_limit)
 
-    merged = merge_search_feed(body_feed, comment_feed, offset, limit)
+    merged = merge_search_feed(body_feed, comment_feed, offset, limit, secondary_sort='eFormId')
     return {
         'eforms': merged,
         'totalEformCount': body_total + comment_total,
@@ -141,13 +140,15 @@ def _get_loch_eforms_search_results(loch_results, search_terms):
         results.append({
             'kind': 'eform',
             'id': eform_row.get('id'),
+            'eFormId': eform_row.get('eform_id'),
             'parentType': parent_type,
             'eForm': compatible.get('eForm'),
-            'createdAt': resolve_sis_created_at(eform_row),
-            'updatedAt': resolve_sis_updated_at(eform_row),
+            'createdAt': compatible.get('createdAt'),
+            'updatedAt': compatible.get('updatedAt'),
             'snippet': search_result_text_snippet(summary, search_terms, TEXT_SEARCH_PATTERN),
             'studentSid': sid,
             'student': student,
+            'rank': eform_row.get('rank'),
         })
     return results
 
@@ -190,7 +191,10 @@ def _get_eform_comment_search_results(comment_rows, search_terms, student_csid=N
             eform_row.get('sid'),
             students_by_sid,
             kind='commentOnEform',
-            extra_fields={'eForm': compatible.get('eForm')},
+            extra_fields={
+                'eForm': compatible.get('eForm'),
+                'eFormId': eform_row.get('eform_id'),
+            },
         )
         if row:
             results.append(row)

@@ -334,6 +334,7 @@ def _get_loch_appointments_search_results(loch_results, search_terms):
                 'lastName': appointment.get('last_name'),
                 'sid': student_sid,
             },
+            'rank': appointment.get('rank'),
         })
     return results
 
