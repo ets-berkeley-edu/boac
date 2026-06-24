@@ -34,7 +34,6 @@ export function search(
   eformOptions?: object
 ) {
   $_track(phrase)
-  const includeAdvisingDomains = includeNotes || includeAppointments || !!includeEforms
   return axios
     .post(`${utils.apiBaseUrl()}/api/search`, {
       searchPhrase: phrase,
@@ -42,7 +41,7 @@ export function search(
       students: includeStudents,
       courses: includeCourses,
       notes: includeNotes,
-      eForms: includeEforms ?? includeAdvisingDomains,
+      eForms: !!includeEforms,
       appointmentOptions: appointmentOptions || {},
       noteOptions: noteOptions || {},
       eformOptions: eformOptions || appointmentOptions || {},

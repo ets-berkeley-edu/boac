@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 import re
+from operator import itemgetter
 
 from boac.externals import data_loch
 from boac.lib.util import TEXT_SEARCH_PATTERN, search_result_text_snippet, to_iso_format
@@ -61,9 +62,9 @@ def parse_search_phrases_for_eforms(search_phrase):
     return stripped or terms
 
 
-def merge_search_feed(body_feed, comment_feed, offset, limit):
+def merge_search_feed(body_feed, comment_feed, offset, limit, secondary_sort='id'):
     combined = body_feed + comment_feed
-    combined.sort(key=lambda row: row.get('createdAt') or '', reverse=True)
+    combined.sort(key=itemgetter('rank', secondary_sort), reverse=True)
     return combined[offset:offset + limit]
 
 
@@ -121,6 +122,7 @@ def build_comment_search_result(
             **comment.to_api_json(),
             'author': comment_author_feed(comment),
         },
+        'rank': 0,
     }
     if extra_fields:
         row.update(extra_fields)

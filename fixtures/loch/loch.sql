@@ -1037,6 +1037,16 @@ VALUES
 ('scl-eform-204', 'UGRD', 'SUB', 'Subject to Disqualification', 1254029, '2881574', 'Michie Nakatani', 'Atsuko Yamano', 'Executed', 'SRCRSLOAD', 'RCLT', 'Reduced with Reduced Tuition', '11', '4636463076', '11.000', '2252', '0.00', now(), now()),
 ('scl-eform-529', 'UGRD', 'SUB', NULL, 1276201, '7288415', 'Atsuko Yamano', 'Risa Kawano', 'Executed', 'SRCRSLOAD', 'RCL', 'Reduced', '9', '3813202730', '9.000', '2252', '0.00', now(), now());
 
+
+CREATE MATERIALIZED VIEW sis_advising_notes.student_course_load_eforms_search_index AS (
+  SELECT student_course_load_eforms.id,
+    to_tsvector(
+      'english',
+      (((((((((COALESCE(student_course_load_eforms.academic_standing_description, ''::character varying)::text || ' '::text) || student_course_load_eforms.request_type::text) || ' '::text) || student_course_load_eforms.request_type_description::text) || ' '::text) || student_course_load_eforms.eform_type::text) || ' '::text) || student_course_load_eforms.eform_id) || ' '::text) || student_course_load_eforms.eform_status::text
+    ) AS fts_index
+  FROM sis_advising_notes.student_course_load_eforms
+);
+
 INSERT INTO sis_advising_notes.student_cpp_change_eforms
 (id, academic_career_code, academic_plan_name, created_at, degree_expected_term_id, eform_action_code, eform_action_description, eform_id, eform_status, eform_type, overlap_course_1, overlap_course_2, academic_plan_code, academic_plan_type_description, academic_program_code, academic_program_name, requirement_term_id, sid, student_name, academic_subplan_code, academic_subplan_name, to_academic_plan_code, to_academic_plan_name, to_academic_plan_requirement_term_id, to_academic_program_code, to_academic_program_name, to_academic_subplan_code, to_academic_subplan_name, to_academic_subplan_requirement_term_id, to_degree_expected_term_id, to_requirement_term_id, updated_at)
 VALUES
@@ -1046,6 +1056,15 @@ VALUES
 ('eform-5', 'UGRD', 'Economics BA', now(), NULL, 'UCMJ', 'Change Plan', 22615, 'Executed', 'CPPSTACK', NULL, NULL, '25246U', 'Major', 'UCLS', 'Undergrad Letters & Science', '2168', '42994232', 'Zhing Yiju', NULL, NULL, '25891U', 'Statistics BA', '2168', ' ', NULL ,' ', NULL, ' ', NULL, NULL, now()),
 ('eform-29', 'UGRD', 'Economics BA', now(), NULL, 'UAMJ', 'Add Plan', 22633, 'Withdrawn', 'CPPSTACK', 'none', 'none', '25246U', 'Major', 'UCLS', 'Undergrad Letters & Science', '2168', '25201039', 'Pratcha Sananvatananont', NULL, NULL, ' ', NULL, ' ', ' ', NULL,'', NULL, ' ', NULL, NULL, now());
 
+CREATE MATERIALIZED VIEW sis_advising_notes.student_cpp_change_eforms_search_index AS (
+  SELECT student_cpp_change_eforms.id,
+    to_tsvector(
+      'english',
+      (((((((((((((((((COALESCE(student_cpp_change_eforms.academic_program_name, ''::character varying)::text || ' '::text) || COALESCE(student_cpp_change_eforms.academic_plan_name, ''::character varying)::text) || ' '::text) || COALESCE(student_cpp_change_eforms.academic_subplan_name, ''::character varying)::text) || ' '::text) || COALESCE(student_cpp_change_eforms.to_academic_program_name, ''::character varying)::text) || ' '::text) || COALESCE(student_cpp_change_eforms.to_academic_plan_name, ''::character varying)::text) || ' '::text) || COALESCE(student_cpp_change_eforms.to_academic_subplan_name, ''::character varying)::text) || ' '::text) || student_cpp_change_eforms.eform_type::text) || ' '::text) || student_cpp_change_eforms.eform_action_description::text) || ' '::text) || student_cpp_change_eforms.eform_id) || ' '::text) || student_cpp_change_eforms.eform_status::text
+    ) AS fts_index
+  FROM sis_advising_notes.student_cpp_change_eforms
+);
+
 INSERT INTO sis_advising_notes.student_late_drop_eforms
 (id, career_code, course_display_name, course_title, created_at, edl_load_date, eform_id, eform_status, eform_type, grading_basis_code, grading_basis_description, requested_action, requested_grading_basis_code, requested_grading_basis_description, requested_units_taken, section_id, section_num, sid, student_name, term_id, units_taken, updated_at)
 VALUES
@@ -1053,6 +1072,15 @@ VALUES
 ('eform-10098', 'UGRD', 'PSYCH 110', 'INTROD BIOL PSYCH', '2020-12-05 12:00:00+00', '2021-09-01', 469118, 'In Error', 'SRLATEDROP', 'EPN', 'Elective Pass/No Pass', 'Late Grading Basis Change', 'GRD', 'Graded', '0.00', 24460, '001', '9000000000', 'Wolfgang Pauli-O''Rourke', '2208', '3', '2020-12-05 00:02:57+00'),
 ('eform-10099', 'UGRD', 'EECS 16A', 'DESIGN INFO DEV I', '2020-12-05 00:00:00+00', '2021-09-01', 469242, 'Executed', 'SRLATEDROP', 'GRD', 'Graded', 'Late Grading Basis Change', 'EPN', 'Elective Pass/No Pass', '0.00', 31262, '001', '11667051', 'Deborah Davies', '2208', '4', '2020-12-05 00:00:07+00'),
 ('eform-101', 'UGRD', 'PBHLTH 126', 'HEALTH ECONOMICS', '2020-04-15 00:00:00+00', '2021-09-01', 378785, 'Executed', 'SRLATEDROP', ' ', 'DefaultPNP', 'Late Drop', ' ', ' ', '0.00', 10589, '001', '11667051', 'Deborah Davies', '2202', '3', '2020-04-15 12:46:01+00');
+
+CREATE MATERIALIZED VIEW sis_advising_notes.student_late_drop_eforms_search_index AS (
+  SELECT student_late_drop_eforms.id,
+    to_tsvector(
+      'english',
+      (((((((((((((COALESCE(student_late_drop_eforms.grading_basis_description, ''::character varying)::text || ' '::text) || COALESCE(student_late_drop_eforms.requested_grading_basis_description, ''::character varying)::text) || ' '::text) || student_late_drop_eforms.course_display_name::text) || ' '::text) || student_late_drop_eforms.course_title::text) || ' '::text) || student_late_drop_eforms.requested_action::text) || ' '::text) || student_late_drop_eforms.eform_type::text) || ' '::text) || student_late_drop_eforms.eform_id) || ' '::text) || student_late_drop_eforms.eform_status::text
+    ) AS fts_index
+  FROM sis_advising_notes.student_late_drop_eforms
+);
 
 CREATE TABLE boac_advising_notes.advising_notes AS (
 SELECT sis.sid, sis.id, sis.note_body, sis.advisor_sid,
