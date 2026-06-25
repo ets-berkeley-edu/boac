@@ -1138,6 +1138,11 @@ class TestUpdateNotes:
 
     def test_update_note_with_raw_url_in_body(self, app, client, fake_auth, mock_coe_advising_note):
         """Updates subject and body of note."""
+        # Note is marked read by ASC advisor
+        asc_advisor = AuthorizedUser.find_by_uid(asc_advisor_uid)
+        NoteRead.find_or_create(viewer_id=asc_advisor.id, note_ids=[str(mock_coe_advising_note.id)])
+
+        # COE advisor updates the note
         fake_auth.login(mock_coe_advising_note.author_uid)
         expected_subject = 'There must have been a plague of them'
         body = '<p>They were <a href="http://www.guzzle.com">www.guzzle.com</a> at <b>https://marsh.mallows.com</b> and <a href="http://www.foxnews.com">FOX news</a></p>'  # noqa: E501
@@ -1154,8 +1159,17 @@ class TestUpdateNotes:
         assert updated_note.subject == expected_subject
         assert updated_note.body == expected_body
 
+        # Note marked unread by ASC advisor
+        note_read = NoteRead.get_notes_read_by_user(viewer_id=asc_advisor.id, note_ids=[str(mock_coe_advising_note.id)])
+        assert len(note_read) == 0
+
     def test_update_note_topics(self, app, client, fake_auth, mock_asc_advising_note):
         """Update note topics."""
+        # Note is marked read by EOP peer advisor manager
+        eop_pam = AuthorizedUser.find_by_uid(eop_peer_advisor_manager_uid)
+        NoteRead.find_or_create(viewer_id=eop_pam.id, note_ids=[str(mock_asc_advising_note.id)])
+
+        # ASC advisor updates the note
         fake_auth.login(mock_asc_advising_note.author_uid)
         expected_topics = ['Blinking lights', ' and other revelations']
         api_json = self._api_note_update(
@@ -1171,8 +1185,17 @@ class TestUpdateNotes:
         assert 'Blinking lights' in api_json['topics']
         assert ' and other revelations' in api_json['topics']
 
+        # Note marked unread by EOP peer advisor manager
+        note_read = NoteRead.get_notes_read_by_user(viewer_id=eop_pam.id, note_ids=[str(mock_asc_advising_note.id)])
+        assert len(note_read) == 0
+
     def test_remove_note_topics(self, app, client, fake_auth, mock_asc_advising_note):
         """Delete note topics."""
+        # Note is marked read by EOP peer advisor manager
+        eop_pam = AuthorizedUser.find_by_uid(eop_peer_advisor_manager_uid)
+        NoteRead.find_or_create(viewer_id=eop_pam.id, note_ids=[str(mock_asc_advising_note.id)])
+
+        # ASC advisor updates the note
         fake_auth.login(mock_asc_advising_note.author_uid)
         original_topics = mock_asc_advising_note.topics
         assert len(original_topics)
@@ -1196,8 +1219,17 @@ class TestUpdateNotes:
         )
         assert set(api_json['topics']) == set([t.topic for t in original_topics])
 
+        # Note marked unread by EOP peer advisor manager
+        note_read = NoteRead.get_notes_read_by_user(viewer_id=eop_pam.id, note_ids=[str(mock_asc_advising_note.id)])
+        assert len(note_read) == 0
+
     def test_update_note_contact_type(self, app, client, fake_auth, mock_asc_advising_note):
         """Update note contact type."""
+        # Note is marked read by CE3 advisor
+        ce3_advisor = AuthorizedUser.find_by_uid(ce3_advisor_uid)
+        NoteRead.find_or_create(viewer_id=ce3_advisor.id, note_ids=[str(mock_asc_advising_note.id)])
+
+        # ASC advisor updates the note
         fake_auth.login(mock_asc_advising_note.author_uid)
         api_json = self._api_note_update(
             app=app,
@@ -1210,8 +1242,17 @@ class TestUpdateNotes:
         assert api_json['read'] is True
         assert api_json['contactType'] == 'Online same day'
 
+        # Note marked unread by CE3 advisor
+        note_read = NoteRead.get_notes_read_by_user(viewer_id=ce3_advisor.id, note_ids=[str(mock_asc_advising_note.id)])
+        assert len(note_read) == 0
+
     def test_update_note_set_date(self, app, client, fake_auth, mock_asc_advising_note):
         """Update note set date."""
+        # Note is marked read by L&S major advisor
+        l_s_major_advisor = AuthorizedUser.find_by_uid(l_s_major_advisor_uid)
+        NoteRead.find_or_create(viewer_id=l_s_major_advisor.id, note_ids=[str(mock_asc_advising_note.id)])
+
+        # ASC advisor updates the note
         fake_auth.login(mock_asc_advising_note.author_uid)
         api_json = self._api_note_update(
             app=app,
@@ -1224,8 +1265,12 @@ class TestUpdateNotes:
         assert api_json['read'] is True
         assert api_json['setDate'] == '2021-10-31'
 
+        # Note marked unread by L&S major advisor
+        note_read = NoteRead.get_notes_read_by_user(viewer_id=l_s_major_advisor.id, note_ids=[str(mock_asc_advising_note.id)])
+        assert len(note_read) == 0
+
     def test_peer_advisor_manager(self, app, client, fake_auth):
-        """Update note contact type."""
+        """Peer Advisor Manager can update a Peer Advisor's note."""
         # Set up the test by creating a note authored by CE3 Peer Advisor.
         peer_advisor_author_uid = ce3_navcal_peer_advisor_uid
         peer_advisor = AuthorizedUser.find_by_uid(peer_advisor_author_uid)
@@ -1244,6 +1289,11 @@ class TestUpdateNotes:
             body='Body',
             peer_advising_department_id=peer_advising_department_id,
         )
+
+        # Note is marked read by COE advisor
+        coe_advisor = AuthorizedUser.find_by_uid(coe_advisor_uid)
+        NoteRead.find_or_create(viewer_id=coe_advisor.id, note_ids=[str(note.id)])
+
         # Log in the CE3 Peer Advisor Manager and verify matching peer_advising_department_id.
         user_logged_in = fake_auth.login(ce3_navcal_peer_advisor_manager_uid)
         membership = next((m for m in user_logged_in['departments'][0]['memberships'] if 'peerAdvisingDepartmentId' in m), None)
@@ -1261,6 +1311,10 @@ class TestUpdateNotes:
         assert api_json['body'] == 'Updated body'
         assert api_json['subject'] == 'Updated subject'
         assert api_json['contactType'] == 'Online same day'
+
+        # Note marked unread by COE advisor
+        note_read = NoteRead.get_notes_read_by_user(viewer_id=coe_advisor.id, note_ids=[str(note.id)])
+        assert len(note_read) == 0
 
 
 class TestApplyTemplate:
