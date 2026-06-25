@@ -311,6 +311,15 @@
   overflow: hidden;
   scrollbar-gutter: stable !important;
 }
+/* Safari does not show :focus-visible on programmatically-focused menu items
+   (see src/lib/menu-focus.ts), so this makes the focus indicator visible manually. */
+.safari-menu-focus-visible {
+  outline: 2px solid rgb(var(--v-theme-primary)) !important;
+  outline-offset: -2px;
+}
+.safari-menu-focus-visible.v-list-item > .v-list-item__overlay {
+  opacity: calc(var(--v-focus-opacity) * var(--v-theme-overlay-multiplier));
+}
 .mouseover-grabbable td {
   background-color: rgb(var(--v-theme-sky-blue));
 }

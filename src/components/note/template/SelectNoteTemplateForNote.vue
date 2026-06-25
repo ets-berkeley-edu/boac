@@ -25,6 +25,7 @@
             :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
             flat
             v-bind="menuProps"
+            @mousedown="onSafariActivatorMousedown"
           >
             <div class="pr-1">Templates</div>
             <v-icon :icon="mdiMenuDown" size="24" />
@@ -231,6 +232,7 @@ import ModalHeader from '@/components/util/ModalHeader.vue'
 import ProgressButton from '@/components/util/ProgressButton.vue'
 import type {NoteTemplate} from '@/lib/types'
 import {alertScreenReader, putFocusNextTick, toInt} from '@/lib/utils'
+import {onSafariActivatorMousedown} from '@/lib/menu-focus'
 import {applyNoteTemplate} from '@/api/notes'
 import {deleteNoteTemplate, renameNoteTemplate} from '@/api/note-templates'
 import {disableFocusLock, enableFocusLock} from '@/stores/note-edit-session/note-edit-session-utils'

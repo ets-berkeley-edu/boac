@@ -23,6 +23,7 @@
           'text-medium-emphasis': degreeStore.disableButtons || isSaving
         }"
         v-bind="menuProps"
+        @mousedown="onSafariActivatorMousedown"
       >
         <v-icon :icon="mdiDrag" />
       </button>
@@ -84,6 +85,7 @@ import {cloneDeep, each, every, includes, isEmpty} from 'lodash'
 import {computed, ref} from 'vue'
 import {mdiDrag} from '@mdi/js'
 import {alertScreenReader} from '@/lib/utils'
+import {onSafariActivatorMousedown} from '@/lib/menu-focus'
 import {assignCourse} from '@/api/degree'
 import {categoryHasCourse, isCampusRequirement} from '@/lib/degree-progress'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/degree-edit-session-utils'

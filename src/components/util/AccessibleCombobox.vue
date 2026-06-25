@@ -87,7 +87,8 @@
 <script setup>
 import {filter, get, includes, isEmpty} from 'lodash'
 import {mdiCloseCircle} from '@mdi/js'
-import {nextTick, onMounted, onUpdated, ref} from 'vue'
+import {nextTick, onBeforeUnmount, onMounted, onUpdated, ref} from 'vue'
+import {stripSafariAriaOwns} from '@/lib/menu-focus'
 import {alertScreenReader, escapeForRegExp, pluralize, putFocusNextTick} from '@/lib/utils'
 
 const props = defineProps({
@@ -223,6 +224,7 @@ const props = defineProps({
 
 const container = ref()
 const focusedListItemIndex = ref(undefined)
+const inputAriaOwnsObserver = ref(undefined)
 const mergedMenuProps = ref({})
 const model = defineModel({
   get() {
@@ -257,6 +259,7 @@ onMounted(() => {
       input.setAttribute('aria-controls', `${props.idPrefix}-menu`)
       input.setAttribute('aria-expanded', false)
       input.removeAttribute('aria-labelledby')
+      inputAriaOwnsObserver.value = stripSafariAriaOwns(input)
     }
     mergedMenuProps.value = {
       id: `${props.idPrefix}-menu`,
@@ -265,6 +268,12 @@ onMounted(() => {
       ...props.menuProps
     }
   })
+})
+
+onBeforeUnmount(() => {
+  if (inputAriaOwnsObserver.value) {
+    inputAriaOwnsObserver.value.disconnect()
+  }
 })
 
 onUpdated(() => {

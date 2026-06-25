@@ -21,7 +21,7 @@
         :close-on-content-click="false"
         :disabled="!size(sids) || isConfirming || isSaving"
         eager
-        @update:model-value="isOpen => isMenuOpen = isOpen"
+        @update:model-value="onUpdateMenuModelValue"
       >
         <template #activator="{props: menuProps}">
           <button
@@ -30,6 +30,7 @@
             :class="{'bg-success': isConfirming, 'button-menu-active': isMenuOpen}"
             :disabled="!size(sids)"
             v-bind="menuProps"
+            @mousedown="onSafariActivatorMousedown"
           >
             <div class="align-center d-flex">
               <v-progress-circular
@@ -133,6 +134,7 @@ import {mdiCheckBold, mdiCheckboxBlankOutline, mdiCheckboxMarked, mdiMenuDown, m
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal'
 import {addStudentsToCuratedGroups, createCuratedGroup} from '@/api/curated'
 import {alertScreenReader, oxfordJoin, pluralize, putFocusNextTick} from '@/lib/utils'
+import {onSafariActivatorMousedown, onSafariMenuClose, onSafariMenuOpen} from '@/lib/menu-focus'
 import {describeCuratedGroupDomain} from '@/lib/berkeley-utils'
 import {useContextStore} from '@/stores/context'
 
@@ -185,6 +187,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   each(['curated-group-checkbox-checked', 'curated-group-checkbox-unchecked', 'curated-group-deselect-all'], contextStore.removeEventHandler)
+  onSafariMenuClose(dropdownId)
 })
 
 const afterCreateGroup = () => {
@@ -235,6 +238,15 @@ const onCheckboxUnchecked = args => {
   if (props.domain === args.domain) {
     sids.value = remove(sids.value, s => s !== args.sid)
     refresh()
+  }
+}
+
+const onUpdateMenuModelValue = isOpen => {
+  isMenuOpen.value = isOpen
+  if (isOpen) {
+    onSafariMenuOpen(dropdownId)
+  } else {
+    onSafariMenuClose(dropdownId)
   }
 }
 
