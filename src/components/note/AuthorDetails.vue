@@ -104,14 +104,15 @@ const props = defineProps({
 })
 
 const departments = ref(orderBy(map(props.author.departments, 'deptName')))
-const email = ref(props.author.email)
-const name = ref(props.author.name)
-const role = ref(props.author.role || props.author.title)
+const email = ref()
+const name = ref()
+const role = ref()
 const contextStore = useContextStore()
 const peerAdvisingDepartment = ref()
 const showPeerAdvisorLink = computed(() => contextStore.currentUser.isAdmin && props.peerAdvisingDepartmentId && props.author.uid && name.value)
 
 onMounted(() => {
+  setAuthorDetails(props.author.uid === contextStore.currentUser.uid ? contextStore.currentUser : props.author)
   if (!name.value || !role.value) {
     loadAuthorDetails()
   }
@@ -121,23 +122,20 @@ onMounted(() => {
 })
 
 const loadAuthorDetails = () => {
-  const setAuthorDetails = author => {
-    email.value = author.email
-    name.value = author.name
-    role.value = author.role || author.title
-    departments.value = orderBy(map(author.departments, 'deptName'))
-    if (!role.value && author.departments.length) {
-      role.value = oxfordJoin(getBoaUserRoles(author.departments[0]))
-    }
-  }
   if (props.author.uid) {
-    if (props.author.uid === contextStore.currentUser.uid) {
-      setAuthorDetails(contextStore.currentUser)
-    } else {
-      getCalnetProfileByUid(props.author.uid).then(setAuthorDetails)
-    }
+    getCalnetProfileByUid(props.author.uid).then(setAuthorDetails)
   } else if (props.author.sid) {
     getCalnetProfileByCsid(props.author.sid).then(setAuthorDetails)
+  }
+}
+
+const setAuthorDetails = author => {
+  email.value = author.email
+  name.value = author.name
+  role.value = author.role || author.title
+  departments.value = orderBy(map(author.departments, 'deptName'))
+  if (!role.value && author.departments.length) {
+    role.value = oxfordJoin(getBoaUserRoles(author.departments[0]))
   }
 }
 </script>
