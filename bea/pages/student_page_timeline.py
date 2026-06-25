@@ -30,6 +30,7 @@ from datetime import datetime
 from zipfile import ZipFile
 
 from flask import current_app as app
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 
 from bea.pages.boa_pages import BoaPages
@@ -147,6 +148,17 @@ class StudentPageTimeline(BoaPages):
         item_type = self.item_type(item)
         return By.XPATH, f'//div[contains(@id, "{item_type}-{item.record_id}-attachment-")]//a[@href]'
 
+    @staticmethod
+    def attachment_name_from_link(el):
+        try:
+            name_el = el.find_element(
+                By.XPATH,
+                './/span[contains(@class, "truncate-with-ellipsis") and not(contains(@class, "sr-only"))]',
+            )
+            return name_el.text.strip()
+        except NoSuchElementException:
+            return el.get_attribute('innerText').strip()
+
     def click_attachment_link(self, item, attachment_name):
         time.sleep(utils.get_click_sleep())
         self.driver.execute_script('arguments[0].click();', self.item_attachment_el(item, attachment_name))
@@ -156,7 +168,7 @@ class StudentPageTimeline(BoaPages):
 
     def item_attachment_el(self, item, attachment_name):
         for el in self.item_attachment_els(item):
-            text = el.get_attribute('innerText').strip()
+            text = self.attachment_name_from_link(el)
             if text.lower() == attachment_name.lower():
                 return el
 

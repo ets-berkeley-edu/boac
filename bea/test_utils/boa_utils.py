@@ -581,7 +581,7 @@ def get_note_sids_by_subject(note):
 
 
 def get_student_notes(student):
-    sql = f"SELECT * FROM notes WHERE sid = '{student.sid} AND parent_note_id IS NULL'"
+    sql = f"SELECT * FROM notes WHERE sid = '{student.sid}' AND parent_note_id IS NULL"
     app.logger.info(sql)
     results = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
