@@ -32,6 +32,7 @@ import re
 import shutil
 import time
 
+import pytz
 from flask import current_app as app
 
 from bea.models.term import Term
@@ -183,7 +184,7 @@ def strip_tags_and_whitespace(string):
 
 
 def date_to_local_tz(date):
-    return date.astimezone()
+    return date.astimezone(pytz.timezone(app.config['TIMEZONE']))
 
 
 def in_op(arr):
