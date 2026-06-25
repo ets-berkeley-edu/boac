@@ -228,6 +228,7 @@
                   </div>
                   <AdvisingNote
                     v-if="['eForm', 'note'].includes(message.type) && message.id !== editModeNoteId"
+                    :key="`message-${message.id}`"
                     :after-saved="afterEditAdvisingNote"
                     :class="{'timeline-message-full-width': isExpanded(message)}"
                     :edit-note="editNote"
@@ -245,6 +246,7 @@
                   />
                   <AdvisingAppointment
                     v-if="message.type === 'appointment'"
+                    :key="`message-${message.id}`"
                     :appointment="message"
                     :class="{'timeline-message-full-width': isExpanded(message)}"
                     :is-open="isExpanded(message)"
@@ -297,6 +299,7 @@
             >
               <span v-if="message.type === 'note'" class="font-size-14 text-medium-emphasis">Created by:</span>
               <AuthorDetails
+                :key="`author-${message.id}`"
                 activator-class="font-size-14"
                 :author="message.author || message.advisor"
                 :id-prefix="`note-${message.id}`"
