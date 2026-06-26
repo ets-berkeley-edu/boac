@@ -20,6 +20,7 @@
           :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
           flat
           v-bind="menuProps"
+          @mousedown="onSafariActivatorMousedown"
         >
           <div class="pr-1">Templates</div>
           <v-icon :icon="mdiMenuDown" size="24" />
@@ -69,6 +70,7 @@ import {mdiClose, mdiMenuDown} from '@mdi/js'
 import {storeToRefs} from 'pinia'
 import type {NoteTemplate} from '@/lib/types'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
+import {onSafariActivatorMousedown} from '@/lib/menu-focus'
 import {useNoteStore} from '@/stores/note-edit-session'
 
 const emit = defineEmits([

@@ -13,13 +13,13 @@
           v-bind="menuProps"
           :aria-label="`Add ${student.name} to ${domainLabel(true)}s`"
           :aria-controls="isMenuOpen ? 'manage-student-menu' : null"
-          :aria-owns="isMenuOpen ? 'manage-student-menu' : null"
           class="button-menu bg-primary py-0 px-2 text-body-1 text-white"
           :class="{
             'bg-error': isRemoving,
             'bg-success': isAdding,
             'button-menu-active': isMenuOpen
           }"
+          @mousedown="onSafariActivatorMousedown"
         >
           <div v-if="!isAdding && !isRemoving" class="d-flex" :class="labelClass">
             <v-progress-circular
@@ -140,6 +140,7 @@ import {
   removeFromCuratedGroups
 } from '@/api/curated'
 import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
+import {onSafariActivatorMousedown, onSafariMenuClose, onSafariMenuOpen} from '@/lib/menu-focus'
 import {describeCuratedGroupDomain} from '@/lib/berkeley-utils'
 import {getUserProfile} from '@/api/user'
 import {useContextStore} from '@/stores/context'
@@ -206,6 +207,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   contextStore.removeEventHandler(eventName, onUpdateMyCuratedGroups)
+  onSafariMenuClose('manage-student-menu')
 })
 
 const domainLabel = capitalize => {
@@ -285,8 +287,10 @@ const onUpdateMenuModelValue = isOpen => {
   refresh()
   if (isOpen) {
     document.documentElement.classList.add('modal-open')
+    onSafariMenuOpen('manage-student-menu')
   } else {
     document.documentElement.classList.remove('modal-open')
+    onSafariMenuClose('manage-student-menu')
     contextStore.broadcast('curated-group-deselect-all', props.domain)
   }
 }

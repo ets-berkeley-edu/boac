@@ -14,6 +14,7 @@
           class="v-btn button-menu header-button-menu bg-primary px-1 px-sm-3 text-body-1 text-white"
           :class="{'button-menu-active': isMenuOpen}"
           v-bind="props"
+          @mousedown="onSafariActivatorMousedown"
         >
           {{ currentUser.firstName || `UID:${currentUser.uid}` }}
           <v-icon :icon="mdiMenuDown" size="24" />
@@ -159,6 +160,7 @@ import {mdiMenuDown} from '@mdi/js'
 import {onMounted, ref} from 'vue'
 import {useRoute} from 'vue-router'
 import {alertScreenReader} from '@/lib/utils'
+import {onSafariActivatorMousedown} from '@/lib/menu-focus'
 import {getCasLogoutUrl} from '@/api/auth'
 import {isPeerAdvisor, isPeerAdvisorManager} from '@/lib/boa-user'
 import {getPeerAdvisorDepartmentMemberships, myDeptCodes} from '@/lib/berkeley-department'

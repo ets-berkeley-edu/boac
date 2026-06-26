@@ -16,6 +16,7 @@
           :class="getCssClass('border', selected)"
           :disabled="disabled"
           v-bind="menuProps"
+          @mousedown="onSafariActivatorMousedown"
         >
           <div class="align-center d-flex">
             <div v-if="!selected.color" class="text-left">{{ selected.title }}</div>
@@ -66,6 +67,7 @@ import {find, map, toLower} from 'lodash'
 import {mdiSquare} from '@mdi/js'
 import {ref} from 'vue'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
+import {onSafariActivatorMousedown} from '@/lib/menu-focus'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({
