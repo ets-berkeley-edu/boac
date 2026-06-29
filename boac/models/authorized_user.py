@@ -246,7 +246,12 @@ class AuthorizedUser(Base):
     def get_admin_users(cls, status):
         where_clause = cls.is_admin
         if status == 'active':
-            where_clause = and_(cls.is_admin, cls.is_blocked.isnot(True), cls.deleted_at == None)  # noqa: E711
+            where_clause = and_(
+                cls.is_admin,
+                cls.is_blocked.isnot(True),
+                cls.deleted_at == None,  # noqa: E711
+                cls.disabled_at == None,  # noqa: E711
+            )
         elif status == 'blocked':
             where_clause = and_(cls.is_admin, cls.is_blocked.isnot(False))
         elif status == 'deleted':
@@ -475,7 +480,7 @@ def _users_sql_where_clause(status):
     elif status == 'disabled':
         query_filter += 'AND u.disabled_at IS NOT NULL '
     elif status == 'active':
-        query_filter += 'AND u.deleted_at IS NULL '
+        query_filter += 'AND u.deleted_at IS NULL AND u.disabled_at IS NULL '
     return query_filter
 
 
