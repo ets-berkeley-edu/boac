@@ -463,6 +463,7 @@ class TestGetAdminUsers:
         assert len(api_json)
         for admin_user in api_json:
             assert admin_user['deletedAt'] is None
+            assert admin_user['disabledAt'] is None
             assert admin_user['isAdmin'] is True
             assert admin_user['uid'] != deleted_admin_uid
 
