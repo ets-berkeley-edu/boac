@@ -67,6 +67,7 @@ def get_peer_advising_csv_download(peer_advising_department_id):
             'sid',
             'student_first_name',
             'student_last_name',
+            'student_email',
             'topics',
             'created_at',
             'updated_at',
