@@ -4,7 +4,7 @@
       v-if="currentUser.isAdmin || isPeerAdvisorManager(currentUser)"
       :id="`note-${note.id}-link-to-student`"
       :class="{'demo-mode-blur': currentUser.inDemoMode}"
-      :to="studentRoutePath(student.uid, currentUser.inDemoMode)"
+      :to="studentRoutePath(note.student.uid, currentUser.inDemoMode)"
       v-html="studentName"
     />
     <div
@@ -17,6 +17,7 @@
 </template>
 
 <script setup lang="ts">
+import {computed} from 'vue'
 import type {PropType} from 'vue'
 import type {Note} from '@/lib/types'
 import {isPeerAdvisorManager} from '@/lib/boa-user'
@@ -35,7 +36,10 @@ const props = defineProps({
 })
 
 const currentUser = useContextStore().currentUser
-const student = props.note.student
-const studentName = props.showStudentLastNameFirst ? lastNameFirst(student) : student ? `${student.firstName} ${student.lastName}` : `SID: ${props.note.sid}`
+
+const studentName = computed(() => {
+  const student = props.note.student
+  return props.showStudentLastNameFirst ? lastNameFirst(student) : student ? `${student.firstName} ${student.lastName}` : `SID: ${props.note.sid}`
+})
 </script>
 

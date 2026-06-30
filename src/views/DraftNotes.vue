@@ -30,6 +30,7 @@
           hide-no-data
           :items="myDraftNotes || []"
           :items-per-page="-1"
+          :loading="isReloading"
           :row-props="row => ({id: `draft-note-${row.item.id}`})"
         >
           <template #item.student="{item}">
@@ -70,7 +71,7 @@
                 v-if="item.author.uid === currentUser.uid"
                 :id="`open-draft-note-${item.id}`"
                 :aria-label="editNoteAriaLabel(item, index)"
-                class="mr-1 px-0 py-2 text-left text-primary subject-btn"
+                class="mr-1 px-0 py-2 text-left text-primary subject-btn w-100"
                 :class="{'demo-mode-blur': currentUser.inDemoMode}"
                 size="lg"
                 :title="draftNoteLabel(item)"
@@ -154,7 +155,7 @@
 </template>
 
 <script setup>
-import {computed, onBeforeUnmount, onMounted, ref, watch} from 'vue'
+import {computed, onBeforeUnmount, onMounted, ref} from 'vue'
 import {DateTime} from 'luxon'
 import {each, find, findIndex, get, size, trim, truncate} from 'lodash'
 import {mdiPaperclip, mdiTrashCan} from '@mdi/js'
@@ -165,16 +166,12 @@ import vuetify from '@/plugins/vuetify'
 import {alertScreenReader, putFocusNextTick, studentRoutePath} from '@/lib/utils'
 import {deleteNote, getMyDraftNotes} from '@/api/notes'
 import {useContextStore} from '@/stores/context'
-import {useNoteStore} from '@/stores/note-edit-session'
 
 const contextStore = useContextStore()
-const noteStore = useNoteStore()
 const config = contextStore.config
 const currentUser = contextStore.currentUser
 const eventHandlers = {
-  'note-created': () => {
-    reloadDraftNotes()
-  },
+  'note-created': () => reloadDraftNotes(),
   'note-deleted': noteId => find(myDraftNotes.value, ['id', noteId]) && reloadDraftNotes(),
   'note-updated': note => {
     if (find(myDraftNotes.value, ['id', note.id])) {
@@ -185,6 +182,7 @@ const eventHandlers = {
 const isDeleteDialogOpen = ref(false)
 const isEditDialogOpen = ref(false)
 const isDeleting = ref(false)
+const isReloading = ref(false)
 const mobileBreakpoint = 800
 const myDraftNotes = ref(undefined)
 const selectedNote = ref(undefined)
@@ -228,12 +226,6 @@ const deleteNoteAriaLabel = (note, index) =>
 
 contextStore.loadingStart()
 
-watch(() => noteStore.isSaving, (newValue, oldValue) => {
-  if (newValue === false && oldValue === true) {
-    reloadDraftNotes()
-  }
-})
-
 onMounted(() => {
   getMyDraftNotes().then(data => {
     myDraftNotes.value = data
@@ -253,7 +245,7 @@ const cancel = () => {
   const noteId = selectedNote.value.id
   isDeleteDialogOpen.value = isEditDialogOpen.value = false
   selectedNote.value = undefined
-  alertScreenReader('Canceled')
+  alertScreenReader('Canceled delete')
   putFocusNextTick(`delete-draft-note-${noteId}`)
 }
 
@@ -294,7 +286,13 @@ const openEditDialog = noteDraft => {
   selectedNote.value = noteDraft
 }
 
-const reloadDraftNotes = () => getMyDraftNotes().then(data => myDraftNotes.value = data)
+const reloadDraftNotes = () => {
+  isReloading.value = true
+  getMyDraftNotes().then(data => {
+    myDraftNotes.value = data
+    isReloading.value = false
+  })
+}
 </script>
 
 <style>

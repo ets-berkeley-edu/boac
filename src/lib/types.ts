@@ -302,6 +302,7 @@ export type NoteEditSessionModel = {
   isPrivate: boolean,
   peerAdvisingDepartmentId: number | undefined,
   setDate: string | undefined,
+  sid: string | undefined,
   subject: string | undefined,
   topics: string[]
   noteTemplateId: number | undefined,
