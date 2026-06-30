@@ -60,6 +60,7 @@ export function createDraftNote(sid: string) {
 
 export function updateNote(
     noteId: number,
+    isAutoSave: boolean,
     body?: string,
     cohortIds?: number[],
     contactType?: string | null,
@@ -95,7 +96,12 @@ export function updateNote(
   const apiPath: string = isPeerAdvisor(contextStore.currentUser) ? '/api/peer_advising/note/update' : '/api/notes/update'
   each(attachments, (attachment, index) => args[`attachment[${index}]`] = attachment)
   return utils.postMultipartFormData(apiPath, args).then(data => {
-    const eventType = size(sids) > 1 ? 'notes-batch-published' : 'note-updated'
+    let eventType = ''
+    if (isAutoSave) {
+      eventType = 'note-auto-saved'
+    } else {
+      eventType = size(sids) > 1 ? 'notes-batch-published' : 'note-updated'
+    }
     contextStore.broadcast(eventType, data)
     $_track('update')
     $_refreshMyDraftNoteCount()

@@ -32,9 +32,12 @@ export function exitSession(revert: boolean): Promise<NoteEditSessionModel | voi
     if (revert) {
       if (model.id && mode && ['createBatch', 'createNote'].includes(mode)) {
         deleteNote(model.id).then(done)
-      } else if (mode === 'editNote' && model.isDraft) {
+      } else if ((mode === 'editNote' && model.isDraft) || mode === 'editDraft') {
         noteStore.setModel(originalModel)
-        updateAdvisingNote().then(done)
+        if (model.isDraft) {
+          noteStore.setCompleteSidSet(model.sid ? [model.sid] : [])
+        }
+        updateAdvisingNote(false).then(done)
       } else {
         done(model)
       }
@@ -59,6 +62,7 @@ export function getDefaultModel(): NoteEditSessionModel {
     peerAdvisingDepartmentId: undefined,
     peerAdvisingStudentRecipient: null,
     setDate: undefined,
+    sid: undefined,
     subject: undefined,
     topics: []
   }
@@ -88,7 +92,7 @@ export function scheduleAutoSaveJob() {
         setTimeout(scheduleAutoSaveJob, 2000)
       } else {
         noteStore.setIsAutoSavingDraftNote(true)
-        updateAdvisingNote().then((note: NoteEditSessionModel) => {
+        updateAdvisingNote(true).then((note: NoteEditSessionModel) => {
           noteStore.setModelId(note.id)
           setTimeout(() => noteStore.setIsAutoSavingDraftNote(false), 2000)
           scheduleAutoSaveJob()
@@ -135,7 +139,7 @@ export function setSubjectPerEvent(event: Event): void {
   useNoteStore().setSubject(isString(event) ? event : get(event.target, 'value'))
 }
 
-export function updateAdvisingNote(): Promise<NoteEditSessionModel> {
+export function updateAdvisingNote(isAutoSave: boolean): Promise<NoteEditSessionModel> {
   return new Promise<NoteEditSessionModel>(resolve => {
     const noteStore = useNoteStore()
     const completeSidSet: Set<string> = noteStore.completeSidSet
@@ -183,6 +187,7 @@ export function updateAdvisingNote(): Promise<NoteEditSessionModel> {
       } else {
         updateNote(
           model.id,
+          isAutoSave,
           model.body,
           map(recipients.cohorts, 'id'),
           model.contactType,

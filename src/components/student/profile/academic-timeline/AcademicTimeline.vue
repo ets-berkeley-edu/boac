@@ -94,9 +94,6 @@ onMounted(() => {
 
 const onCreateOrUpdateNote = note => {
   return new Promise(resolve => {
-    if (note.sid !== props.student.sid) {
-      resolve()
-    }
     const noteId = note.parentNoteId || note.id
     const existingNoteIndex = findIndex(messages.value, {'id': noteId})
     if (existingNoteIndex > -1) {
