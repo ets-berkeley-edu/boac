@@ -19,7 +19,7 @@
           :disabled="isSaving || isUpdatingDraft"
           text="Cancel"
           variant="outlined"
-          @click="exit"
+          @click="exit(true)"
         />
         <ProgressButton
           v-if="!['editTemplate', 'createPeerAdvisorNote', 'editPeerAdvisorNote'].includes(mode)"
@@ -145,7 +145,8 @@ const publish = () => {
   isPublishing.value = true
   updateNote('Publishing note...').then(() => {
     isPublishing.value = false
-    props.exit('Note published')
+    alertScreenReader('Note published')
+    props.exit(false)
   })
 }
 
@@ -168,7 +169,7 @@ const updateNote = (alert) => {
     const ifAuthenticated = () => {
       if (isValidNote) {
         props.showAlert(alert, 60)
-        updateAdvisingNote().then(() => {
+        updateAdvisingNote(false).then(() => {
           alertScreenReader(model.value.isDraft ? `Draft note ${action}` : `Note ${action}`)
           noteStore.setIsSaving(false)
           props.exit(false)

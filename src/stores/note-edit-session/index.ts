@@ -174,6 +174,7 @@ export const useNoteStore: StoreDefinition = defineStore('note', {
           peerAdvisingDepartmentId: model.peerAdvisingDepartmentId,
           peerAdvisingStudentRecipient: model.peerAdvisingStudentRecipient,
           setDate: model.setDate,
+          sid: model.sid,
           subject: model.subject,
           topics: model.topics || []
 

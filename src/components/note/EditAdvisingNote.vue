@@ -39,7 +39,7 @@
         </span>
       </transition>
     </div>
-    <div v-if="!isPeerAdvisor(currentUser) && !model.peerAdvisingDepartmentId" class="mt-1">
+    <div v-if="!isPeerAdvisor(currentUser) && !model.peerAdvisingDepartmentId && !isFetchingNote" class="mt-1">
       <label id="edit-note-subject-label" class="font-weight-bold" for="edit-note-subject">
         <span class="sr-only">Note </span>Subject
       </label>
@@ -298,7 +298,7 @@ const cancelConfirmed = () => {
   const editNoteButtonId = `edit-note-${props.noteId}-button`
   nextTick(() => {
     props.afterCancel()
-    alertScreenReader('Note discarded.')
+    alertScreenReader('Canceled edit note.')
     exit(true)
     putFocusNextTick(editNoteButtonId)
   })
@@ -330,6 +330,7 @@ const save = isDraft => {
         const trimmedSubject = trim(model.value.subject)
         updateNote(
           model.value.id,
+          false,
           trim(model.value.body),
           [],
           model.value.contactType,

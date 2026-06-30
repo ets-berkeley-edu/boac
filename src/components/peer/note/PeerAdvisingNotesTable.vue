@@ -23,6 +23,7 @@
           class="font-weight-bold note-student grid-cell"
         >
           <PeerAdvisorNoteStudentName
+            :key="`student-name-${index}`"
             class="text-wrap"
             :note="note"
             :show-student-last-name-first="showStudentLastNameFirst"
@@ -370,7 +371,7 @@ const toggleShowHide = (note: Note) => {
 
 <style scoped>
 .edit-advising-note-container {
-  margin-top: -30px;
+  margin-top: -16px;
   padding-right: 25px;
 }
 .note-action-button {
