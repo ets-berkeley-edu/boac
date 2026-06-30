@@ -173,11 +173,8 @@ const currentUser = contextStore.currentUser
 const eventHandlers = {
   'note-created': () => reloadDraftNotes(),
   'note-deleted': noteId => find(myDraftNotes.value, ['id', noteId]) && reloadDraftNotes(),
-  'note-updated': note => {
-    if (find(myDraftNotes.value, ['id', note.id])) {
-      reloadDraftNotes()
-    }
-  }
+  'note-updated': note => find(myDraftNotes.value, ['id', note.id]) && reloadDraftNotes(),
+  'notes-batch-published': () => reloadDraftNotes()
 }
 const isDeleteDialogOpen = ref(false)
 const isEditDialogOpen = ref(false)
