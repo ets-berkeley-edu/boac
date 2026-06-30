@@ -144,7 +144,9 @@ const reset = () => {
 const resetValidation = () => {
   errorMessage.value = ''
   isInvalid.value = false
-  cohortNameInput.value.resetValidation()
+  if (cohortNameInput.value) {
+    cohortNameInput.value.resetValidation()
+  }
 }
 
 const validate = name => {
