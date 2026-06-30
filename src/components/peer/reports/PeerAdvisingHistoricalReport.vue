@@ -85,7 +85,7 @@
                       >
                         {{ peerAdvisor.name }}
                         <span v-if="peerAdvisor.deletedAt" class="text-medium-emphasis">
-                          (deleted on <Date :id="`peer-advisor-${peerAdvisor.uid}-deleted-at`" :date="peerAdvisor.deletedAt" />)\
+                          (deleted on <Date :id="`peer-advisor-${peerAdvisor.uid}-deleted-at`" :date="peerAdvisor.deletedAt" />)
                         </span>
                       </td>
                       <td

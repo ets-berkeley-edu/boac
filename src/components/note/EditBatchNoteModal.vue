@@ -306,7 +306,7 @@ const createTemplate = title => {
     // File upload might take time; alert will be overwritten when API call is done.
     showAlert('Creating template...', 60)
     // Save draft before creating template.
-    updateAdvisingNote().then(() => {
+    updateAdvisingNote(false).then(() => {
       createNoteTemplate(model.value.id, title).then(() => {
         showCreateTemplateModal.value = false
         showAlert(`Template '${title}' created.`)
@@ -398,10 +398,6 @@ const init = () => {
       if (props.noteId) {
         getNote(props.noteId).then(resolve)
       } else {
-        contextStore.broadcast('begin-note-creation', {
-          completeSidSet: [props.sid],
-          subject: 'note-creation-is-starting'
-        })
         createDraftNote(props.sid).then(resolve)
       }
     })

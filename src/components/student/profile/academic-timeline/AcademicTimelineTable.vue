@@ -475,7 +475,6 @@ const noteStore = useNoteStore()
 
 const allExpanded = ref(false)
 const config = contextStore.config
-const creatingNoteEvent = ref(undefined)
 const currentUser = contextStore.currentUser
 const defaultShowPerTab = ref(5)
 const editModeNoteId = ref(undefined)
@@ -536,11 +535,12 @@ onMounted(() => {
       'comment-added': onCommentAdded,
       'comment-deleted': onCommentDeleted,
       'comment-updated': onCommentUpdated,
-      'note-creation-is-starting': onNoteCreateStartEvent,
       'note-created': afterNoteCreated,
       'note-updated': note => {
-        editModeNoteId.value = null
-        props.onNoteUpdated(note).then(refreshSearchIndex)
+        if (note.sid === props.student.sid) {
+          editModeNoteId.value = null
+          props.onNoteUpdated(note).then(refreshSearchIndex)
+        }
       },
       'notes-created': noteIdsBySid => {
         const noteId = noteIdsBySid[props.student.sid]
@@ -583,8 +583,9 @@ const afterEditAdvisingNote = (updatedNote, putFocusId) => {
 }
 
 const afterNoteCreated = note => {
-  creatingNoteEvent.value = null
-  props.onNoteUpdated(note).then(refreshSearchIndex)
+  if (note.sid === props.student.sid) {
+    props.onNoteUpdated(note).then(refreshSearchIndex)
+  }
 }
 
 const afterNoteEditCancel = () => {
@@ -771,12 +772,6 @@ const onCommentUpdated = comment => {
     if (existingCommentIndex >= 0) {
       message.comments.splice(existingCommentIndex, 1, comment)
     }
-  }
-}
-
-const onNoteCreateStartEvent = event => {
-  if (includes(event.completeSidSet, props.student.sid)) {
-    creatingNoteEvent.value = event
   }
 }
 

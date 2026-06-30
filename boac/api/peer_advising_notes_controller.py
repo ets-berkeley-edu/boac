@@ -400,6 +400,14 @@ def update_peer_advising_note():
     )
     note_read = NoteRead.find_or_create(current_user.get_id(), [note_id])
     api_json = get_boac_note_as_compatible_json(note=note, note_read=note_read)
+    student = data_loch.get_student_by_sid(note.sid)
+    if student:
+        api_json['student'] = {
+            'firstName': student['first_name'],
+            'lastName': student['last_name'],
+            'sid': student['sid'],
+            'uid': student['uid'],
+        }
     return tolerant_jsonify(api_json)
 
 
