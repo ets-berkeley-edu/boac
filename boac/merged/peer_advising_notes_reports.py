@@ -26,7 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from sqlalchemy import text
 
 from boac import db
-from boac.externals.data_loch import get_basic_student_data
+from boac.externals.data_loch import get_students_by_sids
 from boac.lib.util import to_iso_format
 from boac.models.peer_advising_department import PeerAdvisingDepartment
 
@@ -132,6 +132,7 @@ def get_all_peer_advising_notes(peer_advising_department_id):
                     'sid': row['sid'],
                     'student_first_name': None,
                     'student_last_name': None,
+                    'student_email': None,
                     'topics': [],
                     'created_at': to_iso_format(row['created_at'])[:10],
                     'updated_at': to_iso_format(row['updated_at'])[:10],
@@ -142,7 +143,7 @@ def get_all_peer_advising_notes(peer_advising_department_id):
                 note['topics'].append(topic)
 
         distinct_sids = list(set([note['sid'] for note in notes]))
-        students_by_sid = {row['sid']: row for row in get_basic_student_data(sids=distinct_sids)}
+        students_by_sid = {row['sid']: row for row in get_students_by_sids(sids=distinct_sids)}
         for note in notes:
             del note['id']
             note['topics'] = ', '.join(note['topics'])
@@ -150,6 +151,7 @@ def get_all_peer_advising_notes(peer_advising_department_id):
             if student:
                 note['student_first_name'] = student['first_name']
                 note['student_last_name'] = student['last_name']
+                note['student_email'] = student['email_address']
         return notes
     else:
         raise ValueError(f'Peer Advising Department {peer_advising_department_id} not found.')
