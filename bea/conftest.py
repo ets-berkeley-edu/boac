@@ -86,7 +86,7 @@ def pytest_runtest_makereport(item, call):
     result = outcome.get_result()
 
     # Check if the test has failed
-    if result.when == "call" and result.failed:
+    if _app.config['SCREENSHOT_ON_FAILURE'] and result.when == "call" and result.failed:
         driver = item.funcargs.get('page_objects')
         if driver:
             timestamp = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')

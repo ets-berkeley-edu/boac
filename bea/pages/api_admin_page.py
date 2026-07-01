@@ -62,7 +62,7 @@ class ApiAdminPage(ApiPage):
                     raise
                 else:
                     time.sleep(1)
-        time.sleep(1)
+        time.sleep(5)
         app.logger.info('Just double checking reindexing status')
         self.driver.get(f'{base_url}/api/admin/status/reindex_notes')
         self.wait_for_element((By.XPATH, '//*[contains(text(), "isActive")]'), utils.get_short_timeout())
