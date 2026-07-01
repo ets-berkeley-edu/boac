@@ -38,6 +38,7 @@ from boac.merged.peer_advising_notes_reports import (
     get_peer_advising_note_author_count,
     get_peer_advising_note_count_since,
     get_peer_advising_note_template_usage,
+    get_peer_advising_note_topic_usage,
     get_total_peer_advising_notes,
 )
 from boac.models.peer_advising_department import PeerAdvisingDepartment
@@ -98,6 +99,7 @@ def peer_advising_notes_report(peer_advising_department_id):
         },
         'distinctPeerAdvisorAuthors': get_peer_advising_note_author_count(peer_advising_department.id),
         'noteTemplates': get_peer_advising_note_template_usage(peer_advising_department.id),
+        'noteTopics': get_peer_advising_note_topic_usage(peer_advising_department.id),
         'peerAdvisingDepartment': peer_advising_department.to_api_json(),
         'totalPeerAdvisingNoteCount': get_total_peer_advising_notes(peer_advising_department.id),
     })

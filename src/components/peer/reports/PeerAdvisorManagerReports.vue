@@ -35,6 +35,9 @@
         <div v-if="notesReport" class="mt-8 pr-2">
           <PeerAdvisingTemplatesUsed :notes-report="notesReport" />
         </div>
+        <div v-if="notesReport" class="mt-8 pr-2">
+          <PeerAdvisingTopicsUsed :notes-report="notesReport" />
+        </div>
       </v-col>
       <v-col class="pl-7" cols="12" md="6">
         <div v-if="notesReport">
@@ -67,6 +70,7 @@ import type {PeerAdvisingManagerReport} from '@/lib/types-peer-advising'
 import PeerAdvisingCurrentMonthReport from '@/components/peer/reports/PeerAdvisingCurrentMonthReport.vue'
 import PeerAdvisingHistoricalReport from '@/components/peer/reports/PeerAdvisingHistoricalReport.vue'
 import PeerAdvisingTemplatesUsed from '@/components/peer/reports/PeerAdvisingTemplatesUsed.vue'
+import PeerAdvisingTopicsUsed from '@/components/peer/reports/PeerAdvisingTopicsUsed.vue'
 import {downloadPeerAdvisingNotes, getPeerAdvisingNotesReport} from '@/api/peer-advising-reports'
 
 const props = defineProps({
