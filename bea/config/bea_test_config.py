@@ -209,7 +209,7 @@ class BEATestConfig(BEATestBaseConfigs):
         self.set_base_configs(dept=dept)
         self.set_peer_advising_manager()
         self.set_note_attachments()
-        self.set_test_students(count=10, opts={'enrollments': True})
+        self.set_test_students(count=20, opts={'enrollments': True})
         nessie_utils.set_student_term_enrollments(self.test_students)
         for student in self.test_students:
             for term_data in student.enrollment_data.enrollment_terms():
