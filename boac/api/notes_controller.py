@@ -224,8 +224,9 @@ def update_note():
             topics=topics,
             note_template_id=note_template_id,
         )
-        note_read = NoteRead.find_or_create(current_user.get_id(), [note_id])
-        api_json = get_boac_note_as_compatible_json(note=note, note_read=note_read)
+        NoteRead.delete_for_note(note_id, except_viewer_id=current_user.get_id())
+        NoteRead.find_or_create(current_user.get_id(), [note_id])
+        api_json = get_boac_note_as_compatible_json(note=note, note_read=True)
     return tolerant_jsonify(api_json)
 
 
@@ -330,10 +331,12 @@ def add_attachments(note_id):
             note_id=note_id,
             attachment=attachment,
         )
+    NoteRead.delete_for_note(note_id, except_viewer_id=current_user.get_id())
+    NoteRead.find_or_create(current_user.get_id(), [note_id])
     return tolerant_jsonify(
         get_boac_note_as_compatible_json(
             note=note,
-            note_read=NoteRead.find_or_create(current_user.get_id(), [note_id]),
+            note_read=True,
         ),
     )
 
@@ -350,10 +353,12 @@ def remove_attachment(note_id, attachment_id):
         note_id=note_id,
         attachment_id=int(attachment_id),
     )
+    NoteRead.delete_for_note(note_id, except_viewer_id=current_user.get_id())
+    NoteRead.find_or_create(current_user.get_id(), [note_id])
     return tolerant_jsonify(
         get_boac_note_as_compatible_json(
             note=note,
-            note_read=NoteRead.find_or_create(current_user.get_id(), [note_id]),
+            note_read=True,
         ),
     )
 
