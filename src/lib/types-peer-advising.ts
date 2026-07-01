@@ -24,6 +24,11 @@ export type PeerAdvisingManagerReport = {
     title: string,
     usageCount: number
   }[],
+  noteTopics: {
+    id: number,
+    topic: string,
+    usageCount: number
+  }[],
   peerAdvisingDepartment: PeerAdvisingDepartment,
   totalPeerAdvisingNoteCount: number
 }

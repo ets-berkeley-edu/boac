@@ -236,6 +236,36 @@ def get_peer_advising_note_template_usage(peer_advising_department_id):
     return [_to_api_json(row) for row in db.session.execute(text(sql), params).mappings()]
 
 
+def get_peer_advising_note_topic_usage(peer_advising_department_id):
+    sql = """
+        SELECT
+          pat.id    AS id,
+          pat.topic AS topic,
+          COALESCE(COUNT(n.id), 0) AS usage_count
+        FROM peer_advising_topics pat
+        LEFT JOIN note_topics nt
+          ON nt.topic = pat.topic
+         AND nt.deleted_at IS NULL
+        LEFT JOIN notes n
+          ON n.id = nt.note_id
+         AND n.deleted_at IS NULL
+         AND n.parent_note_id IS NULL
+         AND n.peer_advising_department_id = :peer_advising_department_id
+        WHERE pat.deleted_at IS NULL
+        GROUP BY pat.id, pat.topic
+        ORDER BY usage_count DESC, pat.topic
+    """
+
+    def _to_api_json(row):
+        return {
+            'id': row['id'],
+            'topic': row['topic'],
+            'usageCount': row['usage_count'],
+        }
+
+    params = {'peer_advising_department_id': peer_advising_department_id}
+    return [_to_api_json(row) for row in db.session.execute(text(sql), params).mappings()]
+
 
 def get_total_peer_advising_notes(peer_advising_department_id=None):
     params = {}
