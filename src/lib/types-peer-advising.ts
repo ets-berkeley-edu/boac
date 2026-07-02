@@ -1,4 +1,11 @@
-import type {BoaUser, PeerAdvisingDepartment} from '@/lib/types'
+import type {PeerAdvisingDepartment} from '@/lib/types'
+
+export type PeerAdvisorNoteCount = {
+  deletedAt: string | undefined,
+  name: string,
+  noteCount: number,
+  uid: string
+}
 
 export type Month = {
   label: string,
@@ -8,7 +15,7 @@ export type Month = {
 
 export interface PeerAdvisingReportTimeframe extends Month {
   noteCount: number,
-  peerAdvisors: BoaUser[],
+  peerAdvisors: PeerAdvisorNoteCount[],
 }
 
 export type PeerAdvisingHistoricalReport = {
