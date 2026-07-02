@@ -69,12 +69,50 @@
                 <table :id="`peer-advisors-${toLower(month.label)}-${year.label}`" class="border-sm w-100">
                   <thead>
                     <tr>
-                      <th class="bg-grey-lighten-2 border-sm font-size-12 w-90">Peer Advisor</th>
-                      <th class="bg-grey-lighten-2 border-sm font-size-12 text-right">Notes</th>
+                      <th
+                        :aria-sort="getPeerAdvisorAriaSort('name', getSortOptions(`${toLower(month.label)}-${year.label}`))"
+                        class="bg-grey-lighten-2 border-sm font-size-12 w-90"
+                        scope="col"
+                      >
+                        <v-btn
+                          :id="`sort-peer-advisors-by-name-${toLower(month.label)}-${year.label}`"
+                          :append-icon="getSortOptions(`${toLower(month.label)}-${year.label}`).sortBy === 'name' ? (getSortOptions(`${toLower(month.label)}-${year.label}`).sortDesc ? mdiMenuDown : mdiMenuUp) : undefined"
+                          aria-label="Sort by Peer Advisor"
+                          block
+                          class="sort-col-btn font-weight-bold text-no-wrap v-table-sort-btn-override"
+                          :class="{'icon-visible': getSortOptions(`${toLower(month.label)}-${year.label}`).sortBy === 'name'}"
+                          color="body"
+                          density="compact"
+                          size="small"
+                          text="Peer Advisor"
+                          variant="plain"
+                          @click="onSortName(`${toLower(month.label)}-${year.label}`)"
+                        />
+                      </th>
+                      <th
+                        :aria-sort="getPeerAdvisorAriaSort('noteCount', getSortOptions(`${toLower(month.label)}-${year.label}`))"
+                        class="bg-grey-lighten-2 border-sm font-size-12 text-right"
+                        scope="col"
+                      >
+                        <v-btn
+                          :id="`sort-peer-advisors-by-note-count-${toLower(month.label)}-${year.label}`"
+                          :append-icon="getSortOptions(`${toLower(month.label)}-${year.label}`).sortBy === 'noteCount' ? (getSortOptions(`${toLower(month.label)}-${year.label}`).sortDesc ? mdiMenuDown : mdiMenuUp) : undefined"
+                          aria-label="Sort by Notes"
+                          block
+                          class="sort-col-btn font-weight-bold justify-end ml-auto text-no-wrap v-table-sort-btn-override"
+                          :class="{'icon-visible': getSortOptions(`${toLower(month.label)}-${year.label}`).sortBy === 'noteCount'}"
+                          color="body"
+                          density="compact"
+                          size="small"
+                          text="Notes"
+                          variant="plain"
+                          @click="onSortNoteCount(`${toLower(month.label)}-${year.label}`)"
+                        />
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="peerAdvisor in month.peerAdvisors" :key="peerAdvisor.uid">
+                    <tr v-for="peerAdvisor in sortPeerAdvisors(month.peerAdvisors, getSortOptions(`${toLower(month.label)}-${year.label}`))" :key="peerAdvisor.uid">
                       <td
                         :id="`peer-advisor-${peerAdvisor.uid}-during-${toLower(month.label)}-${year.label}`"
                         :class="{
@@ -116,7 +154,7 @@
 <script setup lang="ts">
 import type {PropType} from 'vue'
 import {get, isNil, toLower} from 'lodash'
-import {mdiMenuDown, mdiMenuRight} from '@mdi/js'
+import {mdiMenuDown, mdiMenuRight, mdiMenuUp} from '@mdi/js'
 import {ref} from 'vue'
 import type {PeerAdvisingDepartment} from '@/lib/types'
 import type {PeerAdvisingHistoricalReport} from '@/lib/types-peer-advising'
@@ -124,6 +162,13 @@ import Date from '@/components/util/Date.vue'
 import NotesCreatedByPeerAdvisor from '@/components/peer/note/NotesCreatedByPeerAdvisor.vue'
 import PillCount from '@/components/util/PillCount.vue'
 import {getPeerAdvisingHistoricalReport} from '@/api/peer-advising-reports'
+import {
+  defaultPeerAdvisorSortOptions,
+  getPeerAdvisorAriaSort,
+  sortPeerAdvisors,
+  togglePeerAdvisorSort
+} from '@/lib/peer-advisor-sort'
+import type {PeerAdvisorSortOptions} from '@/lib/peer-advisor-sort'
 import {pluralize, toInt} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 
@@ -142,6 +187,25 @@ const currentUser = useContextStore().currentUser
 const isExpanded = ref(false)
 const isFetching = ref(false)
 const report = ref<PeerAdvisingHistoricalReport | undefined>()
+const sortOptionsByTable = ref<Record<string, PeerAdvisorSortOptions>>({})
+
+const getSortOptions = (tableKey: string): PeerAdvisorSortOptions => {
+  return sortOptionsByTable.value[tableKey] || defaultPeerAdvisorSortOptions()
+}
+
+const onSortName = (tableKey: string) => {
+  sortOptionsByTable.value = {
+    ...sortOptionsByTable.value,
+    [tableKey]: togglePeerAdvisorSort('name', getSortOptions(tableKey))
+  }
+}
+
+const onSortNoteCount = (tableKey: string) => {
+  sortOptionsByTable.value = {
+    ...sortOptionsByTable.value,
+    [tableKey]: togglePeerAdvisorSort('noteCount', getSortOptions(tableKey))
+  }
+}
 
 const onClickExpand = () => {
   const requiresLazyLoad = isNil(report.value)
@@ -173,7 +237,34 @@ td {
   border: 1px solid;
   padding: 6px 12px;
 }
+.sort-col-btn {
+  height: 28px !important;
+  letter-spacing: normal !important;
+  margin: 0 4px 0 -.1em;
+  min-width: 0px !important;
+  padding: 0 2px 0 4px;
+}
 .v-card-border {
   border: 1px solid rgb(var(--v-theme-primary));
+}
+</style>
+
+<style>
+.v-table-sort-btn-override .v-btn__append {
+  margin-inline: 2px 1px !important;
+}
+.v-table-sort-btn-override .v-btn__append .v-icon {
+  opacity: 0;
+}
+.v-table-sort-btn-override .v-btn__content {
+  text-align: left;
+}
+.v-table-sort-btn-override:active .v-btn__append .v-icon,
+.v-table-sort-btn-override:hover .v-btn__append .v-icon,
+.v-table-sort-btn-override:focus .v-btn__append .v-icon {
+  opacity: var(--v-medium-emphasis-opacity);
+}
+.v-table-sort-btn-override.icon-visible .v-btn__append .v-icon {
+  opacity: 1;
 }
 </style>
