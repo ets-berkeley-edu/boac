@@ -456,7 +456,6 @@ const columnCount = computed(() => {
   const sid = degreeStore.sid
   let colspan = 1
   colspan += canEdit && !isCampusRequirements.value ? 1 : 0
-  colspan += hasAssignedCourses.value && canEdit ? 1 : 0
   colspan += sid && !isCampusRequirements.value ? 1 : 0
   colspan += !isCampusRequirements.value && hasItems ? 1 : 0
   colspan += sid && isCampusRequirements.value ? 1 : 0
