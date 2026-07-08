@@ -23,6 +23,8 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import json
+
 from flask import current_app as app
 from flask import request
 from flask_login import current_user
@@ -105,9 +107,17 @@ def get_basic_student(sid):
     students = data_loch.get_basic_student_data([sid])
     if len(students) == 1:
         student = students[0]
+        profile_rows = data_loch.get_student_profiles([sid])
+        sis_profile = json.loads(profile_rows[0]['profile']).get('sisProfile', {}) if profile_rows else {}
+        majors = sorted({
+            plan.get('description')
+            for plan in sis_profile.get('plans', [])
+            if plan.get('status') == 'Active' and plan.get('description')
+        })
         return tolerant_jsonify({
             'firstName': student['first_name'],
             'lastName': student['last_name'],
+            'majors': majors,
             'sid': student['sid'],
             'uid': student['uid'],
         })
