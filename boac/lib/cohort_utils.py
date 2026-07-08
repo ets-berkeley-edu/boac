@@ -252,6 +252,12 @@ def majors():
     return [{'name': major, 'value': major} for major in major_results]
 
 
+@stow('cohort_filter_options_min_unit_exceptions')
+def minimum_unit_exception_terms():
+    terms_with_exceptions = data_loch.get_min_units_exception_terms()
+    return [{'name': row['term_id'], 'value': row['term_id']} for row in terms_with_exceptions]
+
+
 @stow('cohort_filter_options_minors')
 def minors():
     minor_results = [row['minor'] for row in data_loch.get_minors()]

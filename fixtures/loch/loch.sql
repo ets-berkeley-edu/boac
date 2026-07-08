@@ -666,6 +666,15 @@ CREATE TABLE student.student_term_gpas
     units_taken_for_gpa DECIMAL(4,1)
 );
 
+CREATE TABLE student.term_unit_limits
+(
+    sid VARCHAR NOT NULL,
+    term_id VARCHAR(4) NOT NULL,
+    min_term_units_allowed DECIMAL (5,3),
+    max_term_units_allowed DECIMAL (5,3),
+    PRIMARY KEY (sid, term_id)
+);
+
 CREATE TABLE student.visas (
     sid VARCHAR,
     visa_status VARCHAR,
@@ -2656,6 +2665,23 @@ VALUES
 ('2345678901', '2175', 0, 4),
 ('3456789012', '2178', 3.2, 15),
 ('5678901234', '2178', 2.1, 14);
+
+INSERT INTO student.term_unit_limits
+(sid, term_id, min_term_units_allowed, max_term_units_allowed)
+VALUES
+('11667051', '2012', 0.5, 20.5),
+('11667051', '2162', 0.5, 20.5),
+('11667051', '2172', 0.5, 20.5),
+('11667051', '2175', 0.5, 20.5),
+('11667051', '2178', 0.000, 20.5),
+('11667051', '2182', 0.5, 16.000),
+('2345678901', '2172', 0.5, 20.5),
+('2345678901', '2175', 22.000, 22.000 ),
+('3456789012', '2178', 0.5, 20.5),
+('5678901234', '2178', 0.5, 20.5),
+('2718281828', '2058', 0.5, 20.5),
+('2718281828', '2102', 0.5, 20.5),
+('3141592653', '2052', 0.5, 20.5);
 
 INSERT INTO student.visas
 (sid, visa_status, visa_type)
