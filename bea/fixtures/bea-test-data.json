@@ -283,6 +283,11 @@
                     {
                         "status": "Active"
                     }
+                ],
+                "min_units_exception_term": [
+                    {
+                        "term": true
+                    }
                 ]
             },
             {

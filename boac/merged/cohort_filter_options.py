@@ -52,6 +52,7 @@ from boac.lib.cohort_utils import (
     intended_majors,
     level_options,
     majors,
+    minimum_unit_exception_terms,
     minors,
     student_admit_college_options,
     student_admit_ethnicity_options,
@@ -259,6 +260,13 @@ class CohortFilterOptions:
                     _boolean_filter(
                         key='midpointDeficient',
                         label_primary='Midpoint Deficient Grade',
+                    ),
+                    _filter(
+                        key='minUnitsExceptionTerm',
+                        label_primary='Minimum Unit Exception',
+                        options=minimum_unit_exception_terms(),
+                        type_db='string[]',
+                        type_ux='options',
                     ),
                     _filter(
                         key='minors',

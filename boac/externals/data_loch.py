@@ -1324,6 +1324,12 @@ def get_majors():
     return safe_execute_rds(sql)
 
 
+def get_min_units_exception_terms():
+    sql = f"""SELECT DISTINCT term_id FROM {student_schema()}.term_unit_limits
+        WHERE min_term_units_allowed <> 0.5"""
+    return safe_execute_rds(sql)
+
+
 def get_minors():
     sql = f"""SELECT min.minor AS minor
         FROM {student_schema()}.student_profile_index spi
@@ -1380,6 +1386,7 @@ def get_students_query(  # noqa: C901, PLR0912, PLR0913, PLR0915
     levels=None,
     majors=None,
     midpoint_deficient_grade=None,
+    min_units_exception_term=None,
     minors=None,
     scope=(),
     search_phrase=None,
@@ -1559,6 +1566,10 @@ def get_students_query(  # noqa: C901, PLR0912, PLR0913, PLR0915
                              ON spi.sid = si.sid
                              AND si.term_id >= '{earliest_term_id()}'
                              AND {_incomplete_criteria(incomplete_date_ranges, incomplete_statuses)}"""
+    if min_units_exception_term:
+        query_tables += f' LEFT JOIN {student_schema()}.term_unit_limits tul ON tul.sid = spi.sid'
+        query_filter += ' AND tul.term_id = ANY(%(min_units_exception_term)s) AND tul.min_term_units_allowed <> 0.5'
+        query_bindings.update({'min_units_exception_term': min_units_exception_term})
     if minors:
         query_tables += f' LEFT JOIN {student_schema()}.minors min ON min.sid = spi.sid'
         query_filter += " AND min.minor = ANY(%(minors)s) AND maj.college NOT LIKE 'Graduate%%'"

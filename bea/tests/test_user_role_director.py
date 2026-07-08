@@ -24,7 +24,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 import pytest
-from flask import current_app as app
 
 from bea.config.bea_test_config import BEATestConfig
 from bea.models.advisor_role import AdvisorRole
@@ -43,9 +42,6 @@ class TestUserRoleDirector:
             director_depts.append(memb)
     student = test.test_students[0]
     all_notes = test.get_test_notes(student, -1)[0]
-    app.logger.info(f'{all_notes}')
-    for note in all_notes:
-        app.logger.info(f'{vars(note)}')
 
     def test_log_in(self):
         self.homepage.load_page()
