@@ -25,6 +25,7 @@ export type Attachment = {
 }
 
 export interface BasicStudent extends HasName {
+  majors?: string[],
   sid: string,
   uid: string
 }

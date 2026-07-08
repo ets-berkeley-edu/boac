@@ -30,6 +30,10 @@
             :on-clear-selected-student="onClearSelectedStudent"
             :on-select-student="onSelectStudent"
           />
+          <div v-if="student" class="font-size-15 mt-2 px-1 text-medium-emphasis">
+            <span class="font-weight-bold mr-1">Major{{ studentMajors.length > 1 ? 's' : '' }}:</span>
+            <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ studentMajorsLabel }}</span>
+          </div>
           <v-expand-transition>
             <CompactStudentCourseSchedule v-if="student" class="pb-1 pt-2" :student="student" />
           </v-expand-transition>
@@ -105,6 +109,7 @@ import {getBasicStudent} from '@/api/peer-advising-users'
 import {getPeerAdvisingTopics} from '@/api/peer-advising-notes'
 import {getNoteTemplatesForPeerAdvising} from '@/api/note-templates'
 import {removeAttachment} from '@/api/notes'
+import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 
 const dialog = defineModel<boolean>({
@@ -121,11 +126,14 @@ const props = defineProps({
 
 const isAreYouSureModalOpen = ref(false)
 const isMainFocusLockDisabled = ref(false)
+const currentUser = useContextStore().currentUser
 const noteStore = useNoteStore()
 const noteTemplates = ref<NoteTemplate[]>([])
 const isNoteTemplatesLoading = ref(false)
 const recipients = computed<NoteRecipients>(() => noteStore.recipients)
 const student = ref<BasicStudent | undefined>()
+const studentMajors = computed(() => student.value?.majors || [])
+const studentMajorsLabel = computed(() => studentMajors.value.length ? studentMajors.value.join(', ') : 'No major declared')
 const studentName = computed(() => `${get(student.value, 'firstName')} ${get(student.value, 'lastName')}`)
 const topics = ref<NoteTopic[]>([])
 const {isSaving, model} = storeToRefs(noteStore)
