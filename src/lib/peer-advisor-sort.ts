@@ -10,6 +10,21 @@ export type PeerAdvisorSortOptions = {
 
 export const defaultPeerAdvisorSortOptions = (): PeerAdvisorSortOptions => ({sortBy: 'noteCount', sortDesc: true})
 
+export const defaultPeerAdvisorNameSortOptions = (): PeerAdvisorSortOptions => ({sortBy: 'name', sortDesc: false})
+
+export const partitionPeerAdvisors = (peerAdvisors: PeerAdvisorNoteCount[]) => {
+  const active: PeerAdvisorNoteCount[] = []
+  const deleted: PeerAdvisorNoteCount[] = []
+  for (const peerAdvisor of peerAdvisors) {
+    if (peerAdvisor.deletedAt) {
+      deleted.push(peerAdvisor)
+    } else {
+      active.push(peerAdvisor)
+    }
+  }
+  return {active, deleted}
+}
+
 const nameSorter = (peerAdvisor: PeerAdvisorNoteCount) => (peerAdvisor.name || '').toLowerCase()
 
 export const sortPeerAdvisors = (

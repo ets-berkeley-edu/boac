@@ -66,82 +66,30 @@
                     </PillCount>
                   </div>
                 </div>
-                <table :id="`peer-advisors-${toLower(month.label)}-${year.label}`" class="border-sm w-100">
-                  <thead>
-                    <tr>
-                      <th
-                        :aria-sort="getPeerAdvisorAriaSort('name', getSortOptions(`${toLower(month.label)}-${year.label}`))"
-                        class="bg-grey-lighten-2 border-sm font-size-12 w-90"
-                        scope="col"
-                      >
-                        <v-btn
-                          :id="`sort-peer-advisors-by-name-${toLower(month.label)}-${year.label}`"
-                          :append-icon="getSortOptions(`${toLower(month.label)}-${year.label}`).sortBy === 'name' ? (getSortOptions(`${toLower(month.label)}-${year.label}`).sortDesc ? mdiMenuDown : mdiMenuUp) : undefined"
-                          aria-label="Sort by Peer Advisor"
-                          block
-                          class="sort-col-btn font-weight-bold text-no-wrap v-table-sort-btn-override"
-                          :class="{'icon-visible': getSortOptions(`${toLower(month.label)}-${year.label}`).sortBy === 'name'}"
-                          color="body"
-                          density="compact"
-                          size="small"
-                          text="Peer Advisor"
-                          variant="plain"
-                          @click="onSortName(`${toLower(month.label)}-${year.label}`)"
-                        />
-                      </th>
-                      <th
-                        :aria-sort="getPeerAdvisorAriaSort('noteCount', getSortOptions(`${toLower(month.label)}-${year.label}`))"
-                        class="bg-grey-lighten-2 border-sm font-size-12 text-right"
-                        scope="col"
-                      >
-                        <v-btn
-                          :id="`sort-peer-advisors-by-note-count-${toLower(month.label)}-${year.label}`"
-                          :append-icon="getSortOptions(`${toLower(month.label)}-${year.label}`).sortBy === 'noteCount' ? (getSortOptions(`${toLower(month.label)}-${year.label}`).sortDesc ? mdiMenuDown : mdiMenuUp) : undefined"
-                          aria-label="Sort by Notes"
-                          block
-                          class="sort-col-btn font-weight-bold justify-end ml-auto text-no-wrap v-table-sort-btn-override"
-                          :class="{'icon-visible': getSortOptions(`${toLower(month.label)}-${year.label}`).sortBy === 'noteCount'}"
-                          color="body"
-                          density="compact"
-                          size="small"
-                          text="Notes"
-                          variant="plain"
-                          @click="onSortNoteCount(`${toLower(month.label)}-${year.label}`)"
-                        />
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="peerAdvisor in sortPeerAdvisors(month.peerAdvisors, getSortOptions(`${toLower(month.label)}-${year.label}`))" :key="peerAdvisor.uid">
-                      <td
-                        :id="`peer-advisor-${peerAdvisor.uid}-during-${toLower(month.label)}-${year.label}`"
-                        :class="{
-                          'demo-mode-blur': currentUser.inDemoMode,
-                          'font-weight-medium text-red': peerAdvisor.deletedAt
-                        }"
-                        class="border-sm w-90"
-                      >
-                        {{ peerAdvisor.name }}
-                        <span v-if="peerAdvisor.deletedAt" class="text-medium-emphasis">
-                          (deleted on <Date :id="`peer-advisor-${peerAdvisor.uid}-deleted-at`" :date="peerAdvisor.deletedAt" />)
-                        </span>
-                      </td>
-                      <td
-                        :class="{'font-weight-medium text-red': peerAdvisor.deletedAt}"
-                        class="border-sm text-no-wrap text-right"
-                      >
-                        <NotesCreatedByPeerAdvisor
-                          v-if="get(peerAdvisor, 'noteCount')"
-                          :header-text="`${pluralize('note', toInt(get(peerAdvisor, 'noteCount') || 0), {1: 'One'})} created by ${currentUser.inDemoMode ? '...' : peerAdvisor.name}`"
-                          :peer-advising-department="peerAdvisingDepartment"
-                          :timeframe="month"
-                          :user="peerAdvisor"
-                        />
-                        <span v-if="!get(peerAdvisor, 'noteCount')">0</span>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+                <PeerAdvisorMonthlyNoteCountTable
+                  :id-prefix="`${monthTableKey(month, year.label)}-active`"
+                  header-class="font-size-12"
+                  :peer-advisors="partitionPeerAdvisors(month.peerAdvisors).active"
+                  :peer-advising-department="peerAdvisingDepartment"
+                  section-label="Active Peer Advisors"
+                  :sort-options="getSortOptions(`${monthTableKey(month, year.label)}-active`)"
+                  :timeframe="month"
+                  @sort-name="onSortName(`${monthTableKey(month, year.label)}-active`)"
+                  @sort-note-count="onSortNoteCount(`${monthTableKey(month, year.label)}-active`)"
+                />
+                <PeerAdvisorMonthlyNoteCountTable
+                  :id-prefix="`${monthTableKey(month, year.label)}-deleted`"
+                  :add-top-margin="true"
+                  header-class="font-size-12"
+                  :is-deleted-section="true"
+                  :peer-advisors="partitionPeerAdvisors(month.peerAdvisors).deleted"
+                  :peer-advising-department="peerAdvisingDepartment"
+                  section-label="Deleted Peer Advisors"
+                  :sort-options="getSortOptions(`${monthTableKey(month, year.label)}-deleted`)"
+                  :timeframe="month"
+                  @sort-name="onSortName(`${monthTableKey(month, year.label)}-deleted`)"
+                  @sort-note-count="onSortNoteCount(`${monthTableKey(month, year.label)}-deleted`)"
+                />
               </div>
             </v-card-text>
           </v-card>
@@ -153,24 +101,20 @@
 
 <script setup lang="ts">
 import type {PropType} from 'vue'
-import {get, isNil, toLower} from 'lodash'
-import {mdiMenuDown, mdiMenuRight, mdiMenuUp} from '@mdi/js'
+import {isNil, toLower} from 'lodash'
+import {mdiMenuDown, mdiMenuRight} from '@mdi/js'
 import {ref} from 'vue'
 import type {PeerAdvisingDepartment} from '@/lib/types'
-import type {PeerAdvisingHistoricalReport} from '@/lib/types-peer-advising'
-import Date from '@/components/util/Date.vue'
-import NotesCreatedByPeerAdvisor from '@/components/peer/note/NotesCreatedByPeerAdvisor.vue'
+import type {PeerAdvisingHistoricalReport, PeerAdvisingReportTimeframe} from '@/lib/types-peer-advising'
+import PeerAdvisorMonthlyNoteCountTable from '@/components/peer/reports/PeerAdvisorMonthlyNoteCountTable.vue'
 import PillCount from '@/components/util/PillCount.vue'
 import {getPeerAdvisingHistoricalReport} from '@/api/peer-advising-reports'
 import {
-  defaultPeerAdvisorSortOptions,
-  getPeerAdvisorAriaSort,
-  sortPeerAdvisors,
+  defaultPeerAdvisorNameSortOptions,
+  partitionPeerAdvisors,
   togglePeerAdvisorSort
 } from '@/lib/peer-advisor-sort'
 import type {PeerAdvisorSortOptions} from '@/lib/peer-advisor-sort'
-import {pluralize, toInt} from '@/lib/utils'
-import {useContextStore} from '@/stores/context'
 
 const props = defineProps({
   currentMonthLabel: {
@@ -183,14 +127,17 @@ const props = defineProps({
   }
 })
 
-const currentUser = useContextStore().currentUser
 const isExpanded = ref(false)
 const isFetching = ref(false)
 const report = ref<PeerAdvisingHistoricalReport | undefined>()
 const sortOptionsByTable = ref<Record<string, PeerAdvisorSortOptions>>({})
 
 const getSortOptions = (tableKey: string): PeerAdvisorSortOptions => {
-  return sortOptionsByTable.value[tableKey] || defaultPeerAdvisorSortOptions()
+  return sortOptionsByTable.value[tableKey] || defaultPeerAdvisorNameSortOptions()
+}
+
+const monthTableKey = (month: PeerAdvisingReportTimeframe, yearLabel: string | number) => {
+  return `${toLower(month.label)}-${yearLabel}`
 }
 
 const onSortName = (tableKey: string) => {
@@ -224,47 +171,7 @@ const onClickExpand = () => {
 </script>
 
 <style scoped>
-table {
-  border: 1px solid;
-  border-collapse: collapse;
-}
-th {
-  border: 1px solid;
-  font-size: 14px;
-  padding: 6px 12px;
-}
-td {
-  border: 1px solid;
-  padding: 6px 12px;
-}
-.sort-col-btn {
-  height: 28px !important;
-  letter-spacing: normal !important;
-  margin: 0 4px 0 -.1em;
-  min-width: 0px !important;
-  padding: 0 2px 0 4px;
-}
 .v-card-border {
   border: 1px solid rgb(var(--v-theme-primary));
-}
-</style>
-
-<style>
-.v-table-sort-btn-override .v-btn__append {
-  margin-inline: 2px 1px !important;
-}
-.v-table-sort-btn-override .v-btn__append .v-icon {
-  opacity: 0;
-}
-.v-table-sort-btn-override .v-btn__content {
-  text-align: left;
-}
-.v-table-sort-btn-override:active .v-btn__append .v-icon,
-.v-table-sort-btn-override:hover .v-btn__append .v-icon,
-.v-table-sort-btn-override:focus .v-btn__append .v-icon {
-  opacity: var(--v-medium-emphasis-opacity);
-}
-.v-table-sort-btn-override.icon-visible .v-btn__append .v-icon {
-  opacity: 1;
 }
 </style>
