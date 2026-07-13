@@ -84,31 +84,28 @@ class Page(object):
 
     def el_text_if_exists(self, locator, text_to_remove=None):
         if self.is_present(locator):
-            text = self.element(locator).text
-            # Sometimes the text property doesn't work, but the innerText attribute does.
-            if not text:
-                text = self.element(locator).get_dom_attribute('innerText')
-            if text is None:
-                return None
-            if text_to_remove:
-                text = text.replace(text_to_remove, '')
-            return text.strip()
+            return self.text_value(self.element(locator), text_to_remove)
         else:
             return None
 
     def els_text_if_exist(self, locator, text_to_remove=None):
         els_text = []
         for el in self.elements(locator):
-            text = el.text
-            # Sometimes the text property doesn't work, but the innerText attribute does.
-            if not text:
-                text = el.get_dom_attribute('innerText')
-            if text is None:
-                text = ''
-            if text_to_remove:
-                text = text.replace(text_to_remove, '')
-            els_text.append(text.strip())
+            els_text.append(self.text_value(el))
         return els_text
+
+    def text_value(self, el, text_to_remove=None):
+        text = el.text
+        # Sometimes the text property doesn't work, but the innerText attribute does.
+        if not text:
+            text = el.get_dom_attribute('innerText')
+        if not text:
+            text = el.get_attribute('innerText')
+        if text is None:
+            text = ''
+        if text_to_remove:
+            text = text.replace(text_to_remove, '')
+        return text.strip()
 
     def el_value(self, locator):
         return self.element(locator).get_dom_attribute('value')

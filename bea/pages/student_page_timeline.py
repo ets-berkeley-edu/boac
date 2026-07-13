@@ -148,16 +148,15 @@ class StudentPageTimeline(BoaPages):
         item_type = self.item_type(item)
         return By.XPATH, f'//div[contains(@id, "{item_type}-{item.record_id}-attachment-")]//a[@href]'
 
-    @staticmethod
-    def attachment_name_from_link(el):
+    def attachment_name_from_link(self, el):
         try:
             name_el = el.find_element(
                 By.XPATH,
                 './/span[contains(@class, "truncate-with-ellipsis") and not(contains(@class, "sr-only"))]',
             )
-            return name_el.text.strip()
+            return self.text_value(name_el)
         except NoSuchElementException:
-            return el.get_attribute('innerText').strip()
+            return self.text_value(el)
 
     def click_attachment_link(self, item, attachment_name):
         time.sleep(utils.get_click_sleep())
