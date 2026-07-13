@@ -291,12 +291,13 @@ def get_notes_authored_by():
             }
             notes.append(note)
         student = students_by_sid.get(note['sid'])
-        note['student'] = {
-            'firstName': student['first_name'],
-            'lastName': student['last_name'],
-            'sid': student['sid'],
-            'uid': student['uid'],
-        }
+        if student:
+            note['student'] = {
+                'firstName': student['first_name'],
+                'lastName': student['last_name'],
+                'sid': student['sid'],
+                'uid': student['uid'],
+            }
         topic = row['topic']
         if topic and topic not in note['topics']:
             note['topics'].append(topic)
@@ -366,7 +367,7 @@ def get_notes_for_peer_advisor(uid):
     for note in notes:
         note_json = get_boac_note_as_compatible_json(note=note, note_read=note.id in notes_read_by_user)
         api_json['notes'].append(note_json)
-        if include_students:
+        if include_students and note.sid in students_by_sid:
             note_json['student'] = students_by_sid[note.sid]
     return tolerant_jsonify(api_json)
 
