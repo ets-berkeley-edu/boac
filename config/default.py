@@ -113,6 +113,8 @@ DATA_LOCH_SIS_SCHEMA = 'sis_data'
 DATA_LOCH_STUDENT_SCHEMA = 'student'
 DATA_LOCH_TERMS_SCHEMA = 'terms'
 
+DEGREE_CHECK_BATCH_STUDENT_LIMIT = 1000
+
 # In demo mode, student profile pictures and sensitive data will be blurred.
 DEMO_MODE_AVAILABLE = False
 

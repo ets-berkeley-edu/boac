@@ -66,6 +66,7 @@ def app_config():
                 lambda t: 'Placeholder' not in t and 'Campus' not in t, degree_progress_category_type.enums,
             ),
         ) + ['Campus Requirements'],
+        'degreeCheckBatchStudentLimit': app.config['DEGREE_CHECK_BATCH_STUDENT_LIMIT'],
         'degreeProgressColorCodes': ACCENT_COLOR_CODES,
         'devAuthEnabled': app.config['DEVELOPER_AUTH_ENABLED'],
         'draftNoteSubjectPlaceholder': '[DRAFT NOTE]',
