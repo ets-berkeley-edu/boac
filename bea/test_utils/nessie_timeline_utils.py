@@ -453,14 +453,14 @@ def get_sis_appts(student):
                      sis_advising_notes.advising_appointments.advisor_sid,
                      sis_advising_notes.advising_appointments.created_at AS created_date,
                      sis_advising_notes.advising_appointments.updated_at AS updated_date,
-                     sis_advising_notes.advising_appointment_advisors.first_name,
-                     sis_advising_notes.advising_appointment_advisors.last_name,
+                     sis_advising_notes.advisors.first_name,
+                     sis_advising_notes.advisors.last_name,
                      sis_advising_notes.advising_note_topics.note_topic AS topic,
                      sis_advising_notes.advising_note_attachments.sis_file_name,
                      sis_advising_notes.advising_note_attachments.user_file_name
                 FROM sis_advising_notes.advising_appointments
-           LEFT JOIN sis_advising_notes.advising_appointment_advisors
-                  ON sis_advising_notes.advising_appointments.advisor_sid = sis_advising_notes.advising_appointment_advisors.sid
+           LEFT JOIN sis_advising_notes.advisors
+                  ON sis_advising_notes.advising_appointments.advisor_sid = sis_advising_notes.advisors.sid
            LEFT JOIN sis_advising_notes.advising_note_topics
                   ON sis_advising_notes.advising_appointments.id = sis_advising_notes.advising_note_topics.advising_note_id
            LEFT JOIN sis_advising_notes.advising_note_attachments
