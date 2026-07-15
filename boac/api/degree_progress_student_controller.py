@@ -54,6 +54,9 @@ def batch_degree_checks():
     template_id = get_param(params, 'templateId')
     if not template_id or not sids:
         raise BadRequestError('sids and templateId are required.')
+    limit = app.config['DEGREE_CHECK_BATCH_STUDENT_LIMIT']
+    if len(sids) > limit:
+        raise BadRequestError(f'maximum of {limit} students exceeded')
     validate_template_not_archived(template_id)
     return tolerant_jsonify(create_batch_degree_checks(template_id=template_id, sids=sids))
 

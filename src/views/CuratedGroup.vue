@@ -75,11 +75,12 @@
       <h2 id="page-section-header" class="page-section-header-sub my-2">
         Add {{ domain === 'admitted_students' ? 'Admits' : 'Students' }} to {{ describeCuratedGroupDomain(domain, true) }}
       </h2>
-      <CuratedGroupBulkAdd
-        :bulk-add-sids="bulkAddSids"
-        :curated-group-id="curatedGroupId"
+      <BulkAddSids
+        show-cancel
+        :on-bulk-add-sids="bulkAddSids"
         :domain="domain"
         heading-id="page-section-header"
+        id-prefix="curated-group-bulk-add"
         :is-saving="isAddingStudents"
       />
     </div>
@@ -93,7 +94,7 @@ import {storeToRefs} from 'pinia'
 import {useRoute, useRouter} from 'vue-router'
 import AdmitDataWarning from '@/components/admit/AdmitDataWarning.vue'
 import AdmitStudentsTable from '@/components/admit/AdmitStudentsTable.vue'
-import CuratedGroupBulkAdd from '@/components/curated/CuratedGroupBulkAdd.vue'
+import BulkAddSids from '@/components/util/BulkAddSids.vue'
 import CuratedGroupHeader from '@/components/curated/CuratedGroupHeader.vue'
 import Pagination from '@/components/util/Pagination.vue'
 import SortBy from '@/components/student/SortBy.vue'

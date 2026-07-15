@@ -11,7 +11,14 @@
     <div>
       <div aria-live="polite" class="font-italic font-size-14 pb-2 student-count-alerts">
         <span
-          v-if="!isEmpty(sidsToInclude)"
+          v-if="overStudentLimit"
+          id="target-student-count-alert"
+          class="font-weight-bold text-error"
+        >
+          {{ studentLimitMessage }}
+        </span>
+        <span
+          v-else-if="!isEmpty(sidsToInclude)"
           id="target-student-count-alert"
           :class="{'text-error': sidsToInclude.length >= 250, 'font-weight-bold': sidsToInclude.length >= 500}"
         >
@@ -31,90 +38,57 @@
         </span>
       </div>
       <div class="w-75" :class="{'w-100': $vuetify.display.xs}">
-        <label for="degree-check-add-student-input" class="font-weight-bold mt-1">Student</label>
-        <div id="degree-check-add-student-desc" class="font-size-14">
-          Type or paste a list of <span :aria-hidden="true">SID</span><span class="sr-only">S I D</span> numbers below. Example: 9999999990, 9999999991
-        </div>
-        <div class="pt-2">
-          <v-textarea
-            id="degree-check-add-student-input"
-            v-model="textarea"
-            aria-describedby="degree-check-add-student-desc"
-            aria-label="Add Students by S I D"
-            :class="{'demo-mode-blur': currentUser.inDemoMode}"
-            density="compact"
-            :disabled="isBusy"
-            :error="!!error"
-            hide-details
-            max-rows="30"
-            rows="8"
-            variant="outlined"
-            @keydown.esc="onCancel"
-            @update:model-value="clearErrors"
-          />
-        </div>
-        <div class="align-start d-flex pt-3 w-100">
-          <div>
-            <ul v-if="addedStudents.length" aria-label="Students added to Degree Check" class="mb-2 list-no-bullets pl-0">
-              <li
-                v-for="(addedStudent, index) in addedStudents"
-                :key="addedStudent.sid"
-                class="added-student-list-item align-center d-flex justify-space-between"
+        <label class="font-weight-bold mt-1" for="degree-check-add-sids">Student</label>
+        <BulkAddSids
+          embedded
+          :on-bulk-add-sids="onBulkAddSids"
+          heading-id="page-header"
+          id-prefix="degree-check-add"
+          :is-saving="isBusy"
+          :on-esc="onCancel"
+          submit-aria-label="Add Students to Degree Check"
+        />
+        <ul
+          v-if="addedStudents.length"
+          aria-label="Students added to Degree Check"
+          class="mb-2 list-no-bullets pl-0"
+        >
+          <li
+            v-for="(addedStudent, index) in addedStudents"
+            :key="addedStudent.sid"
+            class="added-student-list-item align-center d-flex justify-space-between"
+          >
+            <div
+              :id="`batch-note-student-${index}`"
+              :class="{'demo-mode-blur': currentUser.inDemoMode}"
+            >
+              {{ addedStudent.label }}
+            </div>
+            <div>
+              <v-btn
+                :id="`remove-student-from-batch-${index}`"
+                class="pr-0"
+                :disabled="isSaving"
+                variant="text"
+                @click="() => removeStudent(addedStudent)"
               >
-                <div
-                  :id="`batch-note-student-${index}`"
-                  :class="{'demo-mode-blur': currentUser.inDemoMode}"
-                >
-                  {{ addedStudent.label }}
-                </div>
-                <div>
-                  <v-btn
-                    :id="`remove-student-from-batch-${index}`"
-                    class="pr-0"
-                    :disabled="isSaving"
-                    variant="text"
-                    @click="() => removeStudent(addedStudent)"
-                  >
-                    <v-icon color="error" :icon="mdiCloseCircle" />
-                    <span class="sr-only">Remove {{ addedStudent.label }} from degree check</span>
-                  </v-btn>
-                </div>
-              </li>
-            </ul>
-          </div>
-          <div class="ms-auto">
-            <v-btn
-              id="degree-check-add-sids-btn"
-              aria-label="Add Students to Degree Check"
-              color="primary"
-              :disabled="!trim(textarea) || isBusy || isValidating"
-              text="Add"
-              variant="flat"
-              @click.prevent="addSids"
-            />
-          </div>
-        </div>
+                <v-icon color="error" :icon="mdiCloseCircle" />
+                <span class="sr-only">Remove {{ addedStudent.label }} from degree check</span>
+              </v-btn>
+            </div>
+          </li>
+        </ul>
       </div>
       <v-alert
-        v-if="error || warning"
+        v-if="error"
         aria-live="polite"
         class="mt-2 mb-3 w-75"
         :class="{'w-100': $vuetify.display.xs}"
         density="compact"
-        :type="error ? 'error' : 'warning'"
+        type="error"
         variant="tonal"
       >
-        <v-alert-title class="font-size-16" v-html="error || warning" />
-        <div v-if="size(sidsInError)">
-          <ul
-            id="sids-not-found"
-            aria-label="invalid S I D numbers"
-            class="mb-1 pl-6"
-            :class="{'columns-list': size(sidsInError) > 5}"
-          >
-            <li v-for="(sid, index) in sidsInError" :key="index">{{ sid }}</li>
-          </ul>
-        </div>
+        <v-alert-title class="font-size-16">{{ error }}</v-alert-title>
       </v-alert>
       <div class="pb-2">
         <BatchAddStudentSet
@@ -176,7 +150,7 @@
           :action="save"
           class="ms-auto mr-2"
           color="primary"
-          :disabled="isBusy || !selectedTemplate || isEmpty(sidsToInclude)"
+          :disabled="isBusy || !selectedTemplate || isEmpty(sidsToInclude) || overStudentLimit"
           :in-progress="isSaving"
           :text="isSaving ? 'Saving' : 'Save Degree Check'"
         />
@@ -204,15 +178,12 @@ import {
   indexOf,
   isEmpty,
   map,
-  partition,
-  size,
-  split,
-  trim,
   uniq
 } from 'lodash'
 import {mdiCloseCircle} from '@mdi/js'
 import {useRouter} from 'vue-router'
 import BatchAddStudentSet from '@/components/util/BatchAddStudentSet'
+import BulkAddSids from '@/components/util/BulkAddSids.vue'
 import DegreeTemplatesMenu from '@/components/degree/DegreeTemplatesMenu'
 import ProgressButton from '@/components/util/ProgressButton'
 import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
@@ -234,16 +205,15 @@ const isRecalculating = ref(false)
 const isSaving = ref(false)
 const isValidating = ref(false)
 const selectedTemplate = ref(undefined)
-const sidsInError = ref([])
-const textarea = ref(undefined)
-const warning = ref(undefined)
 
 const addedCohortsEmpty = computed(() => addedCohorts.value.length && every(addedCohorts.value, {'totalStudentCount': 0}))
 const addedGroupsEmpty = computed(() => addedCuratedGroups.value.length && every(addedCuratedGroups.value, {'totalStudentCount': 0}))
 const addedSids = computed(() => map(addedStudents.value, 'sid'))
 const isBusy = computed(() => isSaving.value || isValidating.value || isRecalculating.value)
-
+const studentLimit = computed(() => contextStore.config.degreeCheckBatchStudentLimit)
+const studentLimitMessage = computed(() => `Sorry, only a maximum total of ${studentLimit.value} students at a time.`)
 const sidsToInclude = computed(() => difference(distinctSids.value, map(excludedStudents.value, 'sid')))
+const overStudentLimit = computed(() => sidsToInclude.value.length > studentLimit.value)
 
 watch(selectedTemplate, value => {
   findStudentsWithDegreeCheck(value, distinctSids.value)
@@ -256,59 +226,106 @@ contextStore.loadingStart()
 
 onMounted(() => contextStore.loadingComplete())
 
+const clearErrors = () => {
+  error.value = null
+}
+
+const projectDistinctSids = (sids, cohorts, curatedGroups) => {
+  const cohortIds = map(cohorts, 'id')
+  const curatedGroupIds = map(curatedGroups, 'id')
+  if (cohortIds.length || curatedGroupIds.length) {
+    return getDistinctSids(sids, cohortIds, curatedGroupIds).then(data => data.sids)
+  }
+  return Promise.resolve(uniq(sids))
+}
+
+const rejectIfOverLimit = projectedSids => {
+  if (projectedSids.length > studentLimit.value) {
+    error.value = studentLimitMessage.value
+    alertScreenReader(error.value, false, 'assertive')
+    return true
+  }
+  return false
+}
+
 const addCohort = cohort => {
   clearErrors()
-  addedCohorts.value.push(cohort)
-  recalculateStudentCount(addedSids.value, addedCohorts.value, addedCuratedGroups.value)
+  const proposedCohorts = [...addedCohorts.value, cohort]
+  isRecalculating.value = true
+  return projectDistinctSids(addedSids.value, proposedCohorts, addedCuratedGroups.value).then(projected => {
+    if (rejectIfOverLimit(projected)) {
+      isRecalculating.value = false
+      return false
+    }
+    addedCohorts.value.push(cohort)
+    distinctSids.value = projected
+    isRecalculating.value = false
+    return true
+  }).catch(() => {
+    isRecalculating.value = false
+    return false
+  })
 }
 
 const addCuratedGroup = curatedGroup => {
   clearErrors()
-  addedCuratedGroups.value.push(curatedGroup)
-  recalculateStudentCount(addedSids.value, addedCohorts.value, addedCuratedGroups.value)
+  const proposedGroups = [...addedCuratedGroups.value, curatedGroup]
+  isRecalculating.value = true
+  return projectDistinctSids(addedSids.value, addedCohorts.value, proposedGroups).then(projected => {
+    if (rejectIfOverLimit(projected)) {
+      isRecalculating.value = false
+      return false
+    }
+    addedCuratedGroups.value.push(curatedGroup)
+    distinctSids.value = projected
+    isRecalculating.value = false
+    return true
+  }).catch(() => {
+    isRecalculating.value = false
+    return false
+  })
 }
 
-const addSids = () => {
-  return new Promise((resolve, reject) => {
-    isValidating.value = true
-    const sids = validateSids(textarea.value)
-    if (sids) {
-      const uniqueSids = uniq(sids)
-      getStudentsBySids(uniqueSids).then(students => {
-        addStudents(students)
-        const notFound = difference(uniqueSids, map(students, 'sid'))
-        if (notFound.length === 1) {
-          warning.value = `Student ${notFound[0]} not found.`
-          alertScreenReader(warning.value)
-        } else if (notFound.length > 1) {
-          warning.value = `${notFound.length} students not found:`
-          sidsInError.value = notFound
-        }
-        isValidating.value = false
-        textarea.value = undefined
-        resolve()
-      })
-    } else {
-      if (error.value) {
-        alertScreenReader(`Error: ${error.value}`, false, 'assertive')
-      } else if (warning.value) {
-        alertScreenReader(`Warning: ${warning.value}`)
-      }
-      nextTick(() => isValidating.value = false)
-      reject()
+const onBulkAddSids = sids => {
+  clearErrors()
+  isValidating.value = true
+  const novelSids = difference(uniq(sids), addedSids.value)
+  if (!novelSids.length) {
+    isValidating.value = false
+    alertScreenReader('No new students to add; those SIDs are already in the list.')
+    putFocusNextTick('degree-check-add-sids')
+    return true
+  }
+  const proposedSids = uniq([...addedSids.value, ...novelSids])
+  return projectDistinctSids(proposedSids, addedCohorts.value, addedCuratedGroups.value).then(projected => {
+    if (rejectIfOverLimit(projected)) {
+      isValidating.value = false
+      return false
     }
+    return getStudentsBySids(novelSids).then(students => {
+      addStudents(students)
+      isValidating.value = false
+      return true
+    })
+  }).catch(() => {
+    isValidating.value = false
+    return false
   })
 }
 
 const addStudents = students => {
   if (students && students.length) {
-    addedStudents.value.push(...students)
-    recalculateStudentCount(addedSids.value, addedCohorts.value, addedCuratedGroups.value).then( () => {
-      const obj = students.length === 1 ? `${students[0].label}` : pluralize('student', students.length)
-      alertScreenReader(`${obj} added to degree check`)
-    })
+    const existing = new Set(addedSids.value)
+    const toAdd = students.filter(s => !existing.has(s.sid))
+    if (toAdd.length) {
+      addedStudents.value.push(...toAdd)
+      recalculateStudentCount(addedSids.value, addedCohorts.value, addedCuratedGroups.value).then(() => {
+        const obj = toAdd.length === 1 ? `${toAdd[0].label}` : pluralize('student', toAdd.length)
+        alertScreenReader(`${obj} added to degree check`)
+      })
+    }
   }
-  putFocusNextTick('degree-check-add-student-input')
+  putFocusNextTick('degree-check-add-sids')
 }
 
 const addTemplate = template => {
@@ -319,12 +336,6 @@ const addTemplate = template => {
 const onCancel = () => {
   alertScreenReader('Canceled. Nothing saved.')
   router.push('/degrees')
-}
-
-const clearErrors = () => {
-  error.value = null
-  sidsInError.value = []
-  warning.value = null
 }
 
 const findStudentsWithDegreeCheck = (selectedTemplate, sids) => {
@@ -341,27 +352,17 @@ const findStudentsWithDegreeCheck = (selectedTemplate, sids) => {
 
 const recalculateStudentCount = (sids, cohorts, curatedGroups) => {
   isRecalculating.value = true
-  return new Promise(resolve => {
-    const cohortIds = map(cohorts, 'id')
-    const curatedGroupIds = map(curatedGroups, 'id')
-    if (cohortIds.length || curatedGroupIds.length) {
-      getDistinctSids(sids, cohortIds, curatedGroupIds).then(data => {
-        distinctSids.value = data.sids
-      }).finally(() => {
-        isRecalculating.value = false
-        resolve()
-      })
-    } else {
-      distinctSids.value = uniq(sids)
-      isRecalculating.value = false
-      resolve()
-    }
+  return projectDistinctSids(sids, cohorts, curatedGroups).then(projected => {
+    distinctSids.value = projected
+  }).finally(() => {
+    isRecalculating.value = false
   })
 }
 
 const removeCohort = cohort => {
   const index = indexOf(addedCohorts.value, cohort)
   if (index !== -1) {
+    clearErrors()
     addedCohorts.value.splice(index, 1)
     recalculateStudentCount(addedSids.value, addedCohorts.value, addedCuratedGroups.value)
   }
@@ -370,6 +371,7 @@ const removeCohort = cohort => {
 const removeCuratedGroup = curatedGroup => {
   const index = indexOf(addedCuratedGroups.value, curatedGroup)
   if (index !== -1) {
+    clearErrors()
     addedCuratedGroups.value.splice(index, 1)
     recalculateStudentCount(addedSids.value, addedCohorts.value, addedCuratedGroups.value)
   }
@@ -378,12 +380,17 @@ const removeCuratedGroup = curatedGroup => {
 const removeStudent = student => {
   const index = indexOf(addedStudents.value, student)
   if (index !== -1) {
+    clearErrors()
     addedStudents.value.splice(index, 1)
     recalculateStudentCount(addedSids.value, addedCohorts.value, addedCuratedGroups.value).then(() => alertScreenReader(`${student.label} removed`))
   }
 }
 
 const save = () => {
+  if (overStudentLimit.value) {
+    error.value = studentLimitMessage.value
+    return
+  }
   isSaving.value = true
   alertScreenReader('Saving Degree Check.')
   createBatchDegreeCheck(sidsToInclude.value, get(selectedTemplate.value, 'id')).then(() => {
@@ -399,27 +406,6 @@ const save = () => {
     })
   })
 }
-
-const validateSids = sids => {
-  clearErrors()
-  const trimmed = trim(sids, ' ,\n\t')
-  if (trimmed) {
-    const splitted = split(trimmed, /[,\r\n\t ]+/)
-    if (splitted.length && splitted[0].length > 10) {
-      error.value = 'SIDs must be separated by commas, line breaks, or tabs.'
-      return false
-    }
-    const notNumeric = partition(splitted, sid => /^\d+$/.test(trim(sid)))[1]
-    if (notNumeric.length) {
-      error.value = 'Each SID must be numeric.'
-    } else {
-      return splitted
-    }
-  } else {
-    warning.value = 'Please provide one or more SIDs.'
-  }
-  return false
-}
 </script>
 
 <style scoped>
@@ -433,9 +419,6 @@ const validateSids = sids => {
   margin-top: 6px;
   padding: 2px 0 0 8px;
   min-width: 50%;
-}
-.columns-list {
-  columns: 2;
 }
 .student-count-alerts {
   line-height: 1.2rem;

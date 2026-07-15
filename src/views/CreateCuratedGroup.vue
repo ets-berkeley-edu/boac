@@ -3,10 +3,11 @@
     <h1 id="page-header">
       Create {{ domain === 'admitted_students' ? 'CE3' : 'Curated' }} Group
     </h1>
-    <CuratedGroupBulkAdd
-      :bulk-add-sids="bulkAddSids"
+    <BulkAddSids
+      :on-bulk-add-sids="bulkAddSids"
       :domain="domain"
       heading-id="page-header"
+      id-prefix="curated-group-bulk-add"
       :is-saving="isSaving"
     />
     <CreateCuratedGroupModal
@@ -23,7 +24,7 @@
 import {ref} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal'
-import CuratedGroupBulkAdd from '@/components/curated/CuratedGroupBulkAdd.vue'
+import BulkAddSids from '@/components/util/BulkAddSids.vue'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {createCuratedGroup} from '@/api/curated'
 import {describeCuratedGroupDomain} from '@/lib/berkeley-utils'

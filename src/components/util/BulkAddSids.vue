@@ -16,7 +16,7 @@
     <div class="mt-3 w-100">
       <v-alert
         v-if="showWarning"
-        id="curated-group-bulk-add-alert"
+        :id="`${idPrefix}-alert`"
         aria-live="polite"
         class="v-alert-override w-100 mb-5"
         density="compact"
@@ -48,26 +48,32 @@
         </ul>
       </v-alert>
       <v-textarea
-        id="curated-group-bulk-add-sids"
+        :id="textareaId"
         v-model="textarea"
         :aria-describedby="`${headingId} page-description`"
         aria-label="Student S I D numbers"
         autocomplete="on"
+        :class="{'demo-mode-blur': currentUser.inDemoMode}"
+        :density="embedded ? 'compact' : undefined"
         :disabled="isValidating || isSaving"
-        label="Enter SIDs here"
+        :hide-details="embedded"
+        :label="embedded ? undefined : 'Enter SIDs here'"
+        :max-rows="embedded ? 30 : undefined"
+        :rows="embedded ? 8 : undefined"
         variant="outlined"
+        @keydown.esc="onEsc"
       />
-      <div class="d-flex float-right">
+      <div class="d-flex justify-end pt-3">
         <ProgressButton
-          id="btn-curated-group-bulk-add-sids"
+          :id="submitButtonId"
           :action="submit"
-          :aria-label="`Add Students to ${describeCuratedGroupDomain(domain)}`"
+          :aria-label="resolvedSubmitAriaLabel"
           :disabled="!trim(textarea) || isValidating || isSaving"
           :in-progress="isValidating || isSaving"
-          :text="isValidating || isSaving ? 'Adding' : (curatedGroupId ? 'Add' : 'Next')"
+          :text="isValidating || isSaving ? 'Adding' : resolvedSubmitText"
         />
         <v-btn
-          v-if="curatedGroupId"
+          v-if="showCancel"
           id="btn-cancel-bulk-add-sids"
           :aria-label="`Cancel Add Students to ${describeCuratedGroupDomain(domain)}`"
           class="ml-2"
@@ -84,37 +90,57 @@
 
 <script setup>
 import {each, partition, split, trim, uniq} from 'lodash'
-import {onMounted, ref} from 'vue'
+import {computed, onMounted, ref} from 'vue'
 import ProgressButton from '@/components/util/ProgressButton'
 import {alertScreenReader, putFocusNextTick} from '@/lib/utils'
 import {describeCuratedGroupDomain} from '@/lib/berkeley-utils'
 import {validateSids} from '@/api/student'
+import {useContextStore} from '@/stores/context'
 
 const props = defineProps({
-  bulkAddSids: {
+  onBulkAddSids: {
     required: true,
     type: Function
-  },
-  curatedGroupId: {
-    default: undefined,
-    required: false,
-    type: Number
   },
   domain: {
     default: undefined,
     required: false,
     type: String
   },
+  embedded: {
+    required: false,
+    type: Boolean
+  },
   headingId: {
     required: true,
+    type: String
+  },
+  idPrefix: {
+    default: 'bulk-add',
+    required: false,
     type: String
   },
   isSaving: {
     required: false,
     type: Boolean
+  },
+  onEsc: {
+    default: () => {},
+    required: false,
+    type: Function
+  },
+  showCancel: {
+    required: false,
+    type: Boolean
+  },
+  submitAriaLabel: {
+    default: undefined,
+    required: false,
+    type: String
   }
 })
 
+const currentUser = useContextStore().currentUser
 const isValidating = ref(false)
 const magicNumber = ref(15)
 const showWarning = ref(false)
@@ -123,15 +149,29 @@ const sidsNotFound = ref([])
 const textarea = ref(undefined)
 const warning = ref(undefined)
 
+const textareaId = computed(() => `${props.idPrefix}-sids`)
+const submitButtonId = computed(() => `btn-${props.idPrefix}-sids`)
+const resolvedSubmitAriaLabel = computed(() => {
+  if (props.submitAriaLabel) {
+    return props.submitAriaLabel
+  }
+  return `Add Students to ${describeCuratedGroupDomain(props.domain)}`
+})
+const resolvedSubmitText = computed(() => {
+  if (props.embedded || props.showCancel) {
+    return 'Add'
+  }
+  return 'Next'
+})
+
 onMounted(() => {
-  putFocusNextTick('curated-group-bulk-add-sids')
+  putFocusNextTick(textareaId.value)
 })
 
 const cancel = () => {
-  if (props.curatedGroupId) {
-    // Cancel is only supported in the add-students-to-existing-group case.
+  if (props.showCancel) {
     clearWarning()
-    props.bulkAddSids(null)
+    props.onBulkAddSids(null)
     putFocusNextTick('bulk-add-sids-button')
   }
 }
@@ -147,7 +187,7 @@ const scrub = () => {
   alertScreenReader(`${sidsNotFound.value.length} invalid S I Deez removed from textarea.`)
   sidsNotFound.value = []
   clearWarning()
-  putFocusNextTick('curated-group-bulk-add-sids')
+  putFocusNextTick(textareaId.value)
 }
 
 const setWarning = message => {
@@ -168,7 +208,7 @@ const submit = () => {
     const notNumeric = partition(splitted, sid => /^\d+$/.test(trim(sid)))[1]
     if (notNumeric.length) {
       setWarning('SIDs must be numeric and separated by commas, line breaks, or tabs.')
-      putFocusNextTick('curated-group-bulk-add-sids')
+      putFocusNextTick(textareaId.value)
     } else {
       isValidating.value = true
       validateSids(props.domain, splitted).then(data => {
@@ -183,8 +223,8 @@ const submit = () => {
           }
         })
         sidsNotFound.value = uniq(sidsNotFound.value)
-        isValidating.value = false
         if (sidsNotFound.value.length) {
+          isValidating.value = false
           const label = props.domain === 'admitted_students' ? 'admit' : 'student'
           if (sids.value.length) {
             setWarning(sidsNotFound.value.length === 1 ? `One ${label} not found.` : `${sidsNotFound.value.length} ${label}s not found.`)
@@ -192,14 +232,25 @@ const submit = () => {
             setWarning(`No matching ${label}${sidsNotFound.value.length === 1 ? '' : 's'} found.`)
           }
         } else {
-          props.bulkAddSids(uniq(sids.value))
-          sids.value = []
+          Promise.resolve(props.onBulkAddSids(uniq(sids.value))).then(result => {
+            isValidating.value = false
+            if (result !== false) {
+              sids.value = []
+              if (props.embedded) {
+                textarea.value = undefined
+              }
+            }
+          }).catch(() => {
+            isValidating.value = false
+          })
         }
+      }).catch(() => {
+        isValidating.value = false
       })
     }
   } else {
     setWarning('Please provide one or more SIDs.')
-    putFocusNextTick('curated-group-bulk-add-sids')
+    putFocusNextTick(textareaId.value)
   }
 }
 </script>
@@ -209,4 +260,5 @@ const submit = () => {
   .v-alert__prepend {
     padding-top: 3px;
   }
-}</style>
+}
+</style>

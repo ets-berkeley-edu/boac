@@ -35,8 +35,8 @@ class DegreeCheckBatchPage(BoaPages):
 
     # Students
 
-    STUDENT_INPUT = By.ID, 'degree-check-add-student-input'
-    STUDENT_ADD_BUTTON = By.ID, 'degree-check-add-sids-btn'
+    STUDENT_INPUT = By.ID, 'degree-check-add-sids'
+    STUDENT_ADD_BUTTON = By.ID, 'btn-degree-check-add-sids'
 
     @staticmethod
     def added_student_loc(student):

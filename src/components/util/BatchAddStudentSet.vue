@@ -108,9 +108,12 @@ watch(model, object => {
   if (object) {
     model.value = undefined
     nextTick(() => {
-      added.value.push(object)
-      props.addObject(object)
-      alertScreenReader(`${props.header} '${object.name}' added to batch`)
+      Promise.resolve(props.addObject(object)).then(result => {
+        if (result !== false) {
+          added.value.push(object)
+          alertScreenReader(`${props.header} '${object.name}' added to batch`)
+        }
+      })
     })
   }
 })

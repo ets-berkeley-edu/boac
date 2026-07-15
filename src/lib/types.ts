@@ -41,6 +41,7 @@ export type BoaConfig = {
     max: number,
     min: number
   },
+  degreeCheckBatchStudentLimit: number,
   devAuthEnabled: boolean,
   draftNoteSubjectPlaceholder: string,
   fixedWarningOnAllPages: boolean,
