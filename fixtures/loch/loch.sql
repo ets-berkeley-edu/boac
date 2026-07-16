@@ -368,18 +368,19 @@ CREATE TABLE sis_advising_notes.advising_appointments
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
-CREATE TABLE sis_advising_notes.advising_appointment_advisor_names
+CREATE TABLE sis_advising_notes.advisor_names
 (
     uid VARCHAR NOT NULL,
     name VARCHAR NOT NULL
 );
 
-CREATE TABLE sis_advising_notes.advising_appointment_advisors
+CREATE TABLE sis_advising_notes.advisors
 (
     uid VARCHAR NOT NULL,
     sid VARCHAR NOT NULL,
     first_name VARCHAR NOT NULL,
-    last_name VARCHAR NOT NULL
+    last_name VARCHAR NOT NULL,
+    campus_email VARCHAR
 );
 
 CREATE TABLE sis_advising_notes.advising_notes
@@ -966,7 +967,7 @@ CREATE MATERIALIZED VIEW sis_advising_notes.advising_appointments_search_index A
   FROM sis_advising_notes.advising_appointments
 );
 
-INSERT INTO sis_advising_notes.advising_appointment_advisor_names
+INSERT INTO sis_advising_notes.advisor_names
 (uid, name)
 VALUES
 ('1081940', 'LORAMPS'),
@@ -978,13 +979,13 @@ VALUES
 ('1133397', 'Robert'),
 ('1133397', 'Johnson');
 
-INSERT INTO sis_advising_notes.advising_appointment_advisors
-(uid, sid, first_name, last_name)
+INSERT INTO sis_advising_notes.advisors
+(uid, sid, first_name, last_name, campus_email)
 VALUES
-('1081940', '100200300', 'Loramps', 'Glub'),
-('1133398', '700600500', 'Charlie', 'Christian'),
-('53791', '53791', 'Milicent', 'Balthazar'),
-('1133397', '600500400', 'Robert', 'Johnson');
+('1081940', '100200300', 'Loramps', 'Glub', 'blub@berkeley.edu'),
+('1133398', '700600500', 'Charlie', 'Christian', NULL),
+('53791', '53791', 'Milicent', 'Balthazar', 'mbalth@berkeley.edu'),
+('1133397', '600500400', 'Robert', 'Johnson', NULL);
 
 INSERT INTO sis_advising_notes.advising_notes
 (id, sid, student_note_nr, advisor_sid, appointment_id, note_category, note_subcategory, note_body, created_by, updated_by, created_at, updated_at)

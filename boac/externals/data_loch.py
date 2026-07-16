@@ -491,13 +491,13 @@ def match_appointment_advisors_by_name(prefixes, limit=None):
     for prefix in prefixes:
         idx = prefixes.index(prefix)
         prefix_conditions.append(
-            f"""JOIN {sis_advising_notes_schema()}.advising_appointment_advisor_names an{idx}
+            f"""JOIN {sis_advising_notes_schema()}.advisor_names an{idx}
             ON an{idx}.name LIKE %(prefix_{idx})s
             AND an{idx}.uid = a.uid""",
         )
         prefix_kwargs[f'prefix_{idx}'] = f'{prefix}%'
     sql = f"""SELECT DISTINCT a.first_name, a.last_name, a.sid, a.uid
-        FROM {sis_advising_notes_schema()}.advising_appointment_advisors a
+        FROM {sis_advising_notes_schema()}.advisors a
         {' '.join(prefix_conditions)}
         ORDER BY a.first_name, a.last_name"""
     if limit:
@@ -762,7 +762,7 @@ def get_sis_advising_appointments(sid):
             aa.last_name AS advisor_last_name, a.appointment_id, a.created_by, a.updated_by,
             a.note_body AS details, a.created_at, a.updated_at
         FROM {sis_advising_notes_schema()}.advising_appointments a
-        LEFT JOIN {sis_advising_notes_schema()}.advising_appointment_advisors aa ON a.advisor_sid = aa.sid
+        LEFT JOIN {sis_advising_notes_schema()}.advisors aa ON a.advisor_sid = aa.sid
         WHERE a.sid=%(sid)s
         ORDER BY created_at, updated_at, id"""
     return safe_execute_rds(sql, sid=sid)
@@ -791,7 +791,7 @@ def get_advising_appointments_by_ids(ids):
             spi.uid, spi.first_name, spi.last_name, aa.first_name AS advisor_first_name,
             aa.last_name AS advisor_last_name
         FROM {sis_advising_notes_schema()}.advising_appointments an
-        LEFT JOIN {sis_advising_notes_schema()}.advising_appointment_advisors aa ON an.advisor_sid = aa.sid
+        LEFT JOIN {sis_advising_notes_schema()}.advisors aa ON an.advisor_sid = aa.sid
         LEFT JOIN {student_schema()}.student_profile_index spi ON an.sid = spi.sid
         WHERE an.id = ANY(%(ids)s)
         ORDER BY an.created_at DESC, an.id DESC"""
@@ -1013,7 +1013,7 @@ def search_advising_appointments(
             an.created_by, an.created_at, an.updated_at, an.note_category, an.note_subcategory,
             spi.uid, spi.first_name, spi.last_name, aa.first_name AS advisor_first_name, aa.last_name AS advisor_last_name"""
     query_tables = f"""{sis_advising_notes_schema()}.advising_appointments an
-        LEFT JOIN {sis_advising_notes_schema()}.advising_appointment_advisors aa ON an.advisor_sid = aa.sid
+        LEFT JOIN {sis_advising_notes_schema()}.advisors aa ON an.advisor_sid = aa.sid
         JOIN {student_schema()}.student_profile_index spi ON an.sid = spi.sid"""
     if search_phrase:
         query_tables += f"""
