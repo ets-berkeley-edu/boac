@@ -331,7 +331,7 @@ def search_advising_notes(
 
     peer_student_sids = []
     if peer_advising_department_id and search_phrase:
-        students = data_loch.match_students_by_name_or_sid(
+        students = data_loch.match_students_by_name_sid_or_email(
             phrases=list(filter(None, re.split(r'[- ]', search_phrase))),
             prefix_only=True,
         )

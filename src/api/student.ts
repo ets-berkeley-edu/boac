@@ -42,7 +42,7 @@ export function validateSids(domain: string, sids: string[]) {
   return axios.post(url, {domain, sids}).then(response => response.data)
 }
 
-export function findStudentsByNameOrSid(
+export function findStudentsByNameSidOrEmail(
   query: string,
   limit: number,
   abortController?: AbortController,
@@ -50,10 +50,10 @@ export function findStudentsByNameOrSid(
 ) {
   const config = abortController ? {signal: abortController.signal} : {}
   const params = {
-    includeEmailAddressInLabel,
+    includeEmailAddressInLabel: includeEmailAddressInLabel,
     limit,
     query
   }
-  return axios.post(`${utils.apiBaseUrl()}/api/students/find_by_name_or_sid`, params, config)
+  return axios.post(`${utils.apiBaseUrl()}/api/students/find_by_name_sid_or_email`, params, config)
     .then(response => response.data)
 }

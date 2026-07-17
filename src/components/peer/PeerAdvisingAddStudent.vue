@@ -11,7 +11,7 @@
     <AccessibleCombobox
       :key="vAutocompleteKey"
       :id-prefix="idPrefix"
-      aria-label="Name or S I D lookup. Expect auto suggest."
+      aria-label="Name, email, or S I D lookup. Expect auto suggest."
       :clazz="{'demo-mode-blur': currentUser.inDemoMode, 'autocomplete-students autocomplete-with-add-button mt-2': true}"
       :clearable="!isFetchingStudents && !isAddingStudent"
       color="primary"
@@ -61,7 +61,7 @@ import type {BasicStudentLabeled, BoaUser} from '@/lib/types'
 import AccessibleCombobox from '@/components/util/AccessibleCombobox.vue'
 import ProgressButton from '@/components/util/ProgressButton.vue'
 import {createPeerAdvisor, restorePeerAdvisor} from '@/api/peer-advising-users.js'
-import {findStudentsByNameOrSid} from '@/api/student'
+import {findStudentsByNameSidOrEmail} from '@/api/student'
 import {putFocusNextTick} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 
@@ -141,7 +141,7 @@ const onUpdateSearch = debounce((input: string) => {
   const q = trim(input)
   if (size(q) > 1) {
     isFetchingStudents.value = true
-    findStudentsByNameOrSid(q, 20, new AbortController(), true).then(students => {
+    findStudentsByNameSidOrEmail(q, 20, new AbortController(), true).then(students => {
       const filteredStudents = filter(students, s => !includes(map(peerAdvisorsActive.value, 'csid'), s.sid))
       autoSuggestedStudents.value = map(filteredStudents, s => ({title: s.label, value: s}))
     }).catch(() => putFocusNextTick(`${idPrefix}-input`)
