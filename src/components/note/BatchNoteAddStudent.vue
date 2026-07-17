@@ -21,7 +21,7 @@
         ref="addStudentInput"
         :key="vAutocompleteKey"
         aria-describedby="create-note-add-student-desc"
-        aria-label="Student name or S I D lookup. Expect auto suggest."
+        aria-label="Student name, email, or S I D lookup. Expect auto suggest."
         :aria-labelledby="undefined"
         autocomplete="off"
         base-color="primary"
@@ -33,10 +33,11 @@
         :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
         :error-messages="autocompleteErrorMessage"
         :hide-details="!size(autocompleteErrorMessage)"
-        :hide-no-data="size(autoSuggestedStudents) < 3"
+        :hide-no-data="size(query) < 2 || isUpdatingStudentAutocomplete"
         item-title="label"
         item-value="sid"
         :items="autoSuggestedStudents"
+        :loading="size(query) >= 2 && isUpdatingStudentAutocomplete"
         :menu-icon="null"
         :menu-props="{
           'content-class': useContextStore().currentUser.inDemoMode ? 'demo-mode-blur' : '',
@@ -58,7 +59,7 @@
             aria-label="Add Student to Note"
             class="add-button"
             color="primary"
-            :disabled="!size(query) && !size(sidsManuallyAdded)"
+            :disabled="!size(sidsManuallyAdded)"
             :prepend-icon="mdiPlus"
             text="Add"
             variant="flat"
@@ -106,7 +107,7 @@ import {mdiPlus} from '@mdi/js'
 import {onMounted, ref} from 'vue'
 import PillItem from '@/components/util/PillItem'
 import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
-import {findStudentsByNameOrSid, getStudentsBySids} from '@/api/student'
+import {findStudentsByNameSidOrEmail, getStudentsBySids} from '@/api/student'
 import {setNoteRecipient, setNoteRecipients} from '@/stores/note-edit-session/note-edit-session-utils'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
@@ -210,13 +211,16 @@ const onUpdateSearch = input => {
       const search = input.replace((/\s+|\r\n|\n|\r/gm),' ')
       isUpdatingStudentAutocomplete.value = true
       if (size(search) > 1) {
-        findStudentsByNameOrSid(search, 20, new AbortController()).then(students => {
+        findStudentsByNameSidOrEmail(search, 20, new AbortController(), true).then(students => {
           const existingSids = map(addedStudents.value, 'sid')
           students = filter(students, s => !includes(existingSids, s.sid))
           autoSuggestedStudents.value = map(students, s => ({label: s.label, sid: s.sid}))
           isUpdatingStudentAutocomplete.value = false
           alertScreenReader(pluralize('result', students.length))
-        }).catch(() => putFocusNextTick('create-note-add-student-input'))
+        }).catch(() => {
+          isUpdatingStudentAutocomplete.value = false
+          putFocusNextTick('create-note-add-student-input')
+        })
       }
     }
   }

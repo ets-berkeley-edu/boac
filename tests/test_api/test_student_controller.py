@@ -707,7 +707,7 @@ class TestPrefixSearch:
             'query': query,
         }
         response = client.post(
-            '/api/students/find_by_name_or_sid',
+            '/api/students/find_by_name_sid_or_email',
             content_type='application/json',
             data=json.dumps(data),
         )
@@ -747,6 +747,16 @@ class TestPrefixSearch:
         assert "Wolfgang Pauli-O'Rourke (9000000000)" in labels
         assert 'Nora Stanton Barney (9100000000)' in labels
         assert 'Paul Tarsus (9191919191)' in labels
+
+    def test_student_prefix_search_by_email(self, client, coe_advisor_login):  # noqa: ARG002
+        """When searching by SID, results include both current and non-current students."""
+        api_json = self._api_find_students(
+            client=client,
+            include_email_address_in_label=True,
+            query='mrwonderful')
+        assert len(api_json) == 1
+        labels = [s['label'] for s in api_json]
+        assert "John David Crossman (8901234567) - mrwonderful@berkeley.edu" in labels
 
 
 class TestNotes:

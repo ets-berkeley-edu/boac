@@ -248,7 +248,7 @@
                       </label>
                       <AccessibleCombobox
                         id-prefix="search-options-note-student"
-                        aria-label="Student name or S I D lookup. Expect auto suggest."
+                        aria-label="Student name, email, or S I D lookup. Expect auto suggest."
                         :clazz="{'mt-1 text-black': true, 'demo-mode-blur': currentUser.inDemoMode}"
                         :clearable="!isFetchingStudents"
                         color="primary"
@@ -372,7 +372,7 @@ import AdvancedSearchModalHeader from '@/components/search/AdvancedSearchModalHe
 import ProgressButton from '@/components/util/ProgressButton'
 import {addToSearchHistory, findAdvisorsByName} from '@/api/search'
 import {alertScreenReader, normalizeId, putFocusNextTick, scrollToTop, toggleModalBackgroundDisabled} from '@/lib/utils'
-import {findStudentsByNameOrSid} from '@/api/student'
+import {findStudentsByNameSidOrEmail} from '@/api/student'
 import {labelForSearchInput} from '@/lib/search'
 import {useContextStore} from '@/stores/context'
 import {useSearchStore} from '@/stores/search'
@@ -606,7 +606,7 @@ const suggestStudents = debounce(query => {
   studentSearchText.value = q
   if (size(q) > 1) {
     isFetchingStudents.value = true
-    findStudentsByNameOrSid(q, 20, new AbortController()).then(results => {
+    findStudentsByNameSidOrEmail(q, 20, new AbortController()).then(results => {
       suggestedStudents.value = map(results, result => ({title: result.label, value: result}))
       isFetchingStudents.value = false
     })

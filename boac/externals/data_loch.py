@@ -524,7 +524,7 @@ def match_advising_note_authors_by_name(prefixes, limit=None):
     return safe_execute_rds(sql, **prefix_kwargs)
 
 
-def match_students_by_name_or_sid(phrases, limit=None, prefix_only=False):
+def match_students_by_name_sid_or_email(phrases, limit=None, prefix_only=False):
     results = None
     phrases = [''.join(phrase.split('-')).replace('\'', '').upper() for phrase in phrases]
     if len(phrases) == 1:
@@ -533,7 +533,7 @@ def match_students_by_name_or_sid(phrases, limit=None, prefix_only=False):
         if search_by_sid:
             results = _match_students_by_sid(phrase, limit)
         else:
-            results = _match_students_by_name(phrase, limit, prefix_only=prefix_only)
+            results = _match_students_by_name_or_email(phrase, limit, prefix_only=prefix_only)
     elif len(phrases) > 1:
         results = _search_for_students(phrases, limit, prefix_only=prefix_only)
     return results
@@ -1845,7 +1845,7 @@ def _match_students_by_sid(sid, limit=None):
     return safe_execute_rds(sql, **{'starts_with': f'{sid}%'})
 
 
-def _match_students_by_name(phrase, limit=None, prefix_only=False):
+def _match_students_by_name_or_email(phrase, limit=None, prefix_only=False):
     if prefix_only:
         name_match = '(n.name LIKE %(starts_with)s OR n.email_address LIKE %(starts_with)s)'
     else:
@@ -1859,8 +1859,8 @@ def _match_students_by_name(phrase, limit=None, prefix_only=False):
                 AND n.sid = s.sid
             ORDER BY (
                 CASE
-                WHEN s.first_name ILIKE %(starts_with)s THEN 0
-                WHEN s.first_name ILIKE %(contains)s THEN 1
+                WHEN s.first_name LIKE %(starts_with)s THEN 0
+                WHEN s.first_name LIKE %(contains)s THEN 1
                 ELSE 2
                 END
             ), s.first_name, s.last_name

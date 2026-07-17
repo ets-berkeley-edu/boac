@@ -49,7 +49,7 @@ import {storeToRefs} from 'pinia'
 import type {BasicStudentLabeled} from '@/lib/types'
 import AccessibleCombobox from '@/components/util/AccessibleCombobox.vue'
 import {clearNoteRecipients} from '@/stores/note-edit-session/note-edit-session-utils'
-import {findStudentsByNameOrSid} from '@/api/student'
+import {findStudentsByNameSidOrEmail} from '@/api/student'
 import {putFocusNextTick} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
@@ -86,7 +86,7 @@ onMounted(() => {
   if (preselectedSid && !student.value) {
     loadingStatus.value = 'prefill'
     isFetchingStudents.value = true
-    findStudentsByNameOrSid(preselectedSid, 1, new AbortController(), true)
+    findStudentsByNameSidOrEmail(preselectedSid, 1, new AbortController(), true)
       .then(results => {
         const s = results && results[0]
         if (s) {
@@ -132,7 +132,7 @@ const onUpdateSearch = debounce((input: string) => {
   const q = trim(input)
   if (size(q) > 1 && !student.value) {
     isFetchingStudents.value = true
-    findStudentsByNameOrSid(q, 20, new AbortController(), true).then(students => {
+    findStudentsByNameSidOrEmail(q, 20, new AbortController(), true).then(students => {
       autoSuggestedStudents.value = map(students, s => ({title: s.label, value: s}))
       isFetchingStudents.value = false
     }).catch(() => putFocusNextTick(`${idPrefix}-input`))

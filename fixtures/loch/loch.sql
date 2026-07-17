@@ -2615,26 +2615,26 @@ VALUES
 INSERT INTO student.student_names
 (sid, name, email_address)
 VALUES
-('11667051', 'DAVIES', 'zmitchell@morgan.net'),
-('11667051', 'DEBORAH', 'zmitchell@morgan.net'),
-('2345678901', 'DAVE', 'debaser@berkeley.edu'),
-('2345678901', 'DOOLITTLE', 'debaser@berkeley.edu'),
-('3456789012', 'KERSCHEN', 'doctork@berkeley.edu'),
-('3456789012', 'PAULINE', 'doctork@berkeley.edu'),
-('5678901234', 'JAYAPRAKASH', 'ilovela@berkeley.edu'),
-('5678901234', 'SANDEEP', 'ilovela@berkeley.edu'),
-('7890123456', 'FARESTVEIT', 'qadept@berkeley.edu'),
-('7890123456', 'PAUL', 'qadept@berkeley.edu'),
-('8901234567', 'CROSSMAN', 'mrwonderful@berkeley.edu'),
-('8901234567', 'DAVID', 'mrwonderful@berkeley.edu'),
-('8901234567', 'JOHN', 'mrwonderful@berkeley.edu'),
-('890127492', 'SCHLEMIEL', 'neerdowell@berkeley.edu'),
-('890127492', 'SIEGFRIED', 'neerdowell@berkeley.edu'),
-('9000000000', 'PAULIOROURKE', 'wpo@berkeley.edu'),
-('9000000000', 'WOLFGANG', 'wpo@berkeley.edu'),
-('9100000000', 'BARNEY', 'nsb@berkeley.edu'),
-('9100000000', 'NORA', 'nsb@berkeley.edu'),
-('9100000000', 'STANTON', 'nsb@berkeley.edu');
+('11667051', 'DAVIES', 'ZMITCHELL@MORGAN.NET'),
+('11667051', 'DEBORAH', 'ZMITCHELL@MORGAN.NET'),
+('2345678901', 'DAVE', 'DEBASER@BERKELEY.EDU'),
+('2345678901', 'DOOLITTLE', 'DEBASER@BERKELEY.EDU'),
+('3456789012', 'KERSCHEN', 'DOCTORK@BERKELEY.EDU'),
+('3456789012', 'PAULINE', 'DOCTORK@BERKELEY.EDU'),
+('5678901234', 'JAYAPRAKASH', 'ILOVELA@BERKELEY.EDU'),
+('5678901234', 'SANDEEP', 'ILOVELA@BERKELEY.EDU'),
+('7890123456', 'FARESTVEIT', 'QADEPT@BERKELEY.EDU'),
+('7890123456', 'PAUL', 'QADEPT@BERKELEY.EDU'),
+('8901234567', 'CROSSMAN', 'MRWONDERFUL@BERKELEY.EDU'),
+('8901234567', 'DAVID', 'MRWONDERFUL@BERKELEY.EDU'),
+('8901234567', 'JOHN', 'MRWONDERFUL@BERKELEY.EDU'),
+('890127492', 'SCHLEMIEL', 'NEERDOWELL@BERKELEY.EDU'),
+('890127492', 'SIEGFRIED', 'NEERDOWELL@BERKELEY.EDU'),
+('9000000000', 'PAULIOROURKE', 'WPO@BERKELEY.EDU'),
+('9000000000', 'WOLFGANG', 'WPO@BERKELEY.EDU'),
+('9100000000', 'BARNEY', 'NSB@BERKELEY.EDU'),
+('9100000000', 'NORA', 'NSB@BERKELEY.EDU'),
+('9100000000', 'STANTON', 'NSB@BERKELEY.EDU');
 
 INSERT INTO student.student_enrollment_terms
 (sid, term_id, enrollment_term, midpoint_deficient_grade, incomplete_grade, enrolled_units, term_gpa)
