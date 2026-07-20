@@ -300,6 +300,17 @@
   outline-style: solid;
   outline-width: 0.125rem;
 }
+
+.ck.ck-balloon-panel .ck.ck-link-form {
+  .ck.ck-input:focus,
+  .ck.ck-input:focus-visible,
+  .ck.ck-button:focus,
+  .ck.ck-button:focus-visible {
+    border-color: unset;
+    box-shadow: inset 0 0 0 2px rgba(var(--v-theme-primary)) !important;
+    outline: none !important;
+  }
+}
 .v-input--focused.basic-search .v-field--focused {
   --v-theme-overlay-multiplier: 3;
   outline-color: rgba(white, calc(0.25 * var(--v-theme-overlay-multiplier))) !important;

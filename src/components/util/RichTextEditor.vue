@@ -260,9 +260,74 @@ const makePopupAccessible = (popupsContainer, toolbar, ariaLabel) => {
       if (isInModal.value) {
         correctPopupPosition(popup, popupsContainer, toolbar)
       }
+      if (popup.querySelector('.ck-link-form')) {
+        ensureLinkFormFocus()
+      }
       clearInterval(popupFixer.value)
     }
   }, 500)
+}
+/**
+ * The new version of ckeditor renders "Displayed text" puts focus first on link URL,
+ * but we want it on the displayed text.
+ */
+const reorderLinkFormFocusables = formView => {
+  const focusables = formView._focusables
+  if (!focusables) {
+    return
+  }
+  const ordered = [
+    formView.displayedTextInputView,
+    formView.urlInputView,
+    formView.saveButtonView,
+    ...formView.providersListChildren,
+    formView.backButtonView
+  ].filter(Boolean)
+  if (focusables.get(0) === formView.displayedTextInputView) {
+    return
+  }
+  focusables.clear()
+  each(ordered, view => focusables.add(view))
+}
+
+const patchLinkFormFocus = formView => {
+  if (!formView || formView._boaFocusPatched) {
+    return
+  }
+  formView._boaFocusPatched = true
+  reorderLinkFormFocusables(formView)
+  formView.focus = () => {
+    if (formView.displayedTextInputView.isEnabled) {
+      formView.displayedTextInputView.focus()
+    } else {
+      formView.urlInputView.focus()
+    }
+  }
+}
+
+const ensureLinkFormFocus = () => {
+  const linkUI = editor.value?.plugins.get('LinkUI')
+  const formView = linkUI?.formView
+  if (!formView) {
+    return
+  }
+  patchLinkFormFocus(formView)
+  requestAnimationFrame(() => {
+    formView.focus()
+  })
+}
+
+const configureLinkFormFocus = () => {
+  const balloon = editor.value.plugins.get('ContextualBalloon')
+  const linkUI = editor.value.plugins.get('LinkUI')
+  if (!balloon || !linkUI) {
+    return
+  }
+  balloon.on('change:visibleView', (evt, name, visibleView) => {
+    if (visibleView && visibleView === linkUI.formView) {
+      ensureLinkFormFocus()
+    }
+  })
 }
 
 const manageToolbarFocus = () => {
@@ -310,6 +375,7 @@ const onEditorReady = editorInstance => {
   editor.value = editorInstance
   initDomFixer()
   registerPopupListener()
+  configureLinkFormFocus()
   manageToolbarFocus()
   if (props.autoFocus) {
     editor.value.focus()
