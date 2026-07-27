@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 import json
+import time
 from datetime import datetime
 
 import pytest
@@ -36,6 +37,7 @@ from boac.models.degree_progress_category import DegreeProgressCategory
 from boac.models.degree_progress_course import DegreeProgressCourse
 from boac.models.degree_progress_note import DegreeProgressNote
 from boac.models.degree_progress_template import DegreeProgressTemplate
+from boac.models.degree_progress_unit_requirement import DegreeProgressUnitRequirement
 
 coe_advisor_read_only_uid = '6972201'
 coe_advisor_read_write_uid = '1133399'
@@ -364,6 +366,50 @@ class TestBatchStudentDegreeChecks:
             degree_check = DegreeProgressTemplate.find_by_id(api_json[sid])
             assert degree_check
             assert degree_check.student_sid == sid
+
+
+    def test_create_batch_at_scale(self, app, client, fake_auth, mock_template):
+        """A 5000-student batch clones every student correctly and completes without timing out."""
+        fake_auth.login(coe_advisor_read_write_uid)
+        user = AuthorizedUser.find_by_uid(coe_advisor_read_write_uid)
+        DegreeProgressUnitRequirement.create(
+            created_by=user.id,
+            min_units=12,
+            name='Unit Req 1',
+            template_id=mock_template.id,
+        )
+        std_commit(allow_test_environment=True)
+
+        # The route enforces DEGREE_CHECK_BATCH_STUDENT_LIMIT (degree_progress_student_controller.py);
+        # override it here so a 5000-sid batch can get through.
+        original_limit = app.config['DEGREE_CHECK_BATCH_STUDENT_LIMIT']
+        app.config['DEGREE_CHECK_BATCH_STUDENT_LIMIT'] = 5000
+        try:
+            student_sids = [str(9300000000 + i) for i in range(5000)]
+            start = time.time()
+            api_json = self._api_batch_degree_checks(client, sids=student_sids, template_id=mock_template.id)
+            elapsed = time.time() - start
+        finally:
+            app.config['DEGREE_CHECK_BATCH_STUDENT_LIMIT'] = original_limit
+
+        assert elapsed < 120
+
+        template_ids = set()
+        for sid in student_sids:
+            assert api_json[sid]
+            degree_check = DegreeProgressTemplate.find_by_id(api_json[sid])
+            assert degree_check
+            assert degree_check.student_sid == sid
+            template_ids.add(degree_check.id)
+
+        # Every student must get their own distinct cloned template, not a stale one reused across chunks.
+        assert len(template_ids) == len(student_sids)
+
+        unit_requirements = DegreeProgressUnitRequirement.query.filter(
+            DegreeProgressUnitRequirement.template_id.in_(template_ids),
+        ).all()
+        assert len(unit_requirements) == len(student_sids)
+        assert len({ur.template_id for ur in unit_requirements}) == len(student_sids)
 
 
 class TestCreateStudentDegreeCheck:

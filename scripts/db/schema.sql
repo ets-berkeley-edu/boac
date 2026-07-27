@@ -250,6 +250,7 @@ ALTER TABLE ONLY degree_progress_templates
     ADD CONSTRAINT degree_progress_templates_created_by_fkey FOREIGN KEY (created_by) REFERENCES authorized_users(id) ON DELETE CASCADE;
 ALTER TABLE ONLY degree_progress_templates
     ADD CONSTRAINT degree_progress_templates_updated_by_fkey FOREIGN KEY (updated_by) REFERENCES authorized_users(id) ON DELETE CASCADE;
+CREATE INDEX degree_progress_templates_parent_template_id_student_sid_idx ON degree_progress_templates (parent_template_id, student_sid);
 
 --
 
