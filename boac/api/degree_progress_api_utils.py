@@ -81,12 +81,13 @@ def create_batch_degree_checks(template_id, sids):
             benchmark(f"processing chunk {i // chunk_size + 1} ({len(chunk)} students)")
             chunk_results = _bulk_clone_all(
                 template,
-                sids,
+                chunk,
                 created_by,
                 categories,
                 links,
                 transfer_categories,
                 links_by_cat,
+                benchmark,
             )
             results_by_sid.update(chunk_results)
             std_commit()
@@ -214,42 +215,30 @@ def clone(
 
 
 def _bulk_clone_all(
-    template, sids, created_by, categories, links, transfer_categories, links_by_cat,
+    template, sids, created_by, categories, links, transfer_categories, links_by_cat, benchmark,
 ):
     """Accumulates all rows in memory first, then bulk-inserts per table."""
     now = datetime.now()
     dept_codes = dept_codes_where_advising(current_user.departments)
 
     # templates
+    template_mappings = [
+        {
+            "advisor_dept_codes": dept_codes,
+            "created_by": created_by,
+            "degree_name": template.degree_name,
+            "parent_template_id": template.id,
+            "student_sid": sid,
+            "updated_by": created_by,
+        }
+        for sid in sids
+    ]
     db.session.bulk_insert_mappings(
-        DegreeProgressTemplate,
-        [
-            {
-                "advisor_dept_codes": dept_codes,
-                "created_by": created_by,
-                "degree_name": template.degree_name,
-                "parent_template_id": template.id,
-                "student_sid": sid,
-                "updated_by": created_by,
-            }
-            for sid in sids
-        ],
+        DegreeProgressTemplate, template_mappings, return_defaults=True,
     )
-
     db.session.flush()
 
-    # fetch mapping
-    rows = (
-        db.session.query(
-            DegreeProgressTemplate.student_sid,
-            DegreeProgressTemplate.id,
-        )
-        .filter(DegreeProgressTemplate.student_sid.in_(sids))
-        .filter(DegreeProgressTemplate.parent_template_id == template.id)
-        .all()
-    )
-
-    sid_to_template_id = {sid: t_id for sid, t_id in rows}
+    sid_to_template_id = {m["student_sid"]: m["id"] for m in template_mappings}
 
     # unit requirements
     ur_rows, ur_index = [], []
@@ -291,6 +280,7 @@ def _bulk_clone_all(
             cat_index.append((sid, c.id))
     db.session.bulk_save_objects(cat_rows, return_defaults=True)
     db.session.flush()
+    benchmark(f"cloned {len(cat_rows)} categories")
     sid_old_cat_to_new = {key: obj.id for key, obj in zip(cat_index, cat_rows)}
 
     # fix parent relationships + category↔unit links
