@@ -232,7 +232,7 @@ def find_advisors_by_name():
     query = request.args.get('q')
     if not query:
         raise BadRequestError('Search query must be supplied')
-    limit = request.args.get('limit')
+    limit = request.args.get('limit', type=int)
     query_fragments = list(filter(None, set(query.upper().split(' '))))
     advisors = _advisors_by_name(query_fragments, limit=limit)
     legacy_note_authors = match_advising_note_authors_by_name(query_fragments, limit=limit)
@@ -261,7 +261,8 @@ def _advisors_by_name(tokens, limit=None):
         {' '.join(token_conditions)}
         ORDER BY a.advisor_name"""
     if limit:
-        sql += f' LIMIT {limit}'
+        sql += ' LIMIT :limit'
+        params['limit'] = limit
     benchmark('execute query')
     results = db.session.execute(text(sql), params)
     benchmark('end')
@@ -402,7 +403,7 @@ def _student_search(search_phrase, params, order_by):
     student_results = search_for_students(
         search_phrase=search_phrase.replace(',', ' '),
         order_by=order_by,
-        offset=util.get(params, 'offset', 0),
+        offset=int(util.get(params, 'offset', 0)),
         limit=util.get(params, 'limit', 50),
     )
     students = student_results['students']

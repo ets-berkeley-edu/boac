@@ -250,8 +250,11 @@ def get_notes_authored_by():
     # The 'timeframe' param (optional) has two properties: year and month.
     timeframe = params.get('timeframe') or None
     if timeframe:
-        month = timeframe['month']
-        year = timeframe['year']
+        try:
+            month = int(timeframe['month'])
+            year = int(timeframe['year'])
+        except (TypeError, ValueError):
+            raise BadRequestError('Invalid timeframe')
         timeframe = f"{year}-{f'0{month}' if month < 10 else month}"
     notes = []
     rows = Note.get_peer_advising_notes_authored_by(

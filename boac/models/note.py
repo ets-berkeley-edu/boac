@@ -154,9 +154,10 @@ class Note(Base):
               count(*) FROM notes
             WHERE
               deleted_at IS NULL AND is_draft IS TRUE
-              { f"AND author_uid = '{author_uid}'" if author_uid else ''}
+              {'AND author_uid = :author_uid' if author_uid else ''}
         """
-        return db.session.execute(text(sql)).mappings().first()['count']
+        params = {'author_uid': author_uid} if author_uid else {}
+        return db.session.execute(text(sql), params).mappings().first()['count']
 
     @classmethod
     def get_draft_notes(cls, author_uid=None):
@@ -168,11 +169,12 @@ class Note(Base):
             WHERE
                 n.is_draft IS TRUE
                 AND n.deleted_at IS NULL
-                {f"AND author_uid = '{author_uid}'" if author_uid else ''}
+                {'AND author_uid = :author_uid' if author_uid else ''}
             GROUP BY n.id
             ORDER BY n.updated_at DESC
         """
-        for row in db.session.execute(text(sql)).mappings():
+        params = {'author_uid': author_uid} if author_uid else {}
+        for row in db.session.execute(text(sql), params).mappings():
             draft_notes.append({
                 'id': row['id'],
                 'attachmentCount': row['attachment_count'],
@@ -250,11 +252,13 @@ class Note(Base):
               AND n.is_private IS FALSE
               AND n.parent_note_id IS NULL
               AND n.peer_advising_department_id = :peer_advising_department_id
-              {f" AND to_char(n.created_at, 'YYYY-MM') = '{timeframe_month}'" if timeframe_month else ''}
+              {"AND to_char(n.created_at, 'YYYY-MM') = :timeframe_month" if timeframe_month else ''}
             GROUP BY n.id, a.id, t.topic
             ORDER BY n.updated_at DESC
         """
         params = {'author_uid': author_uid, 'peer_advising_department_id': peer_advising_department_id}
+        if timeframe_month:
+            params['timeframe_month'] = timeframe_month
         return db.session.execute(text(sql), params).mappings().all()
 
     @classmethod
@@ -596,10 +600,11 @@ class Note(Base):
                 {where_clause}
             """
             if not is_count_query:
-                sql += f"""
+                sql += """
                     ORDER BY notes.updated_at DESC, fts.rank DESC, notes.id DESC
-                    OFFSET {offset} LIMIT {limit}
+                    OFFSET :offset LIMIT :limit
                 """
+                params.update({'offset': offset, 'limit': limit})
             return db.session.execute(text(sql), params).mappings()
         return {
             'results': [row for row in _fetch_result().all()],
