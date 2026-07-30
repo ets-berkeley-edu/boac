@@ -522,7 +522,8 @@ def search_for_students(
         ORDER BY MIN({o}) {o_direction} NULLS FIRST, MIN({o_secondary}) NULLS FIRST, MIN({o_tertiary}) NULLS FIRST"""
     if o_tertiary != 'spi.sid':
         sql += ', spi.sid'
-    sql += f' OFFSET {offset}'
+    sql += ' OFFSET %(offset)s'
+    query_bindings['offset'] = offset
     if limit and limit < 100:  # Sanity check large limits
         sql += ' LIMIT %(limit)s'
         query_bindings['limit'] = limit

@@ -501,7 +501,8 @@ def match_appointment_advisors_by_name(prefixes, limit=None):
         {' '.join(prefix_conditions)}
         ORDER BY a.first_name, a.last_name"""
     if limit:
-        sql += f' LIMIT {limit}'
+        sql += ' LIMIT %(limit)s'
+        prefix_kwargs['limit'] = limit
     return safe_execute_rds(sql, **prefix_kwargs)
 
 
@@ -520,7 +521,8 @@ def match_advising_note_authors_by_name(prefixes, limit=None):
         {' '.join(prefix_conditions)}
         ORDER BY a.first_name, a.last_name"""
     if limit:
-        sql += f' LIMIT {limit}'
+        sql += ' LIMIT %(limit)s'
+        prefix_kwargs['limit'] = limit
     return safe_execute_rds(sql, **prefix_kwargs)
 
 
@@ -692,7 +694,7 @@ def get_admitted_student_by_sid(sid):
 
 
 def get_admitted_students_by_sids(offset, sids, limit=None, order_by='last_name'):
-    limit_clause = f'LIMIT {limit}' if limit else ''
+    limit_clause = 'LIMIT %(limit)s' if limit else ''
     sql = f"""
         SELECT a.applyuc_cpid, a.cs_empl_id AS sid, a.uid, s.uid AS student_uid,
         a.residency_category, a.freshman_or_transfer, a.admit_term, a.admit_status, a.current_sir, college, a.first_name, a.middle_name,
@@ -1495,7 +1497,7 @@ def get_students_query(  # noqa: C901, PLR0912, PLR0913, PLR0915
         query_bindings.update({'previous_term_id': previous_term_id(current_term_id)})
     query_filter += _number_ranges_to_sql('spi.units', unit_ranges) if unit_ranges else ''
     if last_name_ranges:
-        query_filter += _last_name_ranges_to_sql(last_name_ranges)
+        query_filter += _last_name_ranges_to_sql(last_name_ranges, query_bindings)
     if degree_terms:
         query_filter += ' AND sd.term_id = ANY(%(degree_terms)s)'
         query_bindings.update({'degree_terms': degree_terms})
@@ -1713,10 +1715,11 @@ def get_students_ordering(term_id, order_by=None, group_codes=None, majors=None,
         o = 'set.enrolled_units'
     elif order_by and order_by.startswith('term_gpa_'):
         gpa_term_id = order_by.replace('term_gpa_', '')
-        supplemental_query_tables = f"""
-            LEFT JOIN {student_schema()}.student_enrollment_terms set
-            ON set.sid = spi.sid AND set.term_id = '{gpa_term_id}'"""
-        o = 'set.term_gpa'
+        if gpa_term_id.isdigit():
+            supplemental_query_tables = f"""
+                LEFT JOIN {student_schema()}.student_enrollment_terms set
+                ON set.sid = spi.sid AND set.term_id = '{gpa_term_id}'"""
+            o = 'set.term_gpa'
     o_secondary = by_first_name if order_by == 'last_name' else by_last_name
     diff = {by_first_name, by_last_name} - {o, o_secondary}
     o_tertiary = diff.pop() if diff else 'spi.sid'
@@ -1840,9 +1843,9 @@ def _match_students_by_sid(sid, limit=None):
         SELECT spi.first_name, spi.last_name, spi.email_address, spi.sid, spi.uid
         FROM {student_schema()}.student_profile_index spi
         WHERE spi.sid LIKE %(starts_with)s
-        {f' LIMIT {limit}' if limit else ''}
+        {'LIMIT %(limit)s' if limit else ''}
     """
-    return safe_execute_rds(sql, **{'starts_with': f'{sid}%'})
+    return safe_execute_rds(sql, **{'starts_with': f'{sid}%', 'limit': limit})
 
 
 def _match_students_by_name_or_email(phrase, limit=None, prefix_only=False):
@@ -1864,12 +1867,13 @@ def _match_students_by_name_or_email(phrase, limit=None, prefix_only=False):
                 ELSE 2
                 END
             ), s.first_name, s.last_name
-            {f'LIMIT {limit}' if limit else ''}
+            {'LIMIT %(limit)s' if limit else ''}
         ) AS s
     """
     return safe_execute_rds(sql, **{
         'contains': f'%{phrase}%',
         'starts_with': f'{phrase}%',
+        'limit': limit,
     })
 
 
@@ -1918,8 +1922,9 @@ def _search_for_students(phrases, limit=None, prefix_only=False):
             ELSE 2
             END
         ), s.first_name, s.last_name
-        {f' LIMIT {limit}' if limit else ''}
+        {'LIMIT %(limit)s' if limit else ''}
     """
+    sql_params['limit'] = limit
     return safe_execute_rds(sql, **sql_params)
 
 
@@ -1965,7 +1970,7 @@ def _number_ranges_to_sql(column, number_ranges):
         return ''
 
 
-def _last_name_ranges_to_sql(last_name_ranges):
+def _last_name_ranges_to_sql(last_name_ranges, query_bindings):
     query_filter = ''
     count = len(last_name_ranges)
     if count:
@@ -1973,13 +1978,20 @@ def _last_name_ranges_to_sql(last_name_ranges):
         for idx, last_name_range in enumerate(last_name_ranges):
             range_min = last_name_range['min'].upper()
             range_max = last_name_range['max'].upper()
+            min_key = f'last_name_min_{idx}'
+            max_key = f'last_name_max_{idx}'
             if range_max == range_min:
-                query_filter += f'(spi.last_name ILIKE \'{range_min}%%\')'
+                query_filter += f'(spi.last_name ILIKE %({min_key})s)'
+                query_bindings[min_key] = f'{range_min}%'
             else:
-                query_filter += f'(UPPER(SUBSTRING(spi.last_name, 0, {len(range_min) + 1})) >= \'{range_min}\''
+                query_filter += f'(UPPER(SUBSTRING(spi.last_name, 0, %({min_key}_len)s)) >= %({min_key})s'
+                query_bindings[min_key] = range_min
+                query_bindings[f'{min_key}_len'] = len(range_min) + 1
                 if range_max < 'ZZ':
                     # If 'stop' were 'ZZ' then upper bound would not be necessary
-                    query_filter += f' AND UPPER(SUBSTRING(spi.last_name, 0, {len(range_max) + 1})) <= \'{range_max}\''
+                    query_filter += f' AND UPPER(SUBSTRING(spi.last_name, 0, %({max_key}_len)s)) <= %({max_key})s'
+                    query_bindings[max_key] = range_max
+                    query_bindings[f'{max_key}_len'] = len(range_max) + 1
                 query_filter += ')'
             if idx < count - 1:
                 query_filter += ' OR '

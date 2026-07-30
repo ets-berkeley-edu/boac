@@ -70,6 +70,7 @@ class Client:
         return ldap3.Connection(self.server, user=self.bind, password=self.password, auto_bind=ldap3.AUTO_BIND_TLS_BEFORE_BIND)
 
     def search_csids(self, csids, search_expired=False):
+        csids = [csid for csid in csids if str(csid).isdigit()]
         all_out = []
         for i in range(0, len(csids), BATCH_QUERY_MAXIMUM):
             csids_batch = csids[i:i + BATCH_QUERY_MAXIMUM]
@@ -80,6 +81,7 @@ class Client:
         return all_out
 
     def search_uids(self, uids, search_expired=False):
+        uids = [uid for uid in uids if str(uid).isdigit()]
         all_out = []
         for i in range(0, len(uids), BATCH_QUERY_MAXIMUM):
             uids_batch = uids[i:i + BATCH_QUERY_MAXIMUM]
@@ -91,7 +93,8 @@ class Client:
 
     @classmethod
     def _ldap_search_filter(cls, ids, id_type, search_expired=False):
-        ids_filter = ''.join(f'({id_type}={_id})' for _id in ids)
+        numeric_ids = [_id for _id in ids if str(_id).isdigit()]
+        ids_filter = ''.join(f'({id_type}={_id})' for _id in numeric_ids)
         ou_scope = '(ou=expired people)' if search_expired else '(ou=people) (ou=advcon people)'
         return f"""(&
             (objectclass=person)
