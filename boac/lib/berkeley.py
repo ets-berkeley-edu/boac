@@ -299,6 +299,9 @@ BERKELEY_DEPT_CODE_TO_PROGRAM_AFFILIATIONS = {
 }
 
 
+COE_PREP_STATUS_OPTIONS = ('did_prep', 'prep_eligible', 'did_tprep', 'tprep_eligible')
+
+
 def academic_year_for_term_name(term_name):
     if term_name:
         match = re.match(r'\A(Spring|Summer|Fall) (\d{4})\Z', term_name)

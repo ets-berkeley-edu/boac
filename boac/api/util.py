@@ -33,7 +33,7 @@ from flask_login import current_user
 from boac.api.errors import BadRequestError, ResourceNotFoundError, UnauthorizedRequestError
 from boac.externals.data_loch import get_sis_holds
 from boac.lib.berkeley import ACADEMIC_STANDING_DESCRIPTIONS, dept_codes_where_advising
-from boac.lib.util import get_benchmarker, is_int, join_if_present, process_input_from_rich_text_editor, to_iso_format, utc_now
+from boac.lib.util import get_benchmarker, is_int, join_if_present, process_input_from_rich_text_editor, to_bool_or_none, to_iso_format, utc_now
 from boac.merged import calnet
 from boac.merged.advising_appointment import get_advising_appointments
 from boac.merged.advising_note import can_current_user_access_note, can_current_user_edit_note, get_advising_notes, note_to_compatible_json
@@ -575,7 +575,7 @@ def translate_filters_to_cohort_criteria(filters, domain):
         key = row['key']
         db_type = db_type_per_key[key]
         if db_type == 'boolean':
-            criteria[key] = row['value']
+            criteria[key] = to_bool_or_none(row['value'])
         elif db_type in ['string[]', 'json[]']:
             if not criteria.get(key):
                 criteria[key] = []

@@ -37,7 +37,7 @@ from psycopg2.pool import ThreadedConnectionPool
 from sqlalchemy.sql import text
 
 from boac import db
-from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_PROGRAM_AFFILIATIONS, previous_term_id, sis_term_id_for_name
+from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_PROGRAM_AFFILIATIONS, COE_PREP_STATUS_OPTIONS, previous_term_id, sis_term_id_for_name
 from boac.lib.mockingdata import fixture
 from boac.lib.util import join_if_present, tolerant_remove
 
@@ -174,9 +174,9 @@ def get_current_term_index():
 
 def get_undergraduate_term(term_id):
     sql = f"""SELECT * FROM {terms_schema()}.term_definitions
-              WHERE term_id = '{term_id}'
+              WHERE term_id = %(term_id)s
            """
-    return safe_execute_rds(sql)
+    return safe_execute_rds(sql, term_id=term_id)
 
 
 def get_enrolled_primary_sections(term_id, course_name):
@@ -236,9 +236,9 @@ def get_user_permissions_per_affiliations(dept_code):
 def get_sis_holds(sid):
     sql = f"""SELECT feed
         FROM {student_schema()}.student_holds
-        WHERE sid = '{sid}'
+        WHERE sid = %(sid)s
         """
-    return safe_execute_rds(sql)
+    return safe_execute_rds(sql, sid=sid)
 
 
 @fixture('loch/sis_section_{term_id}_{sis_section_id}.csv')
@@ -442,10 +442,11 @@ def get_academic_standing(sids):
 
 
 def get_academic_standing_terms(min_term_id=0):
-    return safe_execute_rds(f"""SELECT DISTINCT term_id, acad_standing_status as status
+    sql = f"""SELECT DISTINCT term_id, acad_standing_status as status
         FROM {student_schema()}.academic_standing
-        WHERE term_id >= '{min_term_id}'
-        ORDER BY term_id DESC, acad_standing_status""")
+        WHERE term_id >= %(min_term_id)s
+        ORDER BY term_id DESC, acad_standing_status"""
+    return safe_execute_rds(sql, min_term_id=str(min_term_id))
 
 
 def get_term_gpas(sids):
@@ -461,11 +462,13 @@ def get_enrollments_for_sid(sid, latest_term_id=None):
     sql = f"""SELECT term_id, enrollment_term
         FROM {student_schema()}.student_enrollment_terms
         WHERE sid = %(sid)s
-        AND term_id >= '{earliest_term_id()}'"""
+        AND term_id >= %(earliest_term_id)s"""
+    params = {'sid': sid, 'earliest_term_id': earliest_term_id()}
     if latest_term_id:
-        sql += f""" AND term_id <= '{latest_term_id}'"""
+        sql += ' AND term_id <= %(latest_term_id)s'
+        params['latest_term_id'] = latest_term_id
     sql += ' ORDER BY term_id DESC'
-    return safe_execute_rds(sql, sid=sid)
+    return safe_execute_rds(sql, **params)
 
 
 def get_enrollments_for_term(term_id, sids=None):
@@ -1610,8 +1613,12 @@ def get_students_query(  # noqa: C901, PLR0912, PLR0913, PLR0915
             query_bindings.update({'visa_types': visa_types_flattened})
 
     # ASC criteria
-    query_filter += f' AND s.active IS {is_active_asc}' if is_active_asc is not None else ''
-    query_filter += f' AND s.intensive IS {in_intensive_cohort}' if in_intensive_cohort is not None else ''
+    if is_active_asc is not None:
+        query_filter += ' AND s.active IS %(is_active_asc)s'
+        query_bindings.update({'is_active_asc': bool(is_active_asc)})
+    if in_intensive_cohort is not None:
+        query_filter += ' AND s.intensive IS %(in_intensive_cohort)s'
+        query_bindings.update({'in_intensive_cohort': bool(in_intensive_cohort)})
     if group_codes:
         query_filter += ' AND s.group_code = ANY(%(group_codes)s)'
         query_bindings.update({'group_codes': group_codes})
@@ -1627,9 +1634,12 @@ def get_students_query(  # noqa: C901, PLR0912, PLR0913, PLR0915
         query_filter += ' AND s.ethnicity = ANY(%(coe_ethnicities)s)'
         query_bindings.update({'coe_ethnicities': coe_ethnicities})
     if coe_prep_statuses:
-        query_filter += ' AND (' + ' OR '.join([f's.{cps} IS TRUE' for cps in coe_prep_statuses]) + ')'
+        prep_status_columns = [cps for cps in coe_prep_statuses if cps in COE_PREP_STATUS_OPTIONS]
+        if prep_status_columns:
+            query_filter += ' AND (' + ' OR '.join([f's.{column} IS TRUE' for column in prep_status_columns]) + ')'
     if coe_underrepresented is not None:
-        query_filter += f' AND s.minority IS {coe_underrepresented}'
+        query_filter += ' AND s.minority IS %(coe_underrepresented)s'
+        query_bindings.update({'coe_underrepresented': bool(coe_underrepresented)})
 
     # COE criteria in a cohort filter will default to COE-active students only.
     if is_active_coe is None and (
