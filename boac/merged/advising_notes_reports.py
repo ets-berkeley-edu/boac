@@ -96,16 +96,20 @@ def low_assignment_scores(term_id=None):
 
 def get_note_author_count(dept_code=None):
     sql = 'SELECT COUNT(DISTINCT author_uid) FROM notes WHERE deleted_at IS NULL AND is_draft IS FALSE'
+    params = {}
     if dept_code:
-        sql += f" AND '{dept_code}' = ANY(author_dept_codes)"
-    return db.session.execute(text(sql)).mappings().first()['count']
+        sql += ' AND :dept_code = ANY(author_dept_codes)'
+        params['dept_code'] = dept_code
+    return db.session.execute(text(sql), params).mappings().first()['count']
 
 
 def get_note_count(dept_code=None):
     sql = 'SELECT COUNT(id) FROM notes WHERE deleted_at IS NULL AND is_draft IS FALSE'
+    params = {}
     if dept_code:
-        sql += f" AND '{dept_code}' = ANY(author_dept_codes)"
-    return db.session.execute(text(sql)).mappings().first()['count']
+        sql += ' AND :dept_code = ANY(author_dept_codes)'
+        params['dept_code'] = dept_code
+    return db.session.execute(text(sql), params).mappings().first()['count']
 
 
 def get_note_count_per_batch(dept_code=None):
@@ -114,10 +118,12 @@ def get_note_count_per_batch(dept_code=None):
         FROM notes
         WHERE deleted_at IS NULL AND is_draft IS FALSE
     """
+    params = {}
     if dept_code:
-        sql += f" AND '{dept_code}' = ANY(author_dept_codes)"
+        sql += ' AND :dept_code = ANY(author_dept_codes)'
+        params['dept_code'] = dept_code
     sql += ' GROUP BY created_at HAVING COUNT(*) > 1'
-    return [row['count'] for row in db.session.execute(text(sql)).mappings()]
+    return [row['count'] for row in db.session.execute(text(sql), params).mappings()]
 
 
 def get_private_note_count():
@@ -130,17 +136,17 @@ def get_private_note_count():
 
 
 def get_note_count_per_user(dept_code):
-    sql = f"""
+    sql = """
         SELECT n.author_uid AS uid, COUNT(n.id) AS count
         FROM notes n
         JOIN authorized_users a ON a.uid = n.author_uid
         JOIN university_dept_members m ON m.authorized_user_id = a.id
-        JOIN university_depts d ON d.id = m.university_dept_id AND d.dept_code = '{dept_code}'
+        JOIN university_depts d ON d.id = m.university_dept_id AND d.dept_code = :dept_code
         WHERE n.deleted_at IS NULL AND n.is_draft IS FALSE
         GROUP BY author_uid
     """
     results = {}
-    for row in db.session.execute(text(sql)).mappings():
+    for row in db.session.execute(text(sql), {'dept_code': dept_code}).mappings():
         results[row['uid']] = row['count']
     return results
 
@@ -152,9 +158,11 @@ def get_note_with_attachments_count(dept_code=None):
         JOIN notes n ON n.id = a.note_id
         WHERE a.deleted_at IS NULL AND n.deleted_at IS NULL AND n.is_draft IS FALSE
     """
+    params = {}
     if dept_code:
-        sql += f" AND '{dept_code}' = ANY(n.author_dept_codes)"
-    return db.session.execute(text(sql)).mappings().first()['count']
+        sql += ' AND :dept_code = ANY(n.author_dept_codes)'
+        params['dept_code'] = dept_code
+    return db.session.execute(text(sql), params).mappings().first()['count']
 
 
 def get_note_with_topics_count(dept_code=None):
@@ -164,9 +172,11 @@ def get_note_with_topics_count(dept_code=None):
         JOIN notes n ON n.id = t.note_id
         WHERE t.deleted_at IS NULL AND n.deleted_at IS NULL AND is_draft IS FALSE
     """
+    params = {}
     if dept_code:
-        sql += f" AND '{dept_code}' = ANY(n.author_dept_codes)"
-    return db.session.execute(text(sql)).mappings().first()['count']
+        sql += ' AND :dept_code = ANY(n.author_dept_codes)'
+        params['dept_code'] = dept_code
+    return db.session.execute(text(sql), params).mappings().first()['count']
 
 
 def get_summary_of_boa_notes():

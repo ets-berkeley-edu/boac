@@ -542,6 +542,7 @@ class CohortFilterOptions:
 
     @classmethod
     def _is_value_in_filter_options(cls, options, value, ux_type):
+        options = options or []
         if ux_type == 'option_groups':
             # In this case, the 'options' list is actually a list of 'option_groups'.
             values = []

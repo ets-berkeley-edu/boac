@@ -92,9 +92,11 @@ def get_peer_advising_note_count_since(peer_advising_department_id, timeframe_mo
         AND n.deleted_at IS NULL
         AND n.parent_note_id IS NULL
         AND n.parent_note_id IS NULL
-        {f" AND to_char(n.created_at, 'YYYY-MM') = '{timeframe_month}'" if timeframe_month else ''}
+        {" AND to_char(n.created_at, 'YYYY-MM') = :timeframe_month" if timeframe_month else ''}
     """
     params = {'peer_advising_department_id': peer_advising_department_id}
+    if timeframe_month:
+        params['timeframe_month'] = timeframe_month
     return db.session.execute(text(sql), params).mappings().first()['count']
 
 
@@ -186,9 +188,11 @@ def get_notes_created_by_peer_advisors(peer_advising_department_id, timeframe_mo
           AND n.author_role = 'peer_advisor'
           AND n.deleted_at IS NULL
           AND n.parent_note_id IS NULL
-          {f" AND to_char(n.created_at, 'YYYY-MM') = '{timeframe_month}'" if timeframe_month else ''}
+          {" AND to_char(n.created_at, 'YYYY-MM') = :timeframe_month" if timeframe_month else ''}
         ORDER BY n.created_at DESC
     """
+    if timeframe_month:
+        params = {**params, 'timeframe_month': timeframe_month}
     for row in db.session.execute(text(sql), params).mappings():
         uid = row['author_uid']
         peer_advisor = peer_advisors_by_uid[uid] if uid in peer_advisors_by_uid else None
