@@ -79,10 +79,6 @@ CAS_LOGOUT_URL = 'https://auth-test.berkeley.edu/cas/logout'
 COHORT_CSV_MAXIMUM_POPULATION = 10000
 COHORT_FILTER_ACADEMIC_STANDING_YEARS_CUTOFF = 5
 
-# Some defaults.
-CSRF_ENABLED = True
-CSRF_SESSION_KEY = 'secret'
-
 DATA_LOCH_ADVISING_APPOINTMENTS_SCHEMA = 'boac_advising_appointments'
 DATA_LOCH_ADVISING_NOTES_SCHEMA = 'boac_advising_notes'
 DATA_LOCH_ADVISOR_SCHEMA = 'boac_advisor'
@@ -176,6 +172,9 @@ PING_FREQUENCY = 900000
 # Used to encrypt session cookie.
 SECRET_KEY = 'secret'  # noqa: S105
 
+# Matches default browser behavior.
+SESSION_COOKIE_SAMESITE = 'Lax'
+
 # Save DB changes at the end of a request.
 SQLALCHEMY_COMMIT_ON_TEARDOWN = True
 
@@ -194,6 +193,12 @@ USER_SEARCH_HISTORY_MAX_SIZE = 5
 
 # This base-URL config should only be non-None in the "local" env where the Vue front-end runs on port 8080.
 VUE_LOCALHOST_BASE_URL = None
+
+# Enable Flask-WTF CSRF tokens, but disable default check in favor of the explicit, exemption-aware call in routes.py.
+# CSRF tokens live as long as the session does rather than expiring on their own.
+WTF_CSRF_CHECK_DEFAULT = False
+WTF_CSRF_ENABLED = True
+WTF_CSRF_TIME_LIMIT = None
 
 # We keep these out of alphabetical sort above for readability's sake.
 HOST = '0.0.0.0'  # noqa: S104

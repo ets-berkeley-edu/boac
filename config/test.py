@@ -45,3 +45,6 @@ LOGGING_LOCATION = 'boa-test.log'
 SQLALCHEMY_DATABASE_URI = f'postgresql://boac:boac@localhost:{_db_port}/boac_test'
 
 TESTING = True
+
+# Tests drive the Flask test client directly and don't go through CSRF token fetch.
+WTF_CSRF_ENABLED = False

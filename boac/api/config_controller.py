@@ -29,6 +29,7 @@ import os
 from flask import current_app as app
 from flask import request
 from flask_login import current_user
+from flask_wtf.csrf import generate_csrf
 
 from boac import __version__ as version
 from boac.api.decorators import admin_required
@@ -55,6 +56,7 @@ def app_config():
         'academicStandingDescriptions': ACADEMIC_STANDING_DESCRIPTIONS,
         'apptDeskRefreshInterval': app.config['APPT_DESK_REFRESH_INTERVAL'],
         'boacEnv': app.config['BOAC_ENV'],
+        'csrfToken': generate_csrf(),
         'currentEnrollmentTerm': current_term_name(),
         'currentEnrollmentTermId': int(current_term_id()),
         'defaultTermUnitsAllowed': {

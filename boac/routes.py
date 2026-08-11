@@ -25,12 +25,25 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import datetime
 
-from flask import jsonify, make_response, redirect, request, session
+from flask import current_app, jsonify, make_response, redirect, request, session
 from flask_login import LoginManager, current_user
 
+from boac import csrf
 from boac.merged.user_session import UserSession
 
 login_manager = LoginManager()
+
+
+def _enforce_csrf_protection():
+    # Service-to-service calls authenticate with an API key instead of the session cookie and are CSRF exempt, as is the initial
+    # CAS login.
+    def _is_csrf_exempt():
+        from boac.api.decorators import _api_key_ok
+        csrf_exempt_endpoints = {'cas_login'}
+        return _api_key_ok() or request.endpoint in csrf_exempt_endpoints
+
+    if current_app.config['WTF_CSRF_ENABLED'] and not _is_csrf_exempt():
+        csrf.protect()
 
 
 def register_routes(app):  #noqa: PLR0915
@@ -98,6 +111,7 @@ def register_routes(app):  #noqa: PLR0915
         session.permanent = True
         app.permanent_session_lifetime = datetime.timedelta(minutes=app.config['INACTIVE_SESSION_LIFETIME'])
         session.modified = True
+        _enforce_csrf_protection()
 
     @app.after_request
     def after_api_request(response):

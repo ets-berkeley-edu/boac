@@ -25,8 +25,21 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from flask import current_app as app
 from flask import jsonify
+from flask_wtf.csrf import CSRFError
 
 import boac.api.errors
+
+
+@app.errorhandler(CSRFError)
+def handle_csrf_error(error):
+    # A BadRequest subclass; without this handler it would fall through to the catch-all Exception handler
+    # below and get misreported as a 500 "unexpected server error" instead of an actionable 400.
+    app.logger.warning(f'CSRF validation failed: {error.description}')
+    return jsonify(
+        error_class='CSRFError',
+        message='Your session security token is missing or has expired. Please refresh the page and try again.',
+        success=False,
+    ), 400
 
 
 @app.errorhandler(boac.api.errors.BadRequestError)
