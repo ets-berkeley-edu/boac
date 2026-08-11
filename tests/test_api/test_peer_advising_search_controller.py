@@ -27,6 +27,7 @@ import simplejson as json
 
 from boac.models.peer_advising_department import PeerAdvisingDepartment
 
+admin_uid = '2040'
 ce3_navcal_peer_advisor_uid = '1133400'
 ce3_pam_advisor_uid = '2525'
 ce3_non_pam_advisor_uid = '5405613'
@@ -154,6 +155,28 @@ class TestPeerAdvisingNoteSearch:
         navcal_department = PeerAdvisingDepartment.get_department_by_name('NAVCAL')
         api_json = _api_search(client, 'a comment', peer_advising_department_id=navcal_department.id)
         self._assert(api_json, note_count=0, student_count=0)
+
+    def test_peer_advisor_student_search_excludes_gpa(self, client, fake_auth):
+        """Strips GPA data from the student feed for peer advisors."""
+        fake_auth.login(ce3_navcal_peer_advisor_uid)
+        navcal_department = PeerAdvisingDepartment.get_department_by_name('NAVCAL')
+        api_json = _api_search(client, 'debaser@berkeley.edu', peer_advising_department_id=navcal_department.id, notes=False)
+        students = api_json['students']
+        assert len(students) == 1
+        assert students[0]['lastName'] == 'Doolittle'
+        assert 'cumulativeGPA' not in students[0]
+        assert 'termGpa' not in students[0]
+
+    def test_admin_student_search_includes_gpa(self, client, fake_auth):
+        """Does not strip GPA data from the student feed for admins/regular advisors."""
+        fake_auth.login(admin_uid)
+        navcal_department = PeerAdvisingDepartment.get_department_by_name('NAVCAL')
+        api_json = _api_search(client, 'debaser@berkeley.edu', peer_advising_department_id=navcal_department.id, notes=False)
+        students = api_json['students']
+        assert len(students) == 1
+        assert students[0]['lastName'] == 'Doolittle'
+        assert students[0]['cumulativeGPA'] == 3.495
+        assert 'termGpa' in students[0]
 
 
 def _api_search(

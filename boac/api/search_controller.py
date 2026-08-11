@@ -43,6 +43,7 @@ from boac.externals.data_loch import (
     match_appointment_advisors_by_name,
 )
 from boac.lib import util
+from boac.lib.berkeley import has_any_membership_role, is_peer_advisor
 from boac.lib.http import tolerant_jsonify
 from boac.merged.admitted_student import search_for_admitted_students
 from boac.merged.advising_appointment import search_advising_appointments
@@ -151,7 +152,12 @@ def search_peer_advising_notes():
     # Student search (if requested)
     if domain.get('students'):
         student_results = _student_search(search_phrase, params, order_by)
-        feed['students'] = student_results.get('students', [])
+        students = student_results.get('students', [])
+        # Peer advisors (as opposed to regular advisors) are not authorized to see GPA data.
+        is_regular_advisor = current_user.is_admin or has_any_membership_role(current_user, 'advisor', 'director')
+        if is_peer_advisor(current_user) and not is_regular_advisor:
+            students = _strip_gpa(students)
+        feed['students'] = students
         # Prefer the service's count if provided, otherwise fallback to length
         feed['totalStudentCount'] = student_results.get('totalStudentCount', len(feed['students']))
 
@@ -415,6 +421,16 @@ def _student_search(search_phrase, params, order_by):
         'students': students,
         'totalStudentCount': student_results['totalStudentCount'],
     }
+
+
+def _strip_gpa(students):
+    stripped = []
+    for student in students:
+        student = dict(student)
+        student.pop('cumulativeGPA', None)
+        student.pop('termGpa', None)
+        stripped.append(student)
+    return stripped
 
 
 def _course_search(search_phrase):
