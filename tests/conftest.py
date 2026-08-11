@@ -168,6 +168,19 @@ def logout():
 
 
 @pytest.fixture(autouse=True)
+def isolated_app_context(app):
+    """Give each test its own app context, nested inside the session-scoped one above.
+
+    Flask's test client reuses whatever app context is already active rather than pushing a new
+    one per request, so with only the session-scoped context from the 'app' fixture,
+    extensions that cache per-request state on 'g', such as Flask-WTF's generate_csrf(),
+    would hand out stale values on later tests.
+    """
+    with app.app_context():
+        yield
+
+
+@pytest.fixture(autouse=True)
 def db_session(db):
     """Fixture database session used for the scope of a single test.
 

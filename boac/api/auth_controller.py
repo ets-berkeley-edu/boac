@@ -101,7 +101,7 @@ def become():
     return _dev_auth_login(params.get('uid'), app.config['DEVELOPER_AUTH_PASSWORD'])
 
 
-@app.route('/api/auth/logout')
+@app.route('/api/auth/logout', methods=['POST'])
 @login_required
 def logout():
     _logout_user()

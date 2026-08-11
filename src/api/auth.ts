@@ -25,5 +25,5 @@ export function getCasLoginURL() {
 }
 
 export function getCasLogoutUrl() {
-  return axios.get(`${utils.apiBaseUrl()}/api/auth/logout`).then(response => response.data)
+  return axios.post(`${utils.apiBaseUrl()}/api/auth/logout`).then(response => response.data)
 }

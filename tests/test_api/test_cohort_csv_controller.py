@@ -98,7 +98,7 @@ class TestDownloadCohortCsv:
         assert sids_in_csv == expected_sids
 
         # Another ASC advisor downloads same CSV
-        client.get('/api/auth/logout')
+        client.post('/api/auth/logout')
         fake_auth.login('6446')
         data = self._api_download_cohort_csv(client, cohort['id'], csv_columns_selected=['sid'])
         sids_in_csv = [s for s in data.decode('utf-8').split() if s.isdigit()]

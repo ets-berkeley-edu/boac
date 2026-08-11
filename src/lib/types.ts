@@ -35,6 +35,7 @@ export interface BasicStudentLabeled extends BasicStudent {label: string}
 export type BoaConfig = {
   academicStandingDescriptions: object,
   apiBaseUrl: string,
+  csrfToken: string,
   currentEnrollmentTerm: string,
   currentEnrollmentTermId: number,
   defaultTermUnitsAllowed: {

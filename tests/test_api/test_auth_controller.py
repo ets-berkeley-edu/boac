@@ -115,7 +115,7 @@ class TestDevAuth:
                 },
             )
             assert api_json['uid'] == admin_uid
-            response = client.get('/api/auth/logout')
+            response = client.post('/api/auth/logout')
             assert response.status_code == 200
             assert response.json['isAnonymous']
 

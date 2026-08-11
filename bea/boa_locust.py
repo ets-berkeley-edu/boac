@@ -151,7 +151,7 @@ class BoaTaskSet(TaskSet):
         )
 
     def logout(self):
-        self.client.get('/api/auth/logout')
+        self.client.post('/api/auth/logout')
 
     @task(1)
     def load_home_page(self):

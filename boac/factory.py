@@ -27,7 +27,7 @@ import os
 
 from flask import Flask
 
-from boac import cache, db
+from boac import cache, csrf, db
 from boac.configs import load_configs
 from boac.lib.background import initialize_scheduler_loop
 from boac.logger import initialize_logger
@@ -40,6 +40,7 @@ def create_app():
     load_configs(app)
     initialize_logger(app)
     db.init_app(app)
+    csrf.init_app(app)
     if app.config['BOAC_ENV'] != 'bea':
         cache.init_app(app, app.config)
 

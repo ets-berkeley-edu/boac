@@ -1,4 +1,4 @@
-import type {AxiosError, AxiosResponse, AxiosStatic} from 'axios'
+import type {AxiosError, AxiosResponse, AxiosStatic, InternalAxiosRequestConfig} from 'axios'
 import type {ComponentPublicInstance} from 'vue'
 import {find, get, includes} from 'lodash'
 import router from '@/router'
@@ -6,6 +6,10 @@ import type {BoaUser} from '@/lib/types'
 import {useContextStore} from '@/stores/context'
 
 const SKIP_REDIRECT_ON_ERROR = ['/api/user/create_or_update', '/api/peer_advising/create_peer_advisor']
+// Flask-WTF's default header names; matched on the backend by WTF_CSRF_HEADERS.
+const CSRF_HEADER = 'X-CSRFToken'
+// Flask-WTF's CSRFProtect only validates these methods; matching here avoids sending the header needlessly.
+const CSRF_PROTECTED_METHODS = ['delete', 'patch', 'post', 'put']
 
 const axiosErrorHandler = (error: object, axios: AxiosStatic): void => {
   const errorStatus = get(error, 'response.status')
@@ -51,6 +55,17 @@ export function appErrorHandler(error: unknown, instance: ComponentPublicInstanc
 
 export function initializeAxios(axios: AxiosStatic) {
   axios.defaults.withCredentials = true
+  axios.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+    const method = (config.method || 'get').toLowerCase()
+    if (includes(CSRF_PROTECTED_METHODS, method)) {
+      // Fetch CSRF token at boot (see /api/config) and cache in the context store.
+      const csrfToken = useContextStore().config.csrfToken
+      if (csrfToken) {
+        config.headers.set(CSRF_HEADER, csrfToken)
+      }
+    }
+    return config
+  })
   axios.interceptors.response.use(
     (response: AxiosResponse) => response,
     (error: AxiosError) => {
