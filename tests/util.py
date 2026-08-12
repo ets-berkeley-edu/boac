@@ -27,14 +27,28 @@ from contextlib import contextmanager
 
 import boto3
 import moto
+from botocore.exceptions import ClientError
+
+
+def _ensure_bucket(s3, bucket, region):
+    """Create the bucket if it doesn't already exist.
+
+    Since moto 5, all AWS services share a single mock backend that stays active for the whole test
+    session (see the 'fake_aws' fixture in conftest.py), so buckets created by one test persist into
+    the next. Explicitly checking first keeps these helpers idempotent across tests.
+    """
+    try:
+        s3.meta.client.head_bucket(Bucket=bucket)
+    except ClientError:
+        s3.create_bucket(Bucket=bucket, CreateBucketConfiguration={'LocationConstraint': region})
 
 
 @contextmanager
 def mock_eop_note_attachment(app):
-    with moto.mock_s3():
+    with moto.mock_aws():
         bucket = app.config['DATA_LOCH_S3_EOP_ADVISING_NOTE_BUCKET']
         s3 = boto3.resource('s3', app.config['AWS_REGION'])
-        s3.create_bucket(Bucket=bucket, CreateBucketConfiguration={'LocationConstraint': app.config['AWS_REGION']})
+        _ensure_bucket(s3, bucket, app.config['AWS_REGION'])
         key = f"{app.config['DATA_LOCH_S3_EOP_NOTE_ATTACHMENTS_PATH']}/eop_advising_note_101_i am attached.txt"
         s3.Object(bucket, key).put(Body="A wizard's job is to vex chumps quickly in fog.")
         yield s3
@@ -42,10 +56,10 @@ def mock_eop_note_attachment(app):
 
 @contextmanager
 def mock_legacy_appointment_attachment(app):
-    with moto.mock_s3():
+    with moto.mock_aws():
         bucket = app.config['DATA_LOCH_S3_ADVISING_NOTE_BUCKET']
         s3 = boto3.resource('s3', app.config['AWS_REGION'])
-        s3.create_bucket(Bucket=bucket, CreateBucketConfiguration={'LocationConstraint': app.config['AWS_REGION']})
+        _ensure_bucket(s3, bucket, app.config['AWS_REGION'])
         key = f"{app.config['DATA_LOCH_S3_ADVISING_NOTE_ATTACHMENT_PATH']}/9100000000/9100000000_00010_1.pdf"
         s3.Object(bucket, key).put(Body='01001000 01100101 01101100 01101100 01101111 00100000 01010111 01101111 01110010 01101100 01100100')
         yield s3
@@ -53,10 +67,10 @@ def mock_legacy_appointment_attachment(app):
 
 @contextmanager
 def mock_sis_note_attachment(app):
-    with moto.mock_s3():
+    with moto.mock_aws():
         bucket = app.config['DATA_LOCH_S3_ADVISING_NOTE_BUCKET']
         s3 = boto3.resource('s3', app.config['AWS_REGION'])
-        s3.create_bucket(Bucket=bucket, CreateBucketConfiguration={'LocationConstraint': app.config['AWS_REGION']})
+        _ensure_bucket(s3, bucket, app.config['AWS_REGION'])
         key = f"{app.config['DATA_LOCH_S3_ADVISING_NOTE_ATTACHMENT_PATH']}/9000000000/9000000000_00002_1.pdf"
         s3.Object(bucket, key).put(Body='When in the course of human events, it becomes necessarf arf woof woof woof')
         yield s3
@@ -64,10 +78,10 @@ def mock_sis_note_attachment(app):
 
 @contextmanager
 def mock_advising_note_s3_bucket(app):
-    with moto.mock_s3():
+    with moto.mock_aws():
         bucket = app.config['DATA_LOCH_S3_ADVISING_NOTE_BUCKET']
         s3 = boto3.resource('s3', app.config['AWS_REGION'])
-        s3.create_bucket(Bucket=bucket, CreateBucketConfiguration={'LocationConstraint': app.config['AWS_REGION']})
+        _ensure_bucket(s3, bucket, app.config['AWS_REGION'])
         yield s3
 
 
@@ -84,9 +98,9 @@ def override_config(app, key, value):
 
 @contextmanager
 def pause_mock_sts():
-    """Temporarily pause moto's mock STS, which can get in the way of tests incorporating other external services, such as CAS."""
-    moto.mock_sts().stop()
+    """Temporarily pause moto's AWS mock, which can get in the way of tests incorporating other external services, such as CAS."""
+    moto.mock_aws().stop()
     try:
         yield
     finally:
-        moto.mock_sts().start()
+        moto.mock_aws().start()

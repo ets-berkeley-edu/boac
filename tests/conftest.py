@@ -34,7 +34,7 @@ from datetime import datetime
 import boto3
 import pytest
 from flask_login import logout_user
-from moto import mock_sqs, mock_sts
+from moto import mock_aws
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
@@ -153,8 +153,13 @@ def app(request):
 
 # TODO: Perform DB schema creation and deletion outside an app context, enabling test-specific app configurations.
 @pytest.fixture(scope='session')
-def db(app):
-    """Fixture database object, shared by all tests."""
+def db(app, fake_loch, fake_aws):
+    """Fixture database object, shared by all tests.
+
+    Explicitly depends on 'fake_loch' and 'fake_aws': test data creation below queries the loch and
+    generates S3/STS-backed photo URLs, and pytest no longer guarantees autouse fixtures of the same
+    scope run before non-autouse fixtures pulled in transitively (as of pytest 9).
+    """
     from boac.models import development_db
     # Drop all tables before re-loading the schemas.
     # If we dropped at teardown instead, an interrupted test run would block the next test run.
@@ -235,16 +240,9 @@ def fake_loch(app):
 
 
 @pytest.fixture(scope='session', autouse=True)
-def fake_sts(app):
-    """Fake the AWS security token service that BOA relies on to deliver S3 content (photos, note attachments)."""
-    mock_sts().start()
-    yield
-    mock_sts().stop()
-
-
-@pytest.fixture(scope='session', autouse=True)
-def fake_sqs(app):
-    with mock_sqs():
+def fake_aws(app):
+    """Fake the AWS services (STS, SQS) that BOA relies on to deliver S3 content (photos, note attachments) and queue jobs."""
+    with mock_aws():
         client = boto3.client('sqs', region_name=app.config['AWS_REGION'])
         queue = client.create_queue(QueueName='fake_sqs')
         with override_config(app, 'AWS_SQS_QUEUE_URL', queue['QueueUrl']):
