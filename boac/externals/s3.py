@@ -42,11 +42,19 @@ def get_signed_urls(bucket, keys, expiration):
 
 def stream_object(bucket, key):
     s3_url = build_s3_url(bucket, key)
-    session = get_session()
+    client = _get_client()
     try:
-        return smart_open.open(s3_url, 'rb', transport_params=dict(session=session))
+        return smart_open.open(s3_url, 'rb', transport_params=dict(client=client))
     except Exception as e:
-        app.logger.exception(f'S3 stream operation failed (bucket={bucket}, key={key})', exc_info=e)
+        # smart_open wraps the underlying botocore ClientError in an OSError, smuggling the original
+        # error through as 'backend_error'. Surface a clear, version-independent message when the
+        # cause is a missing or inaccessible key, rather than relying on smart_open's own wording.
+        error_code = getattr(getattr(e, 'backend_error', None), 'response', {}).get('Error', {}).get('Code')
+        if error_code in {'NoSuchKey', 'AccessDenied', '403', '404'}:
+            message = f"the s3 key '{key}' does not exist, or is forbidden for access (bucket={bucket})"
+            app.logger.exception(f'S3 stream operation failed: {message}', exc_info=e)
+        else:
+            app.logger.exception(f'S3 stream operation failed (bucket={bucket}, key={key})', exc_info=e)
         return None
 
 

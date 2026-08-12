@@ -67,7 +67,13 @@ class Client:
         self.server = server
 
     def connect(self):
-        return ldap3.Connection(self.server, user=self.bind, password=self.password, auto_bind=ldap3.AUTO_BIND_TLS_BEFORE_BIND)
+        return ldap3.Connection(
+            self.server,
+            user=self.bind,
+            password=self.password,
+            client_strategy=ldap3.SAFE_SYNC,
+            auto_bind=ldap3.AUTO_BIND_TLS_BEFORE_BIND,
+        )
 
     def search_csids(self, csids, search_expired=False):
         csids = [csid for csid in csids if str(csid).isdigit()]
@@ -76,8 +82,8 @@ class Client:
             csids_batch = csids[i:i + BATCH_QUERY_MAXIMUM]
             with self.connect() as conn:
                 search_filter = self._ldap_search_filter(csids_batch, 'berkeleyeducsid', search_expired)
-                conn.search('dc=berkeley,dc=edu', search_filter, attributes=ldap3.ALL_ATTRIBUTES)
-                all_out += [_attributes_to_dict(entry, search_expired) for entry in conn.entries]
+                entries = self._ldap_search(conn, search_filter)
+                all_out += [_attributes_to_dict(entry, search_expired) for entry in entries]
         return all_out
 
     def search_uids(self, uids, search_expired=False):
@@ -87,9 +93,17 @@ class Client:
             uids_batch = uids[i:i + BATCH_QUERY_MAXIMUM]
             with self.connect() as conn:
                 search_filter = self._ldap_search_filter(uids_batch, 'uid', search_expired)
-                conn.search('dc=berkeley,dc=edu', search_filter, attributes=ldap3.ALL_ATTRIBUTES)
-                all_out += [_attributes_to_dict(entry, search_expired) for entry in conn.entries]
+                entries = self._ldap_search(conn, search_filter)
+                all_out += [_attributes_to_dict(entry, search_expired) for entry in entries]
         return all_out
+
+    @classmethod
+    def _ldap_search(cls, conn, search_filter):
+        # Under the SAFE_SYNC client strategy, search() returns results directly rather than stashing
+        # them on the connection object; each entry's attributes come back as a dict of raw (usually
+        # single-item list) values, same shape as MockClient._ldap_search's entry_attributes_as_dict below.
+        _status, _result, response, _request = conn.search('dc=berkeley,dc=edu', search_filter, attributes=ldap3.ALL_ATTRIBUTES)
+        return [entry['attributes'] for entry in response]
 
     @classmethod
     def _ldap_search_filter(cls, ids, id_type, search_expired=False):
@@ -117,18 +131,30 @@ class MockClient(Client):
         self.server = server
 
     def connect(self):
-        conn = ldap3.Connection(self.server, user=self.bind, password=self.password, client_strategy=ldap3.MOCK_SYNC)
+        # The mock server's DIT has no entry for self.bind, so an authenticated bind would fail; anonymous
+        # bind is fine here since MOCK_SYNC only simulates search results, never real authentication.
+        conn = ldap3.Connection(self.server, client_strategy=ldap3.MOCK_SYNC)
         conn.strategy.entries_from_json(_fixture_path('search_entries'))
         return conn
 
+    @classmethod
+    def _ldap_search(cls, conn, search_filter):
+        # Unlike SAFE_SYNC, MOCK_SYNC keeps the classic behavior of stashing results on the connection.
+        conn.search('dc=berkeley,dc=edu', search_filter, attributes=ldap3.ALL_ATTRIBUTES)
+        return [entry.entry_attributes_as_dict for entry in conn.entries]
 
-def _attributes_to_dict(entry, expired_per_ldap):
+
+def _attributes_to_dict(attributes, expired_per_ldap):
     out = dict.fromkeys(SCHEMA_DICT.values(), None)
     out['expired'] = expired_per_ldap
-    # ldap3's entry.entry_attributes_as_dict would work for us, except that it wraps a single value as a list.
+    # Values come back as a list even for single-valued attributes; unwrap those, but leave
+    # berkeleyEduAffiliations (genuinely multi-valued) as a list.
     for attr in SCHEMA_DICT:
-        if attr in entry.entry_attributes:
-            out[SCHEMA_DICT[attr]] = entry[attr].value
+        if attr in attributes:
+            value = attributes[attr]
+            if isinstance(value, list) and attr != 'berkeleyEduAffiliations':
+                value = value[0] if value else None
+            out[SCHEMA_DICT[attr]] = value
     return out
 
 
