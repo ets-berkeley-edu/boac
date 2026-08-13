@@ -201,7 +201,7 @@ def user_search():
     users = []
     snippet = request.get_json().get('snippet', '').strip()
     if snippet:
-        search_by_uid = re.match(r'\d+', snippet)
+        search_by_uid = snippet.isdecimal()
         uids = AuthorizedUser.get_uids_like(snippet if search_by_uid else None)
         calnet_users = calnet.get_calnet_users_for_uids(app, uids)
         users = list(calnet_users.values())

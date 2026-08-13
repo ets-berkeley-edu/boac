@@ -229,9 +229,11 @@ class AuthorizedUser(Base):
     @classmethod
     def get_uids_like(cls, uid_snippet=None):
         sql = 'SELECT uid FROM authorized_users'
+        params = {}
         if uid_snippet:
-            sql += f" WHERE uid LIKE '{uid_snippet}%'"
-        return [row['uid'] for row in db.session.execute(text(sql)).mappings()]
+            sql += ' WHERE uid LIKE :uid_snippet'
+            params['uid_snippet'] = f'{uid_snippet}%'
+        return [row['uid'] for row in db.session.execute(text(sql), params).mappings()]
 
     @classmethod
     def find_by_uid(cls, uid, ignore_deleted=True):
