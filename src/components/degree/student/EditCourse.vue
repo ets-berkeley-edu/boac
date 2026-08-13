@@ -66,7 +66,7 @@
         :units-lower="units"
       />
     </div>
-    <div v-if="course.manuallyCreatedBy" class="mt-2">
+    <div class="mt-2">
       <AccentColorSelect
         :accent-color="accentColor"
         :disabled="isSaving"
