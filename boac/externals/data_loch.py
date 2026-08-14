@@ -1569,8 +1569,9 @@ def get_students_query(  # noqa: C901, PLR0912, PLR0913, PLR0915
     if incomplete_date_ranges or incomplete_statuses:
         query_tables += f""" JOIN {student_schema()}.student_incompletes si
                              ON spi.sid = si.sid
-                             AND si.term_id >= '{earliest_term_id()}'
-                             AND {_incomplete_criteria(incomplete_date_ranges, incomplete_statuses)}"""
+                             AND si.term_id >= %(incomplete_earliest_term_id)s
+                             AND {_incomplete_criteria(incomplete_date_ranges, incomplete_statuses, query_bindings)}"""
+        query_bindings.update({'incomplete_earliest_term_id': earliest_term_id()})
     if min_units_exception_term:
         query_tables += f' LEFT JOIN {student_schema()}.term_unit_limits tul ON tul.sid = spi.sid'
         query_filter += ' AND tul.term_id = ANY(%(min_units_exception_term)s) AND tul.min_term_units_allowed <> 0.5'
@@ -1678,7 +1679,9 @@ def _filter_from_academic_career_status(academic_career_status, degree_terms, de
     return _filter
 
 
-def get_students_ordering(term_id, order_by=None, group_codes=None, majors=None, scope=None):
+def get_students_ordering(term_id, order_by=None, group_codes=None, majors=None, scope=None, query_bindings=None):
+    if query_bindings is None:
+        query_bindings = {}
     o_direction = 'asc'
     if order_by and order_by.endswith('desc'):
         order_by, o_direction = order_by.rsplit(' ', 1)
@@ -1721,15 +1724,17 @@ def get_students_ordering(term_id, order_by=None, group_codes=None, majors=None,
     elif order_by == 'enrolled_units':
         supplemental_query_tables = f"""
             LEFT JOIN {student_schema()}.student_enrollment_terms set
-            ON set.sid = spi.sid AND set.term_id = '{term_id}'"""
+            ON set.sid = spi.sid AND set.term_id = %(order_by_term_id)s"""
         o = 'set.enrolled_units'
+        query_bindings.update({'order_by_term_id': term_id})
     elif order_by and order_by.startswith('term_gpa_'):
         gpa_term_id = order_by.replace('term_gpa_', '')
         if gpa_term_id.isdigit():
             supplemental_query_tables = f"""
                 LEFT JOIN {student_schema()}.student_enrollment_terms set
-                ON set.sid = spi.sid AND set.term_id = '{gpa_term_id}'"""
+                ON set.sid = spi.sid AND set.term_id = %(order_by_gpa_term_id)s"""
             o = 'set.term_gpa'
+            query_bindings.update({'order_by_gpa_term_id': gpa_term_id})
     o_secondary = by_first_name if order_by == 'last_name' else by_last_name
     diff = {by_first_name, by_last_name} - {o, o_secondary}
     o_tertiary = diff.pop() if diff else 'spi.sid'
@@ -1808,13 +1813,16 @@ def get_admitted_students_query(
     return query_tables, query_filter, query_bindings
 
 
-def _incomplete_criteria(incomplete_date_ranges, incomplete_statuses):
+def _incomplete_criteria(incomplete_date_ranges, incomplete_statuses, query_bindings):
     criteria = []
     if incomplete_date_ranges:
         date_criteria = []
-        for r in incomplete_date_ranges:
+        for idx, r in enumerate(incomplete_date_ranges):
             if re.match('^\\d{4}-\\d{2}-\\d{2}$', r['min']) and re.match('^\\d{4}-\\d{2}-\\d{2}$', r['max']):
-                date_criteria.append(f"(si.lapse_date >= '{r['min']}' AND si.lapse_date <= '{r['max']}')")
+                min_key = f'incomplete_date_min_{idx}'
+                max_key = f'incomplete_date_max_{idx}'
+                date_criteria.append(f'(si.lapse_date >= %({min_key})s AND si.lapse_date <= %({max_key})s)')
+                query_bindings.update({min_key: r['min'], max_key: r['max']})
         if date_criteria:
             criteria.append("(si.frozen IS FALSE AND si.status = 'I' AND (" + ' OR '.join(date_criteria) + '))')
     if incomplete_statuses:
