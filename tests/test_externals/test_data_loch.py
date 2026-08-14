@@ -213,28 +213,34 @@ class TestDataLoch:
         assert supplemental_query_tables is None
 
     def test_get_students_ordering_units_in_progress_descending(self):
+        query_bindings = {}
         o, o_secondary, o_tertiary, o_direction, supplemental_query_tables = data_loch.get_students_ordering(
             '2202',
             order_by='enrolled_units desc',
+            query_bindings=query_bindings,
         )
         assert o == 'set.enrolled_units'
         assert o_secondary == "UPPER(regexp_replace(spi.last_name, '\\\\W', ''))"
         assert o_tertiary == "UPPER(regexp_replace(spi.first_name, '\\\\W', ''))"
         assert o_direction == 'desc'
         assert 'LEFT JOIN student.student_enrollment_terms set' in supplemental_query_tables
-        assert 'ON set.sid = spi.sid AND set.term_id = \'2202\'' in supplemental_query_tables
+        assert 'ON set.sid = spi.sid AND set.term_id = %(order_by_term_id)s' in supplemental_query_tables
+        assert query_bindings['order_by_term_id'] == '2202'
 
     def test_get_students_ordering_term_gpa_descending(self):
+        query_bindings = {}
         o, o_secondary, o_tertiary, o_direction, supplemental_query_tables = data_loch.get_students_ordering(
             '2202',
             order_by='term_gpa_2202 desc',
+            query_bindings=query_bindings,
         )
         assert o == 'set.term_gpa'
         assert o_secondary == "UPPER(regexp_replace(spi.last_name, '\\\\W', ''))"
         assert o_tertiary == "UPPER(regexp_replace(spi.first_name, '\\\\W', ''))"
         assert o_direction == 'desc'
         assert 'LEFT JOIN student.student_enrollment_terms set' in supplemental_query_tables
-        assert 'ON set.sid = spi.sid AND set.term_id = \'2202\'' in supplemental_query_tables
+        assert 'ON set.sid = spi.sid AND set.term_id = %(order_by_gpa_term_id)s' in supplemental_query_tables
+        assert query_bindings['order_by_gpa_term_id'] == '2202'
 
     def test_override_fixture(self):
         mr = MockRows(io.StringIO('sid,first_name,last_name\n20000000,Martin,Van Buren'))
