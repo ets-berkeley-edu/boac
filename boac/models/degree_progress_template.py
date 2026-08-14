@@ -138,7 +138,7 @@ class DegreeProgressTemplate(Base):
 
     @classmethod
     def find_by_sid(cls, student_sid):
-        sql = text(f"""
+        sql = text("""
             SELECT
               d.id, d.archived_at, d.created_at, d.degree_name, d.created_by, au1.uid AS created_by_uid,
               d.parent_template_id, d.student_sid, d.updated_at, d.updated_by, au2.uid AS updated_by_uid,
@@ -147,12 +147,12 @@ class DegreeProgressTemplate(Base):
             JOIN degree_progress_templates t ON t.id = d.parent_template_id
             JOIN authorized_users au1 ON au1.id = d.created_by
             JOIN authorized_users au2 ON au2.id = d.updated_by
-            WHERE d.student_sid = '{student_sid}' AND d.deleted_at IS NULL
+            WHERE d.student_sid = :student_sid AND d.deleted_at IS NULL
             ORDER BY d.updated_at DESC
         """)
         # Most recently updated record is considered 'current'.
         api_json = []
-        for index, row in enumerate(db.session.execute(sql).mappings()):
+        for index, row in enumerate(db.session.execute(sql, {'student_sid': student_sid}).mappings()):
             has_parent = row['parent_template_deleted_at'] is None
             api_json.append({
                 **_row_to_simple_json(row),
