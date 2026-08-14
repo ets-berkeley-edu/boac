@@ -461,6 +461,7 @@ def query_students(  # noqa: PLR0913
             group_codes=group_codes,
             majors=majors,
             scope=scope,
+            query_bindings=query_bindings,
         )
         if supplemental_query_tables:
             query_tables += supplemental_query_tables
@@ -506,6 +507,7 @@ def search_for_students(
     o, o_secondary, o_tertiary, o_direction, supplemental_query_tables = data_loch.get_students_ordering(
         term_id=current_term_id(),
         order_by=order_by,
+        query_bindings=query_bindings,
     )
     if supplemental_query_tables:
         query_tables += supplemental_query_tables
