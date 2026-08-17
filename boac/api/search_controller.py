@@ -429,6 +429,10 @@ def _strip_gpa(students):
         student = dict(student)
         student.pop('cumulativeGPA', None)
         student.pop('termGpa', None)
+        if student.get('term'):
+            term = dict(student['term'])
+            term.pop('termGpa', None)
+            student['term'] = term
         stripped.append(student)
     return stripped
 
