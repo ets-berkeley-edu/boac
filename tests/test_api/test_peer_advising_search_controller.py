@@ -178,6 +178,29 @@ class TestPeerAdvisingNoteSearch:
         assert students[0]['cumulativeGPA'] == 3.495
         assert 'termGpa' in students[0]
 
+    def test_strip_gpa_removes_nested_term_gpa(self, app):  # noqa: ARG002
+        """Strips termGpa when it is nested within a student's 'term' element as well as top-level."""
+        from boac.api.search_controller import _strip_gpa
+        students = [
+            {
+                'cumulativeGPA': 3.495,
+                'lastName': 'Doolittle',
+                'term': {
+                    'termGpa': {'gpa': 1.8, 'unitsTakenForGpa': 15.0},
+                    'termId': '2178',
+                },
+                'termGpa': [{'gpa': 3.5, 'termId': '2172'}],
+            },
+        ]
+        stripped = _strip_gpa(students)
+        assert len(stripped) == 1
+        student = stripped[0]
+        assert 'cumulativeGPA' not in student
+        assert 'termGpa' not in student
+        assert 'termGpa' not in student['term']
+        # Non-GPA data in the nested 'term' element is preserved.
+        assert student['term']['termId'] == '2178'
+
 
 def _api_search(
         client,
