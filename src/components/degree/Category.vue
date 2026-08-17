@@ -43,7 +43,7 @@
         </h4>
         <div
           v-if="!degreeStore.sid && canEdit"
-          class="align-center degree-check-action-buttons d-flex mr-2 ms-auto"
+          class="align-center degree-check-action-buttons d-flex ms-auto"
         >
           <v-btn
             :id="`column-${uxPositionX}-edit-category-${category.id}-btn`"

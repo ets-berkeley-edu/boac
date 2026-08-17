@@ -4,7 +4,7 @@
       <h3
         id="unit-requirements-header"
         class="font-size-18 mb-1 mr-1 text-medium-emphasis text-no-wrap"
-        :class="{'font-size-14': printable, 'font-size-20': !printable}"
+        :class="{'font-size-14': printable}"
       >
         Unit Requirements
       </h3>
@@ -29,19 +29,19 @@
       >
         No unit requirements created
       </div>
-      <table v-if="size(items)" id="unit-requirements-table" class="unit-requirements-table">
+      <table v-if="size(items)" id="unit-requirements-table" class="degree-check-table">
         <caption class="sr-only">Unit Requirements</caption>
         <thead class="border-b-sm">
           <tr>
             <th
               id="th-unit-requirements-name"
-              class="font-size-12 text-uppercase th-name th-height"
+              class="font-size-12 text-uppercase th-name"
             >
               Fulfillment Requirements
             </th>
             <th
               id="th-unit-requirements-min-units"
-              class="font-size-12 pr-3 text-no-wrap text-right text-uppercase th-height th-units"
+              class="font-size-12 pr-3 text-no-wrap text-right text-uppercase th-units"
               :class="{'th-min-units': !degreeStore.sid}"
             >
               {{ degreeStore.sid ? 'Min' : 'Min Units' }}
@@ -49,14 +49,14 @@
             <th
               v-if="degreeStore.sid"
               id="th-unit-requirements-completed"
-              class="font-size-12 text-right text-uppercase th-height th-completed"
+              class="font-size-12 text-right text-uppercase th-completed"
             >
               Completed
             </th>
             <th
               v-if="currentUser.canEditDegreeProgress && !degreeStore.sid && !printable"
               id="th-unit-requirements-actions"
-              class="px-0 th-actions th-height"
+              class="px-0 th-actions"
             >
               <span class="sr-only">Actions</span>
             </th>
@@ -68,12 +68,12 @@
             :id="item.type === 'course' ? `unit-requirement-${item.parent.id}-course-${item.id}` : `unit-requirement-${item.id}`"
             :key="index"
           >
-            <td class="overflow-wrap-break-word py-1" :class="{'font-size-12': printable, 'font-size-16': !printable}">
+            <td class="overflow-wrap-break-word pt-1 pb-2" :class="{'font-size-12': printable, 'font-size-16': !printable}">
               <div v-if="!degreeStore.sid || printable" class="mr-1">
                 {{ item.name }}
               </div>
               <div v-if="degreeStore.sid && !printable">
-                <div v-if="item.type === 'course'" class="pl-6 pb-2" :class="{'demo-mode-blur': currentUser.inDemoMode}">
+                <div v-if="item.type === 'course'" class="pl-6" :class="{'demo-mode-blur': currentUser.inDemoMode}">
                   {{ item.name }}
                 </div>
                 <button
@@ -91,7 +91,7 @@
                   <div
                     v-if="item.isExpanded && item.type === 'unitRequirement' && !item.children.length"
                     :id="`unit-requirement-${item.id}-no-courses`"
-                    class="text-surface-variant pl-6 pb-2"
+                    class="no-data-text pl-6 pt-1 pb-2"
                   >
                     No courses
                   </div>
@@ -99,7 +99,7 @@
               </div>
             </td>
             <td
-              class="pr-3 py-1 text-right"
+              class="pr-3 pt-1 pb-2 text-right"
               :class="{
                 'font-size-12': printable,
                 'font-size-16': !printable
@@ -111,7 +111,7 @@
             </td>
             <td
               v-if="degreeStore.sid"
-              class="text-right py-1"
+              class="text-right pt-1 pb-2"
               :class="{
                 'font-size-12': printable,
                 'font-size-16': !printable
@@ -121,7 +121,7 @@
             </td>
             <td
               v-if="currentUser.canEditDegreeProgress && !degreeStore.sid && !printable"
-              class="py-1"
+              class="pt-1 pb-2"
             >
               <div class="d-flex justify-end">
                 <div class="degree-check-action-buttons d-flex text-no-wrap">
@@ -327,17 +327,6 @@ const toggleExpanded = item => {
 </script>
 
 <style scoped>
-table {
-  border-collapse: collapse;
-  table-layout: fixed;
-  width: 100%;
-}
-td {
-  vertical-align: top;
-}
-th {
-  padding-bottom: 5px;
-}
 .th-actions {
   width: 10%;
 }
@@ -352,11 +341,5 @@ th {
 }
 .th-units {
   width: 15%;
-}
-.unit-requirements-table {
-  min-width: 250px;
-}
-.unit-requirement-toggle {
-  max-width: 200px;
 }
 </style>

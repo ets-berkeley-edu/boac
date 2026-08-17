@@ -1,23 +1,23 @@
 <template>
   <div v-if="key">
-    <div v-if="!degreeStore.courses[key].length" class="no-data-text py-1">
+    <div v-if="!degreeStore.courses[key].length" class="no-data-text pl-2 py-1">
       No courses
     </div>
     <div v-if="degreeStore.courses[key].length" :id="`${key}-courses-container`">
       <table
         :id="`${key}-courses-table`"
-        class="mb-1"
+        class="degree-check-table mb-1"
       >
         <caption class="sr-only">{{ capitalize(key) }} Courses</caption>
         <thead class="border-b-sm">
           <tr class="text-no-wrap">
-            <th v-if="canEdit" class="th-assign force-width-18"><span class="sr-only">Options to assign course</span></th>
-            <th class="font-size-11 force-width-80 pr-1">Course</th>
-            <th class="font-size-11 force-width-24 truncate-with-ellipsis" title="Grade">Grade</th>
-            <th class="font-size-11 force-width-24 text-right truncate-with-ellipsis pr-2" title="Units">Units</th>
-            <th v-if="!ignored" class="font-size-11 force-width-42">Term</th>
-            <th class="th-note font-size-11 force-width-50">Note</th>
-            <th v-if="canEdit" class="force-width-20"><span class="sr-only">course actions</span></th>
+            <th v-if="canEdit" class="th-assign"><span class="sr-only">Options to assign course</span></th>
+            <th class="font-size-11 pr-1">Course</th>
+            <th class="th-grade font-size-11 pr-1" title="Grade">Grade</th>
+            <th class="th-units font-size-11 text-right" title="Units">Units</th>
+            <th v-if="!ignored" class="th-term font-size-11">Term</th>
+            <th class="th-note font-size-11">Note</th>
+            <th v-if="canEdit" class="th-actions"><span class="sr-only">course actions</span></th>
           </tr>
         </thead>
         <tbody>
@@ -56,7 +56,7 @@
                   :course="course"
                 />
               </td>
-              <td class="overflow-wrap-break-word td-name">
+              <td class="overflow-wrap-break-word td-name pr-1">
                 <span
                   :class="{
                     'font-weight-500': isEditing(course),
@@ -77,16 +77,12 @@
               </td>
               <td
                 class="td-grade text-no-wrap"
-                :class="{
-                  'demo-mode-blur': currentUser.inDemoMode,
-                  'force-width-24': isAlertGrade(course.grade),
-                  'force-width-50': isAlertGrade(course.grade)
-                }"
+                :class="{'demo-mode-blur': currentUser.inDemoMode}"
               >
-                <span class="font-size-14">{{ course.grade || '&mdash;' }}</span>
+                <span>{{ course.grade || '&mdash;' }}</span>
                 <v-icon
                   v-if="isAlertGrade(course.grade) && !currentUser.inDemoMode"
-                  class="mb-1"
+                  class="mb-1 ml-1"
                   color="warning"
                   :icon="mdiAlert"
                   size="20"
@@ -94,7 +90,7 @@
                 />
               </td>
               <td class="td-units text-right">
-                <span class="font-size-14">{{ isNil(course.units) ? '&mdash;' : course.units }}</span>
+                <span>{{ isNil(course.units) ? '&mdash;' : course.units }}</span>
                 <span v-if="unitsWereEdited(course)" class="sr-only"> (updated from {{ pluralize('unit', course.sis.units) }})</span>
                 <v-icon
                   v-if="course.unitRequirements.length"
@@ -114,15 +110,11 @@
                   :title="`Updated from ${pluralize('unit', course.sis.units)}`"
                 />
               </td>
-              <td v-if="!ignored" class="font-size-14 force-width-42 td-term">
+              <td v-if="!ignored" class="td-term">
                 {{ abbreviateTerm(course.termName) }}
               </td>
               <td
-                class="font-size-14 td-note pr-1"
-                :class="{
-                  'force-width-50': course.note && !isNoteVisible(course),
-                  'truncate-with-ellipsis': course.note
-                }"
+                class="td-note truncate-with-ellipsis pr-1"
               >
                 <a
                   v-if="course.note && !isNoteVisible(course)"
@@ -137,11 +129,9 @@
                 </a>
                 <div v-if="!course.note" :id="`course-${course.id}-note`">&mdash;</div>
               </td>
-              <td
-                v-if="canEdit"
-              >
+              <td v-if="canEdit" class="td-actions">
                 <div class="d-flex h-100 justify-end">
-                  <div class="degree-check-action-buttons d-flex pt-1 text-no-wrap">
+                  <div class="degree-check-action-buttons d-flex text-no-wrap">
                     <v-btn
                       v-if="degreeStore.draggingCourseId !== course.id"
                       :id="`edit-${key}-course-${course.id}-btn`"
@@ -205,7 +195,6 @@
                   <div
                     :id="`${course.id}-note`"
                     aria-live="polite"
-                    class="font-size-14"
                   >
                     <span class="sr-only">Note: </span>
                     {{ course.note }}
@@ -404,68 +393,10 @@ const showNote = course => {
 </script>
 
 <style scoped>
-table {
-  border-collapse: collapse;
-  border-spacing: 0 0.05em;
-  table-layout: fixed;
-  width: 100%;
-}
-tbody:before {
-  content: '';
-  display: block;
-  height: 10px;
-}
-th {
-  height: 20px;
-  padding-bottom: 5px;
-}
 .changed-units-icon {
   margin-left: 0.1em;
 }
-.td-assign {
-  font-size: 14px;
-  vertical-align: top;
-}
-.td-grade {
-  padding-top: 1px;
-  vertical-align: top;
-}
-.td-name {
-  font-size: 14px;
-  padding-top: 3px;
-  vertical-align: top;
-}
-.td-note {
-  padding-left: 5px;
-  padding-top: 3px;
-  vertical-align: top;
-}
-.td-term {
-  padding-top: 3px;
-  vertical-align: top;
-}
-.td-units {
-  padding: 1px 8px 0 0;
-  vertical-align: top;
-  white-space: nowrap;
-}
-.th-assign {
-  width: 6% !important;
-}
-.th-note {
-  padding-left: 5px;
-}
-.tr-course td {
-  height: 40px !important;
-}
-.tr-while-dragging td {
-  background-color: rgb(var(--v-theme-tertiary));
-  color: rgb(var(--v-theme-on-tertiary));
-}
-.tr-while-dragging td:first-child {
-  border-radius: 10px 0 0 10px;
-}
-.tr-while-dragging td:last-child {
-  border-radius: 0 10px 10px 0;
+.th-term {
+  min-width: 5rem;
 }
 </style>
