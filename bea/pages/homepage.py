@@ -46,6 +46,7 @@ class Homepage(UserListPages):
     DELETED_MSG = (By.XPATH, '//div[contains(., "Sorry, user is not authorized to use BOA.")]')
     AXIOS_ERROR_MSG = (By.XPATH, '//div[contains(., "not registered to use BOA.")]')
     DISABLED_MSG = (By.XPATH, '//div[contains(., "has been disabled due to inactivity.")]')
+    PAGE_HEADER = (By.ID, 'page-header')
 
     def load_page(self):
         self.driver.get(boa_utils.get_boa_base_url())
@@ -53,6 +54,17 @@ class Homepage(UserListPages):
 
     def click_sign_in_button(self):
         self.wait_for_page_and_click(Homepage.SIGN_IN_BUTTON)
+
+    def wait_for_home_page_load(self):
+        # On landing on the homepage, BOA fetches a fresh user profile in the background and, once it
+        # resolves, shifts keyboard focus to the page heading for screen readers (see loadingComplete()
+        # in stores/context.ts). There's no spinner to wait on for this fetch, and if a test starts
+        # interacting with the page (e.g. the search box) before it resolves, that focus shift steals
+        # focus away mid-interaction and swallows whatever came next (e.g. an Enter keypress). Wait for
+        # it to settle first.
+        Wait(self.driver, utils.get_medium_timeout()).until(
+            lambda d: self.element(Homepage.PAGE_HEADER).get_dom_attribute('tabindex') == '-1',
+        )
 
     def log_in(self, username, password, cal_net):
         self.load_page()
@@ -63,6 +75,7 @@ class Homepage(UserListPages):
         self.click_sign_in_button()
         cal_net.log_in(username, password)
         self.wait_for_boa_title('Home')
+        self.wait_for_home_page_load()
 
     def enter_dev_auth_creds(self, user=None):
         uid = user.uid if user else utils.get_admin_uid()
@@ -75,6 +88,8 @@ class Homepage(UserListPages):
     def dev_auth(self, user=None, page_title=None):
         self.enter_dev_auth_creds(user)
         self.wait_for_boa_title((page_title or 'Home'))
+        if not page_title or page_title == 'Home':
+            self.wait_for_home_page_load()
 
     def switch_user(self, new_user=None, page_title=None):
         self.load_page()
