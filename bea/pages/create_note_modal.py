@@ -339,7 +339,7 @@ class CreateNoteModal(Page):
 
     @staticmethod
     def added_student_loc(student):
-        return By.XPATH, f'//span[text()="{student.full_name} ({student.sid})"]'
+        return By.XPATH, f'//span[text()="{student.full_name} ({student.sid}) - {student.email}"]'
 
     @staticmethod
     def student_remove_button_loc(student):
