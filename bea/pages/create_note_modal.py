@@ -339,11 +339,11 @@ class CreateNoteModal(Page):
 
     @staticmethod
     def added_student_loc(student):
-        return By.XPATH, f'//span[text()="{student.full_name} ({student.sid}) - {student.email}"]'
+        return By.XPATH, f'//span[starts-with(text(), "{student.full_name} ({student.sid})")]'
 
     @staticmethod
     def student_remove_button_loc(student):
-        return By.XPATH, f'//button[@aria-label="Remove  {student.full_name} ({student.sid})"]'
+        return By.XPATH, f'//button[starts-with(@aria-label, "Remove  {student.full_name} ({student.sid})")]'
 
     def wait_for_batch_students(self, students):
         for student in students:
