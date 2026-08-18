@@ -126,10 +126,74 @@
 .date-input-opacity-override .v-field__input {
   opacity: 1 !important;
 }
+.degree-check-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+.degree-check-table tbody:before {
+  content: '';
+  display: block;
+  height: 6px;
+}
+.degree-check-table td {
+  border-spacing: 0 0.05em !important;
+  font-size: 0.875rem;
+  padding: 8px 0 0 0;
+  vertical-align: top;
+}
+.degree-check-table .td-actions {
+  padding-right: 1px;
+}
+.degree-check-table .td-assign {
+  padding: 5px 0;
+}
+.degree-check-table .td-grade {
+  text-transform: uppercase;
+}
+.degree-check-table .td-note, .degree-check-table .th-note {
+  padding-left: 2px;
+  max-width: 5rem;
+  width: 25%;
+}
+.degree-check-table .td-units {
+  padding-right: 2%;
+  white-space: nowrap;
+}
+.degree-check-table th {
+  padding-bottom: 5px;
+}
+.degree-check-table .th-actions {
+  width: 3rem;
+}
+.degree-check-table .th-assign {
+  max-width: 1.875rem;
+  min-width: 1.875rem;
+  width: 1.875rem;
+}
+.degree-check-table .th-grade {
+  min-width: 3rem;
+  width: 10%;
+}
+.degree-check-table .th-units {
+  padding-right: 2%;
+  min-width: 3rem;
+  width: 10%;
+}
+.degree-check-table .tr-while-dragging td {
+  background-color: rgb(var(--v-theme-tertiary));
+  color: rgb(var(--v-theme-on-tertiary));
+  padding-bottom: 9px;
+}
+.degree-check-table .tr-while-dragging td:first-child {
+  border-radius: 10px 0 0 10px;
+}
+.degree-check-table .tr-while-dragging td:last-child {
+  border-radius: 0 10px 10px 0;
+}
 .degree-check-action-buttons {
-  min-width: 2.5rem;
-  padding: 1px 1px 0 0;
-  width: 2.5rem;
+  min-width: 3rem;
+  padding: 1px 2px 0 2px;
+  width: 3rem;
 }
 .default-margins {
   padding: 24px;
@@ -222,38 +286,6 @@
 }
 .font-weight-600 {
   font-weight: 600;
-}
-.force-width-18 {
-  max-width: 1.13rem !important;
-  min-width: 1.13rem !important;
-}
-.force-width-20 {
-  max-width: 20px !important;
-  width: 20px !important;
-}
-.force-width-24 {
-  max-width: 24px !important;
-  width: 24px !important;
-}
-.force-width-28 {
-  max-width: 28px !important;
-  width: 28px !important;
-}
-.force-width-42 {
-  min-width: 42px !important;
-  width: 42px !important;
-}
-.force-width-50 {
-  min-width: 50px !important;
-  width: 50px !important;
-}
-.force-width-80 {
-  max-width: 90px !important;
-  width: 90px !important;
-}
-.force-width-90 {
-  max-width: 90px !important;
-  width: 90px !important;
 }
 .height-unset {
   height: unset !important;
