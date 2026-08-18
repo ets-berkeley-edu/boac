@@ -255,7 +255,11 @@ def majors():
 @stow('cohort_filter_options_min_unit_exceptions')
 def minimum_unit_exception_terms():
     terms_with_exceptions = data_loch.get_min_units_exception_terms()
-    return [{'name': row['term_id'], 'value': row['term_id']} for row in terms_with_exceptions]
+    options = [{'name': row['term_name'], 'value': row['term_id']} for row in terms_with_exceptions]
+    return [
+        {'name': 'All Semesters', 'value': '*'},
+        *options,
+    ]
 
 
 @stow('cohort_filter_options_minors')

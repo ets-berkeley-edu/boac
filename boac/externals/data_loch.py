@@ -1330,8 +1330,11 @@ def get_majors():
 
 
 def get_min_units_exception_terms():
-    sql = f"""SELECT DISTINCT term_id FROM {student_schema()}.term_unit_limits
-        WHERE min_term_units_allowed <> 0.5"""
+    sql = f"""SELECT DISTINCT tul.term_id, td.term_name
+        FROM {student_schema()}.term_unit_limits tul
+        JOIN {terms_schema()}.term_definitions td on tul.term_id = td.term_id
+        WHERE tul.min_term_units_allowed <> 0.5
+        ORDER BY tul.term_id DESC"""
     return safe_execute_rds(sql)
 
 
@@ -1391,7 +1394,7 @@ def get_students_query(  # noqa: C901, PLR0912, PLR0913, PLR0915
     levels=None,
     majors=None,
     midpoint_deficient_grade=None,
-    min_units_exception_term=None,
+    min_units_exception_terms=None,
     minors=None,
     scope=(),
     search_phrase=None,
@@ -1572,10 +1575,12 @@ def get_students_query(  # noqa: C901, PLR0912, PLR0913, PLR0915
                              AND si.term_id >= %(incomplete_earliest_term_id)s
                              AND {_incomplete_criteria(incomplete_date_ranges, incomplete_statuses, query_bindings)}"""
         query_bindings.update({'incomplete_earliest_term_id': earliest_term_id()})
-    if min_units_exception_term:
-        query_tables += f' LEFT JOIN {student_schema()}.term_unit_limits tul ON tul.sid = spi.sid'
-        query_filter += ' AND tul.term_id = ANY(%(min_units_exception_term)s) AND tul.min_term_units_allowed <> 0.5'
-        query_bindings.update({'min_units_exception_term': min_units_exception_term})
+    if min_units_exception_terms:
+        query_tables += f' JOIN {student_schema()}.term_unit_limits tul ON tul.sid = spi.sid'
+        query_filter += ' AND tul.min_term_units_allowed <> 0.5'
+        if '*' not in min_units_exception_terms:
+            query_filter += ' AND tul.term_id = ANY(%(min_units_exception_terms)s)'
+            query_bindings.update({'min_units_exception_terms': min_units_exception_terms})
     if minors:
         query_tables += f' LEFT JOIN {student_schema()}.minors min ON min.sid = spi.sid'
         query_filter += " AND min.minor = ANY(%(minors)s) AND maj.college NOT LIKE 'Graduate%%'"
