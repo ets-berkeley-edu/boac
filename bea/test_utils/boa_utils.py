@@ -166,6 +166,7 @@ def get_authorized_users():
                  ON authorized_users.id = peer_advising_department_members.authorized_user_id
           LEFT JOIN peer_advising_departments
                  ON peer_advising_department_members.peer_advising_department_id = peer_advising_departments.id
+           WHERE authorized_users.disabled_at IS NULL
            ORDER BY uid ASC;"""
     app.logger.info(sql)
     results = db.session.execute(text(sql))
