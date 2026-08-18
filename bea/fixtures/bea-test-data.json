@@ -284,7 +284,7 @@
                         "status": "Active"
                     }
                 ],
-                "min_units_exception_term": [
+                "min_units_exception_terms": [
                     {
                         "term": true
                     }
