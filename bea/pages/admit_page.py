@@ -34,6 +34,8 @@ from bea.test_utils import boa_utils, utils
 class AdmitPage(AdmitPages, CuratedAddSelector):
 
     NAME = By.ID, 'admit-name-header'
+    CONTACT_INFO = (By.XPATH, '//h2[text()="Contact Information"]')
+    DEMOGRAPHIC_INFO = (By.XPATH, '//h2[text()="Demographic Information"]')
 
     @staticmethod
     def add_to_admissions_grp_button(admit):

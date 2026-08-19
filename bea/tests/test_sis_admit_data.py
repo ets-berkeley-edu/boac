@@ -91,6 +91,7 @@ class TestAdmitPage:
         utils.assert_equivalence(self.admit_page.admit_term(), tc.student.admit_data['admit_term'])
 
     def test_email(self, tc):
+        self.admit_page.scroll_to_element(self.admit_page.CONTACT_INFO)
         email = tc.student.admit_data['email'] or '—'
         utils.assert_equivalence(self.admit_page.email(), email)
 
@@ -111,7 +112,7 @@ class TestAdmitPage:
         utils.assert_equivalence(self.admit_page.address_street_1(), address_1)
 
     def test_address_2(self, tc):
-        address_2 = re.sub(r'\s+', ' ', tc.student.admit_data['permanent_street_2']) or None
+        address_2 = re.sub(r'\s+', ' ', tc.student.admit_data['permanent_street_2']) or ''
         utils.assert_equivalence(self.admit_page.address_street_2(), address_2)
 
     def test_address_city_region_postal(self, tc):
@@ -125,6 +126,7 @@ class TestAdmitPage:
         utils.assert_equivalence(self.admit_page.address_country(), tc.student.admit_data['permanent_country'])
 
     def test_x_ethnic(self, tc):
+        self.admit_page.scroll_to_element(self.admit_page.DEMOGRAPHIC_INFO)
         utils.assert_equivalence(self.admit_page.x_ethnic(), tc.student.admit_data['xethnic'])
 
     def test_hispanic(self, tc):
