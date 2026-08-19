@@ -39,8 +39,10 @@ from bea.test_utils import boa_utils, utils
 class BoaPages(CreateNoteModal, SearchForm):
 
     SPINNER = (By.XPATH, '//*[@id="spinner-when-loading"]')
+    SECTION_SPINNER = (By.CLASS_NAME, 'v-progress-circular--visible')
     MODAL = (By.CLASS_NAME, 'modal-content')
     NOT_FOUND = (By.XPATH, '//img[@alt="A silly boarding pass with the text, \'Error 404: Flight not found\'"]')
+    PAGE_FOOTER = (By.XPATH, '//footer')
     ERROR_403 = (By.XPATH, '//div[text()=" HTTP error status: 403"]')
 
     ARE_YOU_SURE_CONFIRM_HEADER = By.ID, 'are-you-sure-header'
@@ -53,6 +55,15 @@ class BoaPages(CreateNoteModal, SearchForm):
         try:
             if self.is_present(BoaPages.SPINNER):
                 self.when_not_present(BoaPages.SPINNER, timeout)
+        except StaleElementReferenceException as e:
+            app.logger.debug(f'{e}')
+
+    def wait_for_section_spinner(self, timeout=None):
+        timeout = timeout or utils.get_short_timeout()
+        time.sleep(1)
+        try:
+            if self.is_present(BoaPages.SECTION_SPINNER):
+                self.when_not_present(BoaPages.SECTION_SPINNER, timeout)
         except StaleElementReferenceException as e:
             app.logger.debug(f'{e}')
 
