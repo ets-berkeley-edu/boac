@@ -100,7 +100,7 @@ class StudentPageTimeline(BoaPages):
 
     def visible_collapsed_item_data(self, item):
         item_type = self.item_type(item)
-        self.when_visible((By.XPATH, f'collapsed-{item_type}-{item.record_id}-created-at'), utils.get_short_timeout())
+        self.when_visible((By.ID, f'collapsed-{item_type}-{item.record_id}-created-at'), utils.get_short_timeout())
         subject_loc = By.ID, f'{item_type}-{item.record_id}-is-closed'
         subject = self.element(subject_loc).text.replace('\n', '') if self.is_present(subject_loc) else None
         date_loc = By.ID, f'collapsed-{item_type}-{item.record_id}-created-at'
