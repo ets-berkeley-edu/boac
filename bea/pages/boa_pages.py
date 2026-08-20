@@ -43,6 +43,7 @@ class BoaPages(CreateNoteModal, SearchForm):
     MODAL = (By.CLASS_NAME, 'modal-content')
     NOT_FOUND = (By.XPATH, '//img[@alt="A silly boarding pass with the text, \'Error 404: Flight not found\'"]')
     PAGE_FOOTER = (By.XPATH, '//footer')
+    ERROR_400 = (By.XPATH, '//div[text()=" HTTP error status: 400"]')
     ERROR_403 = (By.XPATH, '//div[text()=" HTTP error status: 403"]')
 
     ARE_YOU_SURE_CONFIRM_HEADER = By.ID, 'are-you-sure-header'
@@ -69,6 +70,9 @@ class BoaPages(CreateNoteModal, SearchForm):
 
     def wait_for_boa_title(self, string):
         self.wait_for_title(f'{string} | BOA')
+
+    def wait_for_400(self):
+        self.when_present(self.ERROR_400, utils.get_medium_timeout())
 
     def wait_for_403(self):
         self.when_present(self.ERROR_403, utils.get_medium_timeout())
