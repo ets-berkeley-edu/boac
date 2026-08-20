@@ -23,6 +23,8 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import time
+
 import pytest
 
 from bea.models.user import User
@@ -72,5 +74,9 @@ class TestAuthorizedUser:
 
     def test_expired_cookies_force_login(self):
         self.driver.delete_all_cookies()
+        time.sleep(1)
+        self.driver.delete_cookie('session')
         self.search_form.enter_simple_search_and_hit_enter('foo')
+        self.homepage.wait_for_400()
+        self.homepage.reload_page()
         self.homepage.when_visible(Homepage.SIGN_IN_BUTTON, utils.get_short_timeout())
