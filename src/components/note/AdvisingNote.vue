@@ -14,7 +14,11 @@
       @click="onClickOpen"
       @keyup.enter="onClickOpen"
     >
-      <div v-if="note.isDraft" :id="`note-${note.id}-is-draft`" class="d-flex align-center">
+      <div
+        v-if="note.isDraft"
+        :id="`note-${note.id}-is-draft`"
+        class="d-flex align-baseline overflow-x-hidden w-100"
+      >
         <v-badge
           :aria-atomic="undefined"
           :aria-label="undefined"
@@ -28,7 +32,7 @@
             <span class="font-weight-black pa-1 text-body-2 line-height-1">Draft</span>
           </template>
         </v-badge>
-        <span :id="`note-${note.id}-subject`" class="text-no-wrap">{{ note.subject || contextStore.config.draftNoteSubjectPlaceholder }}</span>
+        <span :id="`note-${note.id}-subject`" :class="{'truncate-with-ellipsis': !isOpen}">{{ note.subject || contextStore.config.draftNoteSubjectPlaceholder }}</span>
       </div>
       <div
         v-if="!note.isDraft"
