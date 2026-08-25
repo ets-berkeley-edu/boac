@@ -27,7 +27,6 @@
 <script setup>
 import {mdiCheckBold, mdiCloseThick} from '@mdi/js'
 import {ref} from 'vue'
-import {putFocusNextTick} from '@/lib/utils'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/degree-edit-session-utils'
 import {toggleCampusRequirement} from '@/api/degree'
 import {useContextStore} from '@/stores/context'
@@ -58,7 +57,6 @@ const isSatisfied = ref(props.campusRequirement.category.categoryType === 'Campu
 const toggle = () => {
   toggleCampusRequirement(props.campusRequirement.category.id, isSatisfied.value).then(() => {
     refreshDegreeTemplate(degreeStore.templateId)
-    putFocusNextTick(`column-${props.uxPositionX}-${props.campusRequirement.key}-satisfy-checkbox`)
   })
 }
 </script>
