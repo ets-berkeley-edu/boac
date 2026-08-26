@@ -145,7 +145,7 @@ import {getPeerAdvisorNoteById} from '@/api/peer-advising-notes'
 import {getUserByUid} from '@/api/user'
 import {useContextStore} from '@/stores/context'
 import {peerAdvisorSearch} from '@/api/search'
-import {updateNoteComments} from '@/lib/note'
+import {mergePeerAdvisingNoteUpdate, updateNoteComments} from '@/lib/note'
 import {useSearchStore} from '@/stores/search'
 import PeerAdvisingStudentsTable from '@/components/peer/PeerAdvisingStudentsTable.vue'
 
@@ -251,8 +251,8 @@ const onPeerAdvisingNoteUpdated = (note: Note|NoteComment) => {
         search(true, false)
       }
     } else {
-      note.peerAdvisingDepartment = notes.value[existingNoteIndex].peerAdvisingDepartment
-      notes.value.splice(existingNoteIndex, 1, note)
+      const existingNote = notes.value[existingNoteIndex]
+      notes.value.splice(existingNoteIndex, 1, mergePeerAdvisingNoteUpdate(existingNote, note as Note))
     }
   } else {
     search(true, false)

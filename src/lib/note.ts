@@ -49,12 +49,18 @@ export function canUserEditNote(note: Note, user: BoaUser): boolean {
 }
 
 export function stripHtmlAndSummarize(message: string) {
-  const cleanse = (s: string) => stripHtmlAndTrim(s).replace(/\n\r/g, ' ')
+  const cleanse = (s: string) => {
+    const spaced = s
+      .replace(/<br\s*\/?>/gi, ' ')
+      .replace(/<\/(p|div|li)>/gi, ' ')
+      .replace(/\r\n|\n|\r/g, ' ')
+    return stripHtmlAndTrim(spaced).replace(/\s+/g, ' ')
+  }
   let summary: string | undefined = undefined
   const cleansed: string = cleanse(message)
   if (cleansed) {
-    const regex: string = ['<br>', '<br/>', '</p>', '</div>'].map(phrase => `(${phrase})`).join('|')
-    const index: number = message.search(new RegExp(regex))
+    const regex: string = ['<br\\s*/?>', '</p>', '</div>', '</li>'].map(phrase => `(${phrase})`).join('|')
+    const index: number = message.search(new RegExp(regex, 'i'))
     summary = cleanse(index === -1 ? message : message.slice(0, index))
   }
   return summary || cleansed
@@ -112,6 +118,14 @@ export function summarizeNoteForAcademicTimeline(message: AcademicTimelineMessag
 
 export function summarizeTopics(topics: string[]): string {
   return `Topic${topics.length === 1 ? '' : 's'}: ${oxfordJoin(topics)}`
+}
+
+export function mergePeerAdvisingNoteUpdate(existingNote: Note, updatedNote: Note): Note {
+  return {
+    ...updatedNote,
+    peerAdvisingDepartment: updatedNote.peerAdvisingDepartment ?? existingNote.peerAdvisingDepartment,
+    student: updatedNote.student ?? existingNote.student,
+  }
 }
 
 export function updateNoteComments(parentNote: Note, comment: NoteComment) {

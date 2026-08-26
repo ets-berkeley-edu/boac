@@ -96,7 +96,7 @@ import ModalHeader from '@/components/util/ModalHeader.vue'
 import PeerAdvisingNotesTable from '@/components/peer/note/PeerAdvisingNotesTable.vue'
 import {toggleModalBackgroundDisabled} from '@/lib/utils'
 import {getPeerAdvisingNotesAuthoredBy} from '@/api/peer-advising-notes'
-import {updateNoteComments} from '@/lib/note'
+import {mergePeerAdvisingNoteUpdate, updateNoteComments} from '@/lib/note'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 
@@ -145,7 +145,8 @@ const afterNoteEdit = note => {
         loadNotes()
       }
     } else {
-      notes.value.splice(existingNoteIndex, 1, note)
+      const existingNote = notes.value[existingNoteIndex]
+      notes.value.splice(existingNoteIndex, 1, mergePeerAdvisingNoteUpdate(existingNote, note))
       notes.value = sortNotes(notes.value)
     }
   } else {
