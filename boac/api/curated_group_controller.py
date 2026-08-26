@@ -29,7 +29,7 @@ from flask_login import current_user
 from boac.api.csv_file_download_utils import response_with_students_csv_download
 from boac.api.decorators import advisor_required
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import is_unauthorized_domain
+from boac.api.util import alert_counts_for_curated_group, is_unauthorized_domain
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param
 from boac.lib.util import get_benchmarker
@@ -39,7 +39,6 @@ from boac.merged.calnet import get_calnet_user_for_uid
 from boac.merged.sis_terms import current_term_id
 from boac.merged.student import get_student_profile_summaries
 from boac.merged.student import get_student_query_scope as get_query_scope
-from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.curated_group import CuratedGroup
 from boac.models.university_dept import UniversityDept
@@ -68,8 +67,6 @@ def get_curated_groups_by_dept_code(dept_code):
                 curated_group_owner['curatedGroups'].append(curated_group)
         # Order by owner name
         api_json = sorted(api_json, key=lambda user: user['name'] or f"UID: {user['uid']}")
-        for user in api_json:
-            user['curatedGroups'] = sorted(user['curatedGroups'], key=lambda c: c['name'])
     return tolerant_jsonify(api_json)
 
 
@@ -154,8 +151,6 @@ def download_csv(curated_group_id):
 @app.route('/api/curated_group/<curated_group_id>/students_with_alerts')
 @advisor_required
 def get_students_with_alerts(curated_group_id):
-    offset = get_param(request.args, 'offset', 0)
-    limit = get_param(request.args, 'limit', 50)
     benchmark = get_benchmarker(f'curated group {curated_group_id} students_with_alerts')
     benchmark('begin')
     curated_group = CuratedGroup.find_by_id(curated_group_id)
@@ -163,18 +158,7 @@ def get_students_with_alerts(curated_group_id):
         raise ResourceNotFoundError(f'Sorry, no curated group found with id {curated_group_id}.')
     if not _can_current_user_view_curated_group(curated_group):
         raise ForbiddenRequestError(f'Current user, {current_user.uid}, cannot view curated group {curated_group.id}')
-    students = Alert.include_alert_counts_for_students(
-        benchmark=benchmark,
-        viewer_user_id=current_user.get_id(),
-        group={'sids': CuratedGroup.get_all_sids(curated_group_id)},
-        count_only=True,
-        offset=offset,
-        limit=limit,
-    )
-    alert_count_per_sid = {}
-    for s in list(filter(lambda s: s.get('alertCount') > 0, students)):
-        sid = s.get('sid')
-        alert_count_per_sid[sid] = s.get('alertCount')
+    alert_count_per_sid = _include_alert_counts(curated_group_id, benchmark)
     sids = list(alert_count_per_sid.keys())
     benchmark('begin profile query')
     students_with_alerts = get_student_profile_summaries(sids=sids)
@@ -265,7 +249,11 @@ def _curated_group_with_complete_student_profiles(
         )
     else:
         api_json['students'] = get_student_profile_summaries(sids, term_id=term_id)
-    Alert.include_alert_counts_for_students(benchmark=benchmark, viewer_user_id=current_user.get_id(), group=api_json)
+    _include_alert_counts(
+        curated_group_id,
+        benchmark,
+        students=api_json['students'],
+    )
     benchmark('begin get_referencing_cohort_ids')
     api_json['referencingCohortIds'] = curated_group.get_referencing_cohort_ids()
     benchmark('end')
@@ -278,3 +266,20 @@ def _can_current_user_view_curated_group(curated_group):
         bool(len(AuthorizedUser.find_by_id(owner_id).department_memberships))
         and (current_user.can_access_admitted_students or curated_group.domain == 'default')
     )
+
+
+def _include_alert_counts(
+        curated_group_id,
+        benchmark,
+        students=None,
+    ):
+    alert_counts = alert_counts_for_curated_group(
+        benchmark=benchmark,
+        viewer_id=current_user.get_id(),
+        group_id=curated_group_id,
+    )
+    counts_per_sid = {s.get('sid'): s.get('alertCount') for s in alert_counts}
+    for student in students or []:
+        sid = student['sid']
+        student['alertCount'] = counts_per_sid.get(sid) if sid in counts_per_sid else 0
+    return counts_per_sid

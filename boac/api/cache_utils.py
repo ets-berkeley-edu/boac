@@ -29,8 +29,9 @@ from threading import Thread
 from flask import current_app as app
 
 from boac import std_commit
+from boac.api.util import alert_counts_for_curated_group
 from boac.externals.data_loch import get_admitted_students_by_sids, get_student_profiles, get_user_permissions_per_affiliations
-from boac.lib.util import utc_now
+from boac.lib.util import get_benchmarker, utc_now
 from boac.merged.sis_terms import all_term_ids, current_term_id
 from boac.models.alert import Alert
 from boac.models.curated_group import CuratedGroupStudent
@@ -158,8 +159,22 @@ def disable_accounts_with_no_recent_activity():
 
 
 def refresh_alerts(term_id):
+    from boac.models import json_cache
+    from boac.models.curated_group import CuratedGroup
     Alert.deactivate_all_for_term(term_id)
     Alert.update_all_for_term(term_id)
+    json_cache.clear('alert_counts_curated_group_%')
+    benchmark = get_benchmarker('alert_counts_curated_group_cache_refresh')
+    benchmark('begin')
+    new_alert_counts = []
+    for curated_group in CuratedGroup.query.filter_by(domain='default').all():
+        new_alert_counts.append(alert_counts_for_curated_group(
+            benchmark=benchmark,
+            viewer_id=curated_group.owner_id,
+            group_id=curated_group.id,
+        ))
+    benchmark('end')
+    app.logger.info(f'Cached student alert counts for {len(new_alert_counts)} curated groups')
 
 
 def refresh_calnet_attributes():

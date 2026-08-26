@@ -250,7 +250,7 @@ def fake_aws(app):
 
 
 @pytest.fixture
-def create_alerts(client, db_session):
+def create_alerts(client, db_session, fake_auth):
     """Create assignment and midterm grade alerts."""
     # Create three canned alerts for the current term and one for the previous term.
     from boac.models.alert import Alert
@@ -279,6 +279,8 @@ def create_alerts(client, db_session):
         message='Week 5 homework in BOSCRSR 27B is late.',
     )
     # Load our usual student of interest into the cache and generate midterm alerts from fixture data.
+    admin_uid = '177473'
+    fake_auth.login(admin_uid)
     client.get('/api/student/by_uid/61889')
     Alert.update_all_for_term(2178)
 

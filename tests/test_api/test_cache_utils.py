@@ -26,6 +26,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import pytest
 
 from boac import std_commit
+from boac.api.cache_utils import refresh_alerts
+from boac.api.util import alert_counts_for_curated_group
+from boac.lib.util import get_benchmarker
+from boac.models import json_cache
 from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.curated_group import CuratedGroup, CuratedGroupStudent
@@ -35,21 +39,13 @@ from boac.models.university_dept_member import UniversityDeptMember
 from tests.test_api.api_test_utils import all_cohorts_owned_by
 
 admin_uid = '177473'
+asc_advisor_uid = '6446'
 coe_advisor_uid = '1022796'
 
 
 @pytest.mark.usefixtures('db_session')
 class TestCacheUtils:
-
-    def test_creates_alert_for_midterm_grade(self):
-        from boac.api.cache_utils import refresh_alerts
-        refresh_alerts(2178)
-        alerts = Alert.current_alerts_for_sid(sid='11667051', viewer_id='2040')
-        alert = next((a for a in alerts if a['alertType'] == 'midterm'), None)
-        assert alert
-        assert alert['alertType'] == 'midterm'
-        assert alert['key'] == '2178_90100'
-        assert alert['message'] == 'BURMESE 1A midpoint deficient grade of D+.'
+    """Cache Utils."""
 
     def test_update_curated_group_lists(self):
         from boac.api.cache_utils import update_curated_group_lists
@@ -84,7 +80,41 @@ class TestCacheUtils:
             assert cohort['alertCount'] >= 0
 
 
+class TestRefreshAlerts:
+    """Alerts Refresh."""
+
+    def test_creates_alert_for_midterm_grade(self):
+        """Generates alerts for non-passing midterm grades."""
+        refresh_alerts(2178)
+        alerts = Alert.current_alerts_for_sid(sid='11667051', viewer_id='2040')
+        alert = next((a for a in alerts if a['alertType'] == 'midterm'), None)
+        assert alert
+        assert alert['alertType'] == 'midterm'
+        assert alert['key'] == '2178_90100'
+        assert alert['message'] == 'BURMESE 1A midpoint deficient grade of D+.'
+
+    def test_refreshes_cached_curated_group_alert_counts(self, create_alerts):  # noqa: ARG002
+        """Updates cached alert counts for curated groups."""
+        group_id = CuratedGroup.get_curated_groups_owned_by(uids=[asc_advisor_uid])[0]['id']
+        asc_advisor = AuthorizedUser.find_by_uid(asc_advisor_uid)
+
+        # Cache alert counts for this curated group
+        alert_counts_for_curated_group(
+            benchmark=get_benchmarker('test_refreshes_cached_curated_group_alert_counts'),
+            viewer_id=asc_advisor.id,
+            group_id=group_id,
+        )
+        cached_counts = json_cache.fetch(f'alert_counts_curated_group_{group_id}_user_{asc_advisor.id}')
+        assert {'sid': '11667051', 'alertCount': 4} in cached_counts
+
+        refresh_alerts(2178)
+
+        cached_counts = json_cache.fetch(f'alert_counts_curated_group_{group_id}_user_{asc_advisor.id}')
+        assert {'sid': '11667051', 'alertCount': 2} in cached_counts
+
+
 class TestRefreshCalnetAttributes:
+    """Calnet Attributes Refresh."""
 
     def test_removes_and_restores(self):
         from boac.api.cache_utils import refresh_calnet_attributes
@@ -107,7 +137,7 @@ class TestRefreshCalnetAttributes:
 
 
 class TestRefreshCurrentTermIndex:
-    """Test current term index refresh."""
+    """Current term index refresh."""
 
     def test_refresh_current_term_index(self):
         """Deletes existing index from the cache and adds a fresh one."""
@@ -129,6 +159,7 @@ class TestRefreshCurrentTermIndex:
 
 
 class TestRefreshDepartmentMemberships:
+    """Department Memberships Refresh."""
 
     def test_adds_coe_advisors(self):
         """Adds COE advisors newly found in the loch."""

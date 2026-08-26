@@ -57,8 +57,10 @@ class JsonCache(Base):
 
 def clear(key_like):
     matches = db.session.query(JsonCache).filter(JsonCache.key.like(key_like))
-    app.logger.info(f'Will delete {matches.count()} entries matching {key_like}')
-    matches.delete(synchronize_session=False)
+    if matches.count():
+        app.logger.error(matches.all())
+        app.logger.info(f'Will delete {matches.count()} entries matching {key_like}')
+        matches.delete(synchronize_session=False)
 
 
 def stow(key_pattern, for_term=False):

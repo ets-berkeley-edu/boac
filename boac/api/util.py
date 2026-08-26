@@ -49,11 +49,26 @@ from boac.models.comment_parent import EFORM_COMMENT_PARENT_TYPES
 from boac.models.comment_read import CommentRead
 from boac.models.curated_group import CuratedGroup
 from boac.models.degree_progress_course import ACCENT_COLOR_CODES
+from boac.models.json_cache import stow
 from boac.models.note import Note, note_contact_type_enum
 from boac.models.note_read import NoteRead
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 from boac.models.university_dept import UniversityDept
 from boac.models.user_login import UserLogin
+
+
+@stow('alert_counts_curated_group_{group_id}_user_{viewer_id}')
+def alert_counts_for_curated_group(
+    benchmark,
+    viewer_id,
+    group_id,
+):
+    return Alert.current_alert_counts_for_curated_group(
+        benchmark=benchmark,
+        viewer_id=viewer_id,
+        group_id=group_id,
+        count_only=True,
+    )
 
 
 def can_access_admitted_students(user):
@@ -365,14 +380,9 @@ def _attach_external_comments(appointments, eforms):
 
 
 def get_current_user_profile():
-    cohorts = []
-    user_id = current_user.get_id()
-    for cohort in CohortFilter.get_cohorts(user_id):
-        cohort['isOwnedByCurrentUser'] = True
-        cohorts.append(cohort)
     return {
         **current_user.to_api_json(),
-        'myCohorts': cohorts,
+        'myCohorts': get_my_cohorts(),
         'myCuratedGroups': get_my_curated_groups(),
         'myDraftNoteCount': Note.get_draft_note_count(None if current_user.is_admin else current_user.uid),
         'preferences': {
@@ -420,24 +430,35 @@ def get_note_topics_from_http_post():
     return topics if isinstance(topics, list) else list(filter(None, str(topics).split(',')))
 
 
+def get_my_cohorts():
+    benchmark = get_benchmarker('my_cohorts')
+    benchmark('begin')
+    cohorts = []
+    user_id = current_user.get_id()
+    for cohort in CohortFilter.get_cohorts(user_id):
+        cohort['isOwnedByCurrentUser'] = True
+        cohorts.append(cohort)
+    benchmark('end')
+    return cohorts
+
+
 def get_my_curated_groups():
     benchmark = get_benchmarker('my_curated_groups')
+    benchmark('begin')
     curated_groups = []
     user_id = current_user.get_id()
     for curated_group in CuratedGroup.get_curated_groups(owner_id=user_id):
-        students = [{'sid': sid} for sid in CuratedGroup.get_all_sids(curated_group.id)]
-        students_with_alerts = Alert.include_alert_counts_for_students(
+        api_json = curated_group.to_api_json(include_students=False)
+        students_with_alerts = alert_counts_for_curated_group(
             benchmark=benchmark,
-            viewer_user_id=user_id,
-            group={'students': students},
-            count_only=True,
+            viewer_id=user_id,
+            group_id=curated_group.id,
         )
         curated_groups.append({
-            **curated_group.to_api_json(include_students=False),
+            **api_json,
             'alertCount': sum(s['alertCount'] for s in students_with_alerts),
-            'sids': [student['sid'] for student in students],
-            'totalStudentCount': len(students),
         })
+    benchmark('end')
     return curated_groups
 
 

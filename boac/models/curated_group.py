@@ -26,9 +26,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from sqlalchemy import text
 
 from boac import db, std_commit
-from boac.lib.util import get_benchmarker
 from boac.merged.admitted_student import get_admitted_students_by_sids
 from boac.merged.student import query_students
+from boac.models import json_cache
 from boac.models.base import Base
 from boac.models.cohort_filter import CohortFilter
 from boac.models.db_relationships import cohort_domain_type
@@ -82,6 +82,7 @@ class CuratedGroup(Base):
             JOIN authorized_users au ON sg.owner_id = au.id
             WHERE au.uid = ANY(:uids) AND {'TRUE' if include_admitted_students else "sg.domain = 'default'"}
             GROUP BY sg.id, sg.name, au.id, sgm.sid, au.uid
+            ORDER BY sg.name
         """)
         curated_groups_by_id = {}
         for row in db.session.execute(query, {'uids': uids}).mappings():
@@ -163,6 +164,18 @@ class CuratedGroup(Base):
                 CohortFilter.delete(cohort_filter_id)
                 std_commit()
 
+    @classmethod
+    def clear_cached_alert_counts_for_owner(cls, alert_id, user_id):
+        query = """SELECT DISTINCT m.student_group_id
+                  FROM alerts a
+                  JOIN student_group_members m ON m.sid = a.sid
+                  WHERE a.id = :alert_id"""
+        params = {'alert_id': alert_id}
+        results = db.session.execute(text(query), params)
+        curated_group_ids = [row['student_group_id'] for row in results.mappings()]
+        for group_id in curated_group_ids:
+            json_cache.clear(f'alert_counts_curated_group_{group_id}_user_{user_id}')
+
     def get_referencing_cohort_ids(self):
         query = text("""SELECT
             c.id, c.filter_criteria
@@ -175,8 +188,6 @@ class CuratedGroup(Base):
         return cohort_filter_ids
 
     def to_api_json(self, include_students, order_by='last_name', offset=0, limit=50):
-        benchmark = get_benchmarker(f'CuratedGroup {self.id} to_api_json')
-        benchmark('begin')
         sids = CuratedGroupStudent.get_sids(curated_group_id=self.id)
         feed = {
             'domain': self.domain,
@@ -207,7 +218,6 @@ class CuratedGroup(Base):
                     feed['students'] = result['students']
             else:
                 feed['students'] = []
-        benchmark('end')
         return feed
 
 

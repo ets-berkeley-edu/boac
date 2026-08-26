@@ -30,6 +30,7 @@ from boac.api.decorators import advisor_required
 from boac.lib.http import tolerant_jsonify
 from boac.models.alert import Alert
 from boac.models.cohort_filter import CohortFilter
+from boac.models.curated_group import CuratedGroup
 
 
 @app.route('/api/alerts/<alert_id>/dismiss')
@@ -38,4 +39,5 @@ def dismiss_alert(alert_id):
     user_id = current_user.get_id()
     Alert.dismiss(alert_id, user_id)
     CohortFilter.refresh_alert_counts_for_owner(user_id)
+    CuratedGroup.clear_cached_alert_counts_for_owner(alert_id, user_id)
     return tolerant_jsonify({'message': f'Alert {alert_id} dismissed by UID {current_user.uid}'}), 200

@@ -414,7 +414,7 @@ def _student_search(search_phrase, params, order_by):
     )
     students = student_results['students']
     sids = [s['sid'] for s in students]
-    alert_counts = Alert.current_alert_counts_for_sids(benchmark, current_user.get_id(), sids)
+    alert_counts = Alert.current_alert_counts_for_sids(benchmark, current_user.get_id(), sids=sids)
     add_alert_counts(alert_counts, students)
     benchmark('end')
     return {
