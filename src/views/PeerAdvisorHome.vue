@@ -89,7 +89,7 @@ import {getDefaultModel} from '@/stores/note-edit-session/note-edit-session-util
 import {findPeerAdvisingDepartment, getPeerAdvisorDepartmentMemberships} from '@/lib/berkeley-department'
 import {getPeerAdvisorNotes} from '@/api/peer-advising-notes'
 import {getUserByUid} from '@/api/user'
-import {updateNoteComments} from '@/lib/note'
+import {mergePeerAdvisingNoteUpdate, updateNoteComments} from '@/lib/note'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 
@@ -233,8 +233,8 @@ const onPeerAdvisingNoteUpdated = (note: Note|NoteComment) => {
         fetchNotes()
       }
     } else {
-      note.peerAdvisingDepartment = notes.value[existingNoteIndex].peerAdvisingDepartment
-      notes.value.splice(existingNoteIndex, 1, note)
+      const existingNote = notes.value[existingNoteIndex]
+      notes.value.splice(existingNoteIndex, 1, mergePeerAdvisingNoteUpdate(existingNote, note as Note))
       notes.value = sortNotes(notes.value)
     }
   } else {
