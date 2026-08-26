@@ -149,7 +149,7 @@ class CohortFilter(Base):
     @classmethod
     def get_cohorts(cls, user_id):
         query = text("""
-            SELECT id, domain, name, filter_criteria, alert_count, sids, student_count
+            SELECT id, domain, name, filter_criteria, alert_count, student_count
             FROM cohort_filters c
             WHERE c.owner_id = :user_id
             ORDER BY c.domain, c.name
@@ -163,7 +163,6 @@ class CohortFilter(Base):
                 'name': row['name'],
                 'criteria': row['filter_criteria'],
                 'alertCount': row['alert_count'],
-                'sids': row['sids'],
                 'totalStudentCount': row['student_count'],
             }
         return [transform(row) for row in results.mappings()]
@@ -210,20 +209,19 @@ class CohortFilter(Base):
         query = text("""
             UPDATE cohort_filters
             SET alert_count = updated_cohort_counts.alert_count
-            FROM
-            (
-                SELECT cohort_filters.id AS cohort_filter_id, count(*) AS alert_count
-                FROM alerts
-                JOIN cohort_filters
+            FROM (
+                SELECT cohort_filters.id AS cohort_filter_id,
+                sum(CASE WHEN alert_views.dismissed_at IS NULL THEN 1 ELSE 0 END) as alert_count
+                FROM cohort_filters
+                JOIN alerts
                     ON alerts.sid = ANY(cohort_filters.sids)
-                    AND alerts.key LIKE :key
-                    AND alerts.deleted_at IS NULL
-                    AND cohort_filters.owner_id = :owner_id
                 LEFT JOIN alert_views
                     ON alert_views.alert_id = alerts.id
-                    AND alert_views.viewer_id = :owner_id
-                WHERE alert_views.dismissed_at IS NULL
-                GROUP BY cohort_filters.id
+                   AND alert_views.viewer_id = cohort_filters.owner_id
+                where  cohort_filters.owner_id = :owner_id
+                AND alerts.key LIKE :key
+                AND alerts.deleted_at IS NULL
+                GROUP BY cohort_filter_id
             ) updated_cohort_counts
             WHERE cohort_filters.id = updated_cohort_counts.cohort_filter_id
         """)
@@ -279,8 +277,6 @@ class CohortFilter(Base):
         offset=0,
         limit=50,
         term_id=None,
-        alert_offset=None,
-        alert_limit=None,
         include_sids=False,
         include_students=True,
         include_profiles=False,
@@ -338,18 +334,20 @@ class CohortFilter(Base):
                     'students': results['students'],
                 })
             if include_alerts_for_user_id and self.domain == 'default':
-                alert_count_per_sid = Alert.include_alert_counts_for_students(
+                alert_counts = Alert.current_alert_counts_for_sids(
                     benchmark=benchmark,
-                    viewer_user_id=include_alerts_for_user_id,
-                    group=results,
-                    offset=alert_offset,
-                    limit=alert_limit,
+                    viewer_id=include_alerts_for_user_id,
+                    sids=results['sids'],
                 )
+                alert_count_per_sid = {s.get('sid'): s.get('alertCount') for s in alert_counts}
+                for student in cohort_json.get('students') or []:
+                    sid = student['sid']
+                    student['alertCount'] = alert_count_per_sid.get(sid) if sid in alert_count_per_sid else 0
                 cohort_json.update({
                     'alerts': alert_count_per_sid,
                 })
                 if self.alert_count is None:
-                    alert_count = sum(student['alertCount'] for student in alert_count_per_sid)
+                    alert_count = sum(alert_count_per_sid.values())
                     self.update_alert_count(alert_count)
                     cohort_json.update({
                         'alertCount': alert_count,

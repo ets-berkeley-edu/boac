@@ -53,6 +53,18 @@ def get_section(term_id, section_id):
         raise ResourceNotFoundError(f'No section {section_id} in term {term_id}')
     student_profiles = get_course_student_profiles(term_id, section_id, offset=offset, limit=limit, featured=featured)
     section.update(student_profiles)
-    Alert.include_alert_counts_for_students(benchmark=benchmark, viewer_user_id=current_user.get_id(), group=student_profiles)
+    _include_alert_counts(student_profiles, benchmark)
     benchmark('end')
     return tolerant_jsonify(section)
+
+
+def _include_alert_counts(student_profiles, benchmark):
+    alert_counts = Alert.current_alert_counts_for_sids(
+        benchmark=benchmark,
+        viewer_id=current_user.get_id(),
+        sids=[s['sid'] for s in student_profiles.get('students', [])],
+    )
+    counts_per_sid = {s.get('sid'): s.get('alertCount') for s in alert_counts}
+    for student in student_profiles.get('students'):
+        sid = student['sid']
+        student['alertCount'] = counts_per_sid.get(sid) if sid in counts_per_sid else 0

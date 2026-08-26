@@ -23,15 +23,21 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from boac.api.util import alert_counts_for_curated_group
+from boac.lib.util import get_benchmarker
+from boac.models import json_cache
 from boac.models.alert import Alert
+from boac.models.authorized_user import AuthorizedUser
+from boac.models.curated_group import CuratedGroup
 from tests.test_api.api_test_utils import all_cohorts_owned_by
 
 admin_uid = '2040'
 asc_advisor_uid = '1081940'
-coe_advisor = '1133399'
+coe_advisor_uid = '1133399'
 
 
 class TestAlertsController:
+    """Dismiss Alert API."""
 
     @classmethod
     def _get_alerts(cls, client, uid):
@@ -60,7 +66,7 @@ class TestAlertsController:
         assert len(advisor_1_alerts) == 4
         assert len(self._get_dismissed(advisor_1_alerts)) == 1
 
-        fake_auth.login(coe_advisor)
+        fake_auth.login(coe_advisor_uid)
         advisor_2_alerts = self._get_alerts(client, 61889)
         assert len(advisor_2_alerts) == 4
         assert len(self._get_dismissed(advisor_2_alerts)) == 0
@@ -92,16 +98,18 @@ class TestAlertsController:
         assert next((a for a in advisor_1_alerts if a['key'] == '2178_500600700'), None)
         assert len(self._get_dismissed(advisor_1_alerts)) == 0
 
-        fake_auth.login(coe_advisor)
+        fake_auth.login(coe_advisor_uid)
         advisor_2_alerts = self._get_alerts(client, 61889)
         assert len(advisor_2_alerts) == 3
         assert next((a for a in advisor_2_alerts if a['key'] == '2178_500600700'), None)
         assert len(self._get_dismissed(advisor_1_alerts)) == 0
 
-    def test_alert_dismissal_updates_cohort_alert_counts(self, db, create_alerts, fake_auth, client):  # noqa: ARG002
+    def test_alert_dismissal_updates_cohort_alert_counts(self, create_alerts, db, fake_auth, client):  # noqa: ARG002
+        """Updates alert counts for cohorts the student belongs to."""
         fake_auth.login(asc_advisor_uid)
         cohort_id = all_cohorts_owned_by(asc_advisor_uid)[0]['id']
         response = client.get(f'/api/cohort/{cohort_id}')
+        assert response.status_code == 200
         assert response.json['alertCount'] == 6
 
         alerts = self._get_alerts(client, 61889)
@@ -110,3 +118,56 @@ class TestAlertsController:
 
         response = client.get(f'/api/cohort/{cohort_id}')
         assert response.json['alertCount'] == 5
+
+    def test_cohort_single_alert_dismissal(self, create_alerts, db, fake_auth, client):  # noqa: ARG002
+        """Sets the cohort alert count to zero when the last remaining alert is dismissed."""
+        fake_auth.login(asc_advisor_uid)
+        cohort_id = all_cohorts_owned_by(asc_advisor_uid)[1]['id']
+        response = client.get(f'/api/cohort/{cohort_id}')
+        assert response.status_code == 200
+        assert response.json['alertCount'] == 1
+
+        alerts = self._get_alerts(client, 98765)
+        client.get('/api/alerts/' + str(alerts[0]['id']) + '/dismiss')
+        db.session.expire_all()
+
+        response = client.get(f'/api/cohort/{cohort_id}')
+        assert response.json['alertCount'] == 0
+
+    def test_clears_cached_curated_group_alert_counts(self, db, create_alerts, fake_auth, client):  # noqa: ARG002
+        """Clears cached alert counts for curated groups the student belongs to."""
+        fake_auth.login(coe_advisor_uid)
+        group_id = CuratedGroup.get_curated_groups_owned_by(uids=[coe_advisor_uid])[0]['id']
+        response = client.get(f'/api/curated_group/{group_id}/students_with_alerts')
+        assert response.status_code == 200
+        student = next(s for s in response.json if s['uid'] == '61889')
+        assert student['alertCount'] == 4
+
+        # Make sure alert counts for this curated group are cached
+        coe_advisor = AuthorizedUser.find_by_uid(coe_advisor_uid)
+        alert_counts_for_curated_group(
+            benchmark=get_benchmarker('test_alert_dismissal_clears_cached_curated_group_alert_counts'),
+            viewer_id=coe_advisor.id,
+            group_id=group_id,
+        )
+        cached_counts = json_cache.fetch(f'alert_counts_curated_group_{group_id}_user_{coe_advisor.id}')
+        assert cached_counts == [{'sid': '11667051', 'alertCount': 4}]
+
+        # Dismiss the alert
+        alerts = self._get_alerts(client, 61889)
+        client.get('/api/alerts/' + str(alerts[0]['id']) + '/dismiss')
+        db.session.expire_all()
+
+        # Alert counts for this curated group have been removed from cache
+        cached_counts = json_cache.fetch(f'alert_counts_curated_group_{group_id}_user_{coe_advisor.id}')
+        assert cached_counts is None
+
+        response = client.get(f'/api/curated_group/{group_id}/students_with_alerts')
+        assert response.status_code == 200
+        student = next(s for s in response.json if s['uid'] == '61889')
+        assert student['alertCount'] == 3
+
+        # Updated alert counts for this curated group are cached
+        cached_counts = json_cache.fetch(f'alert_counts_curated_group_{group_id}_user_{coe_advisor.id}')
+        assert cached_counts == [{'sid': '11667051', 'alertCount': 3}]
+

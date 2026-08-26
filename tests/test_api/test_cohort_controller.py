@@ -47,6 +47,7 @@ coe_advisor_uid = '1133399'
 
 
 class TestCohortById:
+    """Cohort by ID API."""
 
     @classmethod
     def setup_class(cls):
@@ -451,6 +452,7 @@ class TestCohortById:
 
 
 class TestCohortsEveryone:
+    """Everyone's Cohorts API."""
 
     @classmethod
     def _api_cohorts_by_dept_code(cls, client, dept_code, expected_status_code=200):
@@ -503,6 +505,7 @@ class TestCohortsEveryone:
 
 
 class TestCohortCreate:
+    """Create Cohort API."""
 
     def test_create_cohort(self, client, fake_auth):
         """Creates custom cohort, owned by current user."""
@@ -718,6 +721,7 @@ class TestCohortCreate:
 
 
 class TestCohortUpdate:
+    """Update Cohort API."""
 
     @classmethod
     def _post_cohort_update(cls, client, json_data=()):
@@ -846,6 +850,7 @@ class TestCohortUpdate:
 
 
 class TestCohortDelete:
+    """Delete Cohort API."""
 
     def test_delete_cohort_not_authenticated(self, client):
         """Custom cohort deletion requires authentication."""
@@ -895,6 +900,7 @@ class TestCohortDelete:
 
 
 class TestCohortPerFilters:
+    """Cohort per Filters API."""
 
     @classmethod
     def _api_get_students_per_filters(cls, client, json_data=(), expected_status_code=200):

@@ -85,32 +85,29 @@ def get_cohorts_by_dept_code(dept_code):
 def students_with_alerts(cohort_id):
     benchmark = get_benchmarker(f'cohort {cohort_id} students_with_alerts')
     benchmark('begin')
-    offset = get_param(request.args, 'offset', 0)
-    limit = get_param(request.args, 'limit', 50)
     cohort = CohortFilter.find_by_id(cohort_id)
     benchmark('fetched cohort')
     if cohort:
         cohort_owner_uid = AuthorizedUser.get_uid_per_id(cohort.owner_id)
         if can_current_user_view_cohort(cohort_owner_uid):
             cohort = cohort.to_api_json(
-                alert_limit=limit,
-                alert_offset=offset,
                 include_alerts_for_user_id=current_user.get_id(),
                 include_students=False,
             )
             _decorate_cohort(cohort)
-            students = cohort.get('alerts', [])
-            alert_sids = [s['sid'] for s in students]
-            alert_profiles = get_student_profile_summaries(alert_sids)
-            benchmark('fetched student profiles')
-            alert_profiles_by_sid = {p['sid']: p for p in alert_profiles}
-            for student in students:
-                student.update(alert_profiles_by_sid[student['sid']])
-                # The enrolled units count is the one piece of term data we want to preserve.
-                if student.get('term'):
-                    student['term'] = {'enrolledUnits': student['term'].get('enrolledUnits')}
+            alerts_by_sid = cohort.get('alerts')
+            if alerts_by_sid:
+                students_with_alerts = get_student_profile_summaries(list(alerts_by_sid.keys()))
+                benchmark('fetched student profiles')
+                for student in students_with_alerts:
+                    student['alertCount'] = alerts_by_sid[student['sid']]
+                    # The enrolled units count is the one piece of term data we want to preserve.
+                    if student.get('term'):
+                        student['term'] = {'enrolledUnits': student['term'].get('enrolledUnits')}
+            else:
+                students_with_alerts = []
             benchmark('end')
-            return tolerant_jsonify(students)
+            return tolerant_jsonify(students_with_alerts)
         else:
             raise ResourceNotFoundError(f'No cohort found with identifier: {cohort_id}')
     else:
