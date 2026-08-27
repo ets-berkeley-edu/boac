@@ -18,8 +18,9 @@
       {{ studentName }}
     </span>
     <div class="d-flex align-center font-weight-bold font-size-13">
-      <div :id="`row-${rowIndex}-student-sid`" :class="{'demo-mode-blur': currentUser.inDemoMode}">
-        <span class="sr-only">S I D</span> {{ student.sid }}
+      <div :id="`row-${rowIndex}-student-sid`">
+        <span class="sr-only">S I D <span aria-hidden="true">&nbsp;</span></span>
+        <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.sid }}</span>
       </div>
       <div
         v-if="student.academicCareerStatus === 'Inactive'"
