@@ -131,6 +131,7 @@ class CuratedGroup(Base):
         if curated_group:
             CuratedGroupStudent.add_student(curated_group_id=curated_group_id, sid=sid)
             _refresh_related_cohorts(curated_group)
+            json_cache.clear(f'alert_counts_curated_group_{curated_group_id}_%')
 
     @classmethod
     def add_students(cls, curated_group_id, sids):
@@ -139,6 +140,7 @@ class CuratedGroup(Base):
             CuratedGroupStudent.add_students(curated_group_id=curated_group_id, sids=sids)
             std_commit()
             _refresh_related_cohorts(curated_group)
+            json_cache.clear(f'alert_counts_curated_group_{curated_group_id}_%')
 
     @classmethod
     def remove_student(cls, curated_group_id, sid):
@@ -146,6 +148,7 @@ class CuratedGroup(Base):
         if curated_group:
             CuratedGroupStudent.remove_student(curated_group_id, sid)
             _refresh_related_cohorts(curated_group)
+            json_cache.clear(f'alert_counts_curated_group_{curated_group_id}_%')
 
     @classmethod
     def rename(cls, curated_group_id, name):
