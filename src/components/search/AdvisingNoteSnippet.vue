@@ -7,7 +7,7 @@
     <h3 class="advising-note-search-result-header">
       <router-link
         v-if="note.studentUid"
-        :id="`link-to-student-${note.studentUid}`"
+        :id="`note-${note.id}-link-to-student`"
         :class="{'demo-mode-blur': currentUser.inDemoMode}"
         :to="`${studentRoutePath(note.studentUid, currentUser.inDemoMode)}#${timelineAnchor}`"
         class="advising-note-search-result-header-link"
