@@ -437,6 +437,7 @@ def get_my_cohorts():
     user_id = current_user.get_id()
     for cohort in CohortFilter.get_cohorts(user_id):
         cohort['isOwnedByCurrentUser'] = True
+        del cohort['sids']
         cohorts.append(cohort)
     benchmark('end')
     return cohorts
