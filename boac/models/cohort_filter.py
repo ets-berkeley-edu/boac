@@ -149,7 +149,7 @@ class CohortFilter(Base):
     @classmethod
     def get_cohorts(cls, user_id):
         query = text("""
-            SELECT id, domain, name, filter_criteria, alert_count, student_count
+            SELECT id, domain, name, filter_criteria, alert_count, sids, student_count
             FROM cohort_filters c
             WHERE c.owner_id = :user_id
             ORDER BY c.domain, c.name
@@ -163,6 +163,7 @@ class CohortFilter(Base):
                 'name': row['name'],
                 'criteria': row['filter_criteria'],
                 'alertCount': row['alert_count'],
+                'sids': row['sids'],
                 'totalStudentCount': row['student_count'],
             }
         return [transform(row) for row in results.mappings()]
