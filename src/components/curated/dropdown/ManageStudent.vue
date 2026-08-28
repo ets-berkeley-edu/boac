@@ -142,7 +142,6 @@ import {
 import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
 import {onSafariActivatorMousedown, onSafariMenuClose, onSafariMenuOpen} from '@/lib/menu-focus'
 import {describeCuratedGroupDomain} from '@/lib/berkeley-utils'
-import {getUserProfile} from '@/api/user'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({
@@ -276,8 +275,6 @@ const onSubmit = () => {
     }
     contextStore.broadcast('curated-group-deselect-all', props.domain)
     isAdding.value = isRemoving.value = false
-    // Changes in curated-group may impact cohort counts thus we refresh user-session object.
-    getUserProfile().then(contextStore.setCurrentUser)
   }
   Promise.all(actions).finally(() => setTimeout(done, confirmationTimeout.value))
 }

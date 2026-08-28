@@ -126,9 +126,9 @@ class Alert(Base):
     @classmethod
     def current_alert_counts_for_curated_group(
         cls,
-        benchmark,
         viewer_id,
         group_id,
+        benchmark,
         count_only=False,
     ):
         query = """
@@ -150,13 +150,13 @@ class Alert(Base):
             'key': current_term_id() + '_%',
             'group_id': group_id,
         }
-        return cls.alert_counts_by_query(benchmark, query, params, count_only=count_only)
+        return cls.alert_counts_by_query(query, params, benchmark=benchmark, count_only=count_only)
 
     @classmethod
     def current_alert_counts_for_sids(
         cls,
-        benchmark,
         viewer_id,
+        benchmark,
         sids=None,
         count_only=False,
     ):
@@ -177,10 +177,13 @@ class Alert(Base):
             'key': current_term_id() + '_%',
             'sids': sids,
         }
-        return cls.alert_counts_by_query(benchmark, query, params, count_only=count_only)
+        return cls.alert_counts_by_query(query, params, benchmark=benchmark, count_only=count_only)
 
     @classmethod
-    def alert_counts_by_query(cls, benchmark, query, params, count_only=False):
+    def alert_counts_by_query(cls, query, params, benchmark=None, count_only=False):
+        if not benchmark:
+            # noop
+            benchmark = lambda x: x
         benchmark('begin current_alert_counts_for_sids query')
         results = db.session.execute(text(query), params)
         benchmark('end current_alert_counts_for_sids query')

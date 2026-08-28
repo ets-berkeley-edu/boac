@@ -85,7 +85,11 @@ def create_curated_group():
     if 'sids' in params:
         sids = [sid for sid in set(params.get('sids')) if sid.isdigit()]
         CuratedGroup.add_students(curated_group_id=curated_group.id, sids=sids)
-    return tolerant_jsonify(curated_group.to_api_json(include_students=True))
+    api_json = curated_group.to_api_json(include_students=True)
+    if api_json['totalStudentCount']:
+        student_alerts = _include_alert_counts(curated_group.id)
+        api_json['alertCount']= sum(student_alerts.values())
+    return tolerant_jsonify(api_json)
 
 
 @app.route('/api/curated_group/delete/<curated_group_id>', methods=['DELETE'])
@@ -179,7 +183,10 @@ def remove_student_from_curated_groups(sid):
         if curated_group.owner_id != current_user.get_id():
             raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own curated group {curated_group.id}')
         CuratedGroup.remove_student(curated_group.id, sid)
-        curated_groups.append(curated_group.to_api_json(include_students=False))
+        api_json = curated_group.to_api_json(include_students=False)
+        student_alerts = _include_alert_counts(curated_group.id)
+        api_json['alertCount']= sum(student_alerts.values())
+        curated_groups.append(api_json)
     return tolerant_jsonify(curated_groups)
 
 
@@ -201,10 +208,18 @@ def add_students_to_curated_groups():
             raise ForbiddenRequestError(f'Current user, {current_user.uid}, does not own curated group {curated_group.id}')
         CuratedGroup.add_students(curated_group_id=curated_group_id, sids=sids)
         if return_student_profiles:
-            curated_groups.append(_curated_group_with_complete_student_profiles(curated_group_id=curated_group_id))
+            api_json = _curated_group_with_complete_student_profiles(curated_group_id=curated_group_id)
         else:
-            group = CuratedGroup.find_by_id(curated_group_id)
-            curated_groups.append(group.to_api_json(include_students=False))
+            api_json = curated_group.to_api_json(include_students=False)
+        user_id = current_user.get_id()
+        students_with_alerts = alert_counts_for_curated_group(
+            viewer_id=user_id,
+            group_id=curated_group.id,
+        )
+        curated_groups.append({
+            **api_json,
+            'alertCount': sum(s['alertCount'] for s in students_with_alerts),
+        })
     return tolerant_jsonify(curated_groups)
 
 
@@ -251,7 +266,7 @@ def _curated_group_with_complete_student_profiles(
         api_json['students'] = get_student_profile_summaries(sids, term_id=term_id)
     _include_alert_counts(
         curated_group_id,
-        benchmark,
+        benchmark=benchmark,
         students=api_json['students'],
     )
     benchmark('begin get_referencing_cohort_ids')
@@ -270,13 +285,13 @@ def _can_current_user_view_curated_group(curated_group):
 
 def _include_alert_counts(
         curated_group_id,
-        benchmark,
+        benchmark=None,
         students=None,
     ):
     alert_counts = alert_counts_for_curated_group(
-        benchmark=benchmark,
         viewer_id=current_user.get_id(),
         group_id=curated_group_id,
+        benchmark=benchmark,
     )
     counts_per_sid = {s.get('sid'): s.get('alertCount') for s in alert_counts}
     for student in students or []:

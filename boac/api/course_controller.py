@@ -60,8 +60,8 @@ def get_section(term_id, section_id):
 
 def _include_alert_counts(student_profiles, benchmark):
     alert_counts = Alert.current_alert_counts_for_sids(
-        benchmark=benchmark,
         viewer_id=current_user.get_id(),
+        benchmark=benchmark,
         sids=[s['sid'] for s in student_profiles.get('students', [])],
     )
     counts_per_sid = {s.get('sid'): s.get('alertCount') for s in alert_counts}
