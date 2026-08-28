@@ -28,7 +28,6 @@ import pytest
 from boac import std_commit
 from boac.api.cache_utils import refresh_alerts
 from boac.api.util import alert_counts_for_curated_group
-from boac.lib.util import get_benchmarker
 from boac.models import json_cache
 from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
@@ -100,7 +99,6 @@ class TestRefreshAlerts:
 
         # Cache alert counts for this curated group
         alert_counts_for_curated_group(
-            benchmark=get_benchmarker('test_refreshes_cached_curated_group_alert_counts'),
             viewer_id=asc_advisor.id,
             group_id=group_id,
         )

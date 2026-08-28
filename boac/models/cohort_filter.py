@@ -336,8 +336,8 @@ class CohortFilter(Base):
                 })
             if include_alerts_for_user_id and self.domain == 'default':
                 alert_counts = Alert.current_alert_counts_for_sids(
-                    benchmark=benchmark,
                     viewer_id=include_alerts_for_user_id,
+                    benchmark=benchmark,
                     sids=results['sids'],
                 )
                 alert_count_per_sid = {s.get('sid'): s.get('alertCount') for s in alert_counts}

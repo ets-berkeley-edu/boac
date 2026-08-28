@@ -60,6 +60,7 @@ def clear(key_like):
     if matches.count():
         app.logger.info(f'Will delete {matches.count()} entries matching {key_like}')
         matches.delete(synchronize_session=False)
+        std_commit()
 
 
 def stow(key_pattern, for_term=False):

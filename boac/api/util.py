@@ -59,14 +59,14 @@ from boac.models.user_login import UserLogin
 
 @stow('alert_counts_curated_group_{group_id}_user_{viewer_id}')
 def alert_counts_for_curated_group(
-    benchmark,
     viewer_id,
     group_id,
+    benchmark=None,
 ):
     return Alert.current_alert_counts_for_curated_group(
-        benchmark=benchmark,
         viewer_id=viewer_id,
         group_id=group_id,
+        benchmark=benchmark,
         count_only=True,
     )
 
@@ -444,14 +444,11 @@ def get_my_cohorts():
 
 
 def get_my_curated_groups():
-    benchmark = get_benchmarker('my_curated_groups')
-    benchmark('begin')
     curated_groups = []
     user_id = current_user.get_id()
     for curated_group in CuratedGroup.get_curated_groups(owner_id=user_id):
         api_json = curated_group.to_api_json(include_students=False)
         students_with_alerts = alert_counts_for_curated_group(
-            benchmark=benchmark,
             viewer_id=user_id,
             group_id=curated_group.id,
         )
@@ -459,7 +456,6 @@ def get_my_curated_groups():
             **api_json,
             'alertCount': sum(s['alertCount'] for s in students_with_alerts),
         })
-    benchmark('end')
     return curated_groups
 
 
