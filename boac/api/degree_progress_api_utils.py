@@ -368,6 +368,9 @@ def _get_categories(template):
     """Fetch all categories associated with a template."""
     return DegreeProgressCategory.query.filter_by(
         template_id=template.id,
+    ).order_by(
+        DegreeProgressCategory.created_at,
+        DegreeProgressCategory.id,
     ).all()
 
 

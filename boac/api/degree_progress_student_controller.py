@@ -163,7 +163,7 @@ def delete_course(course_id):
             if category and 'Placeholder' in category.category_type:
                 DegreeProgressCategory.delete(category_id=category.id)
 
-        matches = sorted(matches, key=lambda c: c.created_at)
+        matches = sorted(matches, key=lambda c: (c.created_at, c.id))
         if matches[0].id == course.id:
             if course.manually_created_by:
                 for match in matches:
