@@ -122,6 +122,11 @@ def sample(_list):
 class BoaTaskSet(TaskSet):
 
     def on_start(self):
+        # State-changing endpoints are CSRF-protected; a scripted client can't fetch a token from /api/config, so
+        # present the shared secret instead. Requires CSRF_BYPASS_KEY to be set to the same value on the target server.
+        csrf_bypass_key = config['CSRF_BYPASS_KEY']
+        if csrf_bypass_key:
+            self.client.headers['X-BOA-CSRF-Bypass'] = csrf_bypass_key
         self.user.user_data = sample(TestData.users)
         self.load_front_end()
         self.login()
