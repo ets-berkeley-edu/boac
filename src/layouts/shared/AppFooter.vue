@@ -23,6 +23,15 @@
           <a :href="`mailto:${supportEmailAddress}`" target="_blank">Email {{ supportEmailAddress }} <span class="sr-only">&nbsp;(opens in new tab)</span></a>
         </div>
         <div>
+          <a
+            id="footer-accessibility-link"
+            href="https://dap.berkeley.edu/get-help/report-web-accessibility-issue"
+            target="_blank"
+          >
+            Accessibility<span class="sr-only">&nbsp;(opens in new tab)</span>
+          </a>
+        </div>
+        <div>
           &copy; {{ new Date().getFullYear() }} The Regents of the University of California
         </div>
       </div>
