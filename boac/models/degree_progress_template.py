@@ -238,7 +238,7 @@ class DegreeProgressTemplate(Base):
         # Sort courses by created_at (asc) so "copied" courses come after the primary assigned course.
         degree_progress_courses = {}
         degree_courses = DegreeProgressCourse.find_by_sid(degree_check_id=self.id, sid=sid)
-        for course in sorted(degree_courses, key=lambda c: c.created_at):
+        for course in sorted(degree_courses, key=lambda c: (c.created_at, c.id)):
             key = f'{course.section_id}_{course.term_id}_{course.manually_created_at}_{course.manually_created_by}'
             if key not in degree_progress_courses:
                 degree_progress_courses[key] = []
