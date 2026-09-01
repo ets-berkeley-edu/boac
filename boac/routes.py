@@ -36,14 +36,20 @@ login_manager = LoginManager()
 
 def _enforce_csrf_protection():
     # Service-to-service calls authenticate with an API key instead of the session cookie and are CSRF exempt, as is the initial
-    # CAS login.
+    # CAS login. Scripted clients (e.g. the Locust load tests) that hold a real session cookie but can't fetch a CSRF token
+    # may instead present the CSRF_BYPASS_KEY secret in the X-BOA-CSRF-Bypass header.
     def _is_csrf_exempt():
         from boac.api.decorators import _api_key_ok
         csrf_exempt_endpoints = {'cas_login'}
-        return _api_key_ok() or request.endpoint in csrf_exempt_endpoints
+        return _api_key_ok() or _csrf_bypass_key_ok() or request.endpoint in csrf_exempt_endpoints
 
     if current_app.config['WTF_CSRF_ENABLED'] and not _is_csrf_exempt():
         csrf.protect()
+
+
+def _csrf_bypass_key_ok():
+    bypass_key = current_app.config['CSRF_BYPASS_KEY']
+    return bool(bypass_key) and request.headers.get('X-BOA-CSRF-Bypass') == bypass_key
 
 
 def register_routes(app):  #noqa: PLR0915

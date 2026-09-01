@@ -58,6 +58,44 @@ class TestCsrfProtection:
         with override_config(app, 'WTF_CSRF_ENABLED', True):
             assert client.get('/api/config').status_code == 200
 
+    def test_exempts_requests_carrying_the_csrf_bypass_key(self, app, client, fake_auth):
+        """A session-authenticated scripted client may skip CSRF validation with the CSRF_BYPASS_KEY secret header."""
+        fake_auth.login(coe_advisor_uid)
+        with override_config(app, 'WTF_CSRF_ENABLED', True), override_config(app, 'CSRF_BYPASS_KEY', 'a-load-test-secret'):
+            response = client.post(
+                '/api/note/create_draft',
+                data=json.dumps({'sid': None}),
+                content_type='application/json',
+                headers={'X-BOA-CSRF-Bypass': 'a-load-test-secret'},
+            )
+            assert response.status_code == 200
+
+    def test_rejects_wrong_csrf_bypass_key(self, app, client, fake_auth):
+        """A bad CSRF_BYPASS_KEY value earns no exemption."""
+        fake_auth.login(coe_advisor_uid)
+        with override_config(app, 'WTF_CSRF_ENABLED', True), override_config(app, 'CSRF_BYPASS_KEY', 'a-load-test-secret'):
+            response = client.post(
+                '/api/note/create_draft',
+                data=json.dumps({'sid': None}),
+                content_type='application/json',
+                headers={'X-BOA-CSRF-Bypass': 'wrong-secret'},
+            )
+            assert response.status_code == 400
+            assert response.json['error_class'] == 'CSRFError'
+
+    def test_bypass_header_ignored_when_key_not_configured(self, app, client, fake_auth):
+        """With CSRF_BYPASS_KEY unset (the default), the header confers no exemption."""
+        fake_auth.login(coe_advisor_uid)
+        with override_config(app, 'WTF_CSRF_ENABLED', True), override_config(app, 'CSRF_BYPASS_KEY', None):
+            response = client.post(
+                '/api/note/create_draft',
+                data=json.dumps({'sid': None}),
+                content_type='application/json',
+                headers={'X-BOA-CSRF-Bypass': ''},
+            )
+            assert response.status_code == 400
+            assert response.json['error_class'] == 'CSRFError'
+
     def test_exempts_api_key_authenticated_requests(self, app, client):
         """Service-to-service calls authenticated via the App-Key header carry no session cookie."""
         with override_config(app, 'WTF_CSRF_ENABLED', True), override_config(app, 'API_KEY', 'a-test-api-key'), \
