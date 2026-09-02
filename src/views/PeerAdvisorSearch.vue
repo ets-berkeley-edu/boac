@@ -278,7 +278,6 @@ const search = (getNotes = true, getStudents = true) => {
       getNotes,
       getStudents
     ).then(data => {
-      const putFocusId = offset.value === 0 ? 'page-header' : `tr-peer-advisor-${data.notes[0]?.id}`
       if (getNotes) {
         notes.value = orderBy([...notes.value, ...data.notes], n => n.updatedAt || n.createdAt, ['desc'])
         totalNoteCount.value = data.totalNoteCount
@@ -308,7 +307,9 @@ const search = (getNotes = true, getStudents = true) => {
       contextStore.loadingComplete()
       isFetchingNotes.value = false
       searchStore.setIsSearching(false)
-      putFocusNextTick(putFocusId)
+      if (offset.value > 0) {
+        putFocusNextTick(`tr-peer-advisor-${data.notes[0]?.id}`)
+      }
     })
   } else {
     router.push({path: '/404'})

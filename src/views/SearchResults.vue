@@ -424,8 +424,9 @@ onMounted(() => {
         contextStore.loadingComplete()
         srSearchResultsSummary.value = buildSearchResultsSummary()
         const totalCount = toInt(results.totalCourseCount, 0) + toInt(results.totalStudentCount, 0)
-        const focusId = totalCount ? 'page-header' : 'page-header-no-results'
-        putFocusNextTick(focusId)
+        if (!totalCount) {
+          putFocusNextTick('page-header-no-results')
+        }
       }).finally(() => {
         searchStore.setIsSearching(false)
       })

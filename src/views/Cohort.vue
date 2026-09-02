@@ -188,7 +188,9 @@ const afterLoadingComplete = focusId => {
   }
   const pageTitle = cohortStore.cohortId ? cohortStore.cohortName : 'Create Cohort'
   setPageTitle(pageTitle)
-  nextTick(() => putFocusNextTick(focusId))
+  if (focusId !== 'page-header') {
+    nextTick(() => putFocusNextTick(focusId))
+  }
 }
 
 const getFocusElementId = isBackButtonToCohort => {

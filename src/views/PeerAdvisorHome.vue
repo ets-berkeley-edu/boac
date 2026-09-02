@@ -177,7 +177,6 @@ const init = (user: BoaUser) => {
       contextStore.loadingComplete()
       contextStore.setEventHandler('peer-advising-note-created', onPeerAdvisingNoteCreated)
       contextStore.setEventHandler('note-updated', onPeerAdvisingNoteUpdated)
-      putFocusNextTick('page-header')
     })
   } else {
     router.push({path: '/404'})
