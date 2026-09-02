@@ -62,33 +62,22 @@ export const useContextStore = defineStore('context', {
     dismissServiceAnnouncement() {
       this.dismissedServiceAnnouncement = true
     },
-    loadingComplete(putFocusElementId?: string, skipPutFocus?: boolean) {
+    loadingComplete(putFocusElementId?: string) {
       if (!get(this.config, 'isProduction')) {
         // eslint-disable-next-line no-console
         console.log(`Page loaded in ${(new Date().getTime() - (this.loadingStartTime || 0)) / 1000} seconds`)
       }
       this.loading = false
-      if (skipPutFocus) {
+      if (!putFocusElementId) {
         return false
       }
       const callable = () => {
-        let element: HTMLElement | null
-        if (putFocusElementId) {
-          element = document.getElementById(putFocusElementId)
-        } else {
-          element = document.getElementById('page-header')
-          if (!element) {
-            const elements = document.getElementsByTagName('h1')
-            element = elements.length > 0 ? elements[0] : null
-          }
-        }
+        const element = document.getElementById(putFocusElementId)
         if (element) {
           element.setAttribute('tabindex', '-1')
           element.classList.add('scroll-margins')
           element.focus()
-          if (putFocusElementId) {
-            element.scrollIntoView({behavior: 'smooth', block: 'start'})
-          }
+          element.scrollIntoView({behavior: 'smooth', block: 'start'})
         }
         return !!element
       }

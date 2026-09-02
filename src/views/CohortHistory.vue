@@ -146,7 +146,9 @@ const goToPage = page => {
       totalEventsCount.value = data.count
       events.value = data.events
       contextStore.loadingComplete()
-      putFocusNextTick(page > 1 ? `pagination-page-${page}` : 'page-header')
+      if (page > 1) {
+        putFocusNextTick(`pagination-page-${page}`)
+      }
       resolve()
     })
   })

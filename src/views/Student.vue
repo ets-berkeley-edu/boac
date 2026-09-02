@@ -46,7 +46,7 @@ import StudentClasses from '@/components/student/profile/StudentClasses'
 import StudentProfileGPA from '@/components/student/profile/StudentProfileGPA'
 import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader'
 import StudentProfileUnits from '@/components/student/profile/StudentProfileUnits'
-import {alertScreenReader, decodeStudentUriAnchor, putFocusNextTick, setPageTitle} from '@/lib/utils'
+import {alertScreenReader, putFocusNextTick, setPageTitle} from '@/lib/utils'
 import {exitSession} from '@/stores/note-edit-session/note-edit-session-utils'
 import {getStudentByUid} from '@/api/student'
 import {setWaitlistedStatus} from '@/lib/berkeley-utils'
@@ -88,9 +88,7 @@ onMounted(() => {
         })
       }
     })
-    // If custom scroll-to-note is happening then skip the default put-focus-on-h1.
-    const focusTarget = decodeStudentUriAnchor()
-    contextStore.loadingComplete('page-header', !!focusTarget)
+    contextStore.loadingComplete()
   })
 })
 
