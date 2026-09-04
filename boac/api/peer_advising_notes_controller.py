@@ -29,7 +29,12 @@ from flask import Response, request
 from flask import current_app as app
 from flask_login import current_user
 
-from boac.api.decorators import advising_data_access_required, peer_advisor_or_peer_advisor_manager, peer_advisor_required
+from boac.api.decorators import (
+    advising_data_access_required,
+    peer_advisor_or_peer_advisor_manager,
+    peer_advisor_or_peer_advisor_manager_in_department,
+    peer_advisor_required,
+)
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import (
     create_note_comment,
@@ -342,41 +347,33 @@ def get_notes_for_peer_advisor(uid):
         raise ForbiddenRequestError('Unauthorized')
     memberships = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(authorized_user_id=user_id)
     peer_advising_department_id = memberships[0]['peer_advising_department_id']
-
-    notes, total_note_count = Note.get_notes_by_peer_advising_department(
-        limit=limit,
-        offset=offset,
+    return _peer_advising_notes_api_json(
         peer_advising_department_id=peer_advising_department_id,
-        peer_advisor_uid=filter_by_uid,
+        offset=offset,
+        limit=limit,
+        include_students=include_students,
+        filter_by_uid=filter_by_uid,
     )
-    students_by_sid = {}
-    if include_students:
-        sids = [note.sid for note in notes]
-        for student in get_basic_student_data(sids=sids):
-            students_by_sid[student['sid']] = {
-                'sid': student['sid'],
-                'uid': student['uid'],
-                'firstName': student['first_name'],
-                'lastName': student['last_name'],
-            }
-    notes_read_by_user = NoteRead.get_notes_read_by_user(
-        note_ids=[str(note.id) for note in notes],
-        viewer_id=current_user.get_id(),
+
+
+@app.route('/api/peer_advising/<peer_advising_department_id>/notes')
+@peer_advisor_or_peer_advisor_manager_in_department
+def get_notes_for_peer_advising_department(peer_advising_department_id):
+    offset = int(request.args.get('offset', 0))
+    limit = int(request.args.get('limit', 50))
+    include_students = to_bool_or_none(request.args.get('includeStudents')) or False
+    filter_by_uid = request.args.get('peerAdvisorNotes') or None
+    return _peer_advising_notes_api_json(
+        peer_advising_department_id=int(peer_advising_department_id),
+        offset=offset,
+        limit=limit,
+        include_students=include_students,
+        filter_by_uid=filter_by_uid,
     )
-    api_json = {
-        'notes': [],
-        'totalNoteCount': total_note_count,
-    }
-    for note in notes:
-        note_json = get_boac_note_as_compatible_json(note=note, note_read=note.id in notes_read_by_user)
-        api_json['notes'].append(note_json)
-        if include_students and note.sid in students_by_sid:
-            note_json['student'] = students_by_sid[note.sid]
-    return tolerant_jsonify(api_json)
 
 
 @app.route('/api/peer_advising/note/update', methods=['POST'])
-@peer_advisor_required
+@peer_advisor_or_peer_advisor_manager
 def update_peer_advising_note():
     params = request.form
     body = params.get('body', None) or ''
@@ -412,6 +409,39 @@ def update_peer_advising_note():
             'sid': student['sid'],
             'uid': student['uid'],
         }
+    return tolerant_jsonify(api_json)
+
+
+def _peer_advising_notes_api_json(peer_advising_department_id, offset, limit, include_students, filter_by_uid):
+    notes, total_note_count = Note.get_notes_by_peer_advising_department(
+        limit=limit,
+        offset=offset,
+        peer_advising_department_id=peer_advising_department_id,
+        peer_advisor_uid=filter_by_uid,
+    )
+    students_by_sid = {}
+    if include_students:
+        sids = [note.sid for note in notes]
+        for student in get_basic_student_data(sids=sids):
+            students_by_sid[student['sid']] = {
+                'sid': student['sid'],
+                'uid': student['uid'],
+                'firstName': student['first_name'],
+                'lastName': student['last_name'],
+            }
+    notes_read_by_user = NoteRead.get_notes_read_by_user(
+        note_ids=[str(note.id) for note in notes],
+        viewer_id=current_user.get_id(),
+    )
+    api_json = {
+        'notes': [],
+        'totalNoteCount': total_note_count,
+    }
+    for note in notes:
+        note_json = get_boac_note_as_compatible_json(note=note, note_read=note.id in notes_read_by_user)
+        api_json['notes'].append(note_json)
+        if include_students and note.sid in students_by_sid:
+            note_json['student'] = students_by_sid[note.sid]
     return tolerant_jsonify(api_json)
 
 
