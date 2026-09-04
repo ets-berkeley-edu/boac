@@ -74,6 +74,7 @@ class TestData:
                                FROM authorized_users au
                                JOIN notes on notes.author_uid = au.uid
                               WHERE au.deleted_at IS NULL
+                                AND au.disabled_at IS NULL
                                 AND au.can_access_canvas_data IS TRUE
                                 AND notes.is_draft IS TRUE
                                 AND notes.deleted_at IS NULL"""
