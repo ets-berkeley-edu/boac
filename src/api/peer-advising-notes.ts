@@ -42,6 +42,17 @@ export function getPeerAdvisingNotesAuthoredBy(
   return axios.post(url, data).then(response => response.data)
 }
 
+export async function getPeerAdvisingDepartmentNotes(
+  peerAdvisingDepartmentId: number,
+  offset: number,
+  limit: number,
+  includeStudents?: boolean
+) {
+  const params = `offset=${offset}&limit=${limit}&includeStudents=${includeStudents}`
+  const url: string = `${utils.apiBaseUrl()}/api/peer_advising/${peerAdvisingDepartmentId}/notes?${params}`
+  return axios.get(url).then(response => response.data)
+}
+
 export async function getPeerAdvisorNotes(
   offset: number,
   limit: number,

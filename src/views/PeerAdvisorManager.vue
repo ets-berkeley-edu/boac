@@ -74,6 +74,12 @@
               :peer-advising-department="peerAdvisingDepartment"
             />
           </div>
+          <div v-if="item.key === 'dashboard'" class="pt-3">
+            <PeerAdvisorDashboardView
+              v-if="peerAdvisingDepartment"
+              :peer-advising-department="peerAdvisingDepartment"
+            />
+          </div>
         </v-tabs-window-item>
       </template>
     </v-tabs>
@@ -86,6 +92,7 @@ import {filter as _filter, get, includes, map, replace, toLower, toString} from 
 import {useDisplay} from 'vuetify'
 import {useRoute, useRouter} from 'vue-router'
 import type {BoaUser, PeerAdvisingDepartment} from '@/lib/types'
+import PeerAdvisorDashboardView from '@/components/peer/PeerAdvisorDashboardView.vue'
 import PeerAdvisingAccountMgmt from '@/components/peer/PeerAdvisingAccountMgmt.vue'
 import PeerAdvisingNoteTemplates from '@/components/peer/PeerAdvisingNoteTemplates.vue'
 import PeerAdvisorManagerReports from '@/components/peer/reports/PeerAdvisorManagerReports.vue'
@@ -105,6 +112,7 @@ const tabs = [
   {key: 'accounts', label: 'Account Management'},
   {key: 'templates', label: 'Note Templates'},
   {key: 'reporting', label: 'Reporting & Statistics'},
+  {key: 'dashboard', label: 'Peer Dashboard View'},
 ]
 const {mdAndUp} = useDisplay()
 
