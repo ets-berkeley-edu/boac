@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!contextStore.loading" class="pt-6 px-2 px-sm-2 px-md-8">
+  <div class="pt-6 px-2 px-sm-2 px-md-8">
     <PeerAdvisingNotesDashboard
       v-if="peerAdvisingDepartment && peerAdvisor"
       :fetch-notes="fetchNotes"
