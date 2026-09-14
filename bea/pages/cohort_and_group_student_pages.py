@@ -54,7 +54,7 @@ class CohortAndGroupStudentPages(CohortPages, ListViewStudentPages):
         utils.prepare_download_dir()
         self.click_export_list()
         self.when_present((By.ID, 'csv-column-options-0'), utils.get_short_timeout())
-        checkbox_count = 26 if Department.ADMIN in user.depts or Department.COE in user.depts else 25
+        checkbox_count = 27 if Department.ADMIN in user.depts or Department.COE in user.depts else 26
         for i in range(checkbox_count):
             self.click_element_js((By.ID, f'csv-column-options-{i}'), addl_pause=0.1)
         self.confirm_export(cohort)
@@ -91,6 +91,7 @@ class CohortAndGroupStudentPages(CohortPages, ListViewStudentPages):
         subplans = []
         levels_by_units = []
         terms_in_attend = []
+        entering_terms = []
         expected_grad_terms = []
         units_complete = []
         gpas_last_term = []
@@ -114,6 +115,7 @@ class CohortAndGroupStudentPages(CohortPages, ListViewStudentPages):
             subplans.append(r['Academic Subplans'])
             levels_by_units.append(r['Level by Units'])
             terms_in_attend.append(r['Terms in Attendance'])
+            entering_terms.append(r['Entering Term'])
             expected_grad_terms.append(r['Expected Graduation Term'])
             units_complete.append(r['Units Completed'])
             gpas_last_term.append(r[f'{prev_term.name} Term GPA'])
@@ -138,6 +140,7 @@ class CohortAndGroupStudentPages(CohortPages, ListViewStudentPages):
         assert list(filter(lambda su: su, subplans))
         assert list(filter(lambda le: le, levels_by_units))
         assert list(filter(lambda te: te, terms_in_attend))
+        assert list(filter(lambda et: et, entering_terms))
         assert list(filter(lambda ex: ex, expected_grad_terms))
         assert list(filter(lambda uc: uc, units_complete))
         assert list(filter(lambda gpl: gpl, gpas_last_term))
