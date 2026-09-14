@@ -98,6 +98,7 @@ export function getDefaultCsvExportColumns(): ExportListOption[] {
     {text: 'College', value: 'college'},
     {text: 'Level by Units', value: 'level_by_units'},
     {text: 'Terms in Attendance', value: 'terms_in_attendance'},
+    {text: 'Entering Term', value: 'entering_term'},
     {text: 'Expected Graduation Term', value: 'expected_graduation_term'},
     {text: 'Units Completed', value: 'units_completed'},
     {text: `Term GPA (${termNameForSisId(previousTermId)})`, value: `term_gpa_${previousTermId}`},
