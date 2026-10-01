@@ -32,6 +32,7 @@ from boac.models.authorized_user import AuthorizedUser
 from boac.models.comment import Comment
 from boac.models.comment_parent import CommentParent
 from boac.models.note import Note
+from tests.util import refresh_loch_search_index
 
 admin_uid = '2040'
 asc_advisor_uid = '1081940'
@@ -382,6 +383,7 @@ class TestNoteSearch:
                 'departmentCodes': ['UWASC'],
             },
         )
+        Note.find_by_ids(note_ids=[n['id'] for n in api_json['notes']])
         assert len(api_json['notes']) == 1
         assert 'Independence' in api_json['notes'][0]['noteSnippet']
 
@@ -447,7 +449,7 @@ class TestNoteSearch:
         api_json = _api_search(client, 'Brigitte', notes=True)
         self._assert(api_json, note_count=2, note_ids=['11667051-00002', '11667051-00001'])
 
-    def test_search_note_with_null_body(self, client, fake_auth):
+    def test_search_note_with_null_body(self, client, fake_auth, app):
         """Finds newly created BOA note when note body is null."""
         fake_auth.login(asc_advisor_uid)
         response = client.post(
@@ -457,13 +459,13 @@ class TestNoteSearch:
         )
         assert response.status_code == 200
         note = response.json
-        Note.update(
+        updated_note = Note.update(
             is_draft=False,
             note_id=note['id'],
             sid='9000000000',
             subject='Patience is a conquering virtue',
         )
-        Note.refresh_search_index()
+        refresh_loch_search_index(app, notes=[updated_note])
         api_json = _api_search(client, 'a conquering virtue', notes=True)
         self._assert(api_json, note_count=1, note_ids=[note['id']])
 
@@ -1140,7 +1142,7 @@ class TestFindAdvisorsByName:
         labels = [s['label'] for s in response]
         assert 'Loramps Glub' in labels
 
-    def test_find_note_authors_by_name(self, client, fake_auth, mock_advising_note):  # noqa: ARG002
+    def test_find_note_authors_by_name(self, client, fake_auth,  mock_advising_note):  # noqa: ARG002
         """Finds matches including authors of legacy and non-legacy notes."""
         fake_auth.login(coe_advisor_uid)
         Note.refresh_search_index()

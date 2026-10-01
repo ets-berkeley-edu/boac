@@ -90,6 +90,10 @@ def asc_schema():
     return app.config['DATA_LOCH_ASC_SCHEMA']
 
 
+def boa_cdc_schema():
+    return app.config['DATA_LOCH_BOA_CDC_SCHEMA']
+
+
 def boac_schema():
     return app.config['DATA_LOCH_BOAC_SCHEMA']
 
@@ -1025,6 +1029,16 @@ def search_advising_appointments(
             JOIN {sis_advising_notes_schema()}.advising_appointments_search_index idx
             ON idx.id = an.id
             AND idx.fts_index @@ plainto_tsquery('english', %(search_phrase)s)"""
+        query_columns += ", ts_rank(idx.fts_index, plainto_tsquery('english', %(search_phrase)s)) AS rank"
+    else:
+        query_columns += ', 0 AS rank'
+    if topic:
+        query_tables += f"""
+        JOIN {sis_advising_notes_schema()}.advising_note_topic_mappings antm
+            ON antm.boa_topic = %(topic)s
+        JOIN {sis_advising_notes_schema()}.advising_note_topics ant
+            ON ant.note_topic = antm.sis_topic
+            AND ant.advising_note_id = an.id"""
     uid_advisor_filter = 'aa.uid = %(advisor_uid)s' if advisor_uid else None
     if department_codes:
         advising_uid_query = """
@@ -1048,9 +1062,16 @@ def search_advising_appointments(
         uid_advisor_filter = ''
         advisor_uids = None
 
+    def _build_query(where_clause, count_only=False):
+        select = 'SELECT COUNT(*)' if count_only else f'SELECT DISTINCT {query_columns}'
+        order_by = '' if count_only else """
+            ORDER BY rank DESC, an.id DESC"""
+        return f"""{select}
+            FROM {query_tables}
+            WHERE {where_clause} {order_by}"""
+
     return search_sis_advising(
-        query_columns=query_columns,
-        query_tables=query_tables,
+        build_query=_build_query,
         uid_advisor_filter=uid_advisor_filter,
         search_phrase=search_phrase,
         advisor_uid=advisor_uid,
@@ -1060,7 +1081,6 @@ def search_advising_appointments(
         topic=topic,
         datetime_from=datetime_from,
         datetime_to=datetime_to,
-        order_by='rank DESC, an.id DESC',
         offset=offset,
         limit=limit,
     )
@@ -1078,25 +1098,50 @@ def search_advising_notes(
     offset=None,
     limit=None,
 ):
-    query_columns = """an.sid, an.id, an.note_body, an.advisor_sid, an.advisor_uid,
-            an.created_by, an.created_at, an.updated_at, an.note_category, an.note_subcategory,
-            spi.uid, spi.first_name, spi.last_name, an.advisor_first_name, an.advisor_last_name"""
-    query_tables = f"""{advising_notes_schema()}.advising_notes an
-        JOIN {student_schema()}.student_profile_index spi ON an.sid = spi.sid"""
+    boa_note_columns = """an.sid, an.id, an.subject, an.note_body, NULL AS advisor_sid, an.advisor_uid,
+        an.advisor_uid AS created_by, an.created_at, an.updated_at, NULL AS note_category, NULL AS note_subcategory, an.set_date,
+        spi.uid, spi.first_name, spi.last_name, an.advisor_first_name, an.advisor_last_name, an.is_private, an.parent_note_id"""
+    common_note_columns = """an.sid, an.id, an.subject, an.note_body, an.advisor_sid, an.advisor_uid,
+        an.created_by, an.created_at, an.updated_at, an.note_category, an.note_subcategory, an.set_date,
+        spi.uid, spi.first_name, spi.last_name, an.advisor_first_name, an.advisor_last_name, an.is_private, an.parent_note_id"""
+    rank_column = ''
+
+    boa_note_tables = f"""{boa_cdc_schema()}.advising_notes an
+            JOIN {student_schema()}.student_profile_index spi ON an.sid = spi.sid"""
+    common_note_tables = f"""{advising_notes_schema()}.advising_notes_curated an
+            JOIN {student_schema()}.student_profile_index spi ON an.sid = spi.sid"""
+
+    if topic:
+        boa_note_tables += f"""
+            JOIN {boa_cdc_schema()}.advising_note_topics ant
+            ON ant.topic = %(topic)s
+            AND ant.id = an.id"""
+        common_note_tables += f"""
+            JOIN {advising_notes_schema()}.advising_note_topics_curated ant
+            ON ant.topic = %(topic)s
+            AND ant.id = an.id"""
+
     if search_phrase:
-        query_tables += f"""
-            JOIN {advising_notes_schema()}.advising_notes_search_index idx
+        rank_column = ", ts_rank(idx.fts_index, plainto_tsquery('english', %(search_phrase)s)) AS rank"
+        boa_note_tables += f"""
+            JOIN {boa_cdc_schema()}.advising_notes_search_index idx
             ON idx.id = an.id
             AND idx.fts_index @@ plainto_tsquery('english', %(search_phrase)s)"""
+        common_note_tables += f"""
+            JOIN {advising_notes_schema()}.advising_notes_search_index_curated idx
+            ON idx.id = an.id
+            AND idx.fts_index @@ plainto_tsquery('english', %(search_phrase)s)"""
+    else:
+        rank_column = ', 0 AS rank'
     if department_codes:
         advising_uid_query = """
-            select au.uid
-            from authorized_users au
-            join university_dept_members udm
-            on au.id = udm.authorized_user_id
-            join university_depts ud
-            on ud.id = udm.university_dept_id
-            where ud.dept_code = ANY(:department_codes)"""
+            SELECT au.uid
+            FROM authorized_users au
+            JOIN university_dept_members udm
+            ON au.id = udm.authorized_user_id
+            JOIN university_depts ud
+            ON ud.id = udm.university_dept_id
+            WHERE ud.dept_code = ANY(:department_codes)"""
         query = text(advising_uid_query).bindparams(department_codes=department_codes)
         result = db.session.execute(query)
         rows = result.all()
@@ -1110,9 +1155,24 @@ def search_advising_notes(
         uid_advisor_filter = None
         advisor_uids = None
 
+    def _build_query(where_clause, count_only=False):
+        sql = f"""SELECT DISTINCT * FROM (
+            SELECT {boa_note_columns}{rank_column}
+            FROM {boa_note_tables}
+            UNION
+            SELECT {common_note_columns}{rank_column}
+            FROM {common_note_tables}
+            WHERE {where_clause}
+        ) an WHERE {where_clause}"""
+        if count_only:
+            return f"""SELECT COUNT(a.*) FROM (
+              {sql}
+            ) a"""
+        else:
+            return f'{sql} ORDER BY an.created_at DESC, an.rank DESC'
+
     return search_sis_advising(
-        query_columns=query_columns,
-        query_tables=query_tables,
+        build_query=_build_query,
         uid_advisor_filter=uid_advisor_filter,
         search_phrase=search_phrase,
         advisor_uid=author_uid,
@@ -1129,8 +1189,7 @@ def search_advising_notes(
 
 
 def search_sis_advising(
-    query_columns,
-    query_tables,
+    build_query,
     uid_advisor_filter,
     search_phrase,
     advisor_uid=None,
@@ -1141,7 +1200,6 @@ def search_sis_advising(
     datetime_from=None,
     datetime_to=None,
     exclude_private=False,
-    order_by='an.created_at DESC, rank DESC',
     offset=None,
     limit=None,
 ):
@@ -1153,15 +1211,6 @@ def search_sis_advising(
         advisor_filter = ''
 
     sid_filter = 'AND an.sid = %(student_csid)s' if student_csid else ''
-
-    if topic:
-        topic_join = f"""JOIN {sis_advising_notes_schema()}.advising_note_topic_mappings antm
-            ON antm.boa_topic = %(topic)s
-        JOIN {sis_advising_notes_schema()}.advising_note_topics ant
-            ON ant.note_topic = antm.sis_topic
-            AND ant.advising_note_id = an.id"""
-    else:
-        topic_join = ''
 
     date_filter = ''
     # We prefer to filter on updated_at, but that value is not meaningful for UCBCONVERSION notes.
@@ -1176,11 +1225,6 @@ def search_sis_advising(
     if exclude_private:
         privacy_filter += """AND NOT is_private"""
 
-    if search_phrase:
-        query_columns += ", ts_rank(idx.fts_index, plainto_tsquery('english', %(search_phrase)s)) AS rank"
-    else:
-        query_columns += ', 0 AS rank'
-
     params = dict(
         search_phrase=search_phrase,
         advisor_csid=advisor_csid,
@@ -1194,22 +1238,15 @@ def search_sis_advising(
         limit=limit,
     )
     where_clause = f"""TRUE
-        {advisor_filter}
-        {sid_filter}
-        {date_filter}
-        {privacy_filter}"""
-    sql = f"""SELECT DISTINCT {query_columns}
-        FROM {query_tables}
-        {topic_join}
-        WHERE {where_clause}
-        ORDER BY {order_by}"""
+        {advisor_filter} {sid_filter} {date_filter} {privacy_filter}"""
+    sql = build_query(where_clause)
 
     if offset is not None and offset > 0:
         sql += ' OFFSET %(offset)s'
     if limit is not None and limit < 150:  # Sanity check large limits
         sql += ' LIMIT %(limit)s'
     rows = safe_execute_rds(sql, **params)
-    total_matching = safe_execute_rds(f'SELECT COUNT(*) FROM {query_tables} {topic_join} WHERE {where_clause}', **params)
+    total_matching = safe_execute_rds(build_query(where_clause, count_only=True), **params)
     return {
         'rows': rows,
         'total_matching_count': total_matching[0]['count'],

@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import json
 import uuid
 
+from botocore.exceptions import ClientError
 from flask import current_app as app
 
 from boac.externals.aws import get_session
@@ -75,6 +76,13 @@ def receive():
     client = _get_client()
     return client.receive_message(QueueUrl=queue_url, AttributeNames=['All'], WaitTimeSeconds=1)
 
+
+def sqs_status():
+    try:
+        _get_client()
+        return True
+    except ClientError:
+        return False
 
 def _get_client():
     session = get_session()

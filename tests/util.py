@@ -104,3 +104,99 @@ def pause_mock_sts():
         yield
     finally:
         moto.mock_aws().start()
+
+def refresh_loch_search_index(app, notes=None, deleted_notes=None):
+    from sqlalchemy import create_engine
+    from sqlalchemy.sql import text
+    engine = create_engine(app.config['DATA_LOCH_RDS_URI'])
+    try:
+        with engine.begin() as conn:
+            if notes:
+                sql = ''
+                values = []
+                for note in notes:
+                    note_id = f'boa-{note.sid}-{note.id}'
+                    name_parts = (note.author_name or '').split(maxsplit=1)
+                    advisor_first_name = name_parts[0] if name_parts else None
+                    advisor_last_name = name_parts[1] if len(name_parts) > 1 else None
+                    searchable_body = note.body if note.body and not note.is_private else ''
+                    searchable_topics = ' '.join([t.topic for t in note.topics]) if note.topics else ''
+                    searchable_text = f"{note.subject or ''} {searchable_body} {searchable_topics} {note.author_name or ''}"
+
+                    values.append({
+                        'sid': note.sid,
+                        'id': note_id,
+                        'note_body': note.body.replace("'", r"''") if note.body else None,
+                        'advisor_uid': note.author_uid,
+                        'author_name': note.author_name,
+                        'advisor_first_name': advisor_first_name,
+                        'advisor_last_name': advisor_last_name,
+                        'author_dept_codes': note.author_dept_codes,
+                        'subject': note.subject,
+                        'is_private': note.is_private,
+                        'contact_type': note.contact_type,
+                        'set_date': note.set_date,
+                        'parent_note_id': note.parent_note_id,
+                        'created_by': note.author_uid,
+                        'created_at': note.created_at,
+                        'updated_at': note.updated_at,
+                        'searchable_text': searchable_text,
+                    })
+                sql += """INSERT INTO boac_advising_notes.advising_notes_curated
+                    (sid, id, note_body, advisor_sid, advisor_uid, author_name, advisor_first_name, advisor_last_name,
+                    author_dept_codes, subject, note_category, note_subcategory, is_private, contact_type, set_date,
+                    parent_note_id, created_by, created_at, updated_at)
+                  VALUES (
+                    :sid, :id, :note_body, NULL, :advisor_uid, :author_name,
+                    :advisor_first_name, :advisor_last_name, CAST(:author_dept_codes AS varchar[]),
+                    :subject, NULL, NULL, :is_private, :contact_type, :set_date,
+                    :parent_note_id, :created_by, :created_at, :updated_at)
+                  ON CONFLICT (id)
+                  DO UPDATE SET
+                    sid = EXCLUDED.sid,
+                    advisor_uid = EXCLUDED.advisor_uid,
+                    author_name = EXCLUDED.author_name,
+                    advisor_first_name = EXCLUDED.advisor_first_name,
+                    advisor_last_name = EXCLUDED.advisor_last_name,
+                    author_dept_codes = EXCLUDED.author_dept_codes,
+                    subject = EXCLUDED.subject,
+                    note_body = EXCLUDED.note_body,
+                    is_private = EXCLUDED.is_private,
+                    contact_type = EXCLUDED.contact_type,
+                    set_date = EXCLUDED.set_date,
+                    parent_note_id = EXCLUDED.parent_note_id,
+                    created_by = EXCLUDED.created_by,
+                    created_at = EXCLUDED.created_at,
+                    updated_at = EXCLUDED.updated_at;
+                  INSERT INTO boac_advising_notes.advising_notes_search_index_curated
+                    (id, fts_index)
+                  VALUES (:id, TO_TSVECTOR('english', :searchable_text))
+                  ON CONFLICT(id)
+                  DO UPDATE SET
+                    fts_index = EXCLUDED.fts_index;"""
+                conn.execute(text(sql), values)
+
+                if note.topics and len(note.topics):
+                    params = [{
+                        'id': note_id,
+                        'sid': note.sid,
+                        'topic': t.topic,
+                    } for t in note.topics]
+                    sql = """INSERT INTO boac_advising_notes.advising_note_topics_curated
+                          (id, sid, topic)
+                        VALUES (:id, :sid, :topic)"""
+                    conn.execute(text(sql), params)
+
+            if deleted_notes:
+                params = {
+                    'delete_ids': [f'boa-{note.sid}-{note.id}' for note in deleted_notes],
+                }
+                sql = """DELETE FROM boac_advising_notes.advising_notes_curated
+                      WHERE id = ANY(:delete_ids);
+                    DELETE FROM boac_advising_notes.advising_notes_search_index_curated
+                      WHERE id = ANY(:delete_ids);
+                    DELETE FROM boac_advising_notes.advising_note_topics_curated
+                      WHERE id = ANY(:delete_ids)"""
+                conn.execute(text(sql), params)
+    finally:
+        engine.dispose()
