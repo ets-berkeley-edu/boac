@@ -1,3 +1,4 @@
+DROP SCHEMA IF EXISTS boa_app_rds_data cascade;
 DROP SCHEMA IF EXISTS boac_advising_appointments cascade;
 DROP SCHEMA IF EXISTS boac_advising_asc cascade;
 DROP SCHEMA IF EXISTS boac_advising_coe cascade;
@@ -15,6 +16,7 @@ DROP SCHEMA IF EXISTS sis_data cascade;
 DROP SCHEMA IF EXISTS student cascade;
 DROP SCHEMA IF EXISTS terms cascade;
 
+CREATE SCHEMA boa_app_rds_data;
 CREATE SCHEMA boac_advising_appointments;
 CREATE SCHEMA boac_advising_asc;
 CREATE SCHEMA boac_advising_coe;
@@ -31,6 +33,38 @@ CREATE SCHEMA sis_advising_notes;
 CREATE SCHEMA sis_data;
 CREATE SCHEMA student;
 CREATE SCHEMA terms;
+
+CREATE TABLE boa_app_rds_data.advising_note_topics (
+    id character varying,
+    sid character varying NOT NULL,
+    boa_id character varying NOT NULL,
+    topic character varying,
+    CONSTRAINT advising_note_topics_pkey PRIMARY KEY (id, topic)
+);
+
+CREATE TABLE boa_app_rds_data.advising_notes (
+    id character varying PRIMARY KEY,
+    sid character varying NOT NULL,
+    boa_id character varying NOT NULL,
+    advisor_uid character varying,
+    author_name character varying,
+    advisor_first_name character varying,
+    advisor_last_name character varying,
+    author_dept_codes character varying[],
+    subject character varying,
+    note_body text,
+    is_private boolean,
+    contact_type character varying,
+    set_date date,
+    parent_note_id integer,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL
+);
+
+CREATE TABLE boa_app_rds_data.advising_notes_search_index (
+    id character varying,
+    fts_index tsvector
+);
 
 CREATE TABLE boac_advising_appointments.calendly_advising_appointments
 (
@@ -239,6 +273,42 @@ CREATE TABLE boac_advising_notes.advising_note_authors
     first_name VARCHAR NOT NULL,
     last_name VARCHAR NOT NULL,
     campus_email VARCHAR
+);
+
+CREATE TABLE boac_advising_notes.advising_notes_curated (
+    sid character varying,
+    id character varying,
+    note_body text,
+    advisor_sid character varying,
+    advisor_uid character varying,
+    author_name character varying,
+    advisor_first_name character varying,
+    advisor_last_name character varying,
+    author_dept_codes character varying[],
+    subject character varying,
+    note_category character varying,
+    note_subcategory character varying,
+    is_private boolean,
+    contact_type character varying,
+    set_date date,
+    parent_note_id integer,
+    created_by character varying,
+    created_at timestamp with time zone,
+    updated_at timestamp with time zone
+);
+CREATE UNIQUE INDEX advising_notes_curated_pkey ON boac_advising_notes.advising_notes_curated(id text_ops);
+
+CREATE TABLE boac_advising_notes.advising_notes_search_index_curated (
+    id character varying,
+    fts_index tsvector
+);
+CREATE UNIQUE INDEX advising_notes_search_index_curated_pkey ON boac_advising_notes.advising_notes_search_index_curated(id text_ops);
+
+CREATE TABLE boac_advising_notes.advising_note_topics_curated (
+    id character varying,
+    sid character varying NOT NULL,
+    topic character varying,
+    CONSTRAINT advising_note_topics_curated_pkey PRIMARY KEY (id, topic)
 );
 
 CREATE TABLE boac_advising_oua.student_admit_names (
@@ -724,12 +794,17 @@ VALUES
 ('11667051-139362', '139362', '11667051', 'Academic'),
 ('11667051-139362', '139362', '11667051', 'Other');
 
-CREATE MATERIALIZED VIEW boac_advising_asc.advising_notes_search_index AS (
-  SELECT n.id, to_tsvector('english', COALESCE(topic || ' ', '') || advisor_first_name || ' ' || advisor_last_name) AS fts_index
-  FROM boac_advising_asc.advising_notes n
-  LEFT OUTER JOIN boac_advising_asc.advising_note_topics t
-  ON n.id = t.id
-);
+CREATE MATERIALIZED VIEW boac_advising_asc.advising_notes_search_index AS
+  WITH topics AS (
+  SELECT id, STRING_AGG(DISTINCT topic, ' ' ORDER BY topic) AS topics
+  FROM boac_advising_asc.advising_note_topics
+  GROUP BY id
+)
+SELECT
+  n.id, to_tsvector('english', COALESCE(n.subject, '') || ' ' || COALESCE(n.body, '') || ' ' || COALESCE(t.topics, '') || ' ' || COALESCE(n.advisor_first_name, '') || ' ' || COALESCE(n.advisor_last_name, '')
+    ) AS fts_index
+FROM boac_advising_asc.advising_notes n
+LEFT JOIN topics t ON n.id::text = t.id::text;
 
 INSERT INTO boac_advising_asc.students
 (sid, intensive, active, status_asc, group_code, group_name, team_code, team_name)
@@ -805,12 +880,16 @@ VALUES
 ('11667051-151620', '151620', '11667051', 'Course Planning'),
 ('11667051-151620', '151620', '11667051', 'Personal');
 
-CREATE MATERIALIZED VIEW boac_advising_e_i.advising_notes_search_index AS (
-  SELECT n.id, to_tsvector('english', COALESCE(topic || ' ', '') || advisor_first_name || ' ' || advisor_last_name) AS fts_index
+CREATE MATERIALIZED VIEW boac_advising_e_i.advising_notes_search_index AS
+  WITH topics AS (
+    SELECT id, STRING_AGG(DISTINCT topic, ' ' ORDER BY topic) AS topics
+    FROM boac_advising_e_i.advising_note_topics
+    GROUP BY advising_note_topics.id
+  )
+  SELECT n.id, to_tsvector('english'::regconfig, COALESCE(t.topics, '') || ' ' || COALESCE(n.overview, '') || ' ' || COALESCE(n.advisor_first_name, '') || ' ' || COALESCE(n.advisor_last_name, '')
+    ) AS fts_index
   FROM boac_advising_e_i.advising_notes n
-  LEFT OUTER JOIN boac_advising_e_i.advising_note_topics t
-  ON n.id = t.id
-);
+  LEFT JOIN topics t ON n.id::text = t.id::text;
 
 INSERT INTO boac_advising_eop.advising_note_topics
 (id, sid, topic)
@@ -837,7 +916,7 @@ VALUES
 ('history_dept_advising_note_2','82523','History dept note #2','11667051','Deborah','Davies', now());
 
 CREATE MATERIALIZED VIEW boac_advising_history_dept.advising_notes_search_index AS (
-  SELECT id, to_tsvector('english', COALESCE(note, '')) AS fts_index
+  SELECT id, to_tsvector('english', COALESCE(note || ' ', '')) AS fts_index
   FROM boac_advising_history_dept.advising_notes
 );
 
@@ -1094,36 +1173,50 @@ CREATE MATERIALIZED VIEW sis_advising_notes.student_late_drop_eforms_search_inde
 
 CREATE TABLE boac_advising_notes.advising_notes AS (
 SELECT sis.sid, sis.id, sis.note_body, sis.advisor_sid,
-       NULL::varchar AS advisor_uid, NULL::varchar AS advisor_first_name, NULL::varchar AS advisor_last_name,
-       sis.note_category, sis.note_subcategory, FALSE AS is_private, sis.created_by, sis.created_at, sis.updated_at
+       NULL::varchar AS advisor_uid, NULL::varchar AS author_name, NULL::varchar AS advisor_first_name,
+       NULL::varchar AS advisor_last_name, ARRAY[]::varchar[] AS author_dept_codes, NULL::varchar AS subject,
+       sis.note_category, sis.note_subcategory, FALSE AS is_private, NULL::varchar AS contact_type,
+       NULL::date AS set_date, sis.created_by, sis.created_at, sis.updated_at
 FROM sis_advising_notes.advising_notes sis
 UNION
-SELECT ascn.sid, ascn.id, NULL AS note_body, NULL AS advisor_sid, ascn.advisor_uid, ascn.advisor_first_name, ascn.advisor_last_name,
-       NULL AS note_category, NULL AS note_subcategory, FALSE AS is_private, NULL AS created_by, ascn.created_at, ascn.updated_at
+SELECT ascn.sid, ascn.id, NULL AS note_body, NULL AS advisor_sid,
+       ascn.advisor_uid, NULL AS author_name, ascn.advisor_first_name,
+       ascn.advisor_last_name, ARRAY[]::varchar[] AS author_dept_codes, NULL AS subject,
+       NULL AS note_category, NULL AS note_subcategory, FALSE AS is_private, NULL AS contact_type,
+       NULL AS set_date, NULL AS created_by, ascn.created_at, ascn.updated_at
 FROM boac_advising_asc.advising_notes ascn
 UNION
-SELECT dsn.sid, dsn.id, dsn.body AS note_body, dsna.sid AS advisor_sid, dsna.uid AS advisor_uid, dsna.first_name AS advisor_first_name,
-       dsna.last_name AS advisor_last_name, NULL AS note_category, NULL AS note_subcategory, FALSE AS is_private, NULL AS created_by,
-       dsn.created_at, NULL AS updated_at
+SELECT dsn.sid, dsn.id, dsn.body AS note_body, dsna.sid AS advisor_sid,
+       dsna.uid AS advisor_uid, NULL AS author_name, dsna.first_name AS advisor_first_name,
+       dsna.last_name AS advisor_last_name, ARRAY[]::varchar[] AS author_dept_codes, NULL AS subject,
+       NULL AS note_category, NULL AS note_subcategory, FALSE AS is_private, NULL AS contact_type,
+       NULL AS set_date, NULL AS created_by, dsn.created_at, NULL AS updated_at
 FROM boac_advising_data_science.advising_notes dsn
 JOIN boac_advising_notes.advising_note_authors dsna ON dsn.advisor_email = dsna.campus_email
 UNION
-SELECT ein.sid, ein.id, NULL AS note_body, NULL AS advisor_sid, ein.advisor_uid, ein.advisor_first_name, ein.advisor_last_name,
-       NULL AS note_category, NULL AS note_subcategory, FALSE AS is_private, NULL AS created_by, ein.created_at, ein.updated_at
+SELECT ein.sid, ein.id, NULL AS note_body, NULL AS advisor_sid,
+       ein.advisor_uid, NULL AS author_name, ein.advisor_first_name,
+       ein.advisor_last_name, ARRAY[]::varchar[] AS author_dept_codes, NULL AS subject,
+       NULL AS note_category, NULL AS note_subcategory, FALSE AS is_private, NULL AS contact_type,
+       NULL AS set_date, NULL AS created_by, ein.created_at, ein.updated_at
 FROM boac_advising_e_i.advising_notes ein
 UNION
-SELECT eop.sid, eop.id, note AS note_body, NULL AS advisor_sid, eop.advisor_uid, eop.advisor_first_name, eop.advisor_last_name,
+SELECT eop.sid, eop.id, note AS note_body, NULL AS advisor_sid,
+       eop.advisor_uid, NULL AS author_name, eop.advisor_first_name,
+       eop.advisor_last_name, ARRAY[]::varchar[] AS author_dept_codes, NULL AS subject,
        NULL AS note_category, NULL AS note_subcategory,
        CASE
           WHEN eop.privacy_permissions IS NOT NULL THEN TRUE
           ELSE FALSE
-       END AS is_private, eop.advisor_uid AS created_by, eop.created_at,
-       eop.created_at AS updated_at
+       END AS is_private, NULL AS contact_type,
+       NULL AS set_date, eop.advisor_uid AS created_by, eop.created_at, eop.created_at AS updated_at
 FROM boac_advising_eop.advising_notes eop
 UNION
-SELECT hdn.sid, hdn.id, hdn.note AS note_body, NULL AS advisor_sid, NULL AS advisor_uid, NULL AS advisor_first_name,
-       NULL AS advisor_last_name, NULL AS note_category, NULL AS note_subcategory, FALSE AS is_private, NULL AS created_by,
-       NULL AS created_at, NULL AS updated_at
+SELECT hdn.sid, hdn.id, hdn.note AS note_body, NULL AS advisor_sid,
+       NULL AS advisor_uid, NULL AS author_name, NULL AS advisor_first_name,
+       NULL AS advisor_last_name,  ARRAY[]::varchar[] AS author_dept_codes, NULL AS subject,
+       NULL AS note_category, NULL AS note_subcategory, FALSE AS is_private, NULL AS contact_type,
+       NULL AS set_date, NULL AS created_by, NULL AS created_at, NULL AS updated_at
 FROM boac_advising_history_dept.advising_notes hdn
 );
 
@@ -1135,6 +1228,22 @@ CREATE MATERIALIZED VIEW boac_advising_notes.advising_notes_search_index AS (
   UNION SELECT id, fts_index FROM boac_advising_history_dept.advising_notes_search_index
   UNION SELECT id, fts_index FROM sis_advising_notes.advising_notes_search_index
 );
+CREATE UNIQUE INDEX advising_notes_search_index_pkey ON boac_advising_notes.advising_notes_search_index(id text_ops);
+
+INSERT INTO boac_advising_notes.advising_notes_curated
+SELECT sid, id, note_body, advisor_sid, advisor_uid, author_name, advisor_first_name, advisor_last_name, author_dept_codes,
+       subject, note_category, note_subcategory, is_private, contact_type, set_date, NULL AS parent_note_id, created_by, created_at, updated_at
+FROM boac_advising_notes.advising_notes;
+
+INSERT INTO boac_advising_notes.advising_notes_search_index_curated
+SELECT id, fts_index
+FROM boac_advising_notes.advising_notes_search_index;
+
+INSERT INTO boac_advising_notes.advising_note_topics_curated
+SELECT ant.advising_note_id AS id, ant.sid, antm.boa_topic AS topic
+FROM sis_advising_notes.advising_note_topic_mappings antm
+JOIN sis_advising_notes.advising_note_topics ant
+  ON antm.sis_topic = ant.note_topic;
 
 INSERT INTO sis_data.academic_plan_hierarchy
 (plan_code, plan_status, plan_name, major_code, major_name, plan_type_code, department_code, department_name, division_code,

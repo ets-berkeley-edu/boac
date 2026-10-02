@@ -24,15 +24,17 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 import io
+from contextlib import contextmanager
 from datetime import datetime, timedelta
 from zipfile import ZipFile
 
 import pytz
 from dateutil.parser import parse
 
+from boac import std_commit
 from boac.merged.advising_note import get_advising_notes, get_zip_stream, search_advising_notes
 from boac.models.note import Note
-from tests.util import mock_eop_note_attachment, mock_sis_note_attachment
+from tests.util import mock_eop_note_attachment, mock_sis_note_attachment, refresh_loch_search_index
 
 asc_advisor = '6446'
 ce3_advisor_uid = '2525'
@@ -258,8 +260,7 @@ class TestMergedAdvisingNote:
         notes = results['notes']
         total_note_count = results['totalNoteCount']
         assert len(notes) == 1
-        assert total_note_count == 2
-        assert len(notes) == 1
+        assert total_note_count == 1
         assert notes[0]['noteSnippet'] == ''
         assert notes[0]['advisorName'] == 'Lemmy Kilmister'
         assert parse(notes[0]['createdAt']) == parse('2014-01-03T20:30:00+00')
@@ -378,52 +379,65 @@ class TestMergedAdvisingNote:
         assert cs_note['createdAt']
         assert cs_note['updatedAt'] is None
 
-    def test_search_advising_notes_includes_newly_created(self, fake_auth):
+    def test_search_advising_notes_includes_newly_created(self, app, fake_auth):
         fake_auth.login(coe_advisor)
-        _create_coe_advisor_note(
+        with _create_coe_advisor_note(
+            app,
             sid='11667051',
             subject='Confound this note',
             body='and its successors and assigns',
-        )
-        results = search_advising_notes(search_phrase='confound')
-        notes = results['notes']
-        total_note_count = results['totalNoteCount']
-        assert len(notes) == 3
-        assert total_note_count == 3
-        assert notes[0]['noteSnippet'] == '<strong>Confound</strong> this note - and its successors and assigns'
-        assert notes[1]['noteSnippet'].startswith('...pity the founder')
-        assert notes[2]['noteSnippet'].startswith('I am <strong>confounded</strong>')
+        ):
+            results = search_advising_notes(search_phrase='confound')
+            notes = results['notes']
+            total_note_count = results['totalNoteCount']
+            assert len(notes) == 3
+            assert total_note_count == 3
+            assert notes[0]['noteSnippet'] == '<strong>Confound</strong> this note - and its successors and assigns'
+            assert notes[1]['noteSnippet'].startswith('...pity the founder')
+            assert notes[2]['noteSnippet'].startswith('I am <strong>confounded</strong>')
 
-    def test_search_advising_notes_paginates_new_and_old(self, fake_auth):
-        fake_auth.login(coe_advisor)
-        for i in range(5):
-            _create_coe_advisor_note(
+    def test_search_advising_notes_paginates_new_and_old(self, app, fake_auth):
+        def _create_note(i):
+            return _create_coe_advisor_note(
+                app,
                 sid='11667051',
                 subject='Planned redundancy',
-                body=f'Confounded note {i + 1}',
+                body=f'Confounded note {i}',
             )
-        results = search_advising_notes(search_phrase='confound', offset=0, limit=4)
-        notes = results['notes']
-        total_note_count = results['totalNoteCount']
-        assert len(notes) == 4
-        assert total_note_count > 4
-        previous_created_at = None
-        for note in notes:
-            assert 'Planned redundancy - <strong>Confounded</strong> note' in note['noteSnippet']
-            if previous_created_at:
-                # Assert order by created_at, descending.
-                assert note['createdAt'] <= previous_created_at
-            previous_created_at = note['createdAt']
-        results = search_advising_notes(search_phrase='confound', offset=4, limit=4)
-        notes = results['notes']
-        total_note_count = results['totalNoteCount']
-        assert len(notes) == 3
-        assert notes[0]['noteSnippet'] == 'Planned redundancy - <strong>Confounded</strong> note 1'
-        assert notes[1]['noteSnippet'].startswith('...pity the founder')
-        assert notes[2]['noteSnippet'].startswith('I am <strong>confounded</strong>')
 
-    def test_search_advising_notes_narrowed_by_author(self, fake_auth):
+        fake_auth.login(coe_advisor)
+        with _create_note(1), _create_note(2), _create_note(3), _create_note(4),_create_note(5):
+            results = search_advising_notes(search_phrase='confound', offset=0, limit=4)
+            notes = results['notes']
+            total_note_count = results['totalNoteCount']
+            assert len(notes) == 4
+            assert total_note_count > 4
+            previous_created_at = None
+            for note in notes:
+                assert 'Planned redundancy - <strong>Confounded</strong> note' in note['noteSnippet']
+                if previous_created_at:
+                    # Assert order by created_at, descending.
+                    assert note['createdAt'] <= previous_created_at
+                previous_created_at = note['createdAt']
+            results = search_advising_notes(search_phrase='confound', offset=4, limit=4)
+            notes = results['notes']
+            total_note_count = results['totalNoteCount']
+            assert len(notes) == 3
+            assert notes[0]['noteSnippet'].startswith('Planned redundancy - <strong>Confounded</strong> note')
+            assert notes[1]['noteSnippet'].startswith('...pity the founder')
+            assert notes[2]['noteSnippet'].startswith('I am <strong>confounded</strong>')
+
+    def test_search_advising_notes_narrowed_by_author(self, app, fake_auth):
         """Narrows results for both new and legacy advising notes by author SID."""
+        def _create_note(author):
+            return _create_coe_advisor_note(
+                app,
+                author_uid=author['uid'],
+                author_name=author['name'],
+                sid='11667051',
+                subject='Futher on France',
+                body='Brigitte has been molded to middle class circumstance',
+            )
         joni = {
             'name': 'Joni Mitchell',
             'uid': '1133399',
@@ -433,83 +447,82 @@ class TestMergedAdvisingNote:
             'name': 'Oliver Heyer',
             'uid': '2040',
         }
-        for author in [joni, not_joni]:
-            _create_coe_advisor_note(
-                author_uid=author['uid'],
-                author_name=author['name'],
-                sid='11667051',
-                subject='Futher on France',
-                body='Brigitte has been molded to middle class circumstance',
-            )
-        fake_auth.login(coe_advisor)
-        wide_response = search_advising_notes(search_phrase='Brigitte')
-        notes = wide_response['notes']
-        total_note_count = wide_response['totalNoteCount']
-        assert len(notes) == 4
-        assert total_note_count == 4
-        narrow_response = search_advising_notes(search_phrase='Brigitte', author_csid=joni['sid'])
-        notes = narrow_response['notes']
-        total_note_count = narrow_response['totalNoteCount']
-        assert len(notes) == 2
-        assert total_note_count == 2
-        new_note, legacy_note = notes[0], notes[1]
-        assert new_note['advisorUid'] == joni['uid']
-        assert legacy_note['advisorSid'] == joni['sid']
+        with _create_note(joni), _create_note(not_joni):
+            fake_auth.login(coe_advisor)
+            wide_response = search_advising_notes(search_phrase='Brigitte')
+            notes = wide_response['notes']
+            total_note_count = wide_response['totalNoteCount']
+            assert len(notes) == 4
+            assert total_note_count == 4
+            narrow_response = search_advising_notes(search_phrase='Brigitte', author_csid=joni['sid'])
+            notes = narrow_response['notes']
+            total_note_count = narrow_response['totalNoteCount']
+            assert len(notes) == 2
+            assert total_note_count == 2
+            new_note, legacy_note = notes[0], notes[1]
+            assert new_note['advisorUid'] == joni['uid']
+            assert legacy_note['advisorSid'] == joni['sid']
 
-    def test_search_advising_notes_narrowed_by_student(self, fake_auth):
+    def test_search_advising_notes_narrowed_by_student(self, app, fake_auth):
         """Narrows results for both new and legacy advising notes by student SID."""
-        for sid in ['9000000000', '9100000000']:
-            _create_coe_advisor_note(
+        def _create_note(sid):
+            return _create_coe_advisor_note(
+                app,
                 sid=sid,
                 subject='Case load',
                 body='Another day, another student',
             )
-        fake_auth.login(coe_advisor)
-        wide_response = search_advising_notes(search_phrase='student')
-        notes = wide_response['notes']
-        total_note_count = wide_response['totalNoteCount']
-        assert len(notes) == 5
-        assert total_note_count == 5
-        narrow_response = search_advising_notes(search_phrase='student', student_csid='9100000000')
-        notes = narrow_response['notes']
-        assert len(notes) == 2
-        new_note, legacy_note = notes[0], notes[1]
-        assert new_note['studentSid'] == '9100000000'
-        assert legacy_note['studentSid'] == '9100000000'
+        with _create_note('9000000000'), _create_note('9100000000'):
+            fake_auth.login(coe_advisor)
+            wide_response = search_advising_notes(search_phrase='student')
+            notes = wide_response['notes']
+            total_note_count = wide_response['totalNoteCount']
+            assert len(notes) == 5
+            assert total_note_count == 5
+            narrow_response = search_advising_notes(search_phrase='student', student_csid='9100000000')
+            notes = narrow_response['notes']
+            assert len(notes) == 2
+            new_note, legacy_note = notes[0], notes[1]
+            assert new_note['studentSid'] == '9100000000'
+            assert legacy_note['studentSid'] == '9100000000'
 
-    def test_search_advising_notes_restricted_to_students_in_loch(self, fake_auth):
+    def test_search_advising_notes_restricted_to_students_in_loch(self, app, fake_auth):
         fake_auth.login(coe_advisor)
-        _create_coe_advisor_note(
+        with _create_coe_advisor_note(
+            app,
             sid='6767676767',
             subject='Who is this?',
             body="Not a student in the loch, that's for sure",
-        )
-        assert len(search_advising_notes(search_phrase='loch')['notes']) == 0
-        _create_coe_advisor_note(
-            sid='11667051',
-            subject='A familiar face',
-            body='Whereas this student is a most distinguished denizen of the loch',
-        )
-        assert len(search_advising_notes(search_phrase='loch')['notes']) == 1
+        ):
+            assert len(search_advising_notes(search_phrase='loch')['notes']) == 0
+            with _create_coe_advisor_note(
+                app,
+                sid='11667051',
+                subject='A familiar face',
+                body='Whereas this student is a most distinguished denizen of the loch',
+            ):
+                assert len(search_advising_notes(search_phrase='loch')['notes']) == 1
 
-    def test_search_advising_notes_narrowed_by_topic(self, fake_auth):
-        for topic in ['Good Show', 'Bad Show']:
-            _create_coe_advisor_note(
+    def test_search_advising_notes_narrowed_by_topic(self, app, fake_auth):
+        def _create_note(topic):
+            return _create_coe_advisor_note(
+                app,
                 sid='11667051',
                 topics=[topic],
                 subject='Brigitte',
             )
-        fake_auth.login(coe_advisor)
-        wide_response = search_advising_notes(search_phrase='Brigitte')
-        notes = wide_response['notes']
-        total_note_count = wide_response['totalNoteCount']
-        assert len(notes) == 4
-        assert total_note_count == 4
-        narrow_response = search_advising_notes(search_phrase='Brigitte', topic='Good Show')
-        notes = narrow_response['notes']
-        total_note_count = narrow_response['totalNoteCount']
-        assert len(notes) == 2
-        assert total_note_count == 2
+        with _create_note('Good Show'), _create_note('Bad Show'):
+            fake_auth.login(coe_advisor)
+            wide_response = search_advising_notes(search_phrase='Brigitte')
+            notes = wide_response['notes']
+            total_note_count = wide_response['totalNoteCount']
+            assert len(notes) == 4
+            assert total_note_count == 4
+            narrow_response = search_advising_notes(search_phrase='Brigitte', topic='Good Show')
+            notes = narrow_response['notes']
+            total_note_count = narrow_response['totalNoteCount']
+            assert len(notes) == 2
+            assert total_note_count == 2
 
     def test_search_legacy_advising_notes_narrowed_by_date(self, app, fake_auth):
         halloween_2017 = datetime(2017, 10, 31, tzinfo=pytz.timezone(app.config['TIMEZONE'])).astimezone(pytz.utc)
@@ -546,22 +559,23 @@ class TestMergedAdvisingNote:
         tomorrow = today + timedelta(days=1)
 
         fake_auth.login(coe_advisor)
-        _create_coe_advisor_note(
+        with _create_coe_advisor_note(
+            app,
             sid='11667051',
             subject='Bryant Park',
             body='There were loads of them',
-        )
-        assert len(search_advising_notes(search_phrase='Bryant')['notes']) == 1
+        ):
+            assert len(search_advising_notes(search_phrase='Bryant')['notes']) == 1
 
-        assert len(search_advising_notes(search_phrase='Bryant', datetime_from=yesterday)['notes']) == 1
-        assert len(search_advising_notes(search_phrase='Bryant', datetime_to=yesterday)['notes']) == 0
-        assert len(search_advising_notes(search_phrase='Bryant', datetime_from=yesterday, datetime_to=yesterday)['notes']) == 0
+            assert len(search_advising_notes(search_phrase='Bryant', datetime_from=yesterday)['notes']) == 1
+            assert len(search_advising_notes(search_phrase='Bryant', datetime_to=yesterday)['notes']) == 0
+            assert len(search_advising_notes(search_phrase='Bryant', datetime_from=yesterday, datetime_to=yesterday)['notes']) == 0
 
-        assert len(search_advising_notes(search_phrase='Bryant', datetime_from=tomorrow)['notes']) == 0
-        assert len(search_advising_notes(search_phrase='Bryant', datetime_to=tomorrow)['notes']) == 1
-        assert len(search_advising_notes(search_phrase='Bryant', datetime_from=tomorrow, datetime_to=tomorrow)['notes']) == 0
+            assert len(search_advising_notes(search_phrase='Bryant', datetime_from=tomorrow)['notes']) == 0
+            assert len(search_advising_notes(search_phrase='Bryant', datetime_to=tomorrow)['notes']) == 1
+            assert len(search_advising_notes(search_phrase='Bryant', datetime_from=tomorrow, datetime_to=tomorrow)['notes']) == 0
 
-        assert len(search_advising_notes(search_phrase='Bryant', datetime_from=yesterday, datetime_to=tomorrow)['notes']) == 1
+            assert len(search_advising_notes(search_phrase='Bryant', datetime_from=yesterday, datetime_to=tomorrow)['notes']) == 1
 
     def test_stream_zipped_bundle(self, app):
         with mock_sis_note_attachment(app):
@@ -600,7 +614,9 @@ class TestMergedAdvisingNote:
             """.strip()
 
 
+@contextmanager
 def _create_coe_advisor_note(
+    app,
     sid,
     subject,
     body='',
@@ -610,7 +626,7 @@ def _create_coe_advisor_note(
     author_role='Spherical',
     author_dept_codes='COENG',
 ):
-    Note.create(
+    note = Note.create(
         author_uid=author_uid,
         author_name=author_name,
         author_role=author_role,
@@ -620,4 +636,10 @@ def _create_coe_advisor_note(
         subject=subject,
         body=body,
     )
-    Note.refresh_search_index()
+    refresh_loch_search_index(app, notes=[note])
+    std_commit(allow_test_environment=True)
+    yield note
+    Note.delete(note_id=note.id)
+    refresh_loch_search_index(app, deleted_notes=[note])
+    std_commit(allow_test_environment=True)
+

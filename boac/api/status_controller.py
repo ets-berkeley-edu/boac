@@ -28,6 +28,7 @@ from sqlalchemy import text
 
 from boac import db
 from boac.externals import data_loch
+from boac.externals.sqs import sqs_status
 from boac.lib.http import tolerant_jsonify
 
 
@@ -49,5 +50,6 @@ def app_status():
         'app': True,
         'db': db_status(),
         'data_loch': data_loch_status(),
+        'sqs': sqs_status(),
     }
     return tolerant_jsonify(resp)
