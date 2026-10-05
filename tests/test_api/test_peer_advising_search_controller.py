@@ -25,7 +25,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import simplejson as json
 
-from boac.models.note import Note
 from boac.models.peer_advising_department import PeerAdvisingDepartment
 
 admin_uid = '2040'
@@ -83,7 +82,6 @@ class TestPeerAdvisingNoteSearch:
             mock_navcal_peer_advising_note_with_comments,  # noqa: ARG002
         ):
         """Includes notes created by other peer advisors in the same department."""
-        Note.refresh_search_index()
         fake_auth.login(ce3_navcal_peer_advisor_uid)
         navcal_department = PeerAdvisingDepartment.get_department_by_name('NAVCAL')
         api_json = _api_search(client, 'Anastasia', peer_advising_department_id=navcal_department.id)
@@ -94,7 +92,6 @@ class TestPeerAdvisingNoteSearch:
 
     def test_peer_advising_search_includes_pam_notes(self, client, fake_auth, mock_navcal_peer_advising_manager_note):  # noqa: ARG002
         """Includes notes created by a Peer Advisor Manager in the same department."""
-        Note.refresh_search_index()
         fake_auth.login(ce3_navcal_peer_advisor_uid)
         navcal_department = PeerAdvisingDepartment.get_department_by_name('NAVCAL')
         api_json = _api_search(client, 'daisy', peer_advising_department_id=navcal_department.id)

@@ -108,6 +108,12 @@ def pause_mock_sts():
 def refresh_loch_search_index(app, notes=None, deleted_notes=None):
     from sqlalchemy import create_engine
     from sqlalchemy.sql import text
+
+    from boac.models.note import Note
+
+    # TODO: update the CDC process to index BOA note author names, then replace this line with SQL to upsert new authors into that index.
+    Note.refresh_search_index()
+
     engine = create_engine(app.config['DATA_LOCH_RDS_URI'])
     try:
         with engine.begin() as conn:
@@ -124,36 +130,37 @@ def refresh_loch_search_index(app, notes=None, deleted_notes=None):
                     searchable_text = f"{note.subject or ''} {searchable_body} {searchable_topics} {note.author_name or ''}"
 
                     values.append({
-                        'sid': note.sid,
                         'id': note_id,
-                        'note_body': note.body.replace("'", r"''") if note.body else None,
+                        'sid': note.sid,
+                        'boa_id': note.id,
                         'advisor_uid': note.author_uid,
                         'author_name': note.author_name,
                         'advisor_first_name': advisor_first_name,
                         'advisor_last_name': advisor_last_name,
                         'author_dept_codes': note.author_dept_codes,
                         'subject': note.subject,
+                        'note_body': note.body.replace("'", r"''") if note.body else None,
                         'is_private': note.is_private,
                         'contact_type': note.contact_type,
                         'set_date': note.set_date,
                         'parent_note_id': note.parent_note_id,
-                        'created_by': note.author_uid,
+                        'peer_advising_department_id': note.peer_advising_department_id,
                         'created_at': note.created_at,
                         'updated_at': note.updated_at,
                         'searchable_text': searchable_text,
                     })
-                sql += """INSERT INTO boac_advising_notes.advising_notes_curated
-                    (sid, id, note_body, advisor_sid, advisor_uid, author_name, advisor_first_name, advisor_last_name,
-                    author_dept_codes, subject, note_category, note_subcategory, is_private, contact_type, set_date,
-                    parent_note_id, created_by, created_at, updated_at)
+                sql += """INSERT INTO boa_app_rds_data.advising_notes
+                    (id, sid, boa_id, advisor_uid, author_name, advisor_first_name, advisor_last_name,
+                    author_dept_codes, subject, note_body, is_private, contact_type, set_date,
+                    parent_note_id, peer_advising_department_id, created_at, updated_at)
                   VALUES (
-                    :sid, :id, :note_body, NULL, :advisor_uid, :author_name,
-                    :advisor_first_name, :advisor_last_name, CAST(:author_dept_codes AS varchar[]),
-                    :subject, NULL, NULL, :is_private, :contact_type, :set_date,
-                    :parent_note_id, :created_by, :created_at, :updated_at)
+                    :id, :sid, :boa_id, :advisor_uid, :author_name, :advisor_first_name, :advisor_last_name,
+                    CAST(:author_dept_codes AS varchar[]), :subject, :note_body, :is_private, :contact_type, :set_date,
+                    :parent_note_id, :peer_advising_department_id, :created_at, :updated_at)
                   ON CONFLICT (id)
                   DO UPDATE SET
                     sid = EXCLUDED.sid,
+                    boa_id = EXCLUDED.boa_id,
                     advisor_uid = EXCLUDED.advisor_uid,
                     author_name = EXCLUDED.author_name,
                     advisor_first_name = EXCLUDED.advisor_first_name,
@@ -165,10 +172,10 @@ def refresh_loch_search_index(app, notes=None, deleted_notes=None):
                     contact_type = EXCLUDED.contact_type,
                     set_date = EXCLUDED.set_date,
                     parent_note_id = EXCLUDED.parent_note_id,
-                    created_by = EXCLUDED.created_by,
+                    peer_advising_department_id = EXCLUDED.peer_advising_department_id,
                     created_at = EXCLUDED.created_at,
                     updated_at = EXCLUDED.updated_at;
-                  INSERT INTO boac_advising_notes.advising_notes_search_index_curated
+                  INSERT INTO boa_app_rds_data.advising_notes_search_index
                     (id, fts_index)
                   VALUES (:id, TO_TSVECTOR('english', :searchable_text))
                   ON CONFLICT(id)
@@ -179,23 +186,24 @@ def refresh_loch_search_index(app, notes=None, deleted_notes=None):
                 if note.topics and len(note.topics):
                     params = [{
                         'id': note_id,
+                        'boa_id': note.id,
                         'sid': note.sid,
                         'topic': t.topic,
                     } for t in note.topics]
-                    sql = """INSERT INTO boac_advising_notes.advising_note_topics_curated
-                          (id, sid, topic)
-                        VALUES (:id, :sid, :topic)"""
+                    sql = """INSERT INTO boa_app_rds_data.advising_note_topics
+                          (id, boa_id, sid, topic)
+                        VALUES (:id, :boa_id, :sid, :topic)"""
                     conn.execute(text(sql), params)
 
             if deleted_notes:
                 params = {
                     'delete_ids': [f'boa-{note.sid}-{note.id}' for note in deleted_notes],
                 }
-                sql = """DELETE FROM boac_advising_notes.advising_notes_curated
+                sql = """DELETE FROM boa_app_rds_data.advising_notes
                       WHERE id = ANY(:delete_ids);
-                    DELETE FROM boac_advising_notes.advising_notes_search_index_curated
+                    DELETE FROM boa_app_rds_data.advising_notes_search_index
                       WHERE id = ANY(:delete_ids);
-                    DELETE FROM boac_advising_notes.advising_note_topics_curated
+                    DELETE FROM boa_app_rds_data.advising_note_topics
                       WHERE id = ANY(:delete_ids)"""
                 conn.execute(text(sql), params)
     finally:

@@ -45,7 +45,7 @@ CREATE TABLE boa_app_rds_data.advising_note_topics (
 CREATE TABLE boa_app_rds_data.advising_notes (
     id character varying PRIMARY KEY,
     sid character varying NOT NULL,
-    boa_id character varying NOT NULL,
+    boa_id integer NOT NULL,
     advisor_uid character varying,
     author_name character varying,
     advisor_first_name character varying,
@@ -57,12 +57,13 @@ CREATE TABLE boa_app_rds_data.advising_notes (
     contact_type character varying,
     set_date date,
     parent_note_id integer,
+    peer_advising_department_id integer,
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL
 );
 
 CREATE TABLE boa_app_rds_data.advising_notes_search_index (
-    id character varying,
+    id character varying PRIMARY KEY,
     fts_index tsvector
 );
 
@@ -292,6 +293,7 @@ CREATE TABLE boac_advising_notes.advising_notes_curated (
     contact_type character varying,
     set_date date,
     parent_note_id integer,
+    peer_advising_department_id integer,
     created_by character varying,
     created_at timestamp with time zone,
     updated_at timestamp with time zone
@@ -1232,7 +1234,8 @@ CREATE UNIQUE INDEX advising_notes_search_index_pkey ON boac_advising_notes.advi
 
 INSERT INTO boac_advising_notes.advising_notes_curated
 SELECT sid, id, note_body, advisor_sid, advisor_uid, author_name, advisor_first_name, advisor_last_name, author_dept_codes,
-       subject, note_category, note_subcategory, is_private, contact_type, set_date, NULL AS parent_note_id, created_by, created_at, updated_at
+       subject, note_category, note_subcategory, is_private, contact_type, set_date, NULL AS parent_note_id,
+       NULL AS peer_advising_department_id, created_by, created_at, updated_at
 FROM boac_advising_notes.advising_notes;
 
 INSERT INTO boac_advising_notes.advising_notes_search_index_curated
