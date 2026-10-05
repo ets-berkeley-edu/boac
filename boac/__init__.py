@@ -30,7 +30,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import CSRFProtect
 from sqlalchemy.exc import SQLAlchemyError
 
-__version__ = '6.13'
+__version__ = '6.13.1'
 
 db = SQLAlchemy()
 
