@@ -544,7 +544,8 @@ def match_students_by_name_sid_or_email(phrases, limit=None, prefix_only=False):
         else:
             results = _match_students_by_name_or_email(phrase, limit, prefix_only=prefix_only)
     elif len(phrases) > 1:
-        results = _search_for_students(phrases, limit, prefix_only=prefix_only)
+        sql, params = _search_for_students_query(phrases, limit, prefix_only=prefix_only)
+        results = safe_execute_rds(sql, **params)
     return results
 
 
@@ -1070,7 +1071,7 @@ def search_advising_appointments(
             FROM {query_tables}
             WHERE {where_clause} {order_by}"""
 
-    return search_sis_advising(
+    return search_advising(
         build_query=_build_query,
         uid_advisor_filter=uid_advisor_filter,
         search_phrase=search_phrase,
@@ -1171,7 +1172,7 @@ def search_advising_notes(
         else:
             return f'{sql} ORDER BY an.created_at DESC, an.rank DESC'
 
-    return search_sis_advising(
+    return search_advising(
         build_query=_build_query,
         uid_advisor_filter=uid_advisor_filter,
         search_phrase=search_phrase,
@@ -1188,7 +1189,7 @@ def search_advising_notes(
     )
 
 
-def search_sis_advising(
+def search_advising(
     build_query,
     uid_advisor_filter,
     search_phrase,
@@ -1251,6 +1252,49 @@ def search_sis_advising(
         'rows': rows,
         'total_matching_count': total_matching[0]['count'],
     }
+
+
+def search_peer_advising_notes(
+    search_phrases,
+    peer_advising_department_id,
+    peer_advisor_uid=None,
+    offset=None,
+    limit=40,
+):
+    phrases = [''.join(phrase.split('-')).replace('\'', '').upper() for phrase in search_phrases]
+    search_notes_by_student, student_params =  _search_for_students_query(phrases, prefix_only=True)
+    sql = f"""WITH fts AS (
+        SELECT DISTINCT ON (sub.id) sub.id, sub.rank FROM (
+            SELECT COALESCE(n.parent_note_id, n.boa_id) AS id,
+                   ts_rank(fts_index, to_tsquery('english', %(query_text)s || ':*')) AS rank
+            FROM {boa_cdc_schema()}.advising_notes_search_index i
+            JOIN {boa_cdc_schema()}.advising_notes n ON i.id = n.id
+            WHERE fts_index @@ to_tsquery('english', %(query_text)s || ':*')
+              AND n.peer_advising_department_id = %(peer_advising_department_id)s
+            UNION
+            SELECT COALESCE(n.parent_note_id, n.boa_id) AS id,
+                    0 AS rank
+            FROM {boa_cdc_schema()}.advising_notes n
+            JOIN ({search_notes_by_student}) s2 ON n.sid = s2.sid
+            WHERE peer_advising_department_id = %(peer_advising_department_id)s
+              AND parent_note_id IS NULL
+        ) sub
+        JOIN {boa_cdc_schema()}.advising_notes n ON n.boa_id = sub.id
+        WHERE n.peer_advising_department_id = %(peer_advising_department_id)s
+    )
+    SELECT total.count AS total_matching_count, page.id, page.rank
+    FROM (SELECT COUNT(*) AS count FROM fts) total
+    LEFT JOIN LATERAL (
+        SELECT id, rank FROM fts OFFSET %(offset)s LIMIT %(limit)s
+    ) page ON TRUE;"""
+    params = {
+        'limit': limit,
+        'offset': offset,
+        'peer_advising_department_id': peer_advising_department_id,
+        'peer_advisor_uid': peer_advisor_uid,
+        'query_text': ' & '.join(search_phrases),
+    }
+    return safe_execute_rds(sql, **params, **student_params)
 
 
 def get_academic_plans_for_advisor(advisor_sid):
@@ -1937,7 +1981,7 @@ def _match_students_by_name_or_email(phrase, limit=None, prefix_only=False):
     })
 
 
-def _search_for_students(phrases, limit=None, prefix_only=False):
+def _search_for_students_query(phrases, limit=None, prefix_only=False):
     schema = student_schema()
     selects_for_intersect = []
     sql_params = {}
@@ -1957,16 +2001,15 @@ def _search_for_students(phrases, limit=None, prefix_only=False):
                 name_match = f'sn.name LIKE %(phrase_{index}_starts_with)s'
             else:
                 name_match = f"""(
-                  sn.name LIKE %(phrase_{index}_starts_with)s
-                  OR sn.name LIKE %(phrase_{index}_contains)s
-                  OR sn.email_address LIKE %(phrase_{index}_contains)s
-               )"""
+                    sn.name LIKE %(phrase_{index}_starts_with)s
+                    OR sn.name LIKE %(phrase_{index}_contains)s
+                    OR sn.email_address LIKE %(phrase_{index}_contains)s
+                 )"""
             selects_for_intersect.append(f"""
-               SELECT spi.first_name, spi.last_name, spi.email_address, spi.sid, spi.uid
-               FROM {schema}.student_profile_index spi
-               JOIN {schema}.student_names sn ON
-               {name_match}
-               AND sn.sid = spi.sid
+                SELECT spi.first_name, spi.last_name, spi.email_address, spi.sid, spi.uid
+                FROM {schema}.student_profile_index spi
+                JOIN {schema}.student_names sn ON {name_match}
+                AND sn.sid = spi.sid
             """)
         if index > 9:
             # Some students in BOA have as many as seven distinct words in their name.
@@ -1981,11 +2024,12 @@ def _search_for_students(phrases, limit=None, prefix_only=False):
             WHEN s.first_name ILIKE %(phrase_0_contains)s THEN 1
             ELSE 2
             END
-        ), s.first_name, s.last_name
-        {'LIMIT %(limit)s' if limit else ''}
-    """
-    sql_params['limit'] = limit
-    return safe_execute_rds(sql, **sql_params)
+        ), s.first_name, s.last_name"""
+    if limit:
+        sql += """
+        LIMIT %(limit)s"""
+        sql_params['limit'] = limit
+    return sql, sql_params
 
 
 def _naturalize_order(column_name):

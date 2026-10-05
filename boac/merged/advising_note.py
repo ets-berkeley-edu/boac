@@ -25,7 +25,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import csv
 import io
-import re
 from datetime import datetime
 from itertools import groupby
 from operator import itemgetter
@@ -46,16 +45,13 @@ from boac.lib.sis_advising import (
     resolve_sis_updated_at,
 )
 from boac.lib.util import (
-    TEXT_SEARCH_PATTERN,
-    camelize,
     get_benchmarker,
     is_int,
     join_if_present,
     safe_strftime,
-    search_result_text_snippet,
     to_iso_format,
 )
-from boac.merged.calnet import get_calnet_users_for_csids, get_uid_for_csid
+from boac.merged.calnet import get_calnet_users_for_csids
 from boac.models.note import Note
 from boac.models.note_attachment import NoteAttachment
 from boac.models.note_read import NoteRead
@@ -296,150 +292,6 @@ def get_sis_late_drop_eforms(sid):
             'legacySource': 'SIS',
         }
     return eforms_by_id
-
-
-def search_advising_notes(
-    search_phrase,
-    author_csid=None,
-    author_uid=None,
-    student_csid=None,
-    department_codes=None,
-    topic=None,
-    datetime_from=None,
-    datetime_to=None,
-    offset=0,
-    limit=20,
-):
-    benchmark = get_benchmarker('search_advising_notes')
-    benchmark('begin')
-
-    search_phrases = _parse_search_query(search_phrase)
-    author_uid = get_uid_for_csid(app, author_csid) if (not author_uid and author_csid) else author_uid
-
-    # Our offset calculations are unforuntately fussy because note parsing might reveal notes associated with students no
-    # longer in BOA, which we won't include in the feed; so we don't actually know the length of our result set until parsing
-    # is complete. Accordingly, we query local notes in a batch size somewhat larger than the number of notes we'll actually return.
-    notes_query_batch_size = (offset + limit) * 2
-    notes_query_iteration = 0
-    notes_feed = []
-
-    while True:
-        benchmark(f'begin combined local and external notes query (iteration {notes_query_iteration})')
-        search_results = data_loch.search_advising_notes(
-            search_phrase=search_phrase,
-            author_uid=author_uid,
-            author_csid=author_csid,
-            student_csid=student_csid,
-            department_codes=department_codes,
-            topic=topic,
-            datetime_from=datetime_from,
-            datetime_to=datetime_to,
-            offset=offset,
-            limit=limit,
-        )
-        total_matching_count = search_results['total_matching_count']
-        benchmark(f'end combined local and external notes query (iteration {notes_query_iteration})')
-
-        benchmark(f'begin combined local and external notes parsing (iteration {notes_query_iteration})')
-        student_rows = data_loch.get_basic_student_data([row.get('sid') for row in search_results['rows']])
-        students_by_sid = {r.get('sid'): r for r in student_rows}
-        advisor_sids = list(set([row.get('advisor_sid') for row in search_results['rows'] if row.get('advisor_sid') is not None]))
-        calnet_advisor_feeds = get_calnet_users_for_csids(app, advisor_sids)
-        for note in search_results['rows']:
-            if note['id'].startswith('boa-'):
-                local_note = {
-                    **{camelize(key): note[key] for key in note},
-                    'boaId': note['id'],
-                    'id': int((note['id']).split('-')[-1]),
-                    'body': note['note_body'],
-                }
-                sid = local_note.get('sid')
-                student_row = students_by_sid.get(sid, {})
-                if student_row:
-                    notes_feed.append(_local_note_to_search_result(local_note, sid, search_phrases, student_row))
-            else:
-                advisor_feed = calnet_advisor_feeds.get(note.get('advisor_sid'))
-                notes_feed.append(_external_note_to_search_result(note, search_phrases, advisor_feed))
-        benchmark(f'end combined local and external notes parsing (iteration {notes_query_iteration})')
-
-        # Stop querying notes if 1) we didn't return a full batch, 2) we have all the notes we need.
-        if total_matching_count < notes_query_batch_size or len(notes_feed) == offset + limit:
-            break
-        notes_query_iteration += 1
-    return {
-        'notes': notes_feed,
-        'totalNoteCount': total_matching_count,
-    }
-
-def search_peer_advising_notes(
-    search_phrase,
-    peer_advising_department_id,
-    offset=0,
-    limit=20,
-    peer_advisor_uid=None,
-):
-    benchmark = get_benchmarker('search_peer_advising_notes')
-    benchmark('begin')
-
-    search_phrases = _parse_search_query(search_phrase)
-    peer_student_sids = []
-    if len(search_phrases):
-        students = data_loch.match_students_by_name_sid_or_email(
-            phrases=search_phrases,
-            prefix_only=True,
-        )
-        peer_student_sids = [s.get('sid') for s in students]
-
-    # Our offset calculations are unforuntately fussy because note parsing might reveal notes associated with students no
-    # longer in BOA, which we won't include in the feed; so we don't actually know the length of our result set until parsing
-    # is complete. Accordingly, we query local notes in a batch size somewhat larger than the number of notes we'll actually return.
-    notes_query_batch_size = (offset + limit) * 2
-    notes_query_iteration = 0
-    notes_feed = []
-
-    while True:
-        benchmark(f'begin peer notes query (iteration {notes_query_iteration})')
-        search_results = Note.peer_advising_notes_search(
-            peer_advising_department_id=peer_advising_department_id,
-            peer_advisor_uid=peer_advisor_uid,
-            search_phrases=search_phrases,
-            sids=peer_student_sids,
-            offset=(notes_query_batch_size * notes_query_iteration),
-            limit=notes_query_batch_size,
-        )
-        batch_results = search_results['results']
-        total_matching_count = search_results['total_matching_count']
-        benchmark(f'end peer notes query (iteration {notes_query_iteration})')
-
-        benchmark(f'begin peer notes parsing (iteration {notes_query_iteration})')
-        cutoff = min(len(batch_results), (offset + limit - len(notes_feed)))
-        notes_feed += _get_local_notes_search_results(batch_results, cutoff, search_phrases)
-
-        benchmark(f'end peer notes parsing (iteration {notes_query_iteration})')
-
-        # Stop querying peer notes if 1) we didn't return a full batch, 2) we have all the notes we need.
-        if total_matching_count < notes_query_batch_size or len(notes_feed) == offset + limit:
-            break
-        notes_query_iteration += 1
-
-    return {
-        'notes': notes_feed[offset:],
-        'totalNoteCount': total_matching_count,
-    }
-
-def _get_local_notes_search_results(local_results, cutoff, search_terms):
-    results = []
-    student_rows = data_loch.get_basic_student_data([row.get('sid') for row in local_results])
-    students_by_sid = {r.get('sid'): r for r in student_rows}
-    for row in local_results:
-        note = {camelize(key): row[key] for key in row}
-        sid = note.get('sid')
-        student_row = students_by_sid.get(sid, {})
-        if student_row:
-            results.append(_local_note_to_search_result(note, sid, search_terms, student_row))
-        if len(results) == cutoff:
-            break
-    return results
 
 
 def get_boa_attachment_stream(attachment):
@@ -720,44 +572,3 @@ def _get_eop_advising_note_topics(sid):
     for advising_note_id, topics in groupby(topics, key=itemgetter('id')):  # noqa: B020
         topics_by_id[advising_note_id] = [topic['topic'] for topic in topics]
     return topics_by_id
-
-def _local_note_to_search_result(note, sid, search_terms, student_row):
-    omit_note_body = note.get('isPrivate') and not current_user.can_access_private_notes
-    subject = note.get('subject')
-    text = subject if omit_note_body else join_if_present(' - ', [subject, note.get('body')])
-    return {
-        'id': note.get('id'),
-        'parentNoteId': note.get('parentNoteId'),
-        'studentSid': sid,
-        'studentUid': student_row.get('uid'),
-        'studentName': join_if_present(' ', [student_row.get('first_name'), student_row.get('last_name')]),
-        'advisorUid': note.get('authorUid') or note.get('advisorUid'),
-        'advisorName': note.get('authorName'),
-        'attachmentCount': note.get('attachmentCount'),
-        'noteSnippet': search_result_text_snippet(text, search_terms, TEXT_SEARCH_PATTERN),
-        'createdAt': to_iso_format(note.get('createdAt')),
-        'updatedAt': to_iso_format(note.get('updatedAt')),
-    }
-
-def _external_note_to_search_result(note, search_terms, advisor_feed):
-    advisor_name = None
-    if advisor_feed:
-        advisor_name = advisor_feed.get('name') or join_if_present(' ', [advisor_feed.get('first_name'), advisor_feed.get('last_name')])
-    note_body = (note.get('note_body') or '').strip() or join_if_present(', ', [note.get('note_category'), note.get('note_subcategory')])
-    return {
-        'id': note.get('id'),
-        'studentSid': note.get('sid'),
-        'studentUid': note.get('uid'),
-        'studentName': join_if_present(' ', [note.get('first_name'), note.get('last_name')]),
-        'advisorSid': note.get('advisor_sid'),
-        'advisorName': advisor_name or join_if_present(' ', [note.get('advisor_first_name'), note.get('advisor_last_name')]),
-        'noteSnippet': search_result_text_snippet(note_body, search_terms, TEXT_SEARCH_PATTERN),
-        'createdAt': resolve_sis_created_at(note),
-        'updatedAt': resolve_sis_updated_at(note),
-    }
-
-def _parse_search_query(search_phrase):
-    search_phrase = search_phrase.strip() if search_phrase else None
-    if search_phrase:
-        return list({t.group(0) for t in list(re.finditer(TEXT_SEARCH_PATTERN, search_phrase)) if t})
-    return []

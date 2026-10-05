@@ -383,7 +383,6 @@ class TestNoteSearch:
                 'departmentCodes': ['UWASC'],
             },
         )
-        Note.find_by_ids(note_ids=[n['id'] for n in api_json['notes']])
         assert len(api_json['notes']) == 1
         assert 'Independence' in api_json['notes'][0]['noteSnippet']
 
@@ -1145,7 +1144,6 @@ class TestFindAdvisorsByName:
     def test_find_note_authors_by_name(self, client, fake_auth,  mock_advising_note):  # noqa: ARG002
         """Finds matches including authors of legacy and non-legacy notes."""
         fake_auth.login(coe_advisor_uid)
-        Note.refresh_search_index()
         response = self._api_search_advisors(client, 'Jo')
         assert len(response) >= 4
         labels = set([s['label'] for s in response])

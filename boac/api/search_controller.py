@@ -48,7 +48,8 @@ from boac.lib.http import tolerant_jsonify
 from boac.merged.admitted_student import search_for_admitted_students
 from boac.merged.advising_appointment import search_advising_appointments
 from boac.merged.advising_eform import search_advising_eforms
-from boac.merged.advising_note import get_note_author_summary, search_advising_notes, search_peer_advising_notes
+from boac.merged.advising_note import get_note_author_summary
+from boac.merged.advising_search import search_advising_notes
 from boac.merged.calnet import get_uid_for_csid
 from boac.merged.sis_terms import current_term_id
 from boac.merged.student import search_for_students
@@ -163,12 +164,12 @@ def search_peer_advising():
 
     # Notes search (if requested)
     if domain.get('notes'):
-        search_results = search_peer_advising_notes(
+        search_results = search_advising_notes(
             search_phrase=search_phrase,
             peer_advising_department_id=peer_advising_department_id,
+            peer_advisor_uid=peer_advisor_uid,
             limit=int(util.get(params, 'limit', 50)),
             offset=int(util.get(params, 'offset', 0)),
-            peer_advisor_uid=peer_advisor_uid,
         )
         # The front-end needs full-blown note objects because they are editable by the current-user.
         note_ids = [n['id'] for n in search_results.get('notes', [])]
