@@ -58,6 +58,7 @@ def get_students_csv_header_labels(term_id):
         'cumulative_gpa': 'Cumulative GPA',
         'curated_groups': 'Curated Groups',
         'email': 'Email Address',
+        'entering_term': 'Entering Term',
         'expected_graduation_term': 'Expected Graduation Term',
         'first_name': 'First Name',
         'intended_major': 'Intended Major',
@@ -138,6 +139,7 @@ def _response_with_students_csv_download(sids, fieldnames, benchmark, term_id):
         'cumulative_gpa': lambda profile: profile.get('sisProfile', {}).get('cumulativeGPA'),
         'curated_groups': lambda profile: '; '.join(get_current_user_curated_groups_containing(profile, curated_groups)),
         'email': lambda profile: profile.get('sisProfile', {}).get('emailAddress'),
+        'entering_term': lambda profile: profile.get('sisProfile', {}).get('matriculation'),
         'expected_graduation_term': lambda profile: profile.get('sisProfile', {}).get('expectedGraduationTerm', {}).get('name'),
         'first_name': lambda profile: profile.get('firstName'),
         'intended_major': lambda profile: '; '.join(

@@ -827,6 +827,7 @@ class TestDownloadCuratedGroupCSV:
                 'college',
                 'level_by_units',
                 'terms_in_attendance',
+                'entering_term',
                 'expected_graduation_term',
                 'units_completed',
                 'term_gpa_2175',
@@ -846,20 +847,21 @@ class TestDownloadCuratedGroupCSV:
         assert 'csv' in response.content_type
         csv = response.data.decode('UTF-8').split('\n')
         header_label_lookup = get_students_csv_header_labels(current_term_id())
-        expected_headers = ['majors', 'college', 'level_by_units', 'terms_in_attendance', 'expected_graduation_term',
-                            'units_completed', 'term_gpa_2175', 'cumulative_gpa', 'program_status']
+        expected_headers = ['majors', 'college', 'level_by_units', 'terms_in_attendance', 'entering_term',
+                            'expected_graduation_term', 'units_completed', 'term_gpa_2175', 'cumulative_gpa',
+                            'program_status']
         for expected_header in expected_headers:
             expected_label = header_label_lookup.get(expected_header, expected_header)
             assert expected_label in csv[0]
         for row in csv[1:]:
             if row.startswith('English BA; Nuclear Engineering BS'):
-                assert 'Junior,,Fall 2019,101.3,,3.8,Active' in row
+                assert 'Junior,,Fall 2015,Fall 2019,101.3,,3.8,Active' in row
             elif row.startswith('English BA; Political Economy BA'):
-                assert 'Junior,5,Fall 2019,70,,3.005,Active' in row
+                assert 'Junior,5,Spring 2015,Fall 2019,70,,3.005,Active' in row
             elif row.startswith('Letters & Sci Undeclared UG'):
-                assert 'Senior,,Fall 2019,102,,3.501,Active' in row
+                assert 'Senior,,Summer 2015,Fall 2019,102,,3.501,Active' in row
             elif row.startswith('Nuclear Engineering BS'):
-                assert 'Senior,2,Spring 2020,110,,3.9,Active' in row
+                assert 'Senior,2,Summer 2015,Spring 2020,110,,3.9,Active' in row
             elif row:
                 pytest.fail(f'Unexpected CSV content: {row}')
 

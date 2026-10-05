@@ -397,10 +397,12 @@ onMounted(() => {
   const updatedAtDate = new Date(degreeStore.updatedAt)
   const isFresh = new Date(degreeStore.createdAt).getTime() === updatedAtDate.getTime()
   const userId = isFresh ? degreeStore.createdBy : degreeStore.updatedBy
-  getCalnetProfileByUserId(userId).then(data => {
-    const name = data.name || `${data.uid} (UID)`
-    updatedAtDescription.value = `${isFresh ? 'Created' : 'Last updated'} by ${name} on ${DateTime.fromJSDate(updatedAtDate).toFormat('MMM d, yyyy')}`
-  })
+  if (userId) {
+    getCalnetProfileByUserId(userId).then(data => {
+      const name = data.name || `${data.uid} (UID)`
+      updatedAtDescription.value = `${isFresh ? 'Created' : 'Last updated'} by ${name} on ${DateTime.fromJSDate(updatedAtDate).toFormat('MMM d, yyyy')}`
+    })
+  }
   initNote()
 })
 
