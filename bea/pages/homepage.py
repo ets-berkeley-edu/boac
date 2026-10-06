@@ -55,17 +55,6 @@ class Homepage(UserListPages):
     def click_sign_in_button(self):
         self.wait_for_page_and_click(Homepage.SIGN_IN_BUTTON)
 
-    def wait_for_home_page_load(self):
-        # On landing on the homepage, BOA fetches a fresh user profile in the background and, once it
-        # resolves, shifts keyboard focus to the page heading for screen readers (see loadingComplete()
-        # in stores/context.ts). There's no spinner to wait on for this fetch, and if a test starts
-        # interacting with the page (e.g. the search box) before it resolves, that focus shift steals
-        # focus away mid-interaction and swallows whatever came next (e.g. an Enter keypress). Wait for
-        # it to settle first.
-        Wait(self.driver, utils.get_medium_timeout()).until(
-            lambda d: self.element(Homepage.PAGE_HEADER).get_dom_attribute('tabindex') == '-1',
-        )
-
     def log_in(self, username, password, cal_net):
         self.load_page()
         self.wait_for_boa_title('Welcome')
@@ -75,7 +64,6 @@ class Homepage(UserListPages):
         self.click_sign_in_button()
         cal_net.log_in(username, password)
         self.wait_for_boa_title('Home')
-        self.wait_for_home_page_load()
 
     def enter_dev_auth_creds(self, user=None):
         uid = user.uid if user else utils.get_admin_uid()
