@@ -108,12 +108,6 @@ def pause_mock_sts():
 def refresh_loch_search_index(app, notes=None, deleted_notes=None):
     from sqlalchemy import create_engine
     from sqlalchemy.sql import text
-
-    from boac.models.note import Note
-
-    # TODO: update the CDC process to index BOA note author names, then replace this line with SQL to upsert new authors into that index.
-    Note.refresh_search_index()
-
     engine = create_engine(app.config['DATA_LOCH_RDS_URI'])
     try:
         with engine.begin() as conn:
@@ -180,7 +174,13 @@ def refresh_loch_search_index(app, notes=None, deleted_notes=None):
                   VALUES (:id, TO_TSVECTOR('english', :searchable_text))
                   ON CONFLICT(id)
                   DO UPDATE SET
-                    fts_index = EXCLUDED.fts_index;"""
+                    fts_index = EXCLUDED.fts_index;
+                  INSERT INTO boa_app_rds_data.advising_note_authors_index
+                    (advisor_name, advisor_uid)
+                  VALUES (:author_name, :advisor_uid)
+                  ON CONFLICT(advisor_name)
+                  DO UPDATE SET
+                    advisor_uid = EXCLUDED.advisor_uid;"""
                 conn.execute(text(sql), values)
 
                 if note.topics and len(note.topics):

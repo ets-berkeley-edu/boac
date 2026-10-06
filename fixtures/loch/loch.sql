@@ -34,6 +34,11 @@ CREATE SCHEMA sis_data;
 CREATE SCHEMA student;
 CREATE SCHEMA terms;
 
+CREATE TABLE boa_app_rds_data.advising_note_authors_index (
+  advisor_name VARCHAR PRIMARY KEY,
+  advisor_uid VARCHAR
+);
+
 CREATE TABLE boa_app_rds_data.advising_note_topics (
     id character varying,
     sid character varying NOT NULL,
