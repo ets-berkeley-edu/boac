@@ -173,6 +173,10 @@ class PeerAdvisingDepartment(Enum):
         'name': 'School of Public Health',
         'parent': Department.PUB_HEALTH,
     }
+    ECONOMICS = {
+        'name': 'Economics',
+        'parent': Department.L_AND_S_MAJ,
+    }
 
     @staticmethod
     def get_peer_depts():
