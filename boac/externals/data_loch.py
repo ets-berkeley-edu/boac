@@ -513,7 +513,7 @@ def match_appointment_advisors_by_name(prefixes, limit=None):
     return safe_execute_rds(sql, **prefix_kwargs)
 
 
-def match_advising_note_authors_by_name(prefixes, limit=None):
+def match_legacy_note_authors_by_name(prefixes, limit=None):
     prefix_conditions = []
     prefix_kwargs = {}
     for idx, prefix in enumerate(prefixes):
@@ -531,6 +531,27 @@ def match_advising_note_authors_by_name(prefixes, limit=None):
         sql += ' LIMIT %(limit)s'
         prefix_kwargs['limit'] = limit
     return safe_execute_rds(sql, **prefix_kwargs)
+
+
+def match_local_note_authors_by_name(tokens, limit=None):
+    token_conditions = []
+    params = {}
+    for idx, token in enumerate(tokens):
+        token_conditions.append(
+            f"""JOIN {boa_cdc_schema()}.advising_note_authors_index a{idx}
+            ON UPPER(a{idx}.advisor_name) LIKE %(token_{idx})s
+            AND a{idx}.advisor_uid = a.advisor_uid
+            AND a{idx}.advisor_name = a.advisor_name""",
+        )
+        params[f'token_{idx}'] = f'%{token}%'
+    sql = f"""SELECT DISTINCT a.advisor_name, a.advisor_uid
+        FROM {boa_cdc_schema()}.advising_note_authors_index a
+        {' '.join(token_conditions)}
+        ORDER BY a.advisor_name"""
+    if limit:
+        sql += ' LIMIT %(limit)s'
+        params['limit'] = limit
+    return safe_execute_rds(sql, **params)
 
 
 def match_students_by_name_sid_or_email(phrases, limit=None, prefix_only=False):
