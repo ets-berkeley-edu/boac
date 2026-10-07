@@ -58,12 +58,6 @@ AWS_REGION = 'us-west-2'
 
 AWS_SQS_QUEUE_URL = None
 
-# Time, in seconds, between iterations of background task loop.
-BACKGROUND_TASK_LOOP_INTERVAL = 3600
-
-# Spawn asynchronous tasks (e.g., search reindexing) in background theads; disabled in test runs.
-BACKGROUND_TASKS = True
-
 # Base directory for the application (one level up from this config file).
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 

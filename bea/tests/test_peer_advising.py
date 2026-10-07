@@ -285,14 +285,9 @@ class TestPeerNoteEdit:
 @pytest.mark.usefixtures('page_objects')
 class TestListView:
 
-    def test_index_notes(self):
-        self.peer_page.log_out()
-        self.homepage.dev_auth()
-        self.api_admin_page.reindex_notes()
-        self.homepage.switch_user(peer_1_in_ls, 'Peer Advising')
-        self.peer_page.wait_for_peer_note(note_3_by_ls_peer)
-
     def test_collapsed_note_student(self):
+        self.peer_page.reload_page()
+        self.peer_page.wait_for_peer_note(note_3_by_ls_peer)
         utils.assert_equivalence(self.peer_page.peer_note_student(note_3_by_ls_peer), note_3_by_ls_peer.student.full_name)
 
     def test_collapsed_note_body(self):

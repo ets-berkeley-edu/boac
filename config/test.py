@@ -32,8 +32,6 @@ ALERT_WITHDRAWAL_ENABLED = False
 
 AWS_APP_ROLE_ARN = 'arn:aws:iam::123456789012:role/test-role'
 
-BACKGROUND_TASKS = False
-
 COHORT_FILTER_ACADEMIC_STANDING_YEARS_CUTOFF = 100
 
 DATA_LOCH_RDS_URI = f'postgresql://boac:boac@localhost:{_db_port}/boac_loch_test'

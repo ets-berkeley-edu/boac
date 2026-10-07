@@ -24,16 +24,13 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 import json
-import threading
 
-from flask import current_app as app
 from sqlalchemy import and_, asc, desc, or_
 from sqlalchemy.dialects.postgresql import ARRAY, ENUM
 from sqlalchemy.sql import text
 
 from boac import db, std_commit
 from boac.externals import sqs
-from boac.lib.background import bg_execute
 from boac.lib.util import get_benchmarker, put_attachment_to_s3, safe_strftime, to_iso_format, utc_now
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.base import Base
@@ -556,25 +553,6 @@ class Note(Base):
             'results': [row for row in _fetch_result().all()],
             'total_matching_count': _fetch_result(True).first()['count'],
         }
-
-    @classmethod
-    def refresh_search_index(cls):
-        def _refresh_search_index(db_session):
-            app.logger.info('Starting background refresh of advisor_author_index...')
-            db_session.execute(text('REFRESH MATERIALIZED VIEW CONCURRENTLY advisor_author_index'))
-            std_commit(session=db_session)
-            app.logger.info('Background refresh of search indexes complete.')
-        bg_execute(method=_refresh_search_index, thread_name='refresh_search_index')
-
-    @classmethod
-    def is_currently_refreshing_search_index(cls):
-        is_refreshing = False
-        active_threads = threading.enumerate()
-        for thread in active_threads:
-            if thread.name == 'refresh_search_index':
-                is_refreshing = thread.is_alive()
-                break
-        return is_refreshing
 
     @classmethod
     def update(

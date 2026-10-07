@@ -31,7 +31,6 @@ from boac.api.decorators import admin_required
 from boac.lib.http import tolerant_jsonify
 from boac.merged.sis_terms import current_term_id
 from boac.models.job_progress import JobProgress
-from boac.models.note import Note
 
 
 def term():
@@ -67,16 +66,3 @@ def start_continuation_of_interrupted_job():
 def start_refresh():
     response = cache_utils.refresh_request_handler(term())
     return tolerant_jsonify(response, status=500 if 'error' in response else 200)
-
-
-@app.route('/api/admin/reindex/notes')
-@admin_required
-def reindex_notes():
-    Note.refresh_search_index()
-    return tolerant_jsonify({'started': True})
-
-
-@app.route('/api/admin/status/reindex_notes')
-@admin_required
-def reindex_notes_status():
-    return tolerant_jsonify({'isActive': Note.is_currently_refreshing_search_index()})

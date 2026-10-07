@@ -1125,7 +1125,7 @@ def search_advising_notes(
         spi.uid, spi.first_name, spi.last_name, an.advisor_first_name, an.advisor_last_name, an.is_private, an.parent_note_id"""
     legacy_note_columns = """an.sid, an.id, NULL AS subject, an.note_body, an.advisor_sid, an.advisor_uid,
         an.created_by, an.created_at, an.updated_at, an.note_category, an.note_subcategory, NULL AS set_date,
-        spi.uid, spi.first_name, spi.last_name, an.advisor_first_name, an.advisor_last_name, FALSE AS is_private, NULL ASparent_note_id"""
+        spi.uid, spi.first_name, spi.last_name, an.advisor_first_name, an.advisor_last_name, FALSE AS is_private, NULL AS parent_note_id"""
     rank_column = ''
 
     boa_note_tables = f"""{boa_cdc_schema()}.advising_notes an
@@ -2008,6 +2008,7 @@ def _search_for_students_query(phrases, limit=None, prefix_only=False):
     sql_params = {}
     for index, phrase in enumerate(phrases):
         sql_params[f'phrase_{index}_starts_with'] = f'{phrase}%'
+        sql_params[f'phrase_{index}_contains'] = f'%{phrase}%'
         # Normalize the SQL param
         if phrase.isdigit():
             # Search by SID
@@ -2017,7 +2018,6 @@ def _search_for_students_query(phrases, limit=None, prefix_only=False):
                 WHERE spi.sid LIKE %(phrase_{index}_starts_with)s
             """)
         else:
-            sql_params[f'phrase_{index}_contains'] = f'%{phrase}%'
             if prefix_only:
                 name_match = f'sn.name LIKE %(phrase_{index}_starts_with)s'
             else:

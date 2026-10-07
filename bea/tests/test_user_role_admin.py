@@ -33,6 +33,7 @@ from bea.models.notes_and_appts.note import Note
 from bea.models.notes_and_appts.note_template import NoteTemplate
 from bea.models.notes_and_appts.topic import Topic, Topics
 from bea.test_utils import boa_utils, utils
+from bea.test_utils.nessie_timeline_utils import wait_for_cdc_upsert
 
 
 @pytest.mark.usefixtures('page_objects')
@@ -172,19 +173,16 @@ class TestAdminUserRole:
     def test_search_note_by_new_topic(self):
         self.student_page.load_page(self.student)
         self.student_page.create_note(self.note, topics=[self.topic], attachments=None, student=self.student)
+        wait_for_cdc_upsert(self.note.record_id)
         self.student_page.log_out()
         self.homepage.dev_auth()
-        self.api_admin_page.reindex_notes()
-        self.homepage.load_page()
         self.homepage.open_adv_search()
         self.homepage.select_note_topic(self.topic)
         self.homepage.click_adv_search_button()
         self.search_results_page.assert_note_result_present(self.note)
 
     def test_topic_usage_count(self):
-        self.search_results_page.log_out()
-        self.homepage.dev_auth()
-        self.homepage.click_flight_deck_link()
+        self.search_results_page.click_flight_deck_link()
         self.flight_deck_page.search_for_topic(self.topic)
         utils.assert_equivalence(self.flight_deck_page.topic_in_notes_count(self.topic), '1')
 

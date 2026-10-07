@@ -37,6 +37,7 @@ from bea.models.notes_and_appts.note import Note
 from bea.models.notes_and_appts.note_comment import NoteComment
 from bea.models.notes_and_appts.topic import Topic, Topics
 from bea.test_utils import boa_utils, nessie_timeline_utils, utils
+from bea.test_utils.nessie_timeline_utils import wait_for_cdc_upsert
 
 
 @pytest.mark.usefixtures('page_objects')
@@ -196,16 +197,9 @@ class TestNoteMgmt:
         self.comment_1.comment_id = comments[0].comment_id
         assert self.student_page.comment_body_text(self.note_1, self.comment_1) == self.comment_1.body
 
-    def test_create_note_reindex(self):
-        self.student_page.load_page(self.test_student)
-        self.student_page.log_out()
-        self.homepage.dev_auth()
-        self.api_admin_page.reindex_notes()
-        self.homepage.load_page()
-        self.homepage.log_out()
+    # SEARCH FOR NEW NOTE
 
     def test_search_my_new_note_by_subject(self):
-        self.homepage.dev_auth(self.test.advisor)
         self.student_page.reopen_and_reset_adv_search()
         self.student_page.exclude_students()
         self.student_page.exclude_classes()
@@ -622,13 +616,8 @@ class TestNoteMgmt:
         assert self.student_page.comment_body_text(self.note_1, self.comment_1) == self.comment_1.body
 
     def test_search_edited_note(self):
-        self.student_page.load_page(self.test_student)
-        self.student_page.log_out()
-        self.homepage.dev_auth()
-        self.api_admin_page.reindex_notes()
+        wait_for_cdc_upsert(self.note_1.record_id)
         self.homepage.load_page()
-        self.homepage.log_out()
-        self.homepage.dev_auth(self.test.advisor)
         self.homepage.enter_simple_search_and_hit_enter(self.note_1.subject)
         self.search_results_page.assert_note_result_present(self.note_1)
 
@@ -776,7 +765,6 @@ class TestNoteMgmt:
         assert len(boa_utils.get_note_comments(self.note_1)) == 1
 
     def test_no_deleted_notes_in_search_results(self):
-        self.api_admin_page.reindex_notes()
         self.homepage.load_page()
         self.homepage.log_out()
         self.homepage.dev_auth(self.test.advisor)

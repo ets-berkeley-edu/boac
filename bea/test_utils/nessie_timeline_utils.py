@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 import json
 import re
+import time
 from itertools import groupby
 
 from flask import current_app as app
@@ -37,6 +38,24 @@ from bea.models.notes_and_appts.timeline_record_source import TimelineRecordSour
 from bea.models.user import User
 from bea.test_utils import utils
 from boac.externals import data_loch
+
+
+def wait_for_cdc_upsert(note_id):
+    sql = f"""SELECT count(*) AS count FROM boa_app_rds_data.advising_notes_cdc_log WHERE boa_id = {note_id}"""
+    app.logger.info(sql)
+    result = data_loch.safe_execute_rds(sql)
+    app.logger.info(result)
+    initial_count = result[0]['count']
+    tries = 0
+    max_tries = 10
+    while tries <= max_tries:
+        app.logger.info(sql)
+        result = data_loch.safe_execute_rds(sql)
+        app.logger.info(result)
+        if result[0]['count'] > initial_count:
+            break
+        time.sleep(2)
+        tries += 1
 
 
 def get_advising_note_author_data(uid):
