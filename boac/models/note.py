@@ -746,18 +746,16 @@ class Note(Base):
             note.deleted_at = now
             for attachment in note.attachments:
                 attachment.deleted_at = now
-            sqs_topic_messages = []
             for topic in note.topics:
                 topic.deleted_at = now
-                sqs_topic_messages.append(topic.to_sqs_json())
             for comment in Note.get_note_comments_by_parent_ids([note_id]):
                 comment.deleted_at = now
             std_commit()
-            if not note.is_draft and len(sqs_topic_messages):
+            if not note.is_draft:
                 sqs.send(
-                    table='note_topics',
-                    operation='update',
-                    rows=sqs_topic_messages,
+                    table='notes',
+                    operation='delete',
+                    rows=[note.to_sqs_json()],
                 )
 
     def to_api_json(self):

@@ -281,36 +281,6 @@ CREATE TABLE boac_advising_notes.advising_note_authors
     campus_email VARCHAR
 );
 
-CREATE TABLE boac_advising_notes.advising_notes_curated (
-    sid character varying,
-    id character varying,
-    note_body text,
-    advisor_sid character varying,
-    advisor_uid character varying,
-    author_name character varying,
-    advisor_first_name character varying,
-    advisor_last_name character varying,
-    author_dept_codes character varying[],
-    subject character varying,
-    note_category character varying,
-    note_subcategory character varying,
-    is_private boolean,
-    contact_type character varying,
-    set_date date,
-    parent_note_id integer,
-    peer_advising_department_id integer,
-    created_by character varying,
-    created_at timestamp with time zone,
-    updated_at timestamp with time zone
-);
-CREATE UNIQUE INDEX advising_notes_curated_pkey ON boac_advising_notes.advising_notes_curated(id text_ops);
-
-CREATE TABLE boac_advising_notes.advising_notes_search_index_curated (
-    id character varying,
-    fts_index tsvector
-);
-CREATE UNIQUE INDEX advising_notes_search_index_curated_pkey ON boac_advising_notes.advising_notes_search_index_curated(id text_ops);
-
 CREATE TABLE boac_advising_notes.advising_note_topics_curated (
     id character varying,
     sid character varying NOT NULL,
@@ -1236,16 +1206,6 @@ CREATE MATERIALIZED VIEW boac_advising_notes.advising_notes_search_index AS (
   UNION SELECT id, fts_index FROM sis_advising_notes.advising_notes_search_index
 );
 CREATE UNIQUE INDEX advising_notes_search_index_pkey ON boac_advising_notes.advising_notes_search_index(id text_ops);
-
-INSERT INTO boac_advising_notes.advising_notes_curated
-SELECT sid, id, note_body, advisor_sid, advisor_uid, author_name, advisor_first_name, advisor_last_name, author_dept_codes,
-       subject, note_category, note_subcategory, is_private, contact_type, set_date, NULL AS parent_note_id,
-       NULL AS peer_advising_department_id, created_by, created_at, updated_at
-FROM boac_advising_notes.advising_notes;
-
-INSERT INTO boac_advising_notes.advising_notes_search_index_curated
-SELECT id, fts_index
-FROM boac_advising_notes.advising_notes_search_index;
 
 INSERT INTO boac_advising_notes.advising_note_topics_curated
 SELECT ant.advising_note_id AS id, ant.sid, antm.boa_topic AS topic
