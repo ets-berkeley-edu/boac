@@ -1123,14 +1123,14 @@ def search_advising_notes(
     boa_note_columns = """an.sid, an.id, an.subject, an.note_body, NULL AS advisor_sid, an.advisor_uid,
         an.advisor_uid AS created_by, an.created_at, an.updated_at, NULL AS note_category, NULL AS note_subcategory, an.set_date,
         spi.uid, spi.first_name, spi.last_name, an.advisor_first_name, an.advisor_last_name, an.is_private, an.parent_note_id"""
-    common_note_columns = """an.sid, an.id, an.subject, an.note_body, an.advisor_sid, an.advisor_uid,
-        an.created_by, an.created_at, an.updated_at, an.note_category, an.note_subcategory, an.set_date,
-        spi.uid, spi.first_name, spi.last_name, an.advisor_first_name, an.advisor_last_name, an.is_private, an.parent_note_id"""
+    legacy_note_columns = """an.sid, an.id, NULL AS subject, an.note_body, an.advisor_sid, an.advisor_uid,
+        an.created_by, an.created_at, an.updated_at, an.note_category, an.note_subcategory, NULL AS set_date,
+        spi.uid, spi.first_name, spi.last_name, an.advisor_first_name, an.advisor_last_name, FALSE AS is_private, NULL ASparent_note_id"""
     rank_column = ''
 
     boa_note_tables = f"""{boa_cdc_schema()}.advising_notes an
             JOIN {student_schema()}.student_profile_index spi ON an.sid = spi.sid"""
-    common_note_tables = f"""{advising_notes_schema()}.advising_notes_curated an
+    legacy_note_tables = f"""{advising_notes_schema()}.advising_notes an
             JOIN {student_schema()}.student_profile_index spi ON an.sid = spi.sid"""
 
     if topic:
@@ -1138,7 +1138,7 @@ def search_advising_notes(
             JOIN {boa_cdc_schema()}.advising_note_topics ant
             ON ant.topic = %(topic)s
             AND ant.id = an.id"""
-        common_note_tables += f"""
+        legacy_note_tables += f"""
             JOIN {advising_notes_schema()}.advising_note_topics_curated ant
             ON ant.topic = %(topic)s
             AND ant.id = an.id"""
@@ -1149,8 +1149,8 @@ def search_advising_notes(
             JOIN {boa_cdc_schema()}.advising_notes_search_index idx
             ON idx.id = an.id
             AND idx.fts_index @@ plainto_tsquery('english', %(search_phrase)s)"""
-        common_note_tables += f"""
-            JOIN {advising_notes_schema()}.advising_notes_search_index_curated idx
+        legacy_note_tables += f"""
+            JOIN {advising_notes_schema()}.advising_notes_search_index idx
             ON idx.id = an.id
             AND idx.fts_index @@ plainto_tsquery('english', %(search_phrase)s)"""
     else:
@@ -1182,8 +1182,8 @@ def search_advising_notes(
             SELECT {boa_note_columns}{rank_column}
             FROM {boa_note_tables}
             UNION
-            SELECT {common_note_columns}{rank_column}
-            FROM {common_note_tables}
+            SELECT {legacy_note_columns}{rank_column}
+            FROM {legacy_note_tables}
             WHERE {where_clause}
         ) an WHERE {where_clause}"""
         if count_only:
