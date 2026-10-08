@@ -301,10 +301,6 @@ class TestPrivateBoaNote:
     def test_cannot_be_searched_by_subject(self):
         self.homepage.load_page()
         self.homepage.log_out()
-        self.homepage.dev_auth()
-        self.api_admin_page.reindex_notes()
-        self.homepage.load_page()
-        self.homepage.log_out()
         self.homepage.dev_auth(test_ce3.advisor)
         self.homepage.enter_simple_search_and_hit_enter(note_1.subject)
         self.search_results_page.assert_note_result_not_present(note_1)

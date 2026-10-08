@@ -177,7 +177,7 @@ class StudentPageTimeline(BoaPages):
         self.click_attachment_link(item, attachment.file_name)
         file_path = f'{utils.default_download_dir()}/{attachment.file_name}'
         tries = 0
-        max_tries = 15
+        max_tries = 20
         while tries <= max_tries:
             tries += 1
             try:

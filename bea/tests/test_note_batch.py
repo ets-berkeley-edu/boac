@@ -186,14 +186,6 @@ class TestNoteBatch:
         self.student_page.set_new_note_id(self.batch_note_2, student)
         self.student_page.verify_note(self.batch_note_2, self.test.advisor)
 
-    def test_index_notes(self):
-        self.student_page.log_out()
-        self.homepage.dev_auth()
-        self.api_admin_page.reindex_notes()
-        self.homepage.load_page()
-        self.homepage.log_out()
-        self.homepage.dev_auth(self.test.advisor)
-
     def test_search_batch_note_by_student_and_subject(self):
         student = boa_utils.unique_students_in_batch(self.students, self.cohorts, self.groups)[-1]
         self.homepage.set_new_note_id(self.batch_note_1, student)

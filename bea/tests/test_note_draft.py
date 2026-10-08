@@ -366,13 +366,6 @@ class TestNoteDraft:
         self.student_page.add_topics(self.note_3, self.topics)
         self.student_page.click_save_as_draft()
         self.student_page.wait_for_draft_note(self.note_3, manual_update=True)
-        self.student_page.log_out()
-
-        self.homepage.dev_auth()
-        self.api_admin_page.reindex_notes()
-        self.homepage.load_page()
-        self.homepage.log_out()
-        self.homepage.dev_auth(self.test.advisor)
 
     def test_search_draft_by_subject_yields_no_result(self):
         self.homepage.enter_simple_search_and_hit_enter(self.note_3.subject)

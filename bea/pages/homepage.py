@@ -76,8 +76,6 @@ class Homepage(UserListPages):
     def dev_auth(self, user=None, page_title=None):
         self.enter_dev_auth_creds(user)
         self.wait_for_boa_title((page_title or 'Home'))
-        if not page_title or page_title == 'Home':
-            self.wait_for_home_page_load()
 
     def switch_user(self, new_user=None, page_title=None):
         self.load_page()
