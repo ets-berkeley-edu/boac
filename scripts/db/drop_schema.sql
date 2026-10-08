@@ -105,10 +105,6 @@ DROP INDEX IF EXISTS public.cohort_filter_events_event_type_idx;
 DROP INDEX IF EXISTS public.cohort_filter_events_created_at_idx;
 DROP INDEX IF EXISTS public.degree_progress_categories_id_idx;
 DROP INDEX IF EXISTS public.degree_progress_unit_requirements_template_id_idx;
-DROP INDEX IF EXISTS public.idx_advisor_author_index;
-DROP INDEX IF EXISTS public.idx_advisor_author_name_uid_idx;
-DROP INDEX IF EXISTS public.idx_notes_fts_index;
-DROP INDEX IF EXISTS public.idx_notes_fts_index_id_idx;
 DROP INDEX IF EXISTS public.comments_read_comment_id_idx;
 DROP INDEX IF EXISTS public.comments_read_viewer_id_idx;
 DROP INDEX IF EXISTS public.comment_attachments_comment_id_idx;
@@ -184,8 +180,6 @@ ALTER TABLE IF EXISTS public.json_cache ALTER COLUMN id DROP DEFAULT;
 
 --
 
-DROP MATERIALIZED VIEW IF EXISTS public.advisor_author_index;
-DROP MATERIALIZED VIEW IF EXISTS public.notes_fts_index;
 DROP TABLE IF EXISTS public.comments_read;
 DROP TABLE IF EXISTS public.comment_attachments;
 DROP SEQUENCE IF EXISTS public.comment_attachments_id_seq;

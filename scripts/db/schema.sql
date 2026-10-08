@@ -455,34 +455,6 @@ CREATE INDEX notes_deleted_at_idx ON notes (deleted_at);
 CREATE INDEX notes_is_private_idx ON notes (is_private);
 CREATE INDEX notes_sid_idx ON notes USING btree (sid);
 
-CREATE MATERIALIZED VIEW notes_fts_index AS (
-  SELECT
-    id,
-    CASE WHEN (body IS NULL OR is_private) THEN to_tsvector('english', subject)
-         ELSE to_tsvector('english', subject || ' ' || body)
-         END AS fts_index
-  FROM notes
-  WHERE deleted_at IS NULL AND is_draft IS FALSE
-);
-
-CREATE UNIQUE INDEX idx_notes_fts_index_id_idx ON notes_fts_index(id);
-
-CREATE INDEX idx_notes_fts_index
-ON notes_fts_index
-USING gin(fts_index);
-
---
-
-CREATE MATERIALIZED VIEW advisor_author_index AS (
-  SELECT DISTINCT author_name AS advisor_name, author_uid AS advisor_uid
-  FROM notes
-  ORDER BY advisor_name
-);
-
-CREATE UNIQUE INDEX idx_advisor_author_name_uid_idx ON advisor_author_index(advisor_name, advisor_uid);
-
-CREATE INDEX idx_advisor_author_index ON advisor_author_index USING btree(advisor_name);
-
 --
 
 CREATE TABLE note_attachments (
