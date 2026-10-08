@@ -759,6 +759,12 @@ class TestNoteDraft:
             self.student_page.load_page(student)
             self.student_page.verify_note(self.note_5, self.test.advisor)
 
+    def test_search_for_published_draft_by_topic(self):
+        self.homepage.reopen_and_reset_adv_search()
+        self.homepage.select_note_topic(self.note_4.topics[0])
+        self.homepage.enter_adv_search_and_hit_enter(self.note_4.subject)
+        self.search_results_page.assert_note_result_present(self.note_4)
+
     # DELETION
 
     def test_author_has_delete_draft_button_on_student_page(self):

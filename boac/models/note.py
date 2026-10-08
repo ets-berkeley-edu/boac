@@ -583,7 +583,7 @@ class Note(Base):
             note.set_date = set_date
             note.subject = subject
             note.note_template_id = note_template_id
-            cls._update_note_topics(note, topics)
+            cls._update_note_topics(note, topics, is_publishing_draft_note)
             if template_attachment_ids:
                 for template_attachment in NoteTemplateAttachment.get_attachments(template_attachment_ids):
                     _add_attachments(
@@ -644,7 +644,7 @@ class Note(Base):
             return None
 
     @classmethod
-    def _update_note_topics(cls, note, topics):
+    def _update_note_topics(cls, note, topics, is_publishing_draft_note):
         modified = False
         now = utc_now()
         topics = set(topics)
@@ -665,21 +665,30 @@ class Note(Base):
             note.topics.append(new_topic)
             sqs_topic_creations.append(new_topic.to_sqs_json())
             modified = True
-
         if modified:
             note.updated_at = now
-            if not note.is_draft and len(sqs_topic_creations):
-                sqs.send(
-                    table='note_topics',
-                    operation='create',
-                    rows=sqs_topic_creations,
-                )
-            if not note.is_draft and len(sqs_topic_updates):
-                sqs.send(
-                    table='note_topics',
-                    operation='update',
-                    rows=sqs_topic_updates,
-                )
+
+        if is_publishing_draft_note:
+            # If we're publishing a draft note that already had topics, those topics haven't been
+            # sent to SQS yet.
+            topics_to_keep = existing_topics - topics_to_delete
+            for topic in topics_to_keep:
+                topic_to_keep = next((t for t in note.topics if t.topic == topic), None)
+                if topic_to_keep:
+                    sqs_topic_creations.append(topic_to_keep.to_sqs_json())
+
+        if not note.is_draft and len(sqs_topic_creations):
+            sqs.send(
+                table='note_topics',
+                operation='create',
+                rows=sqs_topic_creations,
+            )
+        if not note.is_draft and len(sqs_topic_updates):
+            sqs.send(
+                table='note_topics',
+                operation='update',
+                rows=sqs_topic_updates,
+            )
 
     @classmethod
     def _add_attachment(cls, note, attachment):
@@ -882,6 +891,15 @@ def _create_notes(
 
 
 def _add_topics_to_notes(author_uid, note_ids, topics, is_draft):
+    def _to_sqs_json(row):
+        return {
+            'id': row['id'],
+            'note_id': row['note_id'],
+            'topic': topic,
+            'author_uid': author_uid,
+            'deleted_at': None,
+        }
+
     for topic in topics:
         count_per_chunk = 10000
         for chunk in range(0, len(note_ids), count_per_chunk):
@@ -901,15 +919,6 @@ def _add_topics_to_notes(author_uid, note_ids, topics, is_draft):
             ]
             results = db.session.execute(text(sql), {'json_dumps': json.dumps(data)})
             std_commit()
-
-            def _to_sqs_json(row):
-                return {
-                    'id': row['id'],
-                    'note_id': row['note_id'],
-                    'topic': topic,
-                    'author_uid': author_uid,
-                    'deleted_at': None,
-                }
 
             if not is_draft:
                 sqs.send(
