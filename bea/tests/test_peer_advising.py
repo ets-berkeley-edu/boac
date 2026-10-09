@@ -33,6 +33,7 @@ from bea.models.notes_and_appts.note import Note
 from bea.models.notes_and_appts.note_template import NoteTemplate
 from bea.models.notes_and_appts.topic import PeerTopics, Topic
 from bea.test_utils import boa_utils, utils
+from bea.test_utils.nessie_timeline_utils import wait_for_cdc_upsert
 
 # Test users L&S - they will own the notes
 test_ls = BEATestConfig()
@@ -273,6 +274,7 @@ class TestPeerNoteEdit:
         self.peer_page.add_topics(note_3_by_ls_peer, topics_to_add)
         self.peer_page.select_contact_type(note_3_by_ls_peer)
         self.peer_page.save_peer_note_edit(note_3_by_ls_peer)
+        wait_for_cdc_upsert(note_3_by_ls_peer.record_id)
 
     def test_edit_note_attachments(self):
         attachments_to_add = valid_attachments[4:5]

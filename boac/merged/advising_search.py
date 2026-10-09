@@ -171,19 +171,35 @@ def search_advising_notes(
     notes_query_batch_size = (offset + limit) * 2
     notes_query_iteration = 0
     notes_feed = []
+    total_matching_count = 0
 
     while True:
         if peer_advising_department_id:
             benchmark(f'begin peer advising notes query (iteration {notes_query_iteration})')
-            ranked_note_ids = data_loch.search_peer_advising_notes(
+            search_results = data_loch.search_peer_advising_notes(
                 search_phrases,
                 peer_advising_department_id,
                 peer_advisor_uid=peer_advisor_uid,
                 offset=offset,
                 limit=limit,
             )
-            search_results = Note.ranked_search_results_by_id(ranked_note_ids)
             benchmark(f'end peer advising notes query (iteration {notes_query_iteration})')
+            if len(search_results):
+                benchmark(f'begin peer advising notes parsing (iteration {notes_query_iteration})')
+                total_matching_count = search_results[0]['total_matching_count']
+                note_ids = [n['id'] for n in search_results]
+                # The front-end needs full-blown note objects because they are editable by the current-user.
+                notes_and_comments = Note.find_peer_notes_and_comments_by_ids(peer_advising_department_id, note_ids)
+                cutoff = min(len(search_results), (offset + limit - len(notes_feed)))
+                students_by_sid = get_students_by_sid([row.sid for row in notes_and_comments])
+                notes_feed += _parse_peer_advising_note_search_results(
+                    notes_and_comments,
+                    cutoff,
+                    students_by_sid,
+                )
+                # Preserve original ordering from search results
+                notes_feed = sorted(notes_feed, key=lambda n: note_ids.index(n['id']))
+                benchmark(f'end peer advising notes parsing (iteration {notes_query_iteration})')
         else:
             benchmark(f'begin combined local and external notes query (iteration {notes_query_iteration})')
             search_results = data_loch.search_advising_notes(
@@ -199,22 +215,10 @@ def search_advising_notes(
                 limit=limit,
             )
             benchmark(f'end combined local and external notes query (iteration {notes_query_iteration})')
-        total_matching_count = search_results['total_matching_count']
-
-        if len(search_results['rows']):
-            benchmark(f'begin notes parsing (iteration {notes_query_iteration})')
-            student_rows = data_loch.get_basic_student_data([row.get('sid') for row in search_results['rows']])
-            students_by_sid = {r.get('sid'): r for r in student_rows}
-            if peer_advising_department_id:
-                cutoff = min(len(search_results), (offset + limit - len(notes_feed)))
-                _parse_peer_advising_note_search_results(
-                    search_phrases,
-                    search_results,
-                    cutoff,
-                    students_by_sid,
-                    notes_feed,
-                )
-            else:
+            total_matching_count = search_results['total_matching_count']
+            if len(search_results['rows']):
+                benchmark(f'begin combined local and external notes parsing (iteration {notes_query_iteration})')
+                students_by_sid = {r.get('sid'): r for r in search_results['rows']}
                 advisor_sids = list(set([row.get('advisor_sid') for row in search_results['rows'] if row.get('advisor_sid') is not None]))
                 advisors_by_sid = get_calnet_users_for_csids(app, advisor_sids)
                 _parse_note_search_results(
@@ -224,7 +228,7 @@ def search_advising_notes(
                     advisors_by_sid,
                     notes_feed,
                 )
-            benchmark(f'end notes parsing (iteration {notes_query_iteration})')
+                benchmark(f'end combined local and external notes parsing (iteration {notes_query_iteration})')
 
         # Stop querying notes if 1) we didn't return a full batch, 2) we have all the notes we need.
         if total_matching_count < notes_query_batch_size or len(notes_feed) == offset + limit:
@@ -270,19 +274,38 @@ def _local_note_to_search_result(note, sid, search_terms, student_row):
         'updatedAt': to_iso_format(note.get('updatedAt')),
     }
 
-def _parse_peer_advising_note_search_results(search_phrases, search_results, cutoff, students_by_sid, notes_feed):
-    results = []
-    student_rows = data_loch.get_basic_student_data([row.get('sid') for row in search_results['rows']])
-    students_by_sid = {r.get('sid'): r for r in student_rows}
-    for row in search_results['rows']:
-        note = {camelize(key): row[key] for key in row}
-        sid = note.get('sid')
-        student_row = students_by_sid.get(sid, {})
-        if student_row:
-            results.append(_local_note_to_search_result(note, sid, search_phrases, student_row))
-        if len(results) == cutoff:
+def _parse_peer_advising_note_search_results(notes_and_comments, cutoff, students_by_sid):
+    notes_json = []
+    notes = []
+    comments_by_note_id = {}
+    append_note = notes.append
+
+    def append_comment(comment):
+        comment_json = comment.to_api_json()
+        comments_by_note_id.setdefault(comment.parent_note_id, []).append({
+            **comment_json,
+            'author': get_note_author_summary(comment_json),
+        })
+    for item in notes_and_comments:
+        (append_comment if item.parent_note_id else append_note)(item)
+    for note in notes:
+        note_json = note.to_api_json()
+        student = students_by_sid.get(note.sid)
+        if student:
+            notes_json.append({
+                **note_json,
+                'author': get_note_author_summary(note_json),
+                'comments': comments_by_note_id.get(note.id, []),
+                'student': {
+                    'sid': student['sid'],
+                    'uid': student['uid'],
+                    'firstName': student['first_name'],
+                    'lastName': student['last_name'],
+                } if student else None,
+            })
+        if len(notes_json) == cutoff:
             break
-    notes_feed += results
+    return notes_json
 
 def _parse_note_search_results(search_phrases, search_results, students_by_sid, advisors_by_sid, notes_feed):
     for note in search_results['rows']:

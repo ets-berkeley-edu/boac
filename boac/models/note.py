@@ -430,29 +430,6 @@ class Note(Base):
             })
         return api_json
 
-    @classmethod
-    def ranked_search_results_by_id(cls, ranked_note_ids):
-        total_matching_count = ranked_note_ids[0]['total_matching_count'] if ranked_note_ids else 0
-        page_rows = [row for row in ranked_note_ids if row['id'] is not None]
-        if page_rows:
-            note_id_by_rank = ', '.join([f"({row['id']}, {row['rank']})" for row in page_rows])
-            sql = f"""
-                SELECT n.*, COUNT(a.note_id) AS attachment_count
-                FROM notes n
-                JOIN (VALUES {note_id_by_rank}) AS rank(id, ordering) ON rank.id = n.id
-                LEFT JOIN note_attachments a ON n.id = a.note_id AND a.deleted_at IS NULL
-                GROUP BY n.id, rank.ordering
-                ORDER BY n.updated_at DESC, rank.ordering
-            """
-            search_results = db.session.execute(text(sql))
-            keys = search_results.keys()
-        else:
-            search_results = []
-            keys = []
-        return {
-            'rows': [dict(zip(keys, row)) for row in search_results],
-            'total_matching_count': total_matching_count,
-        }
 
     @classmethod
     def update(
