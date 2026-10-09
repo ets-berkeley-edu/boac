@@ -1156,14 +1156,21 @@ def search_advising_notes(
     else:
         rank_column = ', 0 AS rank'
     if department_codes:
-        advising_uid_query = """
-            SELECT au.uid
-            FROM authorized_users au
+        advising_uid_query = """SELECT au.uid FROM (
+            SELECT udm.university_dept_id, udm.authorized_user_id
+            FROM university_depts ud
             JOIN university_dept_members udm
-            ON au.id = udm.authorized_user_id
-            JOIN university_depts ud
-            ON ud.id = udm.university_dept_id
-            WHERE ud.dept_code = ANY(:department_codes)"""
+            ON ud.id = udm.university_dept_id AND ud.dept_code = ANY(:department_codes)
+            UNION
+            SELECT pd.university_dept_id, pdm.authorized_user_id
+            FROM university_depts ud
+            JOIN peer_advising_departments pd
+            ON ud.id = pd.university_dept_id AND ud.dept_code = ANY(:department_codes)
+            JOIN peer_advising_department_members pdm
+            ON pd.id = pdm.peer_advising_department_id
+        ) dm
+        JOIN authorized_users au
+        ON au.id = dm.authorized_user_id"""
         query = text(advising_uid_query).bindparams(department_codes=department_codes)
         result = db.session.execute(query)
         rows = result.all()
@@ -1285,16 +1292,18 @@ def search_peer_advising_notes(
     phrases = [''.join(phrase.split('-')).replace('\'', '').upper() for phrase in search_phrases]
     search_notes_by_student, student_params =  _search_for_students_query(phrases, prefix_only=True)
     sql = f"""WITH fts AS (
-        SELECT DISTINCT ON (sub.id) sub.id, sub.rank FROM (
+        SELECT sub.id, MAX(sub.rank) AS rank, MAX(sub.updated_at) AS updated_at FROM (
             SELECT COALESCE(n.parent_note_id, n.boa_id) AS id,
-                   ts_rank(fts_index, to_tsquery('english', %(query_text)s || ':*')) AS rank
+                   ts_rank(fts_index, to_tsquery('english', %(query_text)s || ':*')) AS rank,
+                   n.updated_at
             FROM {boa_cdc_schema()}.advising_notes_search_index i
             JOIN {boa_cdc_schema()}.advising_notes n ON i.id = n.id
             WHERE fts_index @@ to_tsquery('english', %(query_text)s || ':*')
               AND n.peer_advising_department_id = %(peer_advising_department_id)s
             UNION
             SELECT COALESCE(n.parent_note_id, n.boa_id) AS id,
-                    0 AS rank
+                    0 AS rank,
+                    n.updated_at
             FROM {boa_cdc_schema()}.advising_notes n
             JOIN ({search_notes_by_student}) s2 ON n.sid = s2.sid
             WHERE peer_advising_department_id = %(peer_advising_department_id)s
@@ -1302,12 +1311,14 @@ def search_peer_advising_notes(
         ) sub
         JOIN {boa_cdc_schema()}.advising_notes n ON n.boa_id = sub.id
         WHERE n.peer_advising_department_id = %(peer_advising_department_id)s
+        GROUP BY sub.id
+        ORDER BY rank DESC, updated_at DESC
     )
     SELECT total.count AS total_matching_count, page.id, page.rank
     FROM (SELECT COUNT(*) AS count FROM fts) total
     LEFT JOIN LATERAL (
         SELECT id, rank FROM fts OFFSET %(offset)s LIMIT %(limit)s
-    ) page ON TRUE;"""
+    ) page ON TRUE"""
     params = {
         'limit': limit,
         'offset': offset,

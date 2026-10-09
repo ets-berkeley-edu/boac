@@ -34,7 +34,6 @@ from boac.api.decorators import advising_data_access_required, advisor_required,
 from boac.api.errors import BadRequestError, ForbiddenRequestError
 from boac.api.util import add_alert_counts, is_unauthorized_search
 from boac.externals.data_loch import (
-    get_basic_student_data,
     get_enrolled_primary_sections,
     get_enrolled_primary_sections_for_parsed_code,
     match_appointment_advisors_by_name,
@@ -47,14 +46,12 @@ from boac.lib.http import tolerant_jsonify
 from boac.merged.admitted_student import search_for_admitted_students
 from boac.merged.advising_appointment import search_advising_appointments
 from boac.merged.advising_eform import search_advising_eforms
-from boac.merged.advising_note import get_note_author_summary
 from boac.merged.advising_search import search_advising_notes
 from boac.merged.calnet import get_uid_for_csid
 from boac.merged.sis_terms import current_term_id
 from boac.merged.student import search_for_students
 from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
-from boac.models.note import Note
 from boac.models.university_dept import UniversityDept
 
 
@@ -170,46 +167,9 @@ def search_peer_advising():
             limit=int(util.get(params, 'limit', 50)),
             offset=int(util.get(params, 'offset', 0)),
         )
-        # The front-end needs full-blown note objects because they are editable by the current-user.
-        note_ids = [n['id'] for n in search_results.get('notes', [])]
-        notes_json = []
-        if len(note_ids):
-            notes_and_comments = Note.find_peer_notes_and_comments_by_ids(peer_advising_department_id, note_ids)
-            notes = []
-            comments_by_note_id = {}
-            append_note = notes.append
 
-            def append_comment(comment):
-                comment_json = comment.to_api_json()
-                comments_by_note_id.setdefault(comment.parent_note_id, []).append({
-                    **comment_json,
-                    'author': get_note_author_summary(comment_json),
-                })
-            for item in notes_and_comments:
-                (append_comment if item.parent_note_id else append_note)(item)
-            all_sids = list({note.sid for note in notes})
-            students_by_sid = {s['sid']: s for s in get_basic_student_data(sids=all_sids)}
-
-            for note in notes:
-                note_json = note.to_api_json()
-                student = students_by_sid.get(note.sid)
-                notes_json.append({
-                    **note_json,
-                    'author': get_note_author_summary(note_json),
-                    'comments': comments_by_note_id.get(note.id, []),
-                    'student': {
-                        'sid': student['sid'],
-                        'uid': student['uid'],
-                        'firstName': student['first_name'],
-                        'lastName': student['last_name'],
-                    } if student else None,
-                })
-
-            # Preserve original ordering from search results
-            notes_json = sorted(notes_json, key=lambda n: note_ids.index(n['id']))
-
-        feed['notes'] = notes_json
-        feed['totalNoteCount'] = search_results.get('totalNoteCount', len(notes_json))
+        feed['notes'] = search_results.get('notes', [])
+        feed['totalNoteCount'] = search_results.get('totalNoteCount', len(feed['notes']))
 
     return tolerant_jsonify(feed)
 
