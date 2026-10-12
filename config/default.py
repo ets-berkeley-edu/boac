@@ -45,6 +45,10 @@ ALERT_WITHDRAWAL_ENABLED = True
 # Set to a nice long chaotic string to enable scripted access to APIs.
 API_KEY = None
 
+# Set to a nice long chaotic string to let scripted clients (e.g. Locust load tests) that hold a real session
+# cookie skip CSRF validation by sending the value in the X-BOA-CSRF-Bypass header. Leave as None to disable.
+CSRF_BYPASS_KEY = None
+
 # For /appt/desk. 60000 ms = 1 minute.
 APPT_DESK_REFRESH_INTERVAL = 60000
 
