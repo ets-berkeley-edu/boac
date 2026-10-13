@@ -435,7 +435,10 @@ def _peer_advising_users_sql(
                 m.authorized_user_id = u.id
                 {_get_deleted_at_condition(status)}
         """
-    return query_tables, _users_sql_where_clause(status), query_bindings
+    # 'active' and 'deleted' are fully expressed by the membership join condition above. The user-level where clause would
+    # exclude disabled peers from 'deleted' (they have no deleted_at), leaving them in neither list.
+    query_filter = 'WHERE TRUE ' if status in ('active', 'deleted') else _users_sql_where_clause(status)
+    return query_tables, query_filter, query_bindings
 
 
 def _users_sql(
@@ -489,7 +492,7 @@ def _users_sql_where_clause(status):
 def _get_deleted_at_condition(status):
     query_filter = ''
     if status == 'deleted':
-        query_filter += ' AND (m.deleted_at IS NOT NULL OR u.disabled_at IS NOT NULL)'
+        query_filter += ' AND (m.deleted_at IS NOT NULL OR u.deleted_at IS NOT NULL OR u.disabled_at IS NOT NULL)'
     elif status == 'active':
-        query_filter += ' AND m.deleted_at IS NULL AND u.disabled_at IS NULL'
+        query_filter += ' AND m.deleted_at IS NULL AND u.deleted_at IS NULL AND u.disabled_at IS NULL'
     return query_filter
