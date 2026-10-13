@@ -24,6 +24,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 import json
 
+import pytest
+
+from boac import db, std_commit
 from boac.lib.berkeley import is_peer_advisor, is_peer_advisor_manager
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.peer_advising_department import PeerAdvisingDepartment
@@ -126,6 +129,27 @@ class TestCreatePeerAdvisor:
             uid=student_uid,
         )
         assert is_peer_advisor(peer_advisor)
+
+
+@pytest.mark.usefixtures('db_session')
+class TestPeerAdvisingUsersByStatus:
+
+    def test_disabled_peer_advisor_is_listed_as_deleted(self):
+        """A disabled (but not soft-deleted) peer advisor appears in the deleted list, not the active list."""
+        peer_advisor = AuthorizedUser.find_by_uid(ce3_navcal_peer_advisor_uid)
+        membership = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_ids([peer_advisor.id])[peer_advisor.id][0]
+        kwargs = {'peer_advising_department_id': membership['peer_advising_department_id'], 'role_type': 'peer_advisor'}
+        assert peer_advisor.id in [u.id for u in AuthorizedUser.get_peer_advising_users(**kwargs)]
+        peer_advisor.disabled_at = peer_advisor.created_at
+        db.session.add(peer_advisor)
+        std_commit(allow_test_environment=True)
+        try:
+            assert peer_advisor.id not in [u.id for u in AuthorizedUser.get_peer_advising_users(**kwargs)]
+            assert peer_advisor.id in [u.id for u in AuthorizedUser.get_peer_advising_users(**kwargs, status='deleted')]
+        finally:
+            peer_advisor.disabled_at = None
+            db.session.add(peer_advisor)
+            std_commit(allow_test_environment=True)
 
 
 class TestGetPeerAdvisingDepartment:
