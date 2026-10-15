@@ -1084,13 +1084,15 @@ def search_advising_appointments(
         uid_advisor_filter = ''
         advisor_uids = None
 
-    def _build_query(where_clause, count_only=False):
-        select = 'SELECT COUNT(*)' if count_only else f'SELECT DISTINCT {query_columns}'
+    def _build_query(boa_where_clause, legacy_where_clause, count_only=False):
+        select_columns = 'SELECT COUNT(*)' if count_only else f'SELECT DISTINCT {query_columns}'
         order_by = '' if count_only else """
             ORDER BY rank DESC, an.id DESC"""
-        return f"""{select}
+        return f"""{select_columns}
             FROM {query_tables}
-            WHERE {where_clause} {order_by}"""
+            WHERE {legacy_where_clause} {order_by}
+            LIMIT %(limit)s OFFSET %(offset)s"""
+
 
     return search_advising(
         build_query=_build_query,
@@ -1126,35 +1128,37 @@ def search_advising_notes(
     legacy_note_columns = """an.sid, an.id, NULL AS subject, an.note_body, an.advisor_sid, an.advisor_uid,
         an.created_by, an.created_at, an.updated_at, an.note_category, an.note_subcategory, NULL AS set_date,
         spi.uid, spi.first_name, spi.last_name, an.advisor_first_name, an.advisor_last_name, FALSE AS is_private, NULL AS parent_note_id"""
+    boa_notes_table = f'{boa_cdc_schema()}.advising_notes an'
+    legacy_notes_table = f'{advising_notes_schema()}.advising_notes an'
+    join_students = f"""JOIN {student_schema()}.student_profile_index spi ON an.sid = spi.sid"""
+    and_student_exists = f"""AND EXISTS (SELECT 1 FROM {student_schema()}.student_profile_index spi WHERE spi.sid = an.sid)"""
     rank_column = ''
-
-    boa_note_tables = f"""{boa_cdc_schema()}.advising_notes an
-            JOIN {student_schema()}.student_profile_index spi ON an.sid = spi.sid"""
-    legacy_note_tables = f"""{advising_notes_schema()}.advising_notes an
-            JOIN {student_schema()}.student_profile_index spi ON an.sid = spi.sid"""
-
-    if topic:
-        boa_note_tables += f"""
-            JOIN {boa_cdc_schema()}.advising_note_topics ant
-            ON ant.topic = %(topic)s
-            AND ant.id = an.id"""
-        legacy_note_tables += f"""
-            JOIN {advising_notes_schema()}.advising_note_topics_curated ant
-            ON ant.topic = %(topic)s
-            AND ant.id = an.id"""
+    boa_criteria_join = ''
+    legacy_criteria_join = ''
+    boa_advisor_filter = ''
+    search_phrase_match = ''
 
     if search_phrase:
-        rank_column = ", ts_rank(idx.fts_index, plainto_tsquery('english', %(search_phrase)s)) AS rank"
-        boa_note_tables += f"""
-            JOIN {boa_cdc_schema()}.advising_notes_search_index idx
-            ON idx.id = an.id
-            AND idx.fts_index @@ plainto_tsquery('english', %(search_phrase)s)"""
-        legacy_note_tables += f"""
-            JOIN {advising_notes_schema()}.advising_notes_search_index idx
-            ON idx.id = an.id
-            AND idx.fts_index @@ plainto_tsquery('english', %(search_phrase)s)"""
+        rank_column = "ts_rank(idx.fts_index, plainto_tsquery('english', %(search_phrase)s)) AS rank"
+        boa_criteria_join += f"""
+              JOIN {boa_cdc_schema()}.advising_notes_search_index idx ON idx.id = an.id"""
+        legacy_criteria_join += f"""
+              JOIN {advising_notes_schema()}.advising_notes_search_index idx ON idx.id = an.id"""
+        search_phrase_match += """
+              AND idx.fts_index @@ plainto_tsquery('english', %(search_phrase)s)"""
     else:
-        rank_column = ', 0 AS rank'
+        rank_column = '0 AS rank'
+
+    if topic:
+        boa_criteria_join += f"""
+            JOIN {boa_cdc_schema()}.advising_note_topics ant
+              ON ant.topic = %(topic)s
+             AND ant.id = an.id"""
+        legacy_criteria_join += f"""
+            JOIN {advising_notes_schema()}.advising_note_topics_curated ant
+              ON ant.topic = %(topic)s
+             AND ant.id = an.id"""
+
     if department_codes:
         advising_uid_query = """SELECT au.uid FROM (
             SELECT udm.university_dept_id, udm.authorized_user_id
@@ -1176,29 +1180,63 @@ def search_advising_notes(
         rows = result.all()
         advisor_uids = [r[0] for r in rows]
         uid_advisor_filter = '(an.created_by = ANY(%(advisor_uids)s) OR an.advisor_uid = ANY(%(advisor_uids)s))'
-
+        boa_advisor_filter += """
+              AND an.advisor_uid = ANY(%(advisor_uids)s)"""
     elif author_uid:
         uid_advisor_filter = 'an.advisor_uid = %(advisor_uid)s'
+        boa_advisor_filter += """
+              AND an.advisor_uid = %(advisor_uid)s"""
         advisor_uids = None
     else:
         uid_advisor_filter = None
         advisor_uids = None
 
-    def _build_query(where_clause, count_only=False):
-        sql = f"""SELECT DISTINCT * FROM (
-            SELECT {boa_note_columns}{rank_column}
-            FROM {boa_note_tables}
-            UNION
-            SELECT {legacy_note_columns}{rank_column}
-            FROM {legacy_note_tables}
-            WHERE {where_clause}
-        ) an WHERE {where_clause}"""
+    def _build_query(boa_where_clause, legacy_where_clause, count_only=False):
+        if author_uid or advisor_uids:
+            boa_where_clause += boa_advisor_filter
         if count_only:
-            return f"""SELECT COUNT(a.*) FROM (
-              {sql}
-            ) a"""
+            return f"""SELECT
+              (SELECT COUNT(*) AS count
+                 FROM {boa_notes_table} {boa_criteria_join}
+                WHERE {boa_where_clause} {search_phrase_match}
+                  {and_student_exists})
+            +
+              (SELECT COUNT(*) AS count
+                 FROM {legacy_notes_table} {legacy_criteria_join}
+                WHERE {legacy_where_clause} {search_phrase_match}
+                  {and_student_exists})
+            AS count"""
         else:
-            return f'{sql} ORDER BY an.created_at DESC, an.rank DESC'
+            return f"""WITH candidates AS (
+           (SELECT 'boa' AS src, an.id, an.created_at, {rank_column}
+              FROM {boa_notes_table} {boa_criteria_join}
+             WHERE {boa_where_clause} {search_phrase_match}
+               {and_student_exists}
+             ORDER BY an.created_at DESC, rank DESC, an.id
+             LIMIT %(offset)s + %(limit)s)
+             UNION ALL
+           (SELECT 'legacy' AS src, an.id, an.created_at, {rank_column}
+              FROM {legacy_notes_table} {legacy_criteria_join}
+             WHERE {legacy_where_clause} {search_phrase_match}
+               {and_student_exists}
+             ORDER BY an.created_at DESC, rank DESC, an.id
+             LIMIT %(offset)s + %(limit)s)
+        ),
+        page AS (
+            SELECT * FROM candidates
+            ORDER BY created_at DESC, rank DESC, src, id
+            OFFSET %(offset)s LIMIT %(limit)s
+        )
+       SELECT page.src, page.rank, {boa_note_columns}
+          FROM page
+          JOIN {boa_notes_table} ON page.src = 'boa' AND an.id = page.id
+          {join_students}
+         UNION ALL
+        SELECT page.src, page.rank, {legacy_note_columns}
+          FROM page
+          JOIN {legacy_notes_table} ON page.src = 'legacy' AND an.id = page.id
+          {join_students}
+         ORDER BY created_at DESC, rank DESC, src, id"""
 
     return search_advising(
         build_query=_build_query,
@@ -1233,26 +1271,37 @@ def search_advising(
     limit=None,
 ):
 
-    if advisor_uid or advisor_csid or advisor_uids:
-        sid_advisor_filter = 'an.advisor_sid = %(advisor_csid)s' if advisor_csid else None
-        advisor_filter = 'AND (' + join_if_present(' OR ', [uid_advisor_filter, sid_advisor_filter]) + ')'
+    sid_advisor_filter = 'an.advisor_sid = %(advisor_csid)s' if advisor_csid else ''
+    if advisor_uid or advisor_uids:
+        advisor_filter = f"""
+            AND ({join_if_present(' OR ', [uid_advisor_filter, sid_advisor_filter])})"""
     else:
         advisor_filter = ''
 
-    sid_filter = 'AND an.sid = %(student_csid)s' if student_csid else ''
+    sid_filter = """
+        AND an.sid = %(student_csid)s""" if student_csid else ''
 
-    date_filter = ''
+    boa_date_filter = ''
+    legacy_date_filter = ''
     # We prefer to filter on updated_at, but that value is not meaningful for UCBCONVERSION notes.
     if datetime_from:
-        date_filter += """ AND ((an.created_by = 'UCBCONVERSION' AND an.created_at >= %(datetime_from)s)
+        boa_date_filter += """
+            AND an.updated_at >= %(datetime_from)s"""
+        legacy_date_filter += """
+            AND ((an.created_by = 'UCBCONVERSION' AND an.created_at >= %(datetime_from)s)
             OR ((an.created_by != 'UCBCONVERSION' OR an.created_by IS NULL) AND an.updated_at >= %(datetime_from)s))"""
     if datetime_to:
-        date_filter += """ AND ((an.created_by = 'UCBCONVERSION' AND an.created_at < %(datetime_to)s)
+        boa_date_filter += """
+            AND an.updated_at < %(datetime_to)s"""
+        legacy_date_filter += """
+            AND ((an.created_by = 'UCBCONVERSION' AND an.created_at < %(datetime_to)s)
             OR ((an.created_by != 'UCBCONVERSION' OR an.created_by IS NULL) AND an.updated_at < %(datetime_to)s))"""
 
-    privacy_filter = ''
-    if exclude_private:
-        privacy_filter += """AND NOT is_private"""
+    privacy_filter = """
+            AND NOT is_private""" if exclude_private else ''
+
+    limit = min(abs(limit or 0), 150)  # Sanity check large limits
+    offset = abs(offset or 0)
 
     params = dict(
         search_phrase=search_phrase,
@@ -1266,16 +1315,10 @@ def search_advising(
         offset=offset,
         limit=limit,
     )
-    where_clause = f"""TRUE
-        {advisor_filter} {sid_filter} {date_filter} {privacy_filter}"""
-    sql = build_query(where_clause)
-
-    if offset is not None and offset > 0:
-        sql += ' OFFSET %(offset)s'
-    if limit is not None and limit < 150:  # Sanity check large limits
-        sql += ' LIMIT %(limit)s'
-    rows = safe_execute_rds(sql, **params)
-    total_matching = safe_execute_rds(build_query(where_clause, count_only=True), **params)
+    boa_where_clause = f"""TRUE {sid_filter} {boa_date_filter} {privacy_filter}"""
+    legacy_where_clause = f"""TRUE {advisor_filter} {sid_filter} {legacy_date_filter}"""
+    rows = safe_execute_rds(build_query(boa_where_clause, legacy_where_clause), **params)
+    total_matching = safe_execute_rds(build_query(boa_where_clause, legacy_where_clause, count_only=True), **params)
     return {
         'rows': rows,
         'total_matching_count': total_matching[0]['count'],
