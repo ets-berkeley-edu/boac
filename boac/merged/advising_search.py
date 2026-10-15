@@ -312,7 +312,6 @@ def _parse_note_search_results(search_phrases, search_results, students_by_sid, 
         if note['id'].startswith('boa-'):
             local_note = {
                 **{camelize(key): note[key] for key in note},
-                ' ': note['id'],
                 'id': int((note['id']).split('-')[-1]),
                 'body': note['note_body'],
             }

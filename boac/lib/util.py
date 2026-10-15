@@ -81,7 +81,7 @@ def get_benchmarker(label):
 
 
 def join_if_present(delimiter, terms):
-    return delimiter.join([t for t in terms if t])
+    return delimiter.join([t for t in terms if t and len(t)])
 
 
 def localize_datetime(dt):
