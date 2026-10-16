@@ -152,9 +152,9 @@ onMounted(() => {
         }
       },
       style: {
-        fontSize: '14px',
+        fontSize: '0.875rem',
         whiteSpace: 'nowrap',
-        width: 600
+        width: '37.5rem'
       },
       useHTML: true
     },
@@ -183,7 +183,7 @@ onMounted(() => {
         style: {
           color: `rgb(from ${currentTheme.colors.body} r g b / ${currentTheme.variables['medium-emphasis-opacity']})`,
           fontFamily: 'Helvetica, Arial, sans',
-          fontSize: '11px',
+          fontSize: '0.6875rem',
           fontWeight: 'bold'
         },
         y: 12

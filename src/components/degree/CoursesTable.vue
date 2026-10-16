@@ -115,7 +115,7 @@
                   class="ml-1"
                   color="warning"
                   :icon="mdiAlert"
-                  size="20"
+                  size="1.25rem"
                   title="Non-passing grade"
                 />
               </div>
@@ -131,7 +131,7 @@
                   class="mr-1"
                   color="accent-green"
                   :icon="mdiCheckCircleOutline"
-                  size="18"
+                  size="1.125rem"
                   :title="bundle.course.unitRequirements.length ? `Counts towards ${oxfordJoin(getCourseFulfillments(bundle))}.` : 'Fulfills no unit requirements'"
                 />
                 <v-icon
@@ -140,7 +140,7 @@
                   class="changed-units-icon"
                   color="accent-green"
                   :icon="mdiInformation"
-                  size="18"
+                  size="1.125rem"
                   :title="`Updated from ${pluralize('unit', bundle.course.sis.units)}`"
                 />
                 <div :class="{'font-size-12': printable}">{{ isNil(bundle.units) ? '&mdash;' : bundle.units }}</div>
@@ -685,23 +685,23 @@ pre {
   word-break: break-word;
 }
 .td-name-printable {
-  font-size: 12px;
+  font-size: 0.75rem;
   padding: 0.25em 0;
   vertical-align: middle;
-  width: 180px !important;
+  width: 11.25rem !important;
 }
 .td-note-printable {
-  font-size: 12px;
+  font-size: 0.75rem;
   padding: 6px 0.5em 0 0;
   vertical-align: middle;
-  width: 100px !important;
+  width: 6.25rem !important;
 }
 .td-satisfied {
-  min-width: 50px;
+  min-width: 3.125rem;
   padding: 0 5% 0 0;
 }
 .th-fulfillment {
-  min-width: 72px !important;
+  min-width: 4.5rem !important;
   width: 35% !important;
 }
 .th-satisfied {
@@ -709,11 +709,11 @@ pre {
   padding-right: 5%;
 }
 .unit-requirement-count {
-  height: 20px;
+  height: 1.25rem;
   margin-top: 1px;
-  max-width: 20px;
-  min-width: 20px;
-  width: 20px;
+  max-width: 1.25rem;
+  min-width: 1.25rem;
+  width: 1.25rem;
 }
 .text-strikethrough {
   text-decoration: line-through;

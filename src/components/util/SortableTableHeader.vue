@@ -159,7 +159,7 @@ const onToggleSort = column => {
 
 <style scoped>
 .sort-col-btn {
-  height: 28px !important;
+  height: 1.75rem !important;
   letter-spacing: normal !important;
   margin: 0 4px 0 -.1em;
   min-width: 0px !important;

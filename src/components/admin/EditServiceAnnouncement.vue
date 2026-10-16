@@ -112,6 +112,6 @@ const updateText = () => {
 
 <style scoped>
 .publish-checkbox-container {
-  height: 50px;
+  height: 3.125rem;
 }
 </style>

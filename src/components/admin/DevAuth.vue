@@ -96,7 +96,7 @@ const logIn = () => {
 
 <style lang="scss" scoped>
 .btn-dev-auth {
-  height: 28px;
+  height: 1.75rem;
   padding: 0 5px;
   text-transform: capitalize;
 }
@@ -114,7 +114,7 @@ const logIn = () => {
 .dev-auth {
   .form-input {
     input {
-      height: 28px;
+      height: 1.75rem;
       min-height: unset;
       padding: 8px;
     }

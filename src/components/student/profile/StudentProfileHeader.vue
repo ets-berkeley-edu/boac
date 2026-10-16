@@ -87,6 +87,6 @@ onMounted(() => {
   vertical-align: center;
 }
 .manage-student {
-  min-width: 170px;
+  min-width: 10.625rem;
 }
 </style>

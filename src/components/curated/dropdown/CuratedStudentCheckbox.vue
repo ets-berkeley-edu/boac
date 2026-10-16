@@ -70,11 +70,11 @@ const toggle = checked => {
 
 <style scoped>
 .checkbox {
-  height: 18px;
-  width: 18px;
+  height: 1.125rem;
+  width: 1.125rem;
 }
 .checkbox-container {
-  height: 28px;
-  width: 28px;
+  height: 1.75rem;
+  width: 1.75rem;
 }
 </style>

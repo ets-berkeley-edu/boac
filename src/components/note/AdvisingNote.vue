@@ -201,6 +201,6 @@ const removeAttachmentByIndex = index => {
 }
 .note-snippet-when-closed {
   font-size: 1rem !important;
-  height: 24px;
+  height: 1.5rem;
 }
 </style>

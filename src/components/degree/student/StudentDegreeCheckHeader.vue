@@ -85,7 +85,7 @@
                 target="_blank"
                 :to="`/degree/${degreeStore.templateId}/print?includeNote=${degreeStore.includeNotesWhenPrint}`"
               >
-                <v-icon :aria-hidden="true" :icon="mdiPrinter" size="20" />
+                <v-icon :aria-hidden="true" :icon="mdiPrinter" size="1.25rem" />
                 Print
                 <span class="sr-only">this page (opens in new tab)</span>
               </router-link>
@@ -246,7 +246,7 @@
                 density="compact"
                 flat
                 size="small"
-                style="min-width: 36px !important;"
+                style="min-width: 2.25rem !important;"
                 :text="showInProgressCourses ? 'hide' : 'show'"
                 variant="text"
                 @click="() => showInProgressCourses = !showInProgressCourses"
@@ -264,7 +264,7 @@
                 return {
                   class: `${float} vertical-top`,
                   id: `in-progress-term-${data.item.termId}-section-${data.item.ccn}-column-${data.column.key}`,
-                  style: $vuetify.display.mdAndUp ? 'max-width: 200px;' : ''
+                  style: $vuetify.display.mdAndUp ? 'max-width: 12.5rem;' : ''
                 }
               }"
               class="no-scrollbar mb-0 w-100"
@@ -452,7 +452,7 @@ const saveNote = () => {
 <style>
 .data-table-column-header {
   font-weight: 700 !important;
-  height: 30px !important;
+  height: 1.875rem !important;
 }
 </style>
 
@@ -461,6 +461,6 @@ const saveNote = () => {
   white-space: pre-line;
 }
 .toggle-label-width {
-  width: 36px;
+  width: 2.25rem;
 }
 </style>

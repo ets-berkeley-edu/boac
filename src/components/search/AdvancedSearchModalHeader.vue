@@ -18,7 +18,7 @@
       <v-icon
         color="primary"
         :icon="mdiCloseThick"
-        size="16"
+        size="1rem"
       />
     </v-btn>
   </div>

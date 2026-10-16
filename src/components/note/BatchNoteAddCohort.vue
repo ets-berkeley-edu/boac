@@ -43,7 +43,7 @@
           :name="type"
           @close-clicked="remove(selectedOption)"
         >
-          <div class="truncate-with-ellipsis">{{ selectedOption.name }}</div>
+          <div class="wrap-anywhere">{{ selectedOption.name }}</div>
         </PillItem>
       </li>
     </ul>

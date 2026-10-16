@@ -171,12 +171,12 @@ const termGpa = get(props.term, 'termGpa.gpa') || 0
   padding: 8px 15px;
 }
 .student-term {
-  min-width: 300px;
+  min-width: 18.75rem;
 }
 .student-term-footer {
   border-top: 1px rgba(var(--v-border-color), var(--v-border-opacity)) solid !important;
   line-height: 1.1;
-  max-height: 64px;
-  min-height: 64px;
+  max-height: 4rem;
+  min-height: 4rem;
 }
 </style>

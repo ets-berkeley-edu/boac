@@ -46,7 +46,7 @@
       >
         <div
           :id="`batch-degree-check-${objectType}-${index}`"
-          class="truncate-with-ellipsis"
+          class="wrap-anywhere"
         >
           {{ addedObject.name }}
         </div>
@@ -132,7 +132,7 @@ const remove = object => {
   border-radius: 5px;
   border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
   color: rgba(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity));
-  height: 36px;
+  min-height: 2.25rem;
   margin-top: 6px;
   padding: 0 0 0 8px;
   min-width: 50%;

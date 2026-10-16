@@ -158,7 +158,7 @@ table {
 }
 .student-row-courses {
   td {
-    font-size: 13px;
+    font-size: 0.8125rem;
     line-height: 1.1em;
     padding: 0.2rem 0.3rem;
     vertical-align: baseline;
@@ -168,20 +168,20 @@ table {
     padding: 0.2rem 0.3rem;
   }
   .col-course {
-    min-width: 80px;
+    min-width: 5rem;
     padding-right: 15px;
   }
   .col-bcourses {
-    min-width: 120px;
+    min-width: 7.5rem;
   }
   .col-final {
-    min-width: 40px;
+    min-width: 2.5rem;
   }
   .col-midterm {
-    min-width: 40px;
+    min-width: 2.5rem;
   }
   .col-units {
-    min-width: 40px
+    min-width: 2.5rem
   }
 }
 </style>

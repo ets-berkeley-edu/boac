@@ -145,18 +145,18 @@ const search = () => {
 :deep(.search-focus-in) {
   border: 0;
   flex: 1 0 100%;
-  max-width: 300px;
+  max-width: 18.75rem;
   transition: max-width ease-out 0.2s;
 }
 :deep(.search-focus-out) {
-  max-width: 200px;
+  max-width: 12.5rem;
   transition: min-width ease-in 0.2s;
 }
 .btn-search {
   background-color: transparent;
   color: rgb(var(--v-theme-surface));
-  font-size: 16px;
-  height: 46px;
+  font-size: 1rem;
+  height: 2.875rem;
   letter-spacing: 1px;
   padding: 6px 8px;
 }

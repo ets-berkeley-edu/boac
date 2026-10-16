@@ -86,10 +86,10 @@ const moveUp = () => {
 <style scoped>
 .btn-control-position-y {
   color: rgb(var(--v-theme-primary));
-  height: 28px;
+  height: 1.75rem;
 }
 .controls-container {
-  height: 30px !important;
-  width: 58px !important;
+  height: 1.875rem !important;
+  width: 3.625rem !important;
 }
 </style>

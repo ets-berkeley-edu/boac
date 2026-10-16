@@ -159,11 +159,11 @@ const goToPage = page => {
 .pill-membership-change {
   border-radius: 5px;
   display: inline-block;
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 800;
-  height: 28px;
-  min-width: 80px;
-  max-width: 80px;
+  height: 1.75rem;
+  min-width: 5rem;
+  max-width: 5rem;
   padding-top: 5px;
   text-align: center;
   text-transform: uppercase;

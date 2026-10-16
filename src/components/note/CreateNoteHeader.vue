@@ -28,7 +28,7 @@
             <v-btn
               id="pause-auto-save-notifications-btn"
               :aria-label="isAutoSaveAlertPaused ? 'Resume Auto-Save Notifications' : 'Pause Auto-Save Notifications'"
-              height="16"
+              height="1rem"
               size="small"
               slim
               :text="isAutoSaveAlertPaused ? 'Resume Notifications' : 'Pause Notifications'"
@@ -58,7 +58,7 @@
       <v-icon
         color="primary"
         :icon="mdiCloseThick"
-        size="16"
+        size="1rem"
       />
     </v-btn>
   </v-card-title>

@@ -215,8 +215,8 @@ tbody tr:nth-of-type(odd) {
  background-color: rgb(var(--v-theme-surface-light))
 }
 .data-table-header-cell {
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: bold;
-  height: 32px !important;
+  height: 2rem !important;
 }
 </style>

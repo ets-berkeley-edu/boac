@@ -61,9 +61,9 @@
       <v-icon
         class="vertical-top"
         color="primary"
-        height="20"
+        height="1.25rem"
         :icon="mdiCloseCircle"
-        width="20"
+        width="1.25rem"
       />
     </button>
   </div>
@@ -346,7 +346,7 @@ const onUpdateFocus = (hasFocus, inputEvents) => {
   border: var(--v-field-border-width) solid rgba(var(--v-field-border-color), var(--v-field-border-opacity));
   border-radius: 4px;
   display: flex;
-  height: 40px;
+  height: 2.5rem;
   padding: .375rem .75rem;
   transition: border-color 0.3s;
   &:focus-within {
@@ -363,7 +363,7 @@ const onUpdateFocus = (hasFocus, inputEvents) => {
   background-color: transparent;
   border: none;
   flex: 1;
-  font-size: 16px;
+  font-size: 1rem;
   line-height: 1.5;
   outline: none;
   padding: 8px 0;

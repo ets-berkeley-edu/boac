@@ -184,7 +184,7 @@ onMounted(() => {
   }
 }
 .degree-note {
-  font-size: 12px;
+  font-size: 0.75rem;
   margin: 0;
   white-space: pre-line;
 }
@@ -202,7 +202,7 @@ onMounted(() => {
   border-radius: 5px;
   color: #fff;
   print-color-adjust: exact;
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: bold;
   margin-bottom: 12px;
   padding: 6px 0 6px 0;

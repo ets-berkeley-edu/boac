@@ -48,7 +48,7 @@
           name="topic"
           @close-clicked="remove(topic)"
         >
-          <span :class="{'demo-mode-blur': currentUser.inDemoMode}" class="truncate-with-ellipsis pr-1">
+          <span :class="{'demo-mode-blur': currentUser.inDemoMode}" class="wrap-anywhere pr-1">
             {{ topic }}
           </span>
         </PillItem>

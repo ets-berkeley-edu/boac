@@ -28,7 +28,7 @@
             'bg-grey-lighten-4 border-b-md': item.key !== tab
           }"
           hide-slider
-          min-width="120"
+          min-width="7.5rem"
           :value="item.key"
           variant="text"
         >

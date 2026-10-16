@@ -12,7 +12,7 @@
   >
     <div class="align-center d-flex text-anchor">
       Undergraduate Degree Checks <span class="sr-only">of {{ student.name }} (opens in new tab)</span>
-      <v-icon class="ml-1" :icon="mdiOpenInNew" size="14" />
+      <v-icon class="ml-1" :icon="mdiOpenInNew" size="0.875rem" />
     </div>
   </v-btn>
 </template>

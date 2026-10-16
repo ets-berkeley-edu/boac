@@ -446,9 +446,9 @@ const onFocus = row => {
   background: rgb(var(--v-theme-surface-light)) !important;
 }
 .student-avatar-container {
-  min-width: 136px;
+  min-width: 8.5rem;
 }
 .student-name {
-  max-width: 190px;
+  max-width: 11.875rem;
 }
 </style>

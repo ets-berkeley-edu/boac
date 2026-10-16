@@ -26,7 +26,7 @@
                 variant="flat"
                 @click="removeStudent"
               >
-                <v-icon :icon="mdiCloseCircle" size="22" />
+                <v-icon :icon="mdiCloseCircle" size="1.375rem" />
                 <span class="sr-only">Remove {{ student.firstName }} {{ student.lastName }} from curated group</span>
               </v-btn>
               <CuratedStudentCheckbox
@@ -214,8 +214,8 @@ const isCurrentTerm = computed(() => {
   text-align: left;
 }
 .student-avatar-col {
-  width: 150px;
-  max-width: 150px;
+  width: 9.375rem;
+  max-width: 9.375rem;
 }
 .student-course-activity {
   min-width: 23rem;

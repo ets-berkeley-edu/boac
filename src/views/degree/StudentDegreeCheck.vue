@@ -198,7 +198,7 @@ const onResize = () => {
   cursor: grabbing !important;
 }
 .degree-check-column {
-  min-width: 400px;
+  min-width: 25rem;
   padding-bottom: 10px;
 }
 .drop-zone {

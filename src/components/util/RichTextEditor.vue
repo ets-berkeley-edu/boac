@@ -424,7 +424,7 @@ const registerPopupListener = () => {
   border-radius: 4px;
   border-style: solid !important;
   border-width: 1 !important;
-  height: 180px;
+  height: 11.25rem;
   &.text-error input {
     color: rgb(var(--v-theme-error))
   }

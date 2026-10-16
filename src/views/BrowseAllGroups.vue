@@ -231,8 +231,8 @@ const onClickExpansionPanel = (department: DepartmentPanel, isOpen: boolean) => 
 
 <style scoped>
 .expand-icon-container {
-  max-width: 40px;
-  min-width: 40px;
+  max-width: 2.5rem;
+  min-width: 2.5rem;
   text-align: center;
 }
 .sortable-group {

@@ -85,7 +85,7 @@ onMounted(() => {
 <style scoped>
 .select-department-role {
   background-color: rgb(var('--v-theme-surface'));
-  min-width: 120px;
+  min-width: 7.5rem;
   z-index: 1;
 }
 </style>

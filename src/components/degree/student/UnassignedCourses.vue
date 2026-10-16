@@ -71,7 +71,7 @@
                   class="mb-1 mr-1"
                   color="info"
                   :icon="mdiContentCopy"
-                  size="16"
+                  size="1rem"
                   title="Duplicated"
                 />
               </td>
@@ -85,7 +85,7 @@
                   class="mb-1 ml-1"
                   color="warning"
                   :icon="mdiAlert"
-                  size="20"
+                  size="1.25rem"
                   title="Non-passing grade"
                 />
               </td>
@@ -97,7 +97,7 @@
                   class="pl-0"
                   color="accent-green"
                   :icon="mdiCheckCircleOutline"
-                  size="18"
+                  size="1.125rem"
                   :title="`Counts towards ${oxfordJoin(map(course.unitRequirements, 'name'))}`"
                 />
                 <v-icon
@@ -106,7 +106,7 @@
                   class="changed-units-icon"
                   color="accent-green"
                   :icon="mdiInformation"
-                  size="18"
+                  size="1.125rem"
                   :title="`Updated from ${pluralize('unit', course.sis.units)}`"
                 />
               </td>

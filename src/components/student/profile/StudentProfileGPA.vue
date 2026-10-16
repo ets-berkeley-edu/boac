@@ -54,7 +54,7 @@
                 variant="text"
                 @click="() => showTermGpa = !showTermGpa"
               >
-                <v-icon :icon="showTermGpa ? mdiMenuDown : mdiMenuRight" size="14" />
+                <v-icon :icon="showTermGpa ? mdiMenuDown : mdiMenuRight" size="0.875rem" />
                 <span aria-hidden="true">Show {{ showTermGpa ? 'less' : 'more' }}</span>
               </v-btn>
             </div>
@@ -132,34 +132,34 @@ const showTermGpa = ref(false)
 
 <style scoped>
 .data-number {
-  font-size: 28px;
+  font-size: 1.75rem;
   line-height: 1.4em;
 }
 .gpa {
   align-content: center;
   font-weight: 700;
-  height: 130px;
-  min-width: 150px;
+  height: 8.125rem;
+  min-width: 9.375rem;
   white-space: nowrap;
 }
 .gpa-alert {
   color: rgb(var(--v-theme-error));
-  font-size: 12px;
+  font-size: 0.75rem;
 }
 .gpa-last-term {
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 700;
 }
 .gpa-trends {
-  height: 130px;
-  min-width: 225px;
+  height: 8.125rem;
+  min-width: 14.0625rem;
 }
 .gpa-trends-chart {
-  min-width: 200px;
+  min-width: 12.5rem;
 }
 .show-more-term-gpa-btn {
-  font-size: 12px;
-  height: 14px;
+  font-size: 0.75rem;
+  height: 0.875rem;
 }
 .term-gpa-table {
   line-height: 1.2em;

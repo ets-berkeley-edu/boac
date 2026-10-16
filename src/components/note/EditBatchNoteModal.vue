@@ -15,7 +15,7 @@
       <v-card
         id="new-note-modal-container"
         class="modal-content"
-        max-width="1200"
+        max-width="75rem"
         width="90vw"
       >
         <div>
@@ -476,7 +476,7 @@ onBeforeUnmount(() => {
 
 <style>
 #note-details .ck-editor__editable {
-  height: 180px;
+  height: 11.25rem;
   width: 100%;
 }
 </style>
@@ -496,7 +496,7 @@ onBeforeUnmount(() => {
   transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
 }
 .batch-enter-to, .batch-leave { /* eslint-disable-line vue-scoped-css/no-unused-selector */
-  max-height: 280px;
+  max-height: 17.5rem;
   overflow: hidden;
 }
 .batch-enter, .batch-leave-to { /* eslint-disable-line vue-scoped-css/no-unused-selector */

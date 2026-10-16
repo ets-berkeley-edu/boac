@@ -59,8 +59,8 @@ const model = defineModel()
   border-top-left-radius: 0;
 }
 .filter-select {
-  height: 44px;
-  width: 320px;
+  height: 2.75rem;
+  width: 20rem;
 }
 .secondary-filter {
   padding-left: 6px;

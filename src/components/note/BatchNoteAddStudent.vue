@@ -79,7 +79,7 @@
           :label="addedStudent.label"
           @close-clicked="removeStudent(addedStudent)"
         >
-          <span class="truncate-with-ellipsis">{{ addedStudent.label }}</span>
+          <span class="wrap-anywhere">{{ addedStudent.label }}</span>
         </PillItem>
       </li>
     </ul>
@@ -266,7 +266,7 @@ const setComboboxAccessibleLabel = () => {
   border-top-left-radius: 0;
 }
 .note-add-student-input .add-button {
-  height: 48px !important;
+  height: 3rem !important;
 }
 </style>
 

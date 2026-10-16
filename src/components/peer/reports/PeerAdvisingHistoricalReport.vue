@@ -21,7 +21,7 @@
         <v-icon
           v-if="!isFetching"
           :icon="isExpanded ? mdiMenuDown : mdiMenuRight"
-          size="24"
+          size="1.5rem"
         />
         <div class="d-flex flex-wrap">
           <span>BOA peer note count by month </span>

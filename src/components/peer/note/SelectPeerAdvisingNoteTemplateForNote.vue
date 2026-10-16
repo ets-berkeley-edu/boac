@@ -9,7 +9,8 @@
       eager
       location="bottom end"
       no-click-animation
-      :width="noteTemplates.length ? 500 : 350"
+      max-width="calc(100vw - 32px)"
+      :width="noteTemplates.length ? '31.25rem' : '21.875rem'"
       @update:model-value="onToggleTemplatesMenu"
     >
       <template #activator="{props: menuProps}">
@@ -23,7 +24,7 @@
           @mousedown="onSafariActivatorMousedown"
         >
           <div class="pr-1">Templates</div>
-          <v-icon :icon="mdiMenuDown" size="24" />
+          <v-icon :icon="mdiMenuDown" size="1.5rem" />
         </v-btn>
       </template>
       <v-list
@@ -40,7 +41,7 @@
           :disabled="isSaving"
           @click="loadTemplate(template)"
         >
-          <div class="truncate-with-ellipsis">{{ template.title }}</div>
+          <div class="wrap-anywhere">{{ template.title }}</div>
         </v-list-item>
       </v-list>
       <v-list v-if="!noteTemplates.length">
@@ -54,11 +55,11 @@
       v-if="noteStore.mode === 'editDraft'"
       aria-label="Close dialog"
       class="d-flex align-self-center"
-      height="36"
+      height="2.25rem"
       :icon="mdiClose"
       size="large"
       variant="text"
-      width="36"
+      width="2.25rem"
       @click="props.exit"
     />
   </div>

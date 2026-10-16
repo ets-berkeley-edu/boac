@@ -9,7 +9,7 @@
   >
     <v-card
       class="modal-content"
-      max-width="800"
+      max-width="50rem"
       width="90vw"
     >
       <FocusLock @keydown.esc="cancel">
@@ -137,13 +137,13 @@ const onSubmit = () => {
 
 <style scoped>
 .card-height {
-  height: 300px;
+  height: 18.75rem;
 }
 .card-height-sm {
-  height: 450px;
+  height: 28.125rem;
 }
 .csv-column-option {
-  height: 30px;
+  height: 1.875rem;
 }
 :deep(.csv-column-option .v-selection-control__wrapper) {
   margin-right: 4px;

@@ -9,7 +9,7 @@
   >
     <v-card
       class="modal-content"
-      max-width="900"
+      max-width="56.25rem"
       width="90vw"
     >
       <FocusLock @keydown.esc="cancel">

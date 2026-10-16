@@ -46,7 +46,7 @@ const updateModel = d => {
 <style scoped>
 .date-input-container {
   margin-top: 8px;
-  max-width: 160px;
+  max-width: 10rem;
   position: relative;
   z-index: 100;
 }

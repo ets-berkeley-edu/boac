@@ -8,7 +8,7 @@
           color="primary"
           :icon="mdiNoteEditOutline"
           variant="text"
-          width="20"
+          width="1.25rem"
           @click="() => onClickEditUser(index, user.uid)"
         />
       </div>
@@ -16,7 +16,7 @@
         C<span class="sr-only">annot access Canvas data</span>
       </div>
       <div v-if="!user.canAccessAdvisingData" class="strikethrough" style="padding-bottom: 2px;">
-        <v-icon :icon="mdiNoteOutline" size="18" />
+        <v-icon :icon="mdiNoteOutline" size="1.125rem" />
       </div>
     </div>
     <div v-if="!user.name" class="name text-medium-emphasis">

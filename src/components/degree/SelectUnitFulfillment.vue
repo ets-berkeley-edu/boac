@@ -40,7 +40,7 @@
           class="list-item text-medium-emphasis"
         >
           <div class="d-flex align-center justify-space-between">
-            <div class="truncate-with-ellipsis">
+            <div class="wrap-anywhere">
               {{ unitRequirement.name }}
             </div>
             <v-btn
@@ -118,7 +118,7 @@ const removeUnitRequirement = (item, index) => {
 .list-item {
   border-radius: 5px;
   border: 1px solid rgba(var(--v-border-color), var(--v-disabled-opacity));
-  height: 36px;
+  min-height: 2.25rem;
   margin-top: 6px;
   padding: 5px 8px;
   min-width: 50%;

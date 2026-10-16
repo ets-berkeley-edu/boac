@@ -182,6 +182,6 @@ const totalEnrolledUnits = year => {
 
 <style scoped>
 .toggle-collapse-all-container {
-  width: 190px;
+  width: 11.875rem;
 }
 </style>

@@ -31,7 +31,7 @@ defineProps({
   border-color: rgba(var(--v-border-color), var(--v-border-opacity)) !important;
   border-style: solid !important;
   border-width: 1px !important;
-  font-size: 16px !important;
+  font-size: 1rem !important;
   font-weight: 800;
   line-height: 1rem;
   padding-top: 1px;

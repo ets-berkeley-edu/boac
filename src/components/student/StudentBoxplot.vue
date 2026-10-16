@@ -141,8 +141,8 @@ const getHighchartsOptions = () => {
         </div>
       `,
       style: {
-        fontSize: '14px',
-        width: 400,
+        fontSize: '0.875rem',
+        width: '25rem',
         whiteSpace: 'nowrap'
       },
       useHTML: true
@@ -244,7 +244,7 @@ const generateSeriesFromDataset = currentTheme => {
   border-bottom: 1px solid rgb(var(--v-theme-surface-light));;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 500;
 }
 .student-boxplot {

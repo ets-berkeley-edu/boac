@@ -23,7 +23,7 @@
     >
       <v-card
         class="modal-content"
-        max-width="700"
+        max-width="43.75rem"
         width="90vw"
       >
         <FocusLock :disabled="isFocusLockDisabled" @keydown.esc="() => cancel(false)">

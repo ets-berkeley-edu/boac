@@ -117,6 +117,6 @@ watch(selected, () => {
 
 <style scoped>
 .students-sort-by {
-  min-width: 310px;
+  min-width: 19.375rem;
 }
 </style>

@@ -82,7 +82,7 @@ const reportError = (message: string) => {
 h1 {
   color: rgb(var(--v-theme-primary));
   font-weight: 200;
-  font-size: 81px;
+  font-size: 5.0625rem;
   letter-spacing: 8px;
   margin-bottom: 0;
   padding-top: 14px;
@@ -108,7 +108,7 @@ h1 {
 }
 .card {
   opacity: 0.8;
-  width: 320px;
+  width: 20rem;
 }
 .card-title {
   text-align: center;
@@ -119,24 +119,24 @@ h1 {
 }
 .copyright {
   background-color: rgb(var(--v-theme-primary));
-  font-size: 12px;
+  font-size: 0.75rem;
   color: rgb(var(--v-theme-on-primary));
-  height: 40px;
+  height: 2.5rem;
   padding-top: 10px;
-  width: 320px;
+  width: 20rem;
   text-align: center;
   z-index: 1;
 }
 .logo-container {
   padding-top: 106px;
   position: relative;
-  width: 320px;
+  width: 20rem;
   z-index: 1;
 }
 .sign-in {
-  font-size: 20px;
-  height: 50px;
-  width: 264px;
+  font-size: 1.25rem;
+  height: 3.125rem;
+  width: 16.5rem;
   text-transform: capitalize;
   z-index: 1;
 }
@@ -145,7 +145,7 @@ h1 {
   height: 10px;
   max-height: 10px !important;
   position:relative;
-  width: 320px;
-  max-width: 320px !important;
+  width: 20rem;
+  max-width: 20rem !important;
 }
 </style>
