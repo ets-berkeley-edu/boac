@@ -1317,11 +1317,15 @@ def search_advising(
     )
     boa_where_clause = f"""TRUE {sid_filter} {boa_date_filter} {privacy_filter}"""
     legacy_where_clause = f"""TRUE {advisor_filter} {sid_filter} {legacy_date_filter}"""
-    rows = safe_execute_rds(build_query(boa_where_clause, legacy_where_clause), **params)
     total_matching = safe_execute_rds(build_query(boa_where_clause, legacy_where_clause, count_only=True), **params)
+    total_count = total_matching[0]['count']
+    if total_count:
+        rows = safe_execute_rds(build_query(boa_where_clause, legacy_where_clause), **params)
+    else:
+        rows = []
     return {
         'rows': rows,
-        'total_matching_count': total_matching[0]['count'],
+        'total_matching_count': total_count,
     }
 
 
