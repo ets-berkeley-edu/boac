@@ -5,7 +5,7 @@
         class="mr-2"
         color="primary"
         :icon="mdiAirplane"
-        size="42"
+        size="2.625rem"
       />
       <h1 id="page-header" class="mt-1">Flight Data Recorder</h1>
     </div>

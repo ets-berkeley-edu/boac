@@ -40,7 +40,7 @@
           :error="!!errorMessage"
           hide-details
           maxlength="4"
-          min-width="70"
+          min-width="4.375rem"
           :required="required"
           @keydown.enter="onSubmit"
           @keyup.esc="onEscape"
@@ -64,7 +64,7 @@
           :error="!!errorMessage"
           hide-details
           maxlength="4"
-          min-width="70"
+          min-width="4.375rem"
           @keydown.enter="onSubmit"
           @update:model-value="setUnitsUpper"
         />

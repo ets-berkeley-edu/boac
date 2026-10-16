@@ -294,15 +294,15 @@ const reloadDraftNotes = () => {
 
 <style>
 .data-table-header-cell {
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: bold;
-  height: 32px !important;
+  height: 2rem !important;
 }
 
 .data-table-header-cell {
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: bold;
-  height: 32px !important;
+  height: 2rem !important;
 }
 
 #draft-notes-table .v-table__wrapper {
@@ -357,7 +357,7 @@ const reloadDraftNotes = () => {
 #draft-notes-table.stacked-table .v-table__wrapper tbody tr > td::before {
   content: attr(data-label);
   display: block;
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 700;
   margin-bottom: 4px;
   opacity: 0.75;

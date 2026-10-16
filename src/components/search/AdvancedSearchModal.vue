@@ -18,8 +18,8 @@
           clearable
           color="white"
           :disabled="searchStore.isSearching"
-          height="46"
-          min-height="46"
+          height="2.875rem"
+          min-height="2.875rem"
           :min-width="$vuetify.display.xs ? 36 : 46"
           variant="text"
           :width="$vuetify.display.xs ? 36 : 46"
@@ -42,7 +42,7 @@
     >
       <v-card
         class="modal-content"
-        max-width="800"
+        max-width="50rem"
         width="80vw"
       >
         <FocusLock :disabled="isFocusLockDisabled" @keydown.esc="cancel">
@@ -142,7 +142,7 @@
                 v-show="model.includeNotes"
                 id="search-option-note-filters"
                 color="primary"
-                min-width="350"
+                min-width="21.875rem"
                 variant="outlined"
               >
                 <v-card-title>
@@ -623,15 +623,15 @@ const suggestStudents = debounce(query => {
 }
 .form-control-label {
   color: rgb(var(--v-theme-on-surface));
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: bold;
 }
 .notes-and-appointments-filters-header {
   color: rgb(var(--v-theme-primary));
-  font-size: 18px;
+  font-size: 1.125rem;
   font-weight: bolder;
 }
 .notes-only-hint {
-  font-size: 14px;
+  font-size: 0.875rem;
 }
 </style>

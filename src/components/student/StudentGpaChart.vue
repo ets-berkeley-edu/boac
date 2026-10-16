@@ -14,7 +14,7 @@
       density="compact"
       :disabled="!isChartLoaded"
       :icon="isPlayingSound ? mdiStopCircle : mdiPlayCircle"
-      size="22"
+      size="1.375rem"
       title="Play chart audio"
       variant="text"
       @click="onClickPlay"

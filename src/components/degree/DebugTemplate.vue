@@ -9,7 +9,7 @@
         :to="`/degree/${degreeStore.parentTemplateId}`"
       >
         Created from template <span class="sr-only"> (opens in new tab)</span>
-        <v-icon :icon="mdiOpenInNew" size="14" />
+        <v-icon :icon="mdiOpenInNew" size="0.875rem" />
       </router-link>
     </div>
     <div class="ml-3 mt-4">

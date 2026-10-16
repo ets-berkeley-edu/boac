@@ -187,7 +187,7 @@ const lastActivityInContext = (analytics: Analytics) => {
   background-color: rgb(var(--v-theme-pale-blue));
 }
 .bcourses td, .bcourses th {
-  font-size: 14px;
+  font-size: 0.875rem;
   padding: 0 10px 0 0;
   text-align: left;
 }
@@ -196,7 +196,7 @@ const lastActivityInContext = (analytics: Analytics) => {
   min-width: 11em;
 }
 .bcourses-site-code {
-  font-size: 15px;
+  font-size: 0.9375rem;
   margin: 8px 0 3px 0;
 }
 .bcourses-summary {

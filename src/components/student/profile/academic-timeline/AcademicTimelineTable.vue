@@ -901,8 +901,8 @@ const userCanDelete = message => {
   width: 8rem;
 }
 .academic-timeline-search-input input {
-  max-height: 30px !important;
-  min-height: 30px !important;
+  max-height: 1.875rem !important;
+  min-height: 1.875rem !important;
   padding: 0 10px;
 }
 .message-row ul, .message-row ul {
@@ -922,7 +922,7 @@ const userCanDelete = message => {
   width: 12.5rem;
 }
 .btn-toggle-showing-subset {
-  height: 32px;
+  height: 2rem;
 }
 .column-message {
   align-content: center;
@@ -952,7 +952,7 @@ const userCanDelete = message => {
 }
 .requirements-icon {
   padding: 0 4px 0 0;
-  width: 20px;
+  width: 1.25rem;
 }
 .timeline-message-full-width {
   margin: 0 -8.75rem;

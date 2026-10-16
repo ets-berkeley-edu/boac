@@ -19,7 +19,7 @@
     >
       <v-card
         class="peer-advising-notes-modal modal-content px-0"
-        max-width="1100"
+        max-width="68.75rem"
         min-height="calc(100vh - 100px)"
         width="90vw"
       >
@@ -40,7 +40,7 @@
                 <v-icon
                   color="primary"
                   :icon="mdiCloseThick"
-                  size="16"
+                  size="1rem"
                 />
               </v-btn>
             </div>

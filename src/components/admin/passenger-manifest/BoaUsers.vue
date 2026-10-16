@@ -298,7 +298,7 @@ const onUpdateUser = (index, uid) => {
 
 <style scoped>
 :deep(.v-table > .v-table__wrapper > table > thead > tr > th) {
-  height: 40px !important;
+  height: 2.5rem !important;
 }
 .row-padding {
   padding: 12px !important;

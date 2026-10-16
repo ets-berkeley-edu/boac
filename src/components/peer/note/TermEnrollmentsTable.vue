@@ -25,7 +25,7 @@
                 :id="`student-${studentUid}-non-completed-course-${termId}-${normalizeId(enrollment.displayName)}`"
                 color="warning"
                 :icon="mdiAlert"
-                size="20"
+                size="1.25rem"
                 title="Non-completed course"
               />
               <span class="sr-only">Not completed by this student</span>

@@ -1,7 +1,7 @@
 <template>
   <v-card
     class="modal-content"
-    max-width="600"
+    max-width="37.5rem"
     width="90vw"
   >
     <v-card-title class="pb-0">
@@ -33,7 +33,7 @@
           density="compact"
           hide-details
           maxlength="10"
-          max-width="140"
+          max-width="8.75rem"
           @keydown.esc="onCancel"
         />
       </div>

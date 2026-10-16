@@ -71,7 +71,7 @@
         class="bg-white font-size-14 w-100 my-1"
         density="compact"
         :icon="mdiAlert"
-        icon-size="21"
+        icon-size="1.3125rem"
         role="none"
         :text="attachmentError"
         type="error"
@@ -82,7 +82,7 @@
         :id="`${idPrefix}-attachment-limit`"
         class="bg-white w-100 my-1"
         density="compact"
-        icon-size="21"
+        icon-size="1.3125rem"
         role="none"
         type="warning"
         variant="tonal"
@@ -113,7 +113,7 @@
         >
           <span v-if="isDownloadable && attachment.id" class="sr-only text-capitalize">Download attachment&nbsp;</span>
           <span
-            class="truncate-with-ellipsis"
+            class="wrap-anywhere"
             :class="{
               'demo-mode-blur': currentUser.inDemoMode,
               'text-anchor': isDownloadable && attachment.id

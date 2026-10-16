@@ -254,21 +254,21 @@ const reload = (sectionId, termId) => {
   padding: 10px 10px 20px 20px;
 }
 .course-header {
-  font-size: 24px;
+  font-size: 1.5rem;
   font-weight: bold;
   margin: 0 0 5px 0;
 }
 .course-schedule-header {
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: bold;
 }
 .course-section-title {
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: bold;
   padding-top: 20px;
 }
 .course-term-name {
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: bold;
 }
 </style>

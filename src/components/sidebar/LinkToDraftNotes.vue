@@ -2,7 +2,7 @@
   <div class="align-center d-flex justify-space-between pretty-hover pr-2 pl-3">
     <NavLink
       id="link-to-draft-notes"
-      class="font-size-18 font-weight-bold text-secondary truncate-with-ellipsis"
+      class="font-size-18 font-weight-bold text-secondary wrap-anywhere"
       path="/note/drafts"
     >
       Draft notes<span class="sr-only">: {{ pluralize('draft', currentUser.myDraftNoteCount) }}

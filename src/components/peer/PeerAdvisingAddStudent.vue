@@ -174,7 +174,7 @@ const selectStudent = (selected: BasicStudentLabeled) => {
 
 <style scoped>
 .add-button {
-  height: 40px;
+  height: 2.5rem;
 }
 /* eslint-disable-next-line vue-scoped-css/no-unused-selector */
 .autocomplete-students {

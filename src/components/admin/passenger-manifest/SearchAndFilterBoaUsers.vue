@@ -47,7 +47,7 @@
           :no-data-text="isSuggesting ? undefined : 'No match found'"
           return-object
           variant="outlined"
-          width="450"
+          width="28.125rem"
           @update:model-value="item => onUpdateAutocompleteModel(item.uid)"
           @update:search="onUpdateSearch"
         />
@@ -240,6 +240,6 @@ const onUpdateSearch = debounce((query: string) => {
 
 <style scoped>
 .select-menu {
-  height: 40px;
+  height: 2.5rem;
 }
 </style>

@@ -9,7 +9,7 @@
     border-style: solid !important;
     border-width: 1px !important;
     display: block;
-    font-size: 16px !important;
+    font-size: 1rem !important;
     font-weight: 800;
     padding: 5px 12px;
   }
@@ -55,7 +55,7 @@
   height: calc(var(--v-btn-height));
   justify-content: center;
   letter-spacing: 0.5px;
-  min-width: 78px;
+  min-width: 4.875rem;
   outline: none;
   padding: 0 20px;
   position: relative;
@@ -82,8 +82,8 @@
 }
 .checkbox {
   accent-color: rgb(var(--v-theme-primary));
-  height: 20px;
-  width: 20px;
+  height: 1.25rem;
+  width: 1.25rem;
 }
 .checkbox-container {
   align-items: center;
@@ -92,11 +92,11 @@
   border-radius: 6px;
   color: rgb(var(--v-theme-primary));
   display: flex;
-  height: 36px;
+  height: 2.25rem;
   justify-content: center;
   margin-right: 8px;
   text-align: center;
-  width: 36px;
+  width: 2.25rem;
 }
 .checked-checkbox-container {
   background-color: rgb(var(--v-theme-secondary)) !important;
@@ -107,16 +107,16 @@
   border-left: 6px solid rgb(var(--v-theme-primary)) !important;
 }
 .cohort-filter-row-height {
-  min-height: 52px;
+  min-height: 3.25rem;
 }
 .cohort-sort-by-label {
   padding-right: 8px;
   text-align: right;
-  width: 180px !important;
+  width: 11.25rem !important;
 }
 .cohort-sort-by-select {
-  max-width: 500px;
-  min-width: 300px;
+  max-width: 31.25rem;
+  min-width: 18.75rem;
   width: 100% !important;
 }
 .curated-group-menu-item-create {
@@ -252,31 +252,31 @@
   outline: rgb(var(--v-theme-secondary)) dashed 0.15em;
 }
 .font-size-11 {
-  font-size: 11px !important;
+  font-size: 0.6875rem !important;
 }
 .font-size-12 {
-  font-size: 12px !important;
+  font-size: 0.75rem !important;
 }
 .font-size-13 {
-  font-size: 13px !important;
+  font-size: 0.8125rem !important;
 }
 .font-size-14 {
-  font-size: 14px !important;
+  font-size: 0.875rem !important;
 }
 .font-size-15 {
-  font-size: 15px !important;
+  font-size: 0.9375rem !important;
 }
 .font-size-16 {
-  font-size: 16px !important;
+  font-size: 1rem !important;
 }
 .font-size-18 {
-  font-size: 18px !important;
+  font-size: 1.125rem !important;
 }
 .font-size-20 {
-  font-size: 20px !important;
+  font-size: 1.25rem !important;
 }
 .font-size-24 {
-  font-size: 24px !important;
+  font-size: 1.5rem !important;
 }
 .font-weight-500 {
   font-weight: 500;
@@ -363,20 +363,20 @@
 }
 .no-data-text {
   color: rgba(var(--v-theme-on-surface),var(--v-medium-emphasis-opacity));
-  font-size: 14px;
+  font-size: 0.875rem;
   font-style: italic;
 }
 .overflow-wrap-break-word {
   overflow-wrap: break-word;
 }
 .page-section-header {
-  font-size: 24px;
+  font-size: 1.5rem;
   font-weight: 700;
   line-height: 1.2;
   margin-bottom: 0.5rem;
 }
 .page-section-header-sub {
-  font-size: 18px;
+  font-size: 1.125rem;
   font-weight: bold;
   line-height: 1.2;
 }
@@ -419,12 +419,12 @@
   }
 }
 .sidebar-pill {
-  height: 21px !important;
+  height: 1.3125rem !important;
   margin-left: 0.1rem;
   padding: 1px 4px !important;
 }
 .sortable-table-header {
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: bold;
   text-transform: uppercase;
   vertical-align: top;
@@ -481,18 +481,18 @@
 .student-profile-h3 {
   border-bottom: 1px solid rgba(var(--v-border-color), var(--v-disabled-opacity));
   color: rgba(var(--v-theme-on-surface),var(--v-medium-emphasis-opacity));
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: bold;
   margin: 0 0 5px 0;
   padding: 0 0 5px 0;
   text-transform: uppercase;
 }
 .student-section-header {
-  font-size: 24px;
+  font-size: 1.5rem;
   font-weight: bold;
 }
 .student-sid {
-  font-size: 11px;
+  font-size: 0.6875rem;
   font-weight: bold;
   margin: 5px 0;
 }
@@ -506,6 +506,12 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.wrap-anywhere {
+  overflow: visible !important;
+  overflow-wrap: anywhere !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
 }
 .v-alert--variant-tonal .v-alert__underlay {
   opacity: 0.06 !important;
@@ -525,6 +531,18 @@
     margin-left: 0 !important;
     margin-right: 0 !important;
   }
+}
+/* Vuetify's prebuilt CSS sets these font sizes in px, which blocks text-only resizing (WCAG 1.4.4).
+   Two-class selectors outrank Vuetify's, which loads after this file. */
+.v-chip .v-chip__close {
+  font-size: 1.125rem;
+}
+.v-input .v-counter,
+.v-input .v-messages {
+  font-size: 0.75rem;
+}
+.v-input .v-field {
+  font-size: 1rem;
 }
 .v-chip-content-override {
   .v-chip__content {
@@ -548,7 +566,8 @@
   overflow-y: unset !important;
 }
 .v-table.no-scrollbar .v-table__wrapper {
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 .v-table-hidden-row-override table tbody tr[style="height: 0px; border: 0px;"] {
   display: none;
@@ -588,7 +607,7 @@ html {
   height: 100%;
 }
 h1 {
-  font-size: 24px;
+  font-size: 1.5rem;
   font-weight: bold;
   margin: 0 0 10px 0;
 }
@@ -614,7 +633,7 @@ table.table-hover tr:hover {
 }
 table thead th {
   color: rgba(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity));
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 700;
   min-width: unset;
   text-align: left;

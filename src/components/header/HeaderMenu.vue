@@ -4,7 +4,8 @@
       eager
       transition="slide-y-transition"
       variant="link"
-      :width="isPeerAdvisorManager(currentUser) ? 320 : 220"
+      max-width="calc(100vw - 32px)"
+      :width="isPeerAdvisorManager(currentUser) ? '20rem' : '13.75rem'"
       @update:model-value="isOpen => isMenuOpen = isOpen"
     >
       <template #activator="{ props }">
@@ -17,7 +18,7 @@
           @mousedown="onSafariActivatorMousedown"
         >
           {{ currentUser.firstName || `UID:${currentUser.uid}` }}
-          <v-icon :icon="mdiMenuDown" size="24" />
+          <v-icon :icon="mdiMenuDown" size="1.5rem" />
         </button>
       </template>
       <v-list aria-labelledby="header-dropdown-under-name" density="compact">
@@ -186,7 +187,7 @@ const logOut = () => {
 
 <style lang="scss" scoped>
 .header-button-menu {
-  height: 46px;
+  height: 2.875rem;
   &::after {
     outline-style: solid;
     outline-width: 0.125rem;
@@ -194,9 +195,16 @@ const logOut = () => {
 }
 .header-menu-item {
   border-radius: 0;
-  font-size: 16px;
+  font-size: 1rem;
+  height: auto !important;
   letter-spacing: normal;
   justify-content: start;
+  min-height: var(--v-btn-height);
   text-decoration-line: none;
+  :deep(.v-btn__content) {
+    overflow-wrap: anywhere;
+    text-align: start;
+    white-space: normal;
+  }
 }
 </style>

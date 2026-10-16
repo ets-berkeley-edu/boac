@@ -8,7 +8,7 @@
   >
     <v-card
       class="modal-content"
-      max-width="700"
+      max-width="43.75rem"
       width="90vw"
     >
       <v-card-title>

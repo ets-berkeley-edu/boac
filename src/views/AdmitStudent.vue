@@ -308,7 +308,7 @@ onMounted(() => {
 
 <style scoped>
 h2 {
-  font-size: 18px;
+  font-size: 1.125rem;
   font-weight: bold;
   margin-bottom: 8px;
 }

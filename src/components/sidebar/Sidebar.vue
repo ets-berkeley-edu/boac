@@ -19,7 +19,7 @@
           path="/cohort/new"
           title="Create a new cohort"
         >
-          <v-icon color="white" :icon="mdiPlus" size="22" />
+          <v-icon color="white" :icon="mdiPlus" size="1.375rem" />
         </NavLink>
       </div>
       <v-list
@@ -44,7 +44,7 @@
             class="align-center d-flex font-weight-medium justify-space-between text-secondary w-100"
             :path="`/cohort/${cohort.id}`"
           >
-            <div :aria-hidden="true" class="truncate-with-ellipsis">
+            <div :aria-hidden="true" class="wrap-anywhere">
               {{ cohort.name }}
             </div>
             <PillCount
@@ -76,7 +76,7 @@
           :query-args="{domain: 'default'}"
           :title="`Create a new ${describeCuratedGroupDomain('default')}`"
         >
-          <v-icon color="white" :icon="mdiPlus" size="22" />
+          <v-icon color="white" :icon="mdiPlus" size="1.375rem" />
         </NavLink>
       </div>
       <v-list
@@ -101,7 +101,7 @@
             class="align-center d-flex font-weight-medium justify-space-between pr-1 text-secondary w-100"
             :path="`/curated/${group.id}`"
           >
-            <div :aria-hidden="true" class="truncate-with-ellipsis">
+            <div :aria-hidden="true" class="wrap-anywhere">
               {{ group.name }}
             </div>
             <PillCount
@@ -139,7 +139,7 @@
           :query-args="{domain: 'admitted_students'}"
           title="Create a new CE3 Admissions cohort"
         >
-          <v-icon class="text-white" :icon="mdiPlus" size="22" />
+          <v-icon class="text-white" :icon="mdiPlus" size="1.375rem" />
         </NavLink>
       </div>
       <v-list
@@ -164,7 +164,7 @@
             class="align-center d-flex font-weight-medium justify-space-between pr-1 text-secondary w-100"
             :path="`/cohort/${cohort.id}`"
           >
-            <div :aria-hidden="true" class="truncate-with-ellipsis">
+            <div :aria-hidden="true" class="wrap-anywhere">
               {{ cohort.name }}
             </div>
             <PillCount
@@ -199,7 +199,7 @@
           :query-args="{domain: 'admitted_students'}"
           :title="`Create a new CE3 ${describeCuratedGroupDomain('admitted_students', false)}`"
         >
-          <v-icon color="white" :icon="mdiPlus" size="22" />
+          <v-icon color="white" :icon="mdiPlus" size="1.375rem" />
         </NavLink>
       </div>
       <v-list
@@ -225,7 +225,7 @@
             class="align-center d-flex font-weight-medium justify-space-between pr-1 text-secondary w-100"
             :path="`/curated/${group.id}`"
           >
-            <div :aria-hidden="true" class="truncate-with-ellipsis">
+            <div :aria-hidden="true" class="wrap-anywhere">
               {{ group.name }}
             </div>
             <PillCount
@@ -291,7 +291,7 @@ const {mdAndUp} = useDisplay()
 .pretty-hover {
   border-left: 6px solid transparent;
   margin: 1px 0;
-  min-height: 28px;
+  min-height: 1.75rem;
   padding: 2px 8px 2px 6px !important;
 }
 .pretty-hover:hover,
@@ -342,16 +342,16 @@ const {mdAndUp} = useDisplay()
 
 <style>
 .sidebar-list .v-list-item {
-  min-height: 28px;
+  min-height: 1.75rem;
 }
 /* override when zero-height is present */
 .sidebar-list .v-list-item.zero-height {
-  min-height: 6px !important;
+  min-height: 0.375rem !important;
 }
 .sidebar-list .v-list-item a {
   display: inline-block;
   margin: -1px 0;
-  min-height: 26px !important;
+  min-height: 1.625rem !important;
 }
 .sidebar-list .v-list-item__content {
   padding-top: 0 !important;

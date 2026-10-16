@@ -44,7 +44,7 @@
               </div>
               <v-icon v-if="!isSaving && !isConfirming" :icon="mdiMenuDown" />
               <div v-if="isConfirming" class="align-center d-flex">
-                <v-icon class="mr-1" :icon="mdiCheckBold" size="14" /><span>Added to {{ domainLabel(true) }}</span>
+                <v-icon class="mr-1" :icon="mdiCheckBold" size="0.875rem" /><span>Added to {{ domainLabel(true) }}</span>
               </div>
             </div>
           </button>
@@ -84,7 +84,7 @@
                 size="small"
               />
             </template>
-            <v-list-item-title class="truncate-with-ellipsis">
+            <v-list-item-title class="wrap-anywhere">
               {{ group.name }}
             </v-list-item-title>
           </v-list-item>
@@ -95,7 +95,7 @@
               class="mx-1 px-6 my-1"
               color="primary"
               :disabled="!size(selectedCuratedGroups) || isConfirming || isSaving"
-              height="32"
+              height="2rem"
               text="Add"
               @click.stop="onSubmit"
               @keydown.enter.stop="onSubmit"

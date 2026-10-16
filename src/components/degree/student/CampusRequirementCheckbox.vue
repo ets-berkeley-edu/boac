@@ -18,7 +18,7 @@
       :icon="isSatisfied ? mdiCheckBold : mdiCloseThick"
       disabled
       :color="printable ? 'surface-variants' : (isSatisfied ? 'success' : 'error')"
-      size="20"
+      size="1.25rem"
       :title="isSatisfied ? 'Satisfied' : 'Not Satisfied'"
     />
   </div>

@@ -35,7 +35,7 @@
             variant="text"
             @click="() => curatedGroupRemoveStudent(student)"
           >
-            <v-icon :icon="mdiCloseCircle" size="22" color="primary" />
+            <v-icon :icon="mdiCloseCircle" size="1.375rem" color="primary" />
             <span class="sr-only">Remove {{ fullName(student) }}</span>
           </v-btn>
         </td>

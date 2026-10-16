@@ -58,7 +58,7 @@
         variant="text"
         @click.prevent="openMenu"
       >
-        <v-icon :icon="mdiPlus" size="20" />
+        <v-icon :icon="mdiPlus" size="1.25rem" />
         Duplicate Course
       </v-btn>
     </div>

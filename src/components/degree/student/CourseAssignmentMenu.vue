@@ -72,7 +72,7 @@
           @click="onSelect(option, false)"
         >
           <span class="sr-only">{{ option.categoryType }}</span>
-          <span class="truncate-with-ellipsis">{{ option.name }}</span>
+          <span class="wrap-anywhere">{{ option.name }}</span>
           <span v-if="option.parent" class="sr-only">of {{ option.parent }}</span>
         </v-btn>
       </v-list-item-action>
@@ -158,6 +158,10 @@ const onSelect = (category, ignore) => {
 </script>
 
 <style>
+.v-btn-content-override {
+  height: auto;
+  min-height: var(--v-btn-height);
+}
 .v-btn-content-override .v-btn__content {
   width: 100%;
 }

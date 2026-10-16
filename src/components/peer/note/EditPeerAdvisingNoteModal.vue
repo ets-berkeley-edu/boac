@@ -9,7 +9,7 @@
   >
     <v-card
       class="modal-content pb-2"
-      max-width="1200"
+      max-width="75rem"
       width="90vw"
     >
       <FocusLock
@@ -238,7 +238,7 @@ const setTemplate = (template: NoteTemplate) => {
 
 <style>
 #peer-advising-note-body .ck-editor__editable_inline {
-  min-height: 100px;
+  min-height: 6.25rem;
 }
 .peer-advising-note-modal {
   --v-overlay-opacity: 0.9;

@@ -10,7 +10,7 @@
       @click="() => isExpanded = !isExpanded"
     >
       <div class="align-center d-flex">
-        <v-icon :icon="isExpanded ? mdiMenuDown : mdiMenuRight" size="24" />
+        <v-icon :icon="isExpanded ? mdiMenuDown : mdiMenuRight" size="1.5rem" />
         <div>
           {{ isExpanded ? 'Hide' : 'Show' }} Personal Details
         </div>
@@ -106,7 +106,7 @@
                       :href="`https://calcentral.berkeley.edu/user/overview/${student.uid}`"
                       target="_blank"
                     >
-                      Student profile in CalCentral <v-icon class="mb-1" :icon="mdiOpenInNew" size="18" />
+                      Student profile in CalCentral <v-icon class="mb-1" :icon="mdiOpenInNew" size="1.125rem" />
                     </a>
                   </div>
                   <div class="mt-2">
@@ -117,7 +117,7 @@
                       :href="`https://imagine-content.berkeley.edu/#documents/view/321Z05B_01EFZBH4W0004XD?simplemode=true&constraint=[field1] = '${student.sid}'`"
                       target="_blank"
                     >
-                      Perceptive Content (Image Now) documents <v-icon class="mb-1" :icon="mdiOpenInNew" size="18" />
+                      Perceptive Content (Image Now) documents <v-icon class="mb-1" :icon="mdiOpenInNew" size="1.125rem" />
                     </a>
                   </div>
                 </div>

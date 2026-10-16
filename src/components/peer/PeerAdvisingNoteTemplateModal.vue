@@ -11,7 +11,7 @@
     >
       <v-card
         class="modal-content overflow-y-hidden"
-        max-width="1100"
+        max-width="68.75rem"
         width="90vw"
       >
         <FocusLock @keydown.esc="cancel">
@@ -268,7 +268,7 @@ const isExistingName = (name) => {
   z-index: 9999 !important;
 }
 #note-template-details .ck-editor__editable {
-  height: 180px;
+  height: 11.25rem;
   width: 100%;
 }
 .peer-advising-template-modal-content {

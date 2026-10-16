@@ -74,14 +74,14 @@ const toggle = () => {
   border-radius: 50%;
 }
 .container {
-  height: 80px;
-  min-height: 80px;
+  height: 5rem;
+  min-height: 5rem;
 }
 .img-blur {
   filter: blur(20px);
 }
 .widget-container {
-  height: 40px;
-  min-height: 40px;
+  height: 2.5rem;
+  min-height: 2.5rem;
 }
 </style>

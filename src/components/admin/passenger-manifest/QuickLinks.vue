@@ -125,7 +125,7 @@ const onClickQuickLink = (deptCode: string) => {
 
 <style scoped>
 .quick-links-label {
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 600;
   padding-top: 1px;
 }

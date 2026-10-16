@@ -69,7 +69,7 @@
             variant="text"
             @click="() => isShowingArchivedTemplates = !isShowingArchivedTemplates"
           >
-            <v-icon :icon="isShowingArchivedTemplates ? mdiMenuDown : mdiMenuRight" size="24" />
+            <v-icon :icon="isShowingArchivedTemplates ? mdiMenuDown : mdiMenuRight" size="1.5rem" />
             {{ isShowingArchivedTemplates ? 'Hide' : 'Show' }} archived degree checks ({{ archivedDegreeTemplates.length }})
           </v-btn>
           <v-expand-transition>

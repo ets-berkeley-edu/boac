@@ -4,7 +4,7 @@
     :color="appointment.status === 'cancelled' ? 'warning' : 'error'"
     density="compact"
     :icon="appointment.isRescheduled ? mdiCalendarClock : (appointment.isStudentNoShow ? mdiCalendarRemove : mdiCalendarMinus)"
-    icon-size="21"
+    icon-size="1.3125rem"
     min-width="7.6rem"
     role="none"
     variant="text"

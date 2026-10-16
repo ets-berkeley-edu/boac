@@ -208,8 +208,8 @@ const onClick = page => {
     a {
       border: 1px solid rgb(var(--v-theme-surface-light));
       border-radius: 0 !important;
-      height: 36px !important;
-      min-width: 40px !important;
+      height: 2.25rem !important;
+      min-width: 2.5rem !important;
       padding: 0 2px;
       width: fit-content !important;
       &:hover {

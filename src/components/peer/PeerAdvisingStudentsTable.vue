@@ -65,7 +65,7 @@
 
           <!-- Email -->
           <td class="td-email">
-            <div class="grid-cell truncate-with-ellipsis">
+            <div class="grid-cell wrap-anywhere">
               <a
                 v-if="getStudentEmail(student)"
                 :href="`mailto:${getStudentEmail(student)}`"
@@ -349,7 +349,7 @@ const getMajors = (s: Student) => Array.isArray(s.majors) ? s.majors : []
 
 <style scoped>
 .student-majors {
-  max-width: 360px;
+  max-width: 22.5rem;
   white-space: normal;
 }
 
@@ -401,7 +401,7 @@ const getMajors = (s: Student) => Array.isArray(s.majors) ? s.majors : []
 @media (max-width: 959px) {
   .student-table-wrapper {
     overflow: hidden;
-    min-width: 300px;
+    min-width: 18.75rem;
   }
   .student-table-wrapper tbody, tr {
     display: block !important;

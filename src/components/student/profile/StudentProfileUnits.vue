@@ -73,30 +73,30 @@ onMounted(() => {
 
 <style scoped>
 .cumulative-units {
-  min-width: 150px;
+  min-width: 9.375rem;
 }
 .cumulative-units-label {
-  font-size: 12px;
+  font-size: 0.75rem;
 }
 .data-number {
-  font-size: 28px;
+  font-size: 1.75rem;
   line-height: 1.4em;
 }
 .student-units-chart {
-  min-width: 200px;
+  min-width: 12.5rem;
 }
 .units {
   align-content: center;
   font-weight: 700;
-  height: 130px;
+  height: 8.125rem;
   white-space: nowrap;
 }
 .units-chart {
-  height: 130px;
-  min-width: 225px;
+  height: 8.125rem;
+  min-width: 14.0625rem;
 }
 .units-label {
-  font-size: 12px;
+  font-size: 0.75rem;
 }
 .v-row-override-margins {
   margin-left: -15px;

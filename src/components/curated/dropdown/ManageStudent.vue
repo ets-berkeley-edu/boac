@@ -88,7 +88,7 @@
               size="small"
             />
           </template>
-          <v-list-item-title class="truncate-with-ellipsis">
+          <v-list-item-title class="wrap-anywhere">
             {{ group.name }}
           </v-list-item-title>
         </v-list-item>
@@ -99,7 +99,7 @@
             class="px-6 my-1"
             color="primary"
             :disabled="!size(xor(existingGroupMemberships, selectedGroupIds)) || isAdding || isRemoving"
-            height="32"
+            height="2rem"
             text="Apply"
             @click.stop="onSubmit"
             @keydown.enter.stop="onSubmit"

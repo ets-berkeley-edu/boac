@@ -18,7 +18,7 @@
           type="button"
           :aria-pressed="isAutoSaveAlertPaused"
           :aria-label="isAutoSaveAlertPaused ? 'Resume Auto-Save Notifications' : 'Pause Auto-Save Notifications'"
-          height="16"
+          height="1rem"
           size="small"
           slim
           :text="isAutoSaveAlertPaused ? 'Resume Notifications' : 'Pause Notifications'"

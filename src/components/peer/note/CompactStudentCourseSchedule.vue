@@ -19,7 +19,7 @@
             size="14"
             width="2"
           />
-          <v-icon v-if="!isFetching" :icon="isExpanded ? mdiMenuDown : mdiMenuRight" size="24" />
+          <v-icon v-if="!isFetching" :icon="isExpanded ? mdiMenuDown : mdiMenuRight" size="1.5rem" />
           <div>
             {{ isExpanded ? 'Hide' : 'Show' }} <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.firstName }}</span>'s course schedule
           </div>

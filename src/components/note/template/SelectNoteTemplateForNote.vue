@@ -10,7 +10,7 @@
         :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
         left="100"
         location="bottom"
-        max-width="1000"
+        max-width="62.5rem"
         :close-on-content-click="false"
         :close-on-backdrop-click="false"
         no-click-animation
@@ -28,7 +28,7 @@
             @mousedown="onSafariActivatorMousedown"
           >
             <div class="pr-1">Templates</div>
-            <v-icon :icon="mdiMenuDown" size="24" />
+            <v-icon :icon="mdiMenuDown" size="1.5rem" />
           </v-btn>
         </template>
         <v-list
@@ -58,7 +58,7 @@
                     @focus="activeTemplateId = template.id"
                   >
                     <span class="v-btn__overlay" />
-                    <div class="truncate-with-ellipsis">{{ template.title }}</div>
+                    <div class="wrap-anywhere">{{ template.title }}</div>
                   </button>
                 </v-col>
                 <v-col class="template-actions pl-8 pr-3" cols="12" md="4">
@@ -69,7 +69,7 @@
                       color="primary"
                       density="compact"
                       :disabled="isSaving"
-                      height="24"
+                      height="1.5rem"
                       variant="text"
                       @click.stop.prevent="openRenameTemplateDialog(template)"
                       @keydown.enter.stop.prevent="openRenameTemplateDialog(template)"
@@ -87,7 +87,7 @@
                       color="primary"
                       density="compact"
                       :disabled="isSaving"
-                      height="24"
+                      height="1.5rem"
                       variant="text"
                       @click="editTemplate(template)"
                       @keydown.enter.stop.prevent="editTemplate(template)"
@@ -105,7 +105,7 @@
                       color="primary"
                       density="compact"
                       :disabled="isSaving"
-                      height="24"
+                      height="1.5rem"
                       variant="text"
                       @click.stop="openDeleteTemplateDialog(template)"
                       @keydown.enter.stop.prevent="openDeleteTemplateDialog(template)"
@@ -137,7 +137,7 @@
     >
       <v-card
         class="modal-content"
-        max-width="700"
+        max-width="43.75rem"
         width="90vw"
       >
         <FocusLock>
@@ -422,10 +422,11 @@ const resetTemplate = (template?: NoteTemplate, title?: string) => {
 
 <style scoped>
 .load-note-template-btn {
-  height: 24px;
+  height: auto;
+  min-height: 1.5rem;
   letter-spacing: normal;
 }
 .template-actions {
-  min-width: 235px !important;
+  min-width: 14.6875rem !important;
 }
 </style>

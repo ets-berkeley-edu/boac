@@ -428,7 +428,7 @@ const validate = () => {
 }
 .manage-degree-checks-column-header {
   font-weight: 700 !important;
-  height: 30px !important;
+  height: 1.875rem !important;
 }
 </style>
 

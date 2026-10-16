@@ -24,7 +24,7 @@
         :id="`degree-template-option-${template.id}`"
         :key="template.id"
         :aria-label="`Add degree check ${template.name}`"
-        class="truncate-with-ellipsis"
+        class="wrap-anywhere"
         :title="template.name"
         :value="template"
       >

@@ -26,7 +26,7 @@
           return {
             class: `${bgColor} font-size-16`,
             id: `td-degree-check-${data.item.id}-column-${data.column.key}`,
-            style: $vuetify.display.mdAndUp ? 'max-width: 200px;' : ''
+            style: $vuetify.display.mdAndUp ? 'max-width: 12.5rem;' : ''
           }
         }"
         class="mt-3"
@@ -69,7 +69,7 @@
               class="mr-2"
               color="warning"
               :icon="mdiAlert"
-              size="18"
+              size="1.125rem"
               title="Revisions to the original degree template have been made since the creation of this degree check."
             />
             <span v-if="item.parentTemplateUpdatedAt">
@@ -146,6 +146,6 @@ onMounted(() => {
 <style>
 .degree-history-column-header {
   font-weight: 700 !important;
-  height: 30px !important;
+  height: 1.875rem !important;
 }
 </style>

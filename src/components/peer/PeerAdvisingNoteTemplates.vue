@@ -218,6 +218,6 @@ const editTemplateClicked = noteTemplate => {
 
 <style>
 .data-table-header-cell {
-  height: 24px !important;
+  height: 1.5rem !important;
 }
 </style>

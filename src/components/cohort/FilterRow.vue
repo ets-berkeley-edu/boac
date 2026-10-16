@@ -24,7 +24,7 @@
       </div>
       <div
         v-if="!isModifyingFilter"
-        class="font-weight-500 truncate-with-ellipsis py-2 w-40"
+        class="font-weight-500 wrap-anywhere py-2 w-40"
       >
         <span class="sr-only">Selected filter value is </span>
         <span v-if="isUX('options') || isUX('option_groups')">{{ getLabelPerSelectedOption() }}</span>
@@ -620,7 +620,7 @@ const updateRangeFilter = () => {
 
 <style scoped>
 .existing-filter-name {
-  min-width: 210px;
+  min-width: 13.125rem;
   width: 30%;
 }
 </style>

@@ -2,12 +2,12 @@
   <div
     :id="id"
     :aria-label="ariaLabel"
-    class="pill-item rounded-pill text-medium-emphasis text-no-wrap text-uppercase"
+    class="pill-item rounded-pill text-medium-emphasis text-uppercase"
     :class="{'text-anchor': href}"
   >
     <component
       :is="href ? 'a' : 'span'"
-      class="align-center d-flex truncate-with-ellipsis"
+      class="align-center d-flex wrap-anywhere"
       :class="{
         'cursor-pointer': href,
         'mr-2': closable

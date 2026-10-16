@@ -46,7 +46,7 @@
             name="topic"
             @close-clicked="remove(topic)"
           >
-            <span class="truncate-with-ellipsis pr-1">
+            <span class="wrap-anywhere pr-1">
               {{ topic }}
             </span>
           </PillItem>
