@@ -29,6 +29,7 @@ from sqlalchemy import func, tuple_
 from sqlalchemy.dialects.postgresql import ARRAY
 
 from boac import db, std_commit
+from boac.externals import sqs
 from boac.lib.util import to_iso_format, utc_now
 from boac.merged.advising_note import get_note_author_summary
 from boac.models.base import Base
@@ -157,6 +158,11 @@ class Comment(Base):
             )
         std_commit()
         db.session.refresh(comment)
+        sqs.send(
+            table='comments',
+            operation='create',
+            rows=[comment.to_sqs_json()],
+        )
         return comment
 
     def update(self, body, delete_attachment_ids=(), new_attachments=()):
@@ -178,6 +184,11 @@ class Comment(Base):
             )
         std_commit()
         db.session.refresh(self)
+        sqs.send(
+            table='comments',
+            operation='update',
+            rows=[self.to_sqs_json()],
+        )
         return self
 
     def soft_delete(self):
@@ -190,6 +201,11 @@ class Comment(Base):
         self.deleted_at = now
         std_commit()
         db.session.refresh(self)
+        sqs.send(
+            table='comments',
+            operation='delete',
+            rows=[self.to_sqs_json()],
+        )
         return self
 
     def to_api_json(self, read=False):
@@ -209,6 +225,21 @@ class Comment(Base):
             'updatedAt': self.resolve_updated_at(),
             'deletedAt': to_iso_format(self.deleted_at),
             'read': bool(read),
+        }
+
+    def to_sqs_json(self):
+        parent = CommentParent.find_by_id(self.comment_parent_id)
+        return {
+            'id': self.id,
+            'comment_parent_id': self.comment_parent_id,
+            'parent_type': parent.parent_type,
+            'author_uid': self.author_uid,
+            'author_name': self.author_name,
+            'author_role': self.author_role,
+            'author_dept_codes': self.author_dept_codes,
+            'body': self.body,
+            'created_at': to_iso_format(self.created_at),
+            'updated_at': to_iso_format(self.updated_at),
         }
 
     def resolve_updated_at(self):
