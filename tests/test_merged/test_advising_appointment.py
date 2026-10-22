@@ -35,7 +35,7 @@ class TestMergedAdvisingAppointment:
     def test_get_advising_appointments(self):
         """Returns all legacy appointments for a given SID."""
         appointments = get_advising_appointments(student_sid)
-        assert len(appointments) == 4
+        assert len(appointments) == 5
 
         # Verify Calendly appointment
         calendly_appointment = next((a for a in appointments if a['createdBy'] == 'Calendly'), None)
@@ -73,25 +73,78 @@ you got to pull up the intruder by the root of the weed; N.Y. Chew through the m
         assert 'statusBy' not in ycbm_appointment
         assert 'statusDate' not in ycbm_appointment
 
-    def test_search(self):
-        """Finds legacy appointments matching the criteria, ordered by rank."""
+    def test_search(self, mock_appointment_comment):  # noqa: PLR0915
+        """Finds legacy appointments and appointment comments matching the criteria, ordered by newest to oldest then rank."""
         results = search_advising_appointments(search_phrase='life')
         appointments = results['appointments']
-        assert len(appointments) == 1
-        assert results['totalAppointmentCount'] == 1
-        assert appointments[0]['advisorName'] == 'Loramps Glub'
-        assert appointments[0]['advisorRole'] is None
-        assert appointments[0]['advisorUid'] == '1081940'
-        assert appointments[0]['advisorDeptCodes'] == ['UWASC']
+        assert results['totalAppointmentCount'] == 4
+        assert len(appointments) == 4
+
+        assert appointments[0]['id'] == '78342-847236-73423'
+        assert appointments[0]['advisor']['name'] == 'John Deleted-in-BOA'
+        assert appointments[0]['advisor']['role'] is None
+        assert appointments[0]['advisor']['sid'] == '333333333'
+        assert appointments[0]['advisor']['uid'] == '33333'
+        assert appointments[0]['advisor']['deptCodes'] == ['QCADV']
         assert 'deptCode' not in appointments[0]
-        assert appointments[0]['details'] == 'Art imitates life.'
-        assert appointments[0]['detailsSnippet'] == 'Art imitates <strong>life</strong>.'
+        assert appointments[0]['details'] == 'A life well lived'
+        assert appointments[0]['detailsSnippet'] == 'A <strong>life</strong> well lived'
         assert 'cancelReason' not in appointments[0]
         assert 'cancelReasonExplained' not in appointments[0]
+        assert appointments[0]['kind'] == 'appointment'
         assert 'status' not in appointments[0]
-        assert appointments[0]['studentSid'] == '9100000000'
-        assert appointments[0]['student']['uid'] == '300848'
-        assert appointments[0]['student']['firstName'] == 'Nora Stanton'
-        assert appointments[0]['student']['lastName'] == 'Barney'
-        assert appointments[0]['createdAt']
+        assert appointments[0]['student']['sid'] == '9191919191'
+        assert appointments[0]['student']['uid'] == '191919'
+        assert appointments[0]['student']['firstName'] == 'Paul'
+        assert appointments[0]['student']['lastName'] == 'Tarsus'
+        assert appointments[0]['createdAt'] is None
         assert appointments[0]['updatedAt'] is None
+
+        assert appointments[1]['id'] == mock_appointment_comment.id
+        assert appointments[1]['parentType'] == 'appointment'
+        assert appointments[1]['parentId'] == '11667051-00010'
+        assert appointments[1]['advisor']['name'] == 'COE Advisor'
+        assert appointments[1]['advisor']['role'] == 'advisor'
+        assert appointments[1]['advisor']['sid'] == '53791'
+        assert appointments[1]['advisor']['uid'] == '1133399'
+        assert appointments[1]['advisor']['deptCodes'] == ['COENG']
+        assert appointments[1]['snippet'] == '<strong>Life</strong> is like a comment on an appointment.'
+        assert appointments[1]['kind'] == 'commentOnAppointment'
+        assert appointments[1]['student']['sid'] == '11667051'
+        assert appointments[1]['student']['uid'] == '61889'
+        assert appointments[1]['student']['firstName'] == 'Deborah'
+        assert appointments[1]['student']['lastName'] == 'Davies'
+        assert appointments[1]['createdAt']
+        assert appointments[1]['updatedAt']
+
+        assert appointments[2]['id'] == '51d827-98ca28-43b98'
+        assert appointments[2]['advisor']['name'] == 'Roberta Joan Anderson'
+        assert appointments[2]['advisor']['role'] is None
+        assert appointments[2]['advisor']['sid'] == '800700600'
+        assert appointments[2]['advisor']['uid'] == '1133399'
+        assert appointments[2]['advisor']['deptCodes'] == ['QCADV']
+        assert appointments[2]['details'] == 'Need an A to pass, strategies for adapting to campus life.'
+        assert appointments[2]['detailsSnippet'] == 'Need an A to pass, strategies for adapting to campus <strong>life</strong>.'
+        assert appointments[2]['kind'] == 'appointment'
+        assert appointments[2]['student']['sid'] == '9191919191'
+        assert appointments[2]['student']['uid'] == '191919'
+        assert appointments[2]['student']['firstName'] == 'Paul'
+        assert appointments[2]['student']['lastName'] == 'Tarsus'
+        assert appointments[2]['createdAt']
+        assert appointments[2]['updatedAt'] is None
+
+        assert appointments[3]['id'] == '9100000000-00010'
+        assert appointments[3]['advisor']['name'] == 'Loramps Glub'
+        assert appointments[3]['advisor']['role'] is None
+        assert appointments[3]['advisor']['sid'] == '100200300'
+        assert appointments[3]['advisor']['uid'] == '1081940'
+        assert appointments[3]['advisor']['deptCodes'] == ['UWASC']
+        assert appointments[3]['details'] == 'Art imitates life. Cancellation'
+        assert appointments[3]['detailsSnippet'] == 'Art imitates <strong>life</strong>. Cancellation'
+        assert appointments[3]['kind'] == 'appointment'
+        assert appointments[3]['student']['sid'] == '9100000000'
+        assert appointments[3]['student']['uid'] == '300848'
+        assert appointments[3]['student']['firstName'] == 'Nora Stanton'
+        assert appointments[3]['student']['lastName'] == 'Barney'
+        assert appointments[3]['createdAt']
+        assert appointments[3]['updatedAt'] is None

@@ -32,7 +32,7 @@ from dateutil.parser import parse
 from boac import std_commit
 from boac.merged.advising_search import search_advising_notes
 from boac.models.note import Note
-from tests.util import refresh_loch_search_index
+from tests.util import refresh_loch_note_search_index
 
 asc_advisor = '6446'
 ce3_advisor_uid = '2525'
@@ -424,10 +424,10 @@ def _create_coe_advisor_note(
         subject=subject,
         body=body,
     )
-    refresh_loch_search_index(app, notes=[note])
+    refresh_loch_note_search_index(app, notes=[note])
     std_commit(allow_test_environment=True)
     yield note
     Note.delete(note_id=note.id)
-    refresh_loch_search_index(app, deleted_notes=[note])
+    refresh_loch_note_search_index(app, deleted_notes=[note])
     std_commit(allow_test_environment=True)
 

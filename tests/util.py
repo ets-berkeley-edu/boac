@@ -29,6 +29,8 @@ import boto3
 import moto
 from botocore.exceptions import ClientError
 
+from boac.models.comment_parent import CommentParent
+
 
 def _ensure_bucket(s3, bucket, region):
     """Create the bucket if it doesn't already exist.
@@ -105,7 +107,64 @@ def pause_mock_sts():
     finally:
         moto.mock_aws().start()
 
-def refresh_loch_search_index(app, notes=None, deleted_notes=None):
+def refresh_loch_appointment_search_index(app, comment=None, deleted_comment=None):
+    from sqlalchemy import create_engine
+    from sqlalchemy.sql import text
+    engine = create_engine(app.config['DATA_LOCH_RDS_URI'])
+    try:
+        with engine.begin() as conn:
+            if comment:
+                parent_appointment = CommentParent.find_by_id(comment.comment_parent_id)
+                searchable_text = f"{comment.body or ''} {comment.author_name or ''}"
+                values = [{
+                    'parent_appointment_id': parent_appointment.parent_id,
+                    'boa_id': comment.id,
+                    'author_uid': comment.author_uid,
+                    'author_name': comment.author_name,
+                    'author_role': comment.author_role,
+                    'author_dept_codes': comment.author_dept_codes,
+                    'body': comment.body.replace("'", r"''") if comment.body else None,
+                    'created_at': comment.created_at,
+                    'updated_at': comment.updated_at,
+                    'searchable_text': searchable_text,
+                }]
+                sql = """INSERT INTO boa_app_rds_data.advising_appointment_comments
+                    (parent_appointment_id, boa_id, author_uid, author_name, author_role,
+                    author_dept_codes, body, created_at, updated_at)
+                  VALUES (
+                    :parent_appointment_id, :boa_id, :author_uid, :author_name, :author_role,
+                    CAST(:author_dept_codes AS varchar[]), :body, :created_at, :updated_at)
+                  ON CONFLICT (boa_id)
+                  DO UPDATE SET
+                    parent_appointment_id = EXCLUDED.parent_appointment_id,
+                    author_uid = EXCLUDED.author_uid,
+                    author_name = EXCLUDED.author_name,
+                    author_role = EXCLUDED.author_role,
+                    author_dept_codes = EXCLUDED.author_dept_codes,
+                    body = EXCLUDED.body,
+                    created_at = EXCLUDED.created_at,
+                    updated_at = EXCLUDED.updated_at;
+                  INSERT INTO boa_app_rds_data.advising_appointment_comments_search_index
+                    (parent_appointment_id, boa_id, fts_index)
+                  VALUES (:parent_appointment_id, :boa_id, TO_TSVECTOR('english', :searchable_text))
+                  ON CONFLICT(boa_id)
+                  DO UPDATE SET
+                    parent_appointment_id = EXCLUDED.parent_appointment_id,
+                    fts_index = EXCLUDED.fts_index;"""
+                conn.execute(text(sql), values)
+            if deleted_comment:
+                params = {
+                    'delete_id': deleted_comment.id,
+                }
+                sql = """DELETE FROM boa_app_rds_data.advising_appointment_comments
+                      WHERE boa_id = :delete_id;
+                    DELETE FROM boa_app_rds_data.advising_appointment_comments_search_index
+                      WHERE boa_id = :delete_id;"""
+                conn.execute(text(sql), params)
+    finally:
+            engine.dispose()
+
+def refresh_loch_note_search_index(app, notes=None, deleted_notes=None):
     from sqlalchemy import create_engine
     from sqlalchemy.sql import text
     engine = create_engine(app.config['DATA_LOCH_RDS_URI'])

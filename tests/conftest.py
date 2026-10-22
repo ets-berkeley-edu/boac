@@ -46,7 +46,12 @@ from boac.models.note_read import NoteRead
 from boac.models.note_template import NoteTemplate
 from boac.models.note_template_attachment import NoteTemplateAttachment
 from boac.models.peer_advising_department import PeerAdvisingDepartment
-from tests.util import mock_advising_note_s3_bucket, override_config, refresh_loch_search_index
+from tests.util import (
+    mock_advising_note_s3_bucket,
+    override_config,
+    refresh_loch_appointment_search_index,
+    refresh_loch_note_search_index,
+)
 
 os.environ['BOAC_ENV'] = 'test'
 os.environ['EC2_INSTANCE_ID'] = 'test: EC2_INSTANCE_ID'
@@ -296,11 +301,11 @@ def mock_advising_note(app, db):
         db=db,
         topics=['collaborative synergies', 'integrated architectures', 'vertical solutions', 'Other / Reason not listed'],
     )
-    refresh_loch_search_index(app, notes=[note])
+    refresh_loch_note_search_index(app, notes=[note])
     std_commit(allow_test_environment=True)
     yield note
     Note.delete(note_id=note.id)
-    refresh_loch_search_index(app, deleted_notes=[note])
+    refresh_loch_note_search_index(app, deleted_notes=[note])
     std_commit(allow_test_environment=True)
 
 
@@ -315,11 +320,11 @@ def mock_ce3_advising_note(app, db):
         db=db,
         topics=['Other / Reason not listed'],
     )
-    refresh_loch_search_index(app, notes=[note])
+    refresh_loch_note_search_index(app, notes=[note])
     std_commit(allow_test_environment=True)
     yield note
     Note.delete(note_id=note.id)
-    refresh_loch_search_index(app, deleted_notes=[note])
+    refresh_loch_note_search_index(app, deleted_notes=[note])
     std_commit(allow_test_environment=True)
 
 
@@ -374,13 +379,50 @@ def mock_advising_note_with_comments(app, db, fake_auth, mock_advising_note):
     db.session.add(comment)
     logout_user()
 
-    refresh_loch_search_index(app, notes=[author_comment, dept_comment, comment])
+    refresh_loch_note_search_index(app, notes=[author_comment, dept_comment, comment])
     std_commit(allow_test_environment=True)
     yield Note.find_by_id(note_id=mock_advising_note.id)
 
     Note.delete(note_id=mock_advising_note.id)
-    refresh_loch_search_index(app, deleted_notes=[author_comment, dept_comment, comment])
+    refresh_loch_note_search_index(app, deleted_notes=[author_comment, dept_comment, comment])
     std_commit(allow_test_environment=True)
+
+
+@pytest.fixture
+def mock_appointment_comment(app, db):
+    from boac.models.comment import Comment
+    from boac.models.comment_parent import CommentParent
+    comment_parent = CommentParent.find_or_create(parent_type='appointment', parent_id='11667051-00010')
+    comment = Comment.create(
+        author_uid='1133399',
+        author_name='COE Advisor',
+        author_role='advisor',
+        author_dept_codes=['COENG'],
+        comment_parent_id=comment_parent.id,
+        body='Life is like a comment on an appointment.',
+    )
+    db.session.add(comment)
+    std_commit(allow_test_environment=True)
+    refresh_loch_appointment_search_index(app, comment=comment)
+    yield comment
+    comment.soft_delete()
+    std_commit(allow_test_environment=True)
+    refresh_loch_appointment_search_index(app, deleted_comment=comment)
+
+
+@pytest.fixture
+def mock_eform_comment(db):
+    from boac.models.comment import Comment
+    from boac.models.comment_parent import CommentParent
+    comment_parent = CommentParent.find_or_create(parent_type='course_load_eform', parent_id='eform-10096')
+    return Comment.create(
+        author_uid='1133399',
+        author_name='COE Advisor',
+        author_role='advisor',
+        author_dept_codes=['COENG'],
+        comment_parent_id=comment_parent.id,
+        body='Comment on an eForm.',
+    )
 
 
 @pytest.fixture
@@ -397,7 +439,7 @@ def mock_note_draft(app, db):
     )
     yield note
     Note.delete(note_id=note.id)
-    refresh_loch_search_index(app, deleted_notes=[note])
+    refresh_loch_note_search_index(app, deleted_notes=[note])
     std_commit(allow_test_environment=True)
 
 
@@ -479,14 +521,14 @@ def mock_eop_peer_advising_note(app, fake_auth, db):
         topics=['topic1', 'topic2', 'topic3'],
     )
     db.session.add(note)
-    refresh_loch_search_index(app, notes=[note])
+    refresh_loch_note_search_index(app, notes=[note])
     std_commit(allow_test_environment=True)
     logout_user()
 
     yield Note.find_by_id(note.id)
 
     Note.delete(note.id)
-    refresh_loch_search_index(app, deleted_notes=[note])
+    refresh_loch_note_search_index(app, deleted_notes=[note])
     std_commit(allow_test_environment=True)
 
 
@@ -510,14 +552,14 @@ def mock_navcal_peer_advising_note(app, fake_auth, db):
         topics=['topic1', 'topic2', 'topic3'],
     )
     db.session.add(note)
-    refresh_loch_search_index(app, notes=[note])
+    refresh_loch_note_search_index(app, notes=[note])
     std_commit(allow_test_environment=True)
     logout_user()
 
     yield Note.find_by_id(note.id)
 
     Note.delete(note.id)
-    refresh_loch_search_index(app, deleted_notes=[note])
+    refresh_loch_note_search_index(app, deleted_notes=[note])
     std_commit(allow_test_environment=True)
 
 
@@ -541,14 +583,14 @@ def mock_navcal_peer_advising_manager_note(app, fake_auth, db):
         topics=['topic1', 'topic2', 'topic3'],
     )
     db.session.add(note)
-    refresh_loch_search_index(app, notes=[note])
+    refresh_loch_note_search_index(app, notes=[note])
     std_commit(allow_test_environment=True)
     logout_user()
 
     yield Note.find_by_id(note.id)
 
     Note.delete(note.id)
-    refresh_loch_search_index(app, deleted_notes=[note])
+    refresh_loch_note_search_index(app, deleted_notes=[note])
     std_commit(allow_test_environment=True)
 
 
@@ -642,12 +684,12 @@ def mock_navcal_peer_advising_note_with_comments(app, fake_auth, db, mock_navcal
     )
     db.session.add(advisor_comment)
     logout_user()
-    refresh_loch_search_index(app, notes=[author_comment, peer_comment, dept_advisor_comment, advisor_comment])
+    refresh_loch_note_search_index(app, notes=[author_comment, peer_comment, dept_advisor_comment, advisor_comment])
     std_commit(allow_test_environment=True)
     yield Note.find_by_id(mock_navcal_peer_advising_note.id)
 
     Note.delete(mock_navcal_peer_advising_note.id)
-    refresh_loch_search_index(app, deleted_notes=[author_comment, peer_comment, dept_advisor_comment, advisor_comment])
+    refresh_loch_note_search_index(app, deleted_notes=[author_comment, peer_comment, dept_advisor_comment, advisor_comment])
     std_commit(allow_test_environment=True)
 
 
@@ -662,11 +704,11 @@ def mock_private_advising_note(app, db):
         db=db,
         is_private=True,
     )
-    refresh_loch_search_index(app, notes=[note])
+    refresh_loch_note_search_index(app, notes=[note])
     std_commit(allow_test_environment=True)
     yield note
     Note.delete(note_id=note.id)
-    refresh_loch_search_index(app, deleted_notes=[note])
+    refresh_loch_note_search_index(app, deleted_notes=[note])
     std_commit(allow_test_environment=True)
 
 

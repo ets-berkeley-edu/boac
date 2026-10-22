@@ -34,41 +34,60 @@ CREATE SCHEMA sis_data;
 CREATE SCHEMA student;
 CREATE SCHEMA terms;
 
+CREATE TABLE boa_app_rds_data.advising_appointment_comments (
+    parent_appointment_id VARCHAR NOT NULL,
+    boa_id INTEGER PRIMARY KEY,
+    author_uid VARCHAR NOT NULL,
+    author_name VARCHAR NOT NULL,
+    author_role VARCHAR NOT NULL,
+    author_dept_codes VARCHAR[] NOT NULL,
+    body TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    deleted_at TIMESTAMP WITH TIME ZONE
+);
+
+CREATE TABLE boa_app_rds_data.advising_appointment_comments_search_index (
+    parent_appointment_id VARCHAR,
+    boa_id INTEGER PRIMARY KEY,
+    fts_index tsvector
+);
+
 CREATE TABLE boa_app_rds_data.advising_note_authors_index (
   advisor_name VARCHAR PRIMARY KEY,
   advisor_uid VARCHAR
 );
 
 CREATE TABLE boa_app_rds_data.advising_note_topics (
-    id character varying,
-    sid character varying NOT NULL,
-    boa_id character varying NOT NULL,
-    topic character varying,
+    id VARCHAR,
+    sid VARCHAR NOT NULL,
+    boa_id VARCHAR NOT NULL,
+    topic VARCHAR,
     CONSTRAINT advising_note_topics_pkey PRIMARY KEY (id, topic)
 );
 
 CREATE TABLE boa_app_rds_data.advising_notes (
-    id character varying PRIMARY KEY,
-    sid character varying NOT NULL,
-    boa_id integer NOT NULL,
-    advisor_uid character varying,
-    author_name character varying,
-    advisor_first_name character varying,
-    advisor_last_name character varying,
-    author_dept_codes character varying[],
-    subject character varying,
-    note_body text,
-    is_private boolean,
-    contact_type character varying,
-    set_date date,
-    parent_note_id integer,
-    peer_advising_department_id integer,
-    created_at timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone NOT NULL
+    id VARCHAR PRIMARY KEY,
+    sid VARCHAR NOT NULL,
+    boa_id INTEGER NOT NULL,
+    advisor_uid VARCHAR,
+    author_name VARCHAR,
+    advisor_first_name VARCHAR,
+    advisor_last_name VARCHAR,
+    author_dept_codes VARCHAR[],
+    subject VARCHAR,
+    note_body TEXT,
+    is_private BOOLEAN,
+    contact_type VARCHAR,
+    set_date DATE,
+    parent_note_id INTEGER,
+    peer_advising_department_id INTEGER,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
 CREATE TABLE boa_app_rds_data.advising_notes_search_index (
-    id character varying PRIMARY KEY,
+    id VARCHAR PRIMARY KEY,
     fts_index tsvector
 );
 
@@ -106,6 +125,7 @@ CREATE TABLE boac_advising_appointments.ycbm_advising_appointments
     cancelled BOOLEAN,
     cancellation_reason TEXT,
     advisor_name VARCHAR,
+    advisor_email VARCHAR,
     appointment_type VARCHAR,
     details VARCHAR
 );
@@ -282,9 +302,9 @@ CREATE TABLE boac_advising_notes.advising_note_authors
 );
 
 CREATE TABLE boac_advising_notes.advising_note_topics_curated (
-    id character varying,
-    sid character varying NOT NULL,
-    topic character varying,
+    id VARCHAR,
+    sid VARCHAR NOT NULL,
+    topic VARCHAR,
     CONSTRAINT advising_note_topics_curated_pkey PRIMARY KEY (id, topic)
 );
 
@@ -578,6 +598,17 @@ CREATE TABLE sis_data.academic_plan_hierarchy
     degree_name VARCHAR
 );
 
+CREATE TABLE sis_data.basic_attributes (
+    ldap_uid VARCHAR,
+    sid VARCHAR,
+    first_name VARCHAR,
+    last_name VARCHAR,
+    email_address VARCHAR,
+    affiliations VARCHAR,
+    person_type VARCHAR,
+    pronouns VARCHAR
+);
+
 CREATE TABLE sis_data.enrolled_primary_sections
 (
     term_id VARCHAR NOT NULL,
@@ -744,18 +775,18 @@ CREATE TABLE terms.term_definitions
 );
 
 INSERT INTO boac_advising_appointments.calendly_advising_appointments
-(id, student_uid, student_sid, title, start_time, end_time, canceled_at, cancellation_reason, host_name, is_rescheduled, is_student_no_show, questions_and_answers)
+(id, student_uid, student_sid, title, meeting_notes_plain, start_time, end_time, canceled_at, cancellation_reason, host_name, host_sid, host_uid, is_rescheduled, is_student_no_show, questions_and_answers)
 VALUES
-('34789-925470-48723', '191919', '11667051', 'Shake it like a Polaroid', '2021-08-13 11:00:00+00', '2021-08-13 1:00:00+00', NULL, NULL, 'Edwin Land', FALSE, FALSE, '[{"question": "Can you picture this?", "answer": "Yes"}]'),
-('78342-847236-73423', '191919', '9191919191', 'Calendly in the house', '2021-08-13 11:00:00+00', '2021-08-13 1:00:00+00', NULL, NULL, 'YCBM can suck it!', FALSE, FALSE, '[{"question": "Are you happy?", "answer": "No"}]'),
-('83920-809233-32433', '191919', '9191919191', 'Writers on the Storm', '2015-08-13 11:00:00+00', '2015-08-13 1:00:00+00', '2015-08-12 1:00:00+00', 'The Doors closed on this one', 'Mr. Morrison', FALSE, TRUE, '[{"question": "Are you happy?", "answer": "Maybe"}]');
+('34789-925470-48723', '191919', '11667051', 'Shake it like a Polaroid', NULL, '2021-08-13 11:00:00+00', '2021-08-13 1:00:00+00', NULL, NULL, 'Edwin Land', '333333333', '33333', FALSE, FALSE, '[{"question": "Can you picture this?", "answer": "Yes"}]'),
+('78342-847236-73423', '191919', '9191919191', 'A life well lived', NULL, '2021-08-13 11:00:00+00', '2021-08-13 1:00:00+00', NULL, NULL, 'YCBM can suck it!', '333333333', '33333', FALSE, FALSE, '[{"question": "Are you happy?", "answer": "No"}]'),
+('83920-809233-32433', '191919', '9191919191', 'Writers on the Storm', NULL, '2015-08-13 11:00:00+00', '2015-08-13 1:00:00+00', '2015-08-12 1:00:00+00', 'The Doors closed on this one', 'Mr. Morrison', '111111111', '1', FALSE, TRUE, '[{"question": "Are you happy?", "answer": "Maybe"}]');
 
 INSERT INTO boac_advising_appointments.ycbm_advising_appointments
-(id, student_uid, student_sid, title, starts_at, ends_at, cancelled, cancellation_reason, advisor_name, appointment_type, details)
+(id, student_uid, student_sid, title, starts_at, ends_at, cancelled, cancellation_reason, advisor_name, advisor_email, appointment_type, details)
 VALUES
-('34789-925470-48723', '191919', '9191919191', 'Need help getting Travis to pass', '2021-08-13 11:00:00+00', '2021-08-13 1:00:00+00', FALSE, NULL, 'Crossman', 'Github', 'Failure is the name of the game'),
-('78342-847236-73423', '191919', '9191919191', 'YCBM', '2021-08-13 11:00:00+00', '2021-08-13 1:00:00+00', FALSE, NULL, 'Villalobos', 'Github', 'Need an A to pass'),
-('83920-809233-32433', '191919', '9191919191', 'Did you know when you eat pineapples, they eat you back?', '2015-08-13 11:00:00+00', '2015-08-13 1:00:00+00', TRUE, 'Dont eat too many pineapples', 'Cesar', 'Hangout', 'It is because of an enzyme that breaks down proteins in your tongue, thats why it feels tingly');
+('0d58ea-5e143b-6e724', '191919', '11667051', 'Need help getting Travis to pass', '2021-08-13 11:00:00+00', '2021-08-13 1:00:00+00', FALSE, NULL, 'Crossman', 'joni@berkeley.edu', 'Github', 'Failure is the name of the game'),
+('51d827-98ca28-43b98', '191919', '9191919191', 'strategies for adapting to campus life.', '2021-08-13 11:00:00+00', '2021-08-13 1:00:00+00', FALSE, NULL, 'Villalobos', 'joni@berkeley.edu', 'Github', 'Need an A to pass'),
+('41f897-652145-e7242', '191919', '9191919191', 'Did you know when you eat pineapples, they eat you back?', '2015-08-13 11:00:00+00', '2015-08-13 1:00:00+00', TRUE, 'Dont eat too many pineapples', 'Cesar', 'joni@berkeley.edu', 'Hangout', 'It is because of an enzyme that breaks down proteins in your tongue, thats why it feels tingly');
 
 INSERT INTO boac_advising_asc.advising_notes
 (id, asc_id, sid, student_first_name, student_last_name, meeting_date, advisor_uid, advisor_first_name, advisor_last_name, subject, body, created_at, updated_at)
@@ -952,7 +983,7 @@ VALUES
 ('100000000', '13', 'Hurdley', 'Bardolf', 'Student Academic Advisor', 'EDESS', NULL, 'hbarde@berkeley.edu'),
 ('100100100', '90412', 'Ginger', 'Baker', NULL, 'EGCEE', NULL, 'gbaker@berkeley.edu'),
 ('100100300', '1022796', 'Bebe', 'De La Rosa', 'Undergraduate Affairs Officer', 'EDDNO', NULL, 'bebe@berkeley.edu'),
-('800700600', '1133399', 'Roberta', 'Anderson', 'Department Manager', 'EIIEO', 'joni@gmail.edu', '100200300'),
+('800700600', '1133399', 'Roberta', 'Anderson', 'Department Manager', 'EIIEO', 'joni@gmail.edu', 'joni@berkeley.edu'),
 ('211159', '211159', 'Roland', 'Bestwestern', 'Academic Advisor', 'EDESS', NULL, 'rbestwestern@berkeley.edu'),
 ('100100600', '242881', 'Geert', 'Biederschmitz', 'Harmless Drudge', 'HENGL', NULL, 'geert@berkeley.edu'),
 ('600500400', '1133397', 'Robert', 'Johnson', 'Undergraduate Academic Advisor', 'HOGSP', NULL, 'robertjohnson@berkeley.edu'),
@@ -1006,19 +1037,15 @@ INSERT INTO sis_advising_notes.advising_appointments
 (id, sid, student_note_nr, advisor_sid, appointment_id, note_category, note_subcategory, note_body, created_by, updated_by, created_at, updated_at)
 VALUES
 ('11667051-00010', '11667051', '00010', '53791', '000000123', 'Appointment Type', 'Document', 'To my people who keep an impressive wingspan even when the cubicle shrink: you got to pull up the intruder by the root of the weed; N.Y. Chew through the machine', NULL, NULL, '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00'),
-('11667051-00011', '11667051', '00011', '700600500', NULL, 'Appointment Type', '', '', NULL, NULL, '2017-11-01T12:00:00+00', '2017-11-01T12:00:00+00'),
+('11667051-00011', '11667051', '00011', '700600500', NULL, 'Appointment Type', 'Phone Advising', '', NULL, NULL, '2017-11-01T12:00:00+00', '2017-11-01T12:00:00+00'),
 ('11667051-00012', '11667051', '00012', '100200300', NULL, 'Appointment Type', 'Entry w/o Contact', 'When soldering a perfect union it is vital to calculate any ornery loose ends so if mutiny ensues the aloof is assumed nuisance. The clue is in his vacancy, the proof is in his goosebumps.', NULL, NULL, '2017-11-05T12:00:00+00', '2017-11-06T12:00:00+00'),
-('9100000000-00010', '9100000000', '00010', '100200300', NULL, 'Appointment Type', '', 'Art imitates life.', 'UCBCONVERSION', NULL, '2017-11-02T12:00:00+00', '2017-11-02T12:00:00+00'),
-('2718281828-00002', '2718281828', '00002', '600500400', NULL, 'Appointment Type', '', 'As the largest Pez dispenser on record recouped his numbers', 'UCBCONVERSION', NULL, '2006-11-02T12:00:00+00', '2006-11-02T12:00:00+00');
+('9100000000-00010', '9100000000', '00010', '100200300', NULL, 'Appointment Type', 'Cancellation', 'Art imitates life.', 'UCBCONVERSION', NULL, '2017-11-02T12:00:00+00', '2017-11-02T12:00:00+00'),
+('2718281828-00002', '2718281828', '00002', '600500400', NULL, 'Appointment Type', 'Same-day Advising', 'As the largest Pez dispenser on record recouped his numbers', 'UCBCONVERSION', NULL, '2006-11-02T12:00:00+00', '2006-11-02T12:00:00+00');
 
 CREATE MATERIALIZED VIEW sis_advising_notes.advising_appointments_search_index AS (
   SELECT id, to_tsvector(
     'english',
-    CASE
-      WHEN note_body IS NOT NULL and TRIM(note_body) != '' THEN note_body
-      WHEN note_subcategory IS NOT NULL THEN note_category || ' ' || note_subcategory
-      ELSE note_category
-    END
+    COALESCE(note_body, '') || ' ' || note_subcategory
   ) AS fts_index
   FROM sis_advising_notes.advising_appointments
 );
@@ -1076,6 +1103,7 @@ VALUES
 ('11667051-00003', '11667051', 'Scéaw Tima'),
 ('11667051-00002', '11667051', 'Ofscéaw'),
 ('11667051-00010', '11667051', 'Ofscéaw'),
+('11667051-00011', '11667051', 'Ofscéaw'),
 ('9000000000-00001', '9000000000', 'Ne Scéaw');
 
 INSERT INTO sis_advising_notes.advising_note_topic_mappings
@@ -1148,53 +1176,149 @@ CREATE MATERIALIZED VIEW sis_advising_notes.student_late_drop_eforms_search_inde
   FROM sis_advising_notes.student_late_drop_eforms
 );
 
+INSERT INTO sis_data.basic_attributes(ldap_uid, sid, first_name, last_name, email_address, affiliations, person_type, pronouns)
+VALUES
+('61889', '11667051', 'Deborah', 'Davies', 'barnburner@berkeley.edu', NULL, NULL, NULL),
+('211159', '890127492', 'Siegfried', 'Schlemiel', 'neerdowell@berkeley.edu', NULL, NULL, NULL),
+('98765', '2345678901', 'Dave', 'Doolittle', 'debaser@berkeley.edu', NULL, NULL, NULL),
+('242881', '3456789012', 'Pauline', 'Kerschen', 'doctork@berkeley.edu', NULL, NULL, NULL),
+('9933311', '5678901234', 'Sandeep', 'Jayaprakash', 'ilovela@berkeley.edu', NULL, NULL, NULL),
+('1049291', '7890123456', 'Paul', 'Farestveit', 'qadept@berkeley.edu', NULL, NULL, NULL),
+('123456', '8901234567', 'John David', 'Crossman', 'mrwonderful@berkeley.edu', NULL, NULL, NULL),
+('300847', '9000000000', 'Wolfgang', 'Pauli-O''Rourke', 'wpo@berkeley.edu', NULL, NULL, NULL),
+('300848', '9100000000', 'Nora Stanton', 'Barney', 'nsb@berkeley.edu', NULL, NULL, NULL),
+('271828', '2718281828', 'Ernest', 'Pontifex', 'ep@berkeley.edu', NULL, NULL, NULL),
+('314159', '3141592653', 'Johannes', 'Climacus', 'jc@berkeley.edu', NULL, NULL, NULL),
+('191919', '9191919191', 'Paul', 'Tarsus', NULL, NULL, NULL, NULL),
+('13', '100000000', 'Hurdley', 'Bardolf', 'hbarde@berkeley.edu', NULL, NULL, NULL),
+('90412', '100100100', 'Ginger', 'Baker', 'gbaker@berkeley.edu', NULL, NULL, NULL),
+('1022796', '100100300', 'Bebe', 'De La Rosa', 'bebe@berkeley.edu', NULL, NULL, NULL),
+('1081940', '100200300', 'Loramps', 'Glub', 'blub@berkeley.edu', NULL, NULL, NULL),
+('242881', '100100600', 'Geert', 'Biederschmitz', 'geert@berkeley.edu', NULL, NULL, NULL),
+('211159', '211159', 'Roland', 'Bestwestern', 'rbestwestern@berkeley.edu', NULL, NULL, NULL),
+('53791', '53791', 'Milicent', 'Balthazar', 'mbalth@berkeley.edu', NULL, NULL, NULL),
+('1133397', '600500400', 'Robert', 'Johnson', 'robertjohnson@berkeley.edu', NULL, NULL, NULL),
+('1133398', '700600500', 'Charlie', 'Christian', NULL, NULL, NULL, NULL),
+('1133399', '800700600', 'Joni', 'Mitchell', 'joni@berkeley.edu', NULL, NULL, NULL),
+('1', '111111111', 'Jazz', 'Gunn', 'jazzgunn@berkeley.edu', NULL, NULL, NULL),
+('2', '222222222', 'Jimmy', 'Integer', 'jimint@berkeley.edu', NULL, NULL, NULL),
+('1234567', '333333333', 'John', 'Deleted-in-BOA', 'no-boa@berkeley.edu', NULL, NULL, NULL);
+
+CREATE TABLE boac_advising_appointments.advising_appointments AS(
+  SELECT DISTINCT on (aa.id)
+    aa.id,
+    students.ldap_uid AS student_uid,
+    aa.sid AS student_sid,
+    advisors.ldap_uid AS advisor_uid,
+    aa.advisor_sid,
+    advisors.first_name || ' ' || advisors.last_name AS advisor_name,
+    aa.note_subcategory AS subject,
+    COALESCE(NULLIF(aa.note_body, ' '), aa.note_category) AS body,
+    aa.created_by,
+    aa.created_at,
+    aa.updated_at
+  FROM sis_advising_notes.advising_appointments aa
+  LEFT JOIN sis_data.basic_attributes advisors
+    ON aa.advisor_sid = advisors.sid
+  LEFT JOIN sis_data.basic_attributes students
+    ON aa.sid = students.sid
+  UNION
+  SELECT DISTINCT on (aa.id)
+    aa.id,
+    COALESCE(aa.student_uid, students.ldap_uid) AS student_uid,
+    COALESCE(aa.student_sid, students.sid) AS student_sid,
+    advisors.ldap_uid AS advisor_uid,
+    advisors.sid AS advisor_sid,
+    aa.advisor_name,
+    aa.title AS subject,
+    aa.details AS body,
+    'YCBM' AS created_by,
+    aa.starts_at AS created_at,
+    NULL AS updated_at
+  FROM boac_advising_appointments.ycbm_advising_appointments aa
+  LEFT JOIN sis_data.basic_attributes advisors
+    ON aa.advisor_email = advisors.email_address
+  LEFT JOIN sis_data.basic_attributes students
+    ON (aa.student_uid = students.ldap_uid OR aa.student_sid = students.sid)
+  UNION
+  SELECT DISTINCT on (aa.id)
+    aa.id,
+    aa.student_uid,
+    students.sid AS student_sid,
+    advisors.ldap_uid AS advisor_uid,
+    advisors.sid AS advisor_sid,
+    aa.host_name AS advisor_name,
+    aa.title AS subject,
+    aa.meeting_notes_plain AS body,
+    'Calendly' AS created_by,
+    aa.created_at,
+    aa.updated_at
+  FROM boac_advising_appointments.calendly_advising_appointments aa
+  LEFT JOIN sis_data.basic_attributes advisors
+    ON (aa.host_uid = advisors.ldap_uid OR aa.host_sid = advisors.sid)
+  LEFT JOIN sis_data.basic_attributes students
+    ON (aa.student_uid = students.ldap_uid)
+);
+
+CREATE TABLE boac_advising_appointments.advising_appointments_search_index AS (
+  SELECT id, fts_index FROM sis_advising_notes.advising_appointments_search_index
+   UNION
+  SELECT id, to_tsvector('english', COALESCE(meeting_notes_plain, '') || ' ' || COALESCE(title, '')) AS fts_index
+    FROM boac_advising_appointments.calendly_advising_appointments
+   UNION
+  SELECT id, to_tsvector('english', COALESCE(details, '') || ' ' || COALESCE(title, '')) AS fts_index
+    FROM boac_advising_appointments.ycbm_advising_appointments
+);
+CREATE UNIQUE INDEX idx_advising_appointments_search_index_pkey
+  ON boac_advising_appointments.advising_appointments_search_index(id text_ops);
+
 CREATE TABLE boac_advising_notes.advising_notes AS (
-SELECT sis.sid, sis.id, sis.note_body, sis.advisor_sid,
-       NULL::varchar AS advisor_uid, NULL::varchar AS author_name, NULL::varchar AS advisor_first_name,
-       NULL::varchar AS advisor_last_name, ARRAY[]::varchar[] AS author_dept_codes, NULL::varchar AS subject,
-       sis.note_category, sis.note_subcategory, FALSE AS is_private, NULL::varchar AS contact_type,
-       NULL::date AS set_date, sis.created_by, sis.created_at, sis.updated_at
-FROM sis_advising_notes.advising_notes sis
+  SELECT sis.sid, sis.id, sis.note_body, sis.advisor_sid,
+         NULL::varchar AS advisor_uid, NULL::varchar AS author_name, NULL::varchar AS advisor_first_name,
+         NULL::varchar AS advisor_last_name, ARRAY[]::varchar[] AS author_dept_codes, NULL::varchar AS subject,
+         sis.note_category, sis.note_subcategory, FALSE AS is_private, NULL::varchar AS contact_type,
+         NULL::date AS set_date, sis.created_by, sis.created_at, sis.updated_at
+  FROM sis_advising_notes.advising_notes sis
 UNION
-SELECT ascn.sid, ascn.id, NULL AS note_body, NULL AS advisor_sid,
-       ascn.advisor_uid, NULL AS author_name, ascn.advisor_first_name,
-       ascn.advisor_last_name, ARRAY[]::varchar[] AS author_dept_codes, NULL AS subject,
-       NULL AS note_category, NULL AS note_subcategory, FALSE AS is_private, NULL AS contact_type,
-       NULL AS set_date, NULL AS created_by, ascn.created_at, ascn.updated_at
-FROM boac_advising_asc.advising_notes ascn
+  SELECT ascn.sid, ascn.id, NULL AS note_body, NULL AS advisor_sid,
+         ascn.advisor_uid, NULL AS author_name, ascn.advisor_first_name,
+         ascn.advisor_last_name, ARRAY[]::varchar[] AS author_dept_codes, NULL AS subject,
+         NULL AS note_category, NULL AS note_subcategory, FALSE AS is_private, NULL AS contact_type,
+         NULL AS set_date, NULL AS created_by, ascn.created_at, ascn.updated_at
+  FROM boac_advising_asc.advising_notes ascn
 UNION
-SELECT dsn.sid, dsn.id, dsn.body AS note_body, dsna.sid AS advisor_sid,
-       dsna.uid AS advisor_uid, NULL AS author_name, dsna.first_name AS advisor_first_name,
-       dsna.last_name AS advisor_last_name, ARRAY[]::varchar[] AS author_dept_codes, NULL AS subject,
-       NULL AS note_category, NULL AS note_subcategory, FALSE AS is_private, NULL AS contact_type,
-       NULL AS set_date, NULL AS created_by, dsn.created_at, NULL AS updated_at
-FROM boac_advising_data_science.advising_notes dsn
-JOIN boac_advising_notes.advising_note_authors dsna ON dsn.advisor_email = dsna.campus_email
+  SELECT dsn.sid, dsn.id, dsn.body AS note_body, dsna.sid AS advisor_sid,
+         dsna.uid AS advisor_uid, NULL AS author_name, dsna.first_name AS advisor_first_name,
+         dsna.last_name AS advisor_last_name, ARRAY[]::varchar[] AS author_dept_codes, NULL AS subject,
+         NULL AS note_category, NULL AS note_subcategory, FALSE AS is_private, NULL AS contact_type,
+         NULL AS set_date, NULL AS created_by, dsn.created_at, NULL AS updated_at
+  FROM boac_advising_data_science.advising_notes dsn
+  JOIN boac_advising_notes.advising_note_authors dsna ON dsn.advisor_email = dsna.campus_email
 UNION
-SELECT ein.sid, ein.id, NULL AS note_body, NULL AS advisor_sid,
-       ein.advisor_uid, NULL AS author_name, ein.advisor_first_name,
-       ein.advisor_last_name, ARRAY[]::varchar[] AS author_dept_codes, NULL AS subject,
-       NULL AS note_category, NULL AS note_subcategory, FALSE AS is_private, NULL AS contact_type,
-       NULL AS set_date, NULL AS created_by, ein.created_at, ein.updated_at
-FROM boac_advising_e_i.advising_notes ein
+  SELECT ein.sid, ein.id, NULL AS note_body, NULL AS advisor_sid,
+         ein.advisor_uid, NULL AS author_name, ein.advisor_first_name,
+         ein.advisor_last_name, ARRAY[]::varchar[] AS author_dept_codes, NULL AS subject,
+         NULL AS note_category, NULL AS note_subcategory, FALSE AS is_private, NULL AS contact_type,
+         NULL AS set_date, NULL AS created_by, ein.created_at, ein.updated_at
+  FROM boac_advising_e_i.advising_notes ein
 UNION
-SELECT eop.sid, eop.id, note AS note_body, NULL AS advisor_sid,
-       eop.advisor_uid, NULL AS author_name, eop.advisor_first_name,
-       eop.advisor_last_name, ARRAY[]::varchar[] AS author_dept_codes, NULL AS subject,
-       NULL AS note_category, NULL AS note_subcategory,
-       CASE
-          WHEN eop.privacy_permissions IS NOT NULL THEN TRUE
-          ELSE FALSE
-       END AS is_private, NULL AS contact_type,
-       NULL AS set_date, eop.advisor_uid AS created_by, eop.created_at, eop.created_at AS updated_at
-FROM boac_advising_eop.advising_notes eop
+  SELECT eop.sid, eop.id, note AS note_body, NULL AS advisor_sid,
+         eop.advisor_uid, NULL AS author_name, eop.advisor_first_name,
+         eop.advisor_last_name, ARRAY[]::varchar[] AS author_dept_codes, NULL AS subject,
+         NULL AS note_category, NULL AS note_subcategory,
+         CASE
+            WHEN eop.privacy_permissions IS NOT NULL THEN TRUE
+            ELSE FALSE
+         END AS is_private, NULL AS contact_type,
+         NULL AS set_date, eop.advisor_uid AS created_by, eop.created_at, eop.created_at AS updated_at
+  FROM boac_advising_eop.advising_notes eop
 UNION
-SELECT hdn.sid, hdn.id, hdn.note AS note_body, NULL AS advisor_sid,
-       NULL AS advisor_uid, NULL AS author_name, NULL AS advisor_first_name,
-       NULL AS advisor_last_name,  ARRAY[]::varchar[] AS author_dept_codes, NULL AS subject,
-       NULL AS note_category, NULL AS note_subcategory, FALSE AS is_private, NULL AS contact_type,
-       NULL AS set_date, NULL AS created_by, NULL AS created_at, NULL AS updated_at
-FROM boac_advising_history_dept.advising_notes hdn
+  SELECT hdn.sid, hdn.id, hdn.note AS note_body, NULL AS advisor_sid,
+         NULL AS advisor_uid, NULL AS author_name, NULL AS advisor_first_name,
+         NULL AS advisor_last_name,  ARRAY[]::varchar[] AS author_dept_codes, NULL AS subject,
+         NULL AS note_category, NULL AS note_subcategory, FALSE AS is_private, NULL AS contact_type,
+         NULL AS set_date, NULL AS created_by, NULL AS created_at, NULL AS updated_at
+  FROM boac_advising_history_dept.advising_notes hdn
 );
 
 CREATE MATERIALIZED VIEW boac_advising_notes.advising_notes_search_index AS (

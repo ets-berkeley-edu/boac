@@ -23,13 +23,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-import pytest
-
 from boac.models.appointment_read import AppointmentRead
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.comment import Comment
 from boac.models.comment_attachment import CommentAttachment
-from boac.models.comment_parent import CommentParent
 from boac.models.comment_read import CommentRead
 from boac.models.note_read import NoteRead
 from tests.util import mock_advising_note_s3_bucket
@@ -43,33 +40,8 @@ APPOINTMENT_PARENT_ID = '11667051-00010'
 EFORM_PARENT_ID = 'eform-10096'
 
 
-@pytest.fixture
-def mock_appointment_comment(db):
-    comment_parent = CommentParent.find_or_create(parent_type='appointment', parent_id=APPOINTMENT_PARENT_ID)
-    return Comment.create(
-        author_uid=coe_advisor_uid,
-        author_name='COE Advisor',
-        author_role='advisor',
-        author_dept_codes=['COENG'],
-        comment_parent_id=comment_parent.id,
-        body='A test comment body.',
-    )
-
-
-@pytest.fixture
-def mock_eform_comment(db):
-    comment_parent = CommentParent.find_or_create(parent_type='course_load_eform', parent_id=EFORM_PARENT_ID)
-    return Comment.create(
-        author_uid=coe_advisor_uid,
-        author_name='COE Advisor',
-        author_role='advisor',
-        author_dept_codes=['COENG'],
-        comment_parent_id=comment_parent.id,
-        body='A test comment body.',
-    )
-
-
 class TestCreateComment:
+    """Create Comment API."""
 
     def test_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
@@ -298,6 +270,7 @@ class TestCreateComment:
 
 
 class TestUpdateComment:
+    """Update Comment API."""
 
     def test_not_authenticated(self, client, mock_appointment_comment):
         """Returns 401 if not authenticated."""
@@ -550,6 +523,7 @@ class TestUpdateComment:
 
 
 class TestDeleteComment:
+    """Delete Comment API."""
 
     def test_not_authenticated(self, client, mock_appointment_comment):
         """Returns 401 if not authenticated."""
