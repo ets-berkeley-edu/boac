@@ -32,18 +32,13 @@ from flask_login import current_user
 from boac.externals import data_loch
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.sis_advising import get_sis_advising_attachments, get_sis_advising_topics, resolve_sis_created_at, resolve_sis_updated_at
-from boac.lib.util import TEXT_SEARCH_PATTERN, get_benchmarker, join_if_present, search_result_text_snippet
+from boac.lib.util import TEXT_SEARCH_PATTERN, get_benchmarker, join_if_present, search_result_text_snippet, to_iso_format
 from boac.merged.advising_search import (
-    build_comment_search_result,
-    get_students_by_sid,
-    merge_search_feed,
     parse_search_phrases,
-    resolved_comment_total_count,
 )
 from boac.merged.calnet import get_calnet_users_for_csids, get_uid_for_csid
 from boac.models.appointment_read import AppointmentRead
 from boac.models.authorized_user import AuthorizedUser
-from boac.models.comment import Comment
 
 """Provide advising appointment data from local and external sources."""
 
@@ -145,7 +140,6 @@ def search_advising_appointments(
 
     advisor_uid = get_uid_for_csid(app, advisor_csid) if (not advisor_uid and advisor_csid) else advisor_uid
 
-    fetch_limit = offset + limit
     benchmark('begin loch appointments query')
     loch_results = data_loch.search_advising_appointments(
         search_phrase=search_phrase,
@@ -156,43 +150,16 @@ def search_advising_appointments(
         topic=topic,
         datetime_from=datetime_from,
         datetime_to=datetime_to,
-        offset=0,
-        limit=fetch_limit,
+        offset=offset,
+        limit=limit,
     )
     benchmark('end loch appointments query')
-
-    benchmark('begin  loch appointments parsing')
-    body_feed = _get_loch_appointments_search_results(loch_results['rows'], search_terms)
-    for row in body_feed:
-        row['kind'] = 'appointment'
+    benchmark('begin loch appointments parsing')
+    appointments_feed = _parse_appointments_search_results(loch_results['rows'], search_terms)
     benchmark('end loch appointments parsing')
-
-    body_total = loch_results['total_matching_count']
-    comment_feed = []
-    comment_total = 0
-    if not department_codes and not topic:
-        benchmark('begin appointment comments query')
-        comment_results = Comment.search_by_parent_types(
-            parent_types=['appointment'],
-            search_phrases=search_terms or None,
-            author_uid=advisor_uid,
-            datetime_from=datetime_from,
-            datetime_to=datetime_to,
-            offset=0,
-            limit=fetch_limit,
-        )
-        benchmark('end appointment comments query')
-        comment_feed = _get_appointment_comment_search_results(
-            comment_results['rows'],
-            search_terms,
-            student_csid=student_csid,
-        )
-        comment_total = resolved_comment_total_count(comment_results, comment_feed, fetch_limit)
-
-    appointments_feed = merge_search_feed(body_feed, comment_feed, offset, limit)
     return {
         'appointments': appointments_feed,
-        'totalAppointmentCount': body_total + comment_total,
+        'totalAppointmentCount': loch_results['total_matching_count'],
     }
 
 
@@ -255,88 +222,93 @@ def appointment_to_compatible_json(appointment, topics=(), attachments=None, eve
     return api_json
 
 
-def _get_appointment_comment_search_results(comment_rows, search_terms, student_csid=None):
-    if not comment_rows:
-        return []
-
-    appointment_ids = [parent_id for _, _, parent_id in comment_rows]
-    appointment_rows = data_loch.get_advising_appointments_by_ids(appointment_ids)
-    appointments_by_id = {str(row.get('id')): row for row in appointment_rows}
-
-    resolved_rows = []
-    for comment, parent_type, parent_id in comment_rows:
-        appointment = appointments_by_id.get(str(parent_id))
-        if not appointment:
-            continue
-        sid = appointment.get('sid')
-        if student_csid and sid != student_csid:
-            continue
-        details = (appointment.get('note_body') or '').strip() or join_if_present(
-            ', ',
-            [appointment.get('note_category'), appointment.get('note_subcategory')],
-        )
-        resolved_rows.append((comment, parent_type, parent_id, appointment, details))
-
-    students_by_sid = get_students_by_sid([row[3].get('sid') for row in resolved_rows])
-    results = []
-    for comment, parent_type, parent_id, appointment, details in resolved_rows:
-        row = build_comment_search_result(
-            comment,
-            parent_type,
-            parent_id,
-            search_terms,
-            appointment.get('sid'),
-            students_by_sid,
-            kind='commentOnAppointment',
-            extra_fields={
-                'appointment': {
-                    'id': appointment.get('id'),
-                    'details': details,
-                },
-            },
-        )
-        if row:
-            results.append(row)
-    return results
+def _parse_appointment_comment_search_result(row, advisor_feed, search_terms):
+    parent_appointment_id = row.get('appointment_id')
+    # For appointment comments, prefer BOA over CalNet for advisor data
+    advisor_name =  row.get('advisor_name') or advisor_feed.get('name') or join_if_present(
+        ' ',
+        [advisor_feed.get('firstName'), advisor_feed.get('lastName')],
+    )
+    advisor_role = row.get('advisor_role') or advisor_feed.get('title')
+    advisor_uid = row.get('advisor_uid') or advisor_feed.get('uid')
+    advisor_dept_codes = row.get('advisor_dept_codes') or [d['deptCode'] for d in advisor_feed.get('departments', {})]
+    return {
+        'kind': 'commentOnAppointment',
+        'id': row.get('boa_id'),
+        'parentType': 'appointment',
+        'parentId': parent_appointment_id,
+        'advisor': {
+            'deptCodes': advisor_dept_codes,
+            'name': advisor_name,
+            'role': advisor_role,
+            'sid': row.get('advisor_sid'),
+            'uid': advisor_uid,
+        },
+        'createdAt': to_iso_format(row.get('created_at')),
+        'updatedAt': to_iso_format(row.get('updated_at')),
+        'snippet': search_result_text_snippet(row.get('body'), search_terms, TEXT_SEARCH_PATTERN),
+        'student': {
+            'uid': row.get('student_uid'),
+            'firstName': row.get('first_name'),
+            'lastName': row.get('last_name'),
+            'sid': row.get('student_sid'),
+        },
+        'rank': row.get('rank'),
+        'appointment': {
+            'id': parent_appointment_id,
+        },
+    }
 
 
-def _get_loch_appointments_search_results(loch_results, search_terms):
-    results = []
-    if not loch_results:
-        return results
-    sids = list(set([row.get('advisor_sid') for row in loch_results if row.get('advisor_sid') is not None]))
+def _parse_appointments_search_results(search_results, search_terms):
+    appointments_feed = []
+    if not search_results:
+        return appointments_feed
+    sids = list(set([row.get('advisor_sid') for row in search_results if row.get('advisor_sid') is not None]))
     calnet_advisor_feeds = get_calnet_users_for_csids(app, sids)
-    for appointment in loch_results:
-        advisor_feed = calnet_advisor_feeds.get(appointment.get('advisor_sid'))
-        if advisor_feed:
-            advisor_name = advisor_feed.get('name') or join_if_present(' ', [advisor_feed.get('firstName'), advisor_feed.get('lastName')])
+    for row in search_results:
+        advisor_sid = row.get('advisor_sid')
+        advisor_feed = calnet_advisor_feeds.get(advisor_sid, {})
+
+        if row.get('boa_id'):
+            appointment_comment = _parse_appointment_comment_search_result(row, advisor_feed, search_terms)
+            if appointment_comment:
+                appointments_feed.append(appointment_comment)
         else:
-            advisor_name = None
-        details = (appointment.get('note_body') or '').strip() or join_if_present(
-            ', ',
-            [appointment.get('note_category'), appointment.get('note_subcategory')],
-        )
-        student_sid = appointment.get('sid')
-        results.append({
-            'id': appointment.get('id'),
-            'advisorName': advisor_name or join_if_present(' ', [appointment.get('advisor_first_name'), appointment.get('advisor_last_name')]),
-            'advisorRole': advisor_feed.get('title'),
-            'advisorUid': advisor_feed.get('uid'),
-            'advisorDeptCodes': [d['deptCode'] for d in advisor_feed.get('departments')],
-            'createdAt': resolve_sis_created_at(appointment),
-            'details': details,
-            'detailsSnippet': search_result_text_snippet(details, search_terms, TEXT_SEARCH_PATTERN),
-            'studentSid': student_sid,
-            'updatedAt': resolve_sis_updated_at(appointment),
-            'student': {
-                'uid': appointment.get('uid'),
-                'firstName': appointment.get('first_name'),
-                'lastName': appointment.get('last_name'),
-                'sid': student_sid,
-            },
-            'rank': appointment.get('rank'),
-        })
-    return results
+            # For legacy appointments, prefer CalNet data over the legacy system for advisor data
+            advisor_name = advisor_feed.get('name') or join_if_present(' ', [advisor_feed.get('firstName'), advisor_feed.get('lastName')]) \
+                or row.get('advisor_name')
+            advisor_role = advisor_feed.get('title') or row.get('advisor_role')
+            advisor_uid = advisor_feed.get('uid') or row.get('advisor_uid')
+            advisor_dept_codes = [d['deptCode'] for d in advisor_feed.get('departments', {})]
+            body = row.get('body') or ''
+            details =  join_if_present(
+                ' ' if body.endswith(('.', '?', '!')) else ', ',
+                [body, row.get('subject')],
+            )
+            appointments_feed.append({
+                'kind': 'appointment',
+                'id': row.get('appointment_id'),
+                'advisor': {
+                    'deptCodes': advisor_dept_codes,
+                    'name': advisor_name,
+                    'role': advisor_role,
+                    'sid': advisor_sid,
+                    'uid': advisor_uid,
+                },
+                'createdAt': resolve_sis_created_at(row),
+                'details': details,
+                'detailsSnippet': search_result_text_snippet(details, search_terms, TEXT_SEARCH_PATTERN),
+                'updatedAt': resolve_sis_updated_at(row),
+                'student': {
+                    'uid': row.get('student_uid'),
+                    'firstName': row.get('first_name'),
+                    'lastName': row.get('last_name'),
+                    'sid': row.get('student_sid'),
+                },
+                'rank': row.get('rank'),
+            })
+    return appointments_feed
 
 
 def _isoformat(obj, key):

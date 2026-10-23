@@ -607,7 +607,12 @@ class TestStudent:
         """Includes advising appointments."""
         student = self._api_student_by_sid(client=client, sid='11667051')
         appointments = student['notifications']['appointment']
-        assert len(appointments) == 4
+        assert len(appointments) == 5
+        assert appointments[0]['legacySource'] == 'SIS'
+        assert appointments[1]['legacySource'] == 'SIS'
+        assert appointments[2]['legacySource'] == 'SIS'
+        assert appointments[3]['createdBy'] == 'Calendly'
+        assert appointments[4]['createdBy'] == 'YCBM'
 
     def test_appointment_marked_read(self, client, asc_advisor_login):  # noqa: ARG002
         """Includes flag indicating whether user has seen each appointment."""
@@ -657,6 +662,7 @@ class TestStudent:
 
 
 class TestAlerts:
+    """Student API: Alerts."""
 
     @classmethod
     def _get_alerts(cls, client, uid):
@@ -691,6 +697,7 @@ class TestAlerts:
 
 
 class TestPrefixSearch:
+    """Search Student API."""
 
     @classmethod
     def _api_find_students(
@@ -715,6 +722,7 @@ class TestPrefixSearch:
         return response.json
 
     def test_unauthorized(self, client):
+        """Returns 401 if not authenticated."""
         self._api_find_students(client=client, expected_status_code=401, query='Paul')
 
     def test_distinct_sid_in_student_search(self, client, coe_advisor_login):  # noqa: ARG002
@@ -802,6 +810,7 @@ class TestNotes:
 
 
 class TestDistinctSids:
+    """Distinct SIDs API."""
 
     @classmethod
     def _api_distinct_sids(
@@ -922,7 +931,7 @@ class TestFindBySids:
 
 
 class TestValidateSids:
-    """Student API."""
+    """Validate SIDs API."""
 
     @staticmethod
     def _api_validate_sids(client, sids=(), expected_status_code=200):
@@ -977,9 +986,3 @@ class TestValidateSids:
         assert api_json[0]['status'] == 200
         assert api_json[1]['sid'] == '2345678901'
         assert api_json[1]['status'] == 200
-
-
-def _get_common_sids(student_list_1, student_list_2):
-    sid_list_1 = [s['sid'] for s in student_list_1]
-    sid_list_2 = [s['sid'] for s in student_list_2]
-    return list(set(sid_list_1) & set(sid_list_2))

@@ -615,7 +615,7 @@ const close = message => {
 }
 
 const commentsEnabled = message => {
-  return (!message.legacySource && includes(['appointment', 'note'], message.type)) || message.type === 'eForm'
+  return includes(['appointment', 'eForm'], message.type) || (message.type === 'note' && !message.legacySource)
 }
 
 const deleteConfirmed = () => {

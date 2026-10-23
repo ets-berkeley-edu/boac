@@ -32,7 +32,7 @@ from boac.models.authorized_user import AuthorizedUser
 from boac.models.comment import Comment
 from boac.models.comment_parent import CommentParent
 from boac.models.note import Note
-from tests.util import refresh_loch_search_index
+from tests.util import refresh_loch_appointment_search_index, refresh_loch_note_search_index
 
 admin_uid = '2040'
 asc_advisor_uid = '1081940'
@@ -464,7 +464,7 @@ class TestNoteSearch:
             sid='9000000000',
             subject='Patience is a conquering virtue',
         )
-        refresh_loch_search_index(app, notes=[updated_note])
+        refresh_loch_note_search_index(app, notes=[updated_note])
         api_json = _api_search(client, 'a conquering virtue', notes=True)
         self._assert(api_json, note_count=1, note_ids=[note['id']])
 
@@ -634,12 +634,14 @@ class TestAppointmentSearch:
         for appointment in appointments:
             if previous_id is not None:
                 assert previous_id > appointment.get('id')
+            assert appointment['advisor']
             assert appointment['details']
             assert appointment['detailsSnippet']
             assert appointment['student']
             assert appointment['student']['firstName']
             assert appointment['student']['lastName']
-            assert appointment['studentSid']
+            assert appointment['student']['sid']
+            assert appointment['student']['uid']
 
     def test_search_with_missing_input_no_options(self, client, fake_auth):
         """Appointments search is nothing without input when no additional options are set."""
@@ -647,10 +649,10 @@ class TestAppointmentSearch:
         _api_search(client, ' \t  ', appointments=True, expected_status_code=400)
 
     def test_search_appointments(self, client, fake_auth):
-        """Search results include legacy appointments."""
+        """Search results include legacy appointments from SIS, Calendly, and YCBM."""
         fake_auth.login(coe_advisor_uid)
         api_json = _api_search(client, 'life', appointments=True)
-        self._assert(api_json, appointment_count=1)
+        self._assert(api_json, appointment_count=3)
 
     def test_search_respects_date_filters(self, client, fake_auth):
         """Search results include appointments created within provided date range."""
@@ -753,7 +755,29 @@ class TestAppointmentSearch:
             appointments=True,
             appointment_options={'studentCsid': '11667051'},
         )
-        self._assert(api_json, appointment_count=3)
+        self._assert(api_json, appointment_count=4)
+
+    def test_search_by_topic(self, client, fake_auth):
+        """Searches appointments by topic if topics option is selected."""
+        fake_auth.login(coe_advisor_uid)
+        api_json = _api_search(
+            client,
+            'people',
+            appointments=True,
+            appointment_options={'topic': 'Show Off'},
+        )
+        self._assert(api_json, appointment_count=1)
+
+    def test_search_with_no_input_and_topic(self, client, fake_auth, mock_appointment_comment):  # noqa: ARG002
+        """Appointments search needs no input when topic set, excludes comments."""
+        fake_auth.login(coe_advisor_uid)
+        api_json = _api_search(
+            client,
+            '',
+            appointments=True,
+            appointment_options={'topic': 'Show Off'},
+        )
+        self._assert(api_json, appointment_count=2)
 
     def test_appointments_search_limit(self, client, fake_auth):
         """Limits search to the first n appointments."""
@@ -773,7 +797,7 @@ class TestAppointmentSearch:
             client,
             '',
             appointments=True,
-            appointment_options={'offset': '1', 'studentCsid': '11667051'},
+            appointment_options={'offset': 2, 'studentCsid': '11667051'},
         )
         self._assert(api_json, appointment_count=2)
 
@@ -787,7 +811,7 @@ class TestAppointmentSearch:
             appointments=True,
             appointment_options={'studentCsid': '11667051'},
         )
-        self._assert(api_json, appointment_count=3)
+        self._assert(api_json, appointment_count=4)
 
     def test_search_appointments_includes_inactive_students(self, client, fake_auth):
         fake_auth.login(coe_advisor_uid)
@@ -804,7 +828,7 @@ class TestAppointmentSearch:
         )
         self._assert(api_json, appointment_count=1)
 
-    def test_search_finds_appointment_comment(self, client, fake_auth):
+    def test_search_finds_appointment_comment(self, client, fake_auth, app):
         """Search finds an appointment via comment body text, returned as kind=commentOnAppointment."""
         comment_parent = CommentParent.find_or_create('appointment', '11667051-00010')
         comment = Comment.create(
@@ -815,19 +839,22 @@ class TestAppointmentSearch:
             author_dept_codes=['COENG'],
             body='A pterodactyl has exceptional wingspan.',
         )
+        refresh_loch_appointment_search_index(app, comment)
         try:
             fake_auth.login(coe_advisor_uid)
-            api_json = _api_search(client, 'pterodactyl', appointments=True)
+            api_json = _api_search(client, 'wingspan', appointments=True)
             appointments = api_json['appointments']
+            assert len(appointments) == 2
             comment_results = [a for a in appointments if a.get('kind') == 'commentOnAppointment']
             assert len(comment_results) == 1
             result = comment_results[0]
-            assert result['studentSid'] == '11667051'
+            assert result['student']['sid'] == '11667051'
             assert result['parentType'] == 'appointment'
             assert result['parentId'] == '11667051-00010'
-            assert 'pterodactyl' in result['snippet']
+            assert '<strong>wingspan</strong>' in result['snippet']
         finally:
             comment.soft_delete()
+            refresh_loch_appointment_search_index(app, deleted_comment=comment)
 
 
 class TestEformSearch:
@@ -872,7 +899,7 @@ class TestEformSearch:
         assert eforms[0]['studentSid'] == '9000000000'
         assert eforms[0]['kind'] == 'eform'
 
-    def test_search_eforms_comment(self, client, fake_auth):
+    def test_search_eforms_comment(self, client, fake_auth, app):
         """Finds an eForm via comment body text, returned as kind=commentOnEform."""
         comment_parent = CommentParent.find_or_create('late_drop_eform', 'eform-10096')
         comment = Comment.create(
@@ -883,6 +910,7 @@ class TestEformSearch:
             author_dept_codes=['COENG'],
             body='A bougainvillea grows along the fence.',
         )
+        refresh_loch_appointment_search_index(app, comment)
         try:
             fake_auth.login(coe_advisor_uid)
             api_json = _api_search(client, 'bougainvillea', eforms=True)
@@ -896,8 +924,9 @@ class TestEformSearch:
             assert 'bougainvillea' in result['snippet']
         finally:
             comment.soft_delete()
+            refresh_loch_appointment_search_index(app, deleted_comment=comment)
 
-    def test_search_eforms_comment_excludes_other_student(self, client, fake_auth):
+    def test_search_eforms_comment_excludes_other_student(self, client, fake_auth, app):
         """Eform comment search filtered by student SID excludes comments on other students' eForms."""
         comment_parent = CommentParent.find_or_create('late_drop_eform', 'eform-10096')
         comment = Comment.create(
@@ -908,6 +937,7 @@ class TestEformSearch:
             author_dept_codes=['COENG'],
             body='A frangipani blooms in summer.',
         )
+        refresh_loch_appointment_search_index(app, comment)
         try:
             fake_auth.login(coe_advisor_uid)
             # eform-10096 belongs to student 11667051; filtering for 9000000000 should return nothing
@@ -920,6 +950,7 @@ class TestEformSearch:
             assert api_json['eforms'] == []
         finally:
             comment.soft_delete()
+            refresh_loch_appointment_search_index(app, deleted_comment=comment)
 
 
 class TestAdmittedStudentSearch:
