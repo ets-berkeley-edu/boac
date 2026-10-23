@@ -231,7 +231,7 @@ class Comment(Base):
         parent = CommentParent.find_by_id(self.comment_parent_id)
         return {
             'id': self.id,
-            'comment_parent_id': self.comment_parent_id,
+            'comment_parent_id': parent.parent_id,
             'parent_type': parent.parent_type,
             'author_uid': self.author_uid,
             'author_name': self.author_name,
