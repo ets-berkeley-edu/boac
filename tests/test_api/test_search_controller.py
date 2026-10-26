@@ -32,7 +32,11 @@ from boac.models.authorized_user import AuthorizedUser
 from boac.models.comment import Comment
 from boac.models.comment_parent import CommentParent
 from boac.models.note import Note
-from tests.util import refresh_loch_appointment_search_index, refresh_loch_note_search_index
+from tests.util import (
+    refresh_loch_appointment_search_index,
+    refresh_loch_eform_search_index,
+    refresh_loch_note_search_index,
+)
 
 admin_uid = '2040'
 asc_advisor_uid = '1081940'
@@ -879,10 +883,10 @@ class TestEformSearch:
         eforms = api_json['eforms']
         assert len(eforms) >= 1
         assert api_json['totalEformCount'] >= 1
-        eform = next((e for e in eforms if e.get('studentSid') == '11667051'), None)
+        eform = next((e for e in eforms if e.get('student', {}).get('sid') == '11667051'), None)
         assert eform is not None
         assert eform['kind'] == 'eform'
-        assert eform['parentType'] == 'late_drop_eform'
+        assert eform['type'] == 'late_drop_eform'
         assert eform['student']['sid'] == '11667051'
 
     def test_search_eforms_by_student_csid(self, client, fake_auth):
@@ -896,7 +900,7 @@ class TestEformSearch:
         )
         eforms = api_json['eforms']
         assert len(eforms) == 1
-        assert eforms[0]['studentSid'] == '9000000000'
+        assert eforms[0]['student']['sid'] == '9000000000'
         assert eforms[0]['kind'] == 'eform'
 
     def test_search_eforms_comment(self, client, fake_auth, app):
@@ -910,7 +914,7 @@ class TestEformSearch:
             author_dept_codes=['COENG'],
             body='A bougainvillea grows along the fence.',
         )
-        refresh_loch_appointment_search_index(app, comment)
+        refresh_loch_eform_search_index(app, comment)
         try:
             fake_auth.login(coe_advisor_uid)
             api_json = _api_search(client, 'bougainvillea', eforms=True)
@@ -918,10 +922,16 @@ class TestEformSearch:
             assert len(eforms) == 1
             result = eforms[0]
             assert result['kind'] == 'commentOnEform'
-            assert result['studentSid'] == '11667051'
-            assert result['parentType'] == 'late_drop_eform'
-            assert result['parentId'] == 'eform-10096'
-            assert 'bougainvillea' in result['snippet']
+            assert result['student']['sid'] == '11667051'
+            assert result['type'] == 'late_drop_eform'
+            assert result['id'] == 'eform-10096'
+            assert result['comment']
+            assert result['comment']['id'] == comment.id
+            assert result['comment']['advisor']['uid'] == coe_advisor_uid
+            assert result['comment']['advisor']['name'] == 'COE Advisor'
+            assert result['comment']['advisor']['role'] == 'advisor'
+            assert result['comment']['advisor']['departments'][0]['deptCode'] == 'COENG'
+            assert '<strong>bougainvillea</strong>' in result['snippet']
         finally:
             comment.soft_delete()
             refresh_loch_appointment_search_index(app, deleted_comment=comment)

@@ -79,7 +79,7 @@ const authorName = computed(() => get(props.result, 'comment.advisor.name'))
 const createdAt = computed(() => get(props.result, 'createdAt'))
 const studentName = computed(() => trim(`${get(props.result, 'student.firstName', '')} ${get(props.result, 'student.lastName', '')}`))
 const timelineAnchor = computed(() => {
-  const parentId = props.result.parentId || props.result.appointment?.id || props.result.id
+  const parentId = props.result.appointment?.id || props.result.id
   if (props.parentLabel === 'appointment') {
     return `timeline-appointment-${parentId}_comment-${props.result.id}`
   }

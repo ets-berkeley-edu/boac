@@ -96,7 +96,7 @@ def search():
         feed.update(_notes_search(search_phrase, params))
 
     if domain['eforms']:
-        feed.update(_eform_search(search_phrase, params, include_body_search=not params.get('departmentCodes')))
+        feed.update(_eform_search(search_phrase, params))
 
     return tolerant_jsonify(feed)
 
@@ -279,7 +279,7 @@ def _appointments_search(search_phrase, params):
     )
 
 
-def _eform_search(search_phrase, params, include_body_search=True):
+def _eform_search(search_phrase, params):
     note_options = util.get(params, 'noteOptions', {})
     appointment_options = util.get(params, 'appointmentOptions', {})
     eform_options = util.get(params, 'eformOptions', {})
@@ -331,7 +331,6 @@ def _eform_search(search_phrase, params, include_body_search=True):
         datetime_to=datetime_to,
         offset=offset,
         limit=limit,
-        include_body_search=include_body_search,
     )
 
 

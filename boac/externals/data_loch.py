@@ -615,12 +615,12 @@ def get_calendly_advising_appointments(sid):
 def get_data_science_advising_notes(sid):
     sql = f"""
         SELECT
-            n.id, n.sid, n.advisor_sid AS author_sid, n.advisor_uid AS author_uid,
+            n.id, n.student_sid AS sid, n.advisor_sid AS author_sid, n.advisor_uid AS author_uid,
             n.advisor_first_name || ' ' || n.advisor_last_name AS author_name, dsn.advisor_email,
             dsn.reason_for_appointment, n.note_body, n.created_at
         FROM {data_science_advising_schema()}.advising_notes dsn
         JOIN {advising_notes_schema()}.advising_notes n ON dsn.id = n.id
-        WHERE n.sid=%(sid)s
+        WHERE n.student_sid=%(sid)s
         ORDER BY n.created_at, n.id"""
     return safe_execute_rds(sql, sid=sid)
 
@@ -962,72 +962,6 @@ def get_sis_eforms_by_ids(parent_type_to_ids, search_phrase=None):
     return rows
 
 
-def search_sis_eforms(
-    search_phrases=None,
-    student_csid=None,
-    datetime_from=None,
-    datetime_to=None,
-    offset=0,
-    limit=20,
-):
-    rows = []
-    total_matching_count = 0
-    params = dict(
-        offset=offset,
-        limit=limit,
-    )
-    where_clauses = ['TRUE']
-    if search_phrases:
-        # Append the prefix operator to each token individually
-        tokens_with_prefix = [f'{token}:*' for token in search_phrases]
-        params['search_phrase'] = ' & '.join(tokens_with_prefix)
-    if student_csid:
-        where_clauses.append('sid = %(student_csid)s')
-        params['student_csid'] = student_csid
-    if datetime_from:
-        where_clauses.append('created_at >= %(datetime_from)s')
-        params['datetime_from'] = datetime_from
-    if datetime_to:
-        where_clauses.append('created_at < %(datetime_to)s')
-        params['datetime_to'] = datetime_to
-    where_sql = ' AND '.join(where_clauses)
-    queries = []
-    for eform_type, table in _EFORM_TABLES_BY_PARENT_TYPE.items():
-        from_sql = f'{sis_advising_notes_schema()}.{table}'
-        if search_phrases:
-            from_sql += f"""
-                JOIN {from_sql}_search_index idx
-                ON idx.id = {table}.id
-                AND idx.fts_index @@ plainto_tsquery('english', %(search_phrase)s)"""
-        queries.append(f"""
-        SELECT
-            {table}.id, '{eform_type}' AS eform_type, {table}.created_at, eform_id,
-            {"ts_rank(idx.fts_index, plainto_tsquery('english', %(search_phrase)s)) AS rank" if search_phrases else '0 AS rank'}
-            FROM {from_sql}
-            WHERE {where_sql}
-        """)
-    select_sql = 'UNION'.join(queries)
-    count_sql = f"""SELECT COUNT(*) FROM ({select_sql}) AS eforms"""
-    total_matching_count = safe_execute_rds(count_sql, **params)[0]['count']
-    select_sql += """
-        ORDER BY rank DESC, eform_id DESC"""
-    if offset is not None and offset > 0:
-        select_sql += ' OFFSET %(offset)s'
-    if limit is None or limit >= 150:  # Sanity check large limits
-        limit = 20
-    select_sql += ' LIMIT %(limit)s'
-    rows = safe_execute_rds(select_sql, **params)
-    rows.sort(key=itemgetter('eform_type'))
-    rows_grouped = groupby(rows, itemgetter('eform_type'))
-    ids_by_eform_type = {k: [row['id'] for row in v] for k, v in rows_grouped}
-    eforms = get_sis_eforms_by_ids(ids_by_eform_type, search_phrase=params.get('search_phrase'))
-    eforms.sort(key=itemgetter('rank', 'eform_id'), reverse=True)
-    return {
-        'rows': eforms,
-        'total_matching_count': total_matching_count,
-    }
-
-
 def search_advising_appointments(
     search_phrase,
     advisor_uid=None,
@@ -1051,27 +985,31 @@ def search_advising_appointments(
     join_students = f'JOIN {student_schema()}.student_profile_index spi ON student_sid = spi.sid'
     and_student_exists = f'AND EXISTS (SELECT 1 FROM {student_schema()}.student_profile_index spi WHERE spi.sid = student_sid)'
     rank_column = ''
-    boa_criteria_join = ''
-    legacy_criteria_join = ''
-    search_phrase_match = ''
-    include_comments = 'TRUE'
+    join_comments_search_index = ''
+    join_appt_search_index = ''
+    uid_advisor_filter = None
+    advisor_uids = None
+    criteria = ['TRUE']
+    comment_criteria = []
+    appointment_criteria = []
 
     if search_phrase:
         rank_column = "ts_rank(idx.fts_index, plainto_tsquery('english', %(search_phrase)s)) AS rank"
-        boa_criteria_join += f"""
+        criteria.append("idx.fts_index @@ plainto_tsquery('english', %(search_phrase)s)")
+        join_comments_search_index += f"""
               JOIN {boa_cdc_schema()}.advising_appointment_comments_search_index idx ON idx.boa_id = a.boa_id"""
-        legacy_criteria_join += f"""
+        join_appt_search_index += f"""
               JOIN {advising_appointments_schema()}.advising_appointments_search_index idx ON idx.id = a.id"""
-        search_phrase_match += """
-              AND idx.fts_index @@ plainto_tsquery('english', %(search_phrase)s)"""
     else:
         rank_column = '0 AS rank'
+
     if topic:
-        include_comments = 'FALSE'
-        legacy_criteria_join += f"""
+        comment_criteria.append('FALSE')
+        join_appt_search_index += f"""
             JOIN {advising_notes_schema()}.advising_note_topics_curated ant
                       ON ant.topic = %(topic)s
                      AND ant.id = a.id"""
+
     if department_codes:
         advising_uid_query = """
                select au.uid
@@ -1085,44 +1023,62 @@ def search_advising_appointments(
         result = db.session.execute(query)
         rows = result.all()
         advisor_uids = [r[0] for r in rows]
-        uid_advisor_filter = 'a.advisor_uid = ANY(%(advisor_uids)s)'
-
     elif advisor_uid:
-        uid_advisor_filter = 'a.advisor_uid = %(advisor_uid)s'
-        advisor_uids = None
-    else:
-        uid_advisor_filter = ''
-        advisor_uids = None
+        advisor_uids = [advisor_uid]
 
-    def _build_query(boa_where_clause, legacy_where_clause, count_only=False):
-        sid_filter = """
-                    AND student_sid = %(student_csid)s""" if student_csid else ''
+    if advisor_uids:
+        uid_advisor_filter = '(a.created_by = ANY(%(advisor_uids)s) OR a.advisor_uid = ANY(%(advisor_uids)s))'
+        comment_criteria.append("a.author_uid = ANY(%(advisor_uids)s)")
+
+    sid_advisor_filter = 'a.advisor_sid = %(advisor_csid)s' if advisor_csid else None
+    if uid_advisor_filter or sid_advisor_filter:
+        appointment_criteria.append(f"({join_if_present(' OR ', [uid_advisor_filter, sid_advisor_filter])})")
+
+    if student_csid:
+        criteria.append('student_sid = %(student_csid)s')
+
+    # We prefer to filter on updated_at, but that value is not meaningful for UCBCONVERSION notes.
+    if datetime_from:
+        comment_criteria.append('a.updated_at >= %(datetime_from)s')
+        appointment_criteria.append("""((a.created_by = 'UCBCONVERSION' AND a.created_at >= %(datetime_from)s)
+            OR ((a.created_by != 'UCBCONVERSION' OR a.created_by IS NULL) AND a.updated_at >= %(datetime_from)s))""")
+    if datetime_to:
+        comment_criteria.append('a.updated_at < %(datetime_to)s')
+        appointment_criteria.append("""((a.created_by = 'UCBCONVERSION' AND a.created_at < %(datetime_to)s)
+            OR ((a.created_by != 'UCBCONVERSION' OR a.created_by IS NULL) AND a.updated_at < %(datetime_to)s))""")
+
+    comments_match_criteria = """
+            AND """.join(criteria + comment_criteria)
+    appointments_match_criteria = """
+            AND """.join(criteria + appointment_criteria)
+
+    def _build_query(count_only=False):
         if count_only:
             return f"""SELECT (
-              SELECT COUNT(*) AS count
+               SELECT COUNT(*) AS count
                  FROM {appt_comments_table}
-                      {join_appointments} {boa_criteria_join}
-                WHERE {include_comments} {boa_where_clause} {sid_filter} {search_phrase_match}
+                      {join_appointments} {join_comments_search_index}
+                WHERE {comments_match_criteria}
                   {and_student_exists}
-              ) + (
-              SELECT COUNT(*) AS count
-                 FROM {appointments_table} {legacy_criteria_join}
-                WHERE TRUE {legacy_where_clause} {sid_filter} {search_phrase_match}
+            ) + (
+               SELECT COUNT(*) AS count
+                 FROM {appointments_table} {join_appt_search_index}
+                WHERE {appointments_match_criteria}
                   {and_student_exists}
               ) AS count"""
         else:
             return f"""WITH candidates AS (
            (SELECT 'boa' AS src, a.boa_id, a.parent_appointment_id AS appointment_id, a.created_at, {rank_column}
               FROM {appt_comments_table}
-                   {join_appointments} {boa_criteria_join}
-             WHERE {include_comments} {boa_where_clause} {sid_filter} {search_phrase_match}
+                   {join_appointments} {join_comments_search_index}
+             WHERE {comments_match_criteria}
                {and_student_exists}
              ORDER BY rank DESC, a.created_at DESC, a.parent_appointment_id, a.boa_id
              LIMIT %(offset)s + %(limit)s)
              UNION ALL
            (SELECT 'legacy' AS src, NULL AS boa_id, a.id AS appointment_id, a.created_at, {rank_column}
-              FROM {appointments_table} {legacy_criteria_join}
-             WHERE TRUE {legacy_where_clause} {sid_filter} {search_phrase_match}
+              FROM {appointments_table} {join_appt_search_index}
+             WHERE {appointments_match_criteria}
                {and_student_exists}
              ORDER BY rank DESC, a.created_at DESC, a.id
              LIMIT %(offset)s + %(limit)s)
@@ -1149,9 +1105,7 @@ def search_advising_appointments(
 
     return search_advising(
         build_query=_build_query,
-        uid_advisor_filter=uid_advisor_filter,
         search_phrase=search_phrase,
-        advisor_uid=advisor_uid,
         advisor_uids=advisor_uids,
         advisor_csid=advisor_csid,
         student_csid=student_csid,
@@ -1175,39 +1129,41 @@ def search_advising_notes(
     offset=None,
     limit=None,
 ):
-    boa_note_columns = """a.sid, a.id, a.subject, a.note_body, NULL AS advisor_sid, a.advisor_uid,
+    boa_note_columns = """a.student_sid, a.id, a.subject, a.note_body, NULL AS advisor_sid, a.advisor_uid,
         a.advisor_uid AS created_by, a.created_at, a.updated_at, NULL AS note_category, NULL AS note_subcategory, a.set_date,
         spi.uid, spi.first_name, spi.last_name, a.advisor_first_name, a.advisor_last_name, a.is_private, a.parent_note_id"""
-    legacy_note_columns = """a.sid, a.id, NULL AS subject, a.note_body, a.advisor_sid, a.advisor_uid,
+    legacy_note_columns = """a.student_sid, a.id, NULL AS subject, a.note_body, a.advisor_sid, a.advisor_uid,
         a.created_by, a.created_at, a.updated_at, a.note_category, a.note_subcategory, NULL AS set_date,
         spi.uid, spi.first_name, spi.last_name, a.advisor_first_name, a.advisor_last_name, FALSE AS is_private, NULL AS parent_note_id"""
     boa_notes_table = f'{boa_cdc_schema()}.advising_notes a'
     legacy_notes_table = f'{advising_notes_schema()}.advising_notes a'
-    join_students = f"""JOIN {student_schema()}.student_profile_index spi ON a.sid = spi.sid"""
-    and_student_exists = f"""AND EXISTS (SELECT 1 FROM {student_schema()}.student_profile_index spi WHERE spi.sid = a.sid)"""
+    join_students = f"""JOIN {student_schema()}.student_profile_index spi ON a.student_sid = spi.sid"""
+    and_student_exists = f"""AND EXISTS (SELECT 1 FROM {student_schema()}.student_profile_index spi WHERE spi.sid = a.student_sid)"""
     rank_column = ''
-    boa_criteria_join = ''
-    legacy_criteria_join = ''
-    boa_advisor_filter = ''
-    search_phrase_match = ''
+    join_boa_search_index = ''
+    join_legacy_search_index = ''
+    uid_advisor_filter = None
+    advisor_uids = None
+    criteria = ['TRUE']
+    boa_criteria = ['NOT a.is_private']
+    legacy_criteria = []
 
     if search_phrase:
         rank_column = "ts_rank(idx.fts_index, plainto_tsquery('english', %(search_phrase)s)) AS rank"
-        boa_criteria_join += f"""
+        criteria.append("idx.fts_index @@ plainto_tsquery('english', %(search_phrase)s)")
+        join_boa_search_index += f"""
               JOIN {boa_cdc_schema()}.advising_notes_search_index idx ON idx.id = a.id"""
-        legacy_criteria_join += f"""
+        join_legacy_search_index += f"""
               JOIN {advising_notes_schema()}.advising_notes_search_index idx ON idx.id = a.id"""
-        search_phrase_match += """
-              AND idx.fts_index @@ plainto_tsquery('english', %(search_phrase)s)"""
     else:
         rank_column = '0 AS rank'
 
     if topic:
-        boa_criteria_join += f"""
+        join_boa_search_index += f"""
             JOIN {boa_cdc_schema()}.advising_note_topics ant
               ON ant.topic = %(topic)s
              AND ant.id = a.id"""
-        legacy_criteria_join += f"""
+        join_legacy_search_index += f"""
             JOIN {advising_notes_schema()}.advising_note_topics_curated ant
               ON ant.topic = %(topic)s
              AND ant.id = a.id"""
@@ -1232,51 +1188,60 @@ def search_advising_notes(
         result = db.session.execute(query)
         rows = result.all()
         advisor_uids = [r[0] for r in rows]
-        uid_advisor_filter = '(a.created_by = ANY(%(advisor_uids)s) OR a.advisor_uid = ANY(%(advisor_uids)s))'
-        boa_advisor_filter += """
-              AND a.advisor_uid = ANY(%(advisor_uids)s)"""
     elif author_uid:
-        uid_advisor_filter = 'a.advisor_uid = %(advisor_uid)s'
-        boa_advisor_filter += """
-              AND a.advisor_uid = %(advisor_uid)s"""
-        advisor_uids = None
-    else:
-        uid_advisor_filter = None
-        advisor_uids = None
+        advisor_uids = [author_uid]
 
-    def _build_query(boa_where_clause, legacy_where_clause, count_only=False):
-        if author_uid or advisor_uids:
-            boa_where_clause += boa_advisor_filter
-        sid_filter = """
-                AND sid = %(student_csid)s""" if student_csid else ''
+    if advisor_uids:
+        uid_advisor_filter = '(a.created_by = ANY(%(advisor_uids)s) OR a.advisor_uid = ANY(%(advisor_uids)s))'
+        boa_criteria.append("a.advisor_uid = ANY(%(advisor_uids)s)")
+
+    sid_advisor_filter = 'a.advisor_sid = %(advisor_csid)s' if author_csid else None
+    if uid_advisor_filter or sid_advisor_filter:
+        legacy_criteria.append(f"({join_if_present(' OR ', [uid_advisor_filter, sid_advisor_filter])})")
+
+    if student_csid:
+        criteria.append('student_sid = %(student_csid)s')
+
+    # We prefer to filter on updated_at, but that value is not meaningful for UCBCONVERSION notes.
+    if datetime_from:
+        boa_criteria.append('a.updated_at >= %(datetime_from)s')
+        legacy_criteria.append("""((a.created_by = 'UCBCONVERSION' AND a.created_at >= %(datetime_from)s)
+            OR ((a.created_by != 'UCBCONVERSION' OR a.created_by IS NULL) AND a.updated_at >= %(datetime_from)s))""")
+    if datetime_to:
+        boa_criteria.append('a.updated_at < %(datetime_to)s')
+        legacy_criteria.append("""((a.created_by = 'UCBCONVERSION' AND a.created_at < %(datetime_to)s)
+            OR ((a.created_by != 'UCBCONVERSION' OR a.created_by IS NULL) AND a.updated_at < %(datetime_to)s))""")
+
+    boa_notes_criteria = """
+            AND """.join(criteria + boa_criteria)
+    legacy_notes_criteria = """
+            AND """.join(criteria + legacy_criteria)
+
+    def _build_query(count_only=False):
         if count_only:
-            return f"""SELECT
-              (SELECT COUNT(*) AS count
-                 FROM {boa_notes_table} {boa_criteria_join}
-                WHERE TRUE
-                  {boa_where_clause} {sid_filter} {search_phrase_match}
-                  {and_student_exists})
-            +
-              (SELECT COUNT(*) AS count
-                 FROM {legacy_notes_table} {legacy_criteria_join}
-                WHERE TRUE
-                  {legacy_where_clause} {sid_filter} {search_phrase_match}
-                  {and_student_exists})
-            AS count"""
+            return f"""SELECT (
+               SELECT COUNT(*) AS count
+                 FROM {boa_notes_table} {join_boa_search_index}
+                WHERE {boa_notes_criteria}
+                  {and_student_exists}
+            ) + (
+               SELECT COUNT(*) AS count
+                 FROM {legacy_notes_table} {join_legacy_search_index}
+                WHERE {legacy_notes_criteria}
+                  {and_student_exists}
+            ) AS count"""
         else:
             return f"""WITH candidates AS (
            (SELECT 'boa' AS src, a.id, a.created_at, {rank_column}
-              FROM {boa_notes_table} {boa_criteria_join}
-             WHERE TRUE
-               {boa_where_clause} {sid_filter} {search_phrase_match}
+              FROM {boa_notes_table} {join_boa_search_index}
+             WHERE {boa_notes_criteria}
                {and_student_exists}
              ORDER BY a.created_at DESC, rank DESC, a.id
              LIMIT %(offset)s + %(limit)s)
              UNION ALL
            (SELECT 'legacy' AS src, a.id, a.created_at, {rank_column}
-              FROM {legacy_notes_table} {legacy_criteria_join}
-             WHERE TRUE
-               {legacy_where_clause} {sid_filter} {search_phrase_match}
+              FROM {legacy_notes_table} {join_legacy_search_index}
+             WHERE {legacy_notes_criteria}
                {and_student_exists}
              ORDER BY a.created_at DESC, rank DESC, a.id
              LIMIT %(offset)s + %(limit)s)
@@ -1299,16 +1264,13 @@ def search_advising_notes(
 
     return search_advising(
         build_query=_build_query,
-        uid_advisor_filter=uid_advisor_filter,
         search_phrase=search_phrase,
-        advisor_uid=author_uid,
         advisor_uids=advisor_uids,
         advisor_csid=author_csid,
         student_csid=student_csid,
         topic=topic,
         datetime_from=datetime_from,
         datetime_to=datetime_to,
-        exclude_private=True,
         offset=offset,
         limit=limit,
     )
@@ -1316,53 +1278,21 @@ def search_advising_notes(
 
 def search_advising(
     build_query,
-    uid_advisor_filter,
     search_phrase,
-    advisor_uid=None,
     advisor_uids=None,
     advisor_csid=None,
     student_csid=None,
     topic=None,
     datetime_from=None,
     datetime_to=None,
-    exclude_private=False,
     offset=None,
     limit=None,
 ):
-
-    sid_advisor_filter = 'a.advisor_sid = %(advisor_csid)s' if advisor_csid else ''
-    if advisor_uid or advisor_uids:
-        advisor_filter = f"""
-            AND ({join_if_present(' OR ', [uid_advisor_filter, sid_advisor_filter])})"""
-    else:
-        advisor_filter = ''
-
-    boa_date_filter = ''
-    legacy_date_filter = ''
-    # We prefer to filter on updated_at, but that value is not meaningful for UCBCONVERSION notes.
-    if datetime_from:
-        boa_date_filter += """
-            AND a.updated_at >= %(datetime_from)s"""
-        legacy_date_filter += """
-            AND ((a.created_by = 'UCBCONVERSION' AND a.created_at >= %(datetime_from)s)
-            OR ((a.created_by != 'UCBCONVERSION' OR a.created_by IS NULL) AND a.updated_at >= %(datetime_from)s))"""
-    if datetime_to:
-        boa_date_filter += """
-            AND a.updated_at < %(datetime_to)s"""
-        legacy_date_filter += """
-            AND ((a.created_by = 'UCBCONVERSION' AND a.created_at < %(datetime_to)s)
-            OR ((a.created_by != 'UCBCONVERSION' OR a.created_by IS NULL) AND a.updated_at < %(datetime_to)s))"""
-
-    privacy_filter = """
-            AND NOT a.is_private""" if exclude_private else ''
-
     limit = min(abs(limit or 0), 150)  # Sanity check large limits
     offset = abs(offset or 0)
-
     params = dict(
         search_phrase=search_phrase,
         advisor_csid=advisor_csid,
-        advisor_uid=advisor_uid,
         advisor_uids=advisor_uids,
         student_csid=student_csid,
         topic=topic,
@@ -1371,18 +1301,127 @@ def search_advising(
         offset=offset,
         limit=limit,
     )
-    boa_where_clause = f"""{boa_date_filter} {privacy_filter}"""
-    legacy_where_clause = f"""{advisor_filter} {legacy_date_filter}"""
-    total_matching = safe_execute_rds(build_query(boa_where_clause, legacy_where_clause, count_only=True), **params)
+    total_matching = safe_execute_rds(build_query(count_only=True), **params)
     total_count = total_matching[0]['count']
     if total_count:
-        rows = safe_execute_rds(build_query(boa_where_clause, legacy_where_clause), **params)
+        rows = safe_execute_rds(build_query(), **params)
     else:
         rows = []
     return {
         'rows': rows,
         'total_matching_count': total_count,
     }
+
+
+def search_eforms(
+    search_phrases=None,
+    student_csid=None,
+    datetime_from=None,
+    datetime_to=None,
+    offset=0,
+    limit=20,
+):
+    columns = 'a.created_at, a.updated_at, spi.uid AS student_uid, spi.first_name, spi.last_name'
+    eform_comment_columns = f"""a.parent_eform_id, a.boa_id, aa.data_source, aa.student_sid, a.body,
+            a.author_uid, a.author_name, a.author_role, a.author_dept_codes, NULL AS eform, {columns}"""
+    eform_columns = f"""a.id AS parent_eform_id, NULL AS boa_id, a.data_source, a.student_sid, NULL AS body,
+            NULL AS author_uid, NULL AS author_name, NULL AS author_role, NULL AS author_dept_codes, a.eform, {columns}"""
+    eform_comments_table = f'{boa_cdc_schema()}.eform_comments a'
+    eforms_table = f'{sis_advising_notes_schema()}.student_eforms a'
+    join_eforms = f'JOIN {sis_advising_notes_schema()}.student_eforms aa ON a.parent_eform_id = aa.id'
+    join_students = f'JOIN {student_schema()}.student_profile_index spi ON student_sid = spi.sid'
+    and_student_exists = f'AND EXISTS (SELECT 1 FROM {student_schema()}.student_profile_index spi WHERE spi.sid = student_sid)'
+    search_phrase = None
+    rank_column = ''
+    join_comments_search_index = ''
+    join_eform_search_index = ''
+    criteria = ['TRUE']
+    comment_criteria = []
+    eform_criteria = []
+
+    if search_phrases:
+        # Append the prefix operator to each token individually
+        tokens_with_prefix = [f'{token}:*' for token in search_phrases]
+        search_phrase = ' & '.join(tokens_with_prefix)
+        rank_column = "ts_rank(idx.fts_index, plainto_tsquery('english', %(search_phrase)s)) AS rank"
+        criteria.append("idx.fts_index @@ plainto_tsquery('english', %(search_phrase)s)")
+        join_comments_search_index += f"""
+              JOIN {boa_cdc_schema()}.eform_comments_search_index idx ON idx.boa_id = a.boa_id"""
+        join_eform_search_index += f"""
+              JOIN {sis_advising_notes_schema()}.student_eforms_search_index idx ON idx.id = a.id"""
+    else:
+        rank_column = '0 AS rank'
+    if student_csid:
+        criteria.append('student_sid = %(student_csid)s')
+    if datetime_from:
+        comment_criteria.append('a.updated_at >= %(datetime_from)s')
+        eform_criteria.append('a.created_at >= %(datetime_from)s')
+    if datetime_to:
+        comment_criteria.append('a.updated_at < %(datetime_to)s')
+        eform_criteria.append('a.created_at < %(datetime_to)s')
+
+    comments_match_criteria = """
+                AND """.join(criteria + comment_criteria)
+    eforms_match_criteria = """
+                AND """.join(criteria + eform_criteria)
+
+    def _build_query(count_only=False):
+        if count_only:
+            return f"""SELECT (
+               SELECT COUNT(*) AS count
+                 FROM {eform_comments_table}
+                  {join_eforms} {join_comments_search_index}
+                WHERE {comments_match_criteria}
+                  {and_student_exists}
+            ) + (
+               SELECT COUNT(*) AS count
+                 FROM {eforms_table} {join_eform_search_index}
+                WHERE {eforms_match_criteria}
+                  {and_student_exists}
+            ) AS count"""
+        else:
+            return f"""WITH candidates AS (
+           (SELECT 'boa' AS src, a.parent_eform_id, a.boa_id, a.created_at, {rank_column}
+              FROM {eform_comments_table}
+                  {join_eforms} {join_comments_search_index}
+             WHERE {comments_match_criteria}
+               {and_student_exists}
+             ORDER BY rank DESC, a.created_at DESC, a.parent_eform_id, a.boa_id
+             LIMIT %(offset)s + %(limit)s)
+             UNION ALL
+           (SELECT 'legacy' AS src, a.id AS parent_eform_id, NULL AS boa_id, a.created_at, {rank_column}
+              FROM {eforms_table} {join_eform_search_index}
+             WHERE {eforms_match_criteria}
+               {and_student_exists}
+             ORDER BY rank DESC, a.created_at DESC, a.id
+             LIMIT %(offset)s + %(limit)s)
+        ),
+        page AS (
+            SELECT * FROM candidates
+            ORDER BY rank DESC, created_at DESC, src, parent_eform_id, boa_id
+            OFFSET %(offset)s LIMIT %(limit)s
+        )
+       SELECT page.src, page.rank, {eform_comment_columns}
+          FROM page
+          JOIN {eform_comments_table} ON page.src = 'boa' AND a.parent_eform_id = page.parent_eform_id
+          {join_eforms}
+          {join_students}
+         UNION ALL
+        SELECT page.src, page.rank, {eform_columns}
+          FROM page
+          JOIN {eforms_table} ON page.src = 'legacy' AND a.id = page.parent_eform_id
+          {join_students}
+         ORDER BY rank DESC, created_at DESC, src, parent_eform_id, boa_id"""
+
+    return search_advising(
+        build_query=_build_query,
+        search_phrase=search_phrase,
+        student_csid=student_csid,
+        datetime_from=datetime_from,
+        datetime_to=datetime_to,
+        offset=offset,
+        limit=limit,
+    )
 
 
 def search_peer_advising_notes(
@@ -1408,7 +1447,7 @@ def search_peer_advising_notes(
                     0 AS rank,
                     n.updated_at
             FROM {boa_cdc_schema()}.advising_notes n
-            JOIN ({search_notes_by_student}) s2 ON n.sid = s2.sid
+            JOIN ({search_notes_by_student}) s2 ON n.student_sid = s2.sid
             WHERE peer_advising_department_id = %(peer_advising_department_id)s
               AND parent_note_id IS NULL
         ) sub
