@@ -169,7 +169,7 @@ const onSelect = (category, ignore) => {
 
 <style scoped>
 .button-menu {
-  --v-btn-height: 28px;
+  --v-btn-height: 1.75rem;
   border-radius: 100%;
   min-width: calc(var(--v-btn-height)) !important;
   width: calc(var(--v-btn-height)) !important;

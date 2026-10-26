@@ -10,7 +10,7 @@
         :disabled="noteStore.isSaving || noteStore.boaSessionExpired"
         left="100"
         location="bottom"
-        max-width="62.5rem"
+        :max-width="1000"
         :close-on-content-click="false"
         :close-on-backdrop-click="false"
         no-click-animation
@@ -425,6 +425,7 @@ const resetTemplate = (template?: NoteTemplate, title?: string) => {
   height: auto;
   min-height: 1.5rem;
   letter-spacing: normal;
+  text-align: start;
 }
 .template-actions {
   min-width: 14.6875rem !important;

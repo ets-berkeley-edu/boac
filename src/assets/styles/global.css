@@ -38,7 +38,7 @@
 }
 .button-menu {
   --v-btn-size: 1rem;
-  --v-btn-height: 36px;
+  --v-btn-height: 2.25rem;
   align-items: center;
   background-repeat: repeat;
   border-width: 0;
@@ -536,13 +536,89 @@
    Two-class selectors outrank Vuetify's, which loads after this file. */
 .v-chip .v-chip__close {
   font-size: 1.125rem;
+  max-height: 1.125rem;
+  max-width: 1.125rem;
+}
+.v-chip.v-chip.v-chip--size-x-small {
+  --v-chip-height: 1.25rem;
+}
+.v-chip.v-chip.v-chip--size-small {
+  --v-chip-height: 1.625rem;
+}
+.v-chip.v-chip.v-chip--size-default {
+  --v-chip-height: 2rem;
+}
+.v-chip.v-chip.v-chip--size-large {
+  --v-chip-height: 2.375rem;
+}
+.v-chip.v-chip.v-chip--size-x-large {
+  --v-chip-height: 2.75rem;
 }
 .v-input .v-counter,
 .v-input .v-messages {
   font-size: 0.75rem;
 }
+.v-input .v-messages__message {
+  line-height: 1.2;
+}
 .v-input .v-field {
   font-size: 1rem;
+}
+.v-btn.v-btn--size-x-small {
+  --v-btn-height: 1.25rem;
+}
+.v-btn.v-btn--size-small {
+  --v-btn-height: 1.75rem;
+}
+.v-btn.v-btn--size-default {
+  --v-btn-height: 2.25rem;
+}
+.v-btn.v-btn--size-large {
+  --v-btn-height: 2.75rem;
+}
+.v-btn.v-btn--size-x-large {
+  --v-btn-height: 3.25rem;
+}
+.v-btn-group.v-btn-group.v-btn-group--density-default {
+  height: 3rem;
+}
+.v-btn-group.v-btn-group.v-btn-group--density-comfortable {
+  height: 2.5rem;
+}
+.v-btn-group.v-btn-group.v-btn-group--density-compact {
+  height: 2.25rem;
+}
+.v-tabs.v-tabs--density-default {
+  --v-tabs-height: 3rem;
+}
+.v-tabs.v-tabs--density-comfortable {
+  --v-tabs-height: 2.75rem;
+}
+.v-tabs.v-tabs--density-compact {
+  --v-tabs-height: 2.25rem;
+}
+.v-switch .v-switch__track {
+  height: 0.875rem;
+  min-width: 2.25rem;
+}
+.v-switch .v-switch__thumb {
+  height: 1.25rem;
+  width: 1.25rem;
+}
+.v-locale--is-ltr .v-switch.v-switch .v-selection-control__input {
+  transform: translateX(-0.625rem);
+}
+.v-locale--is-ltr .v-switch.v-switch .v-selection-control--dirty .v-selection-control__input {
+  transform: translateX(0.625rem);
+}
+.v-selection-control.v-selection-control--density-default {
+  --v-selection-control-size: 2.5rem;
+}
+.v-selection-control.v-selection-control--density-comfortable {
+  --v-selection-control-size: 2.25rem;
+}
+.v-selection-control.v-selection-control--density-compact {
+  --v-selection-control-size: 1.75rem;
 }
 .v-chip-content-override {
   .v-chip__content {
