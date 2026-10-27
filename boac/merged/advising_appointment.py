@@ -275,7 +275,7 @@ def _parse_appointments_search_results(search_results, search_terms):
             if appointment_comment:
                 appointments_feed.append(appointment_comment)
         else:
-            # For legacy appointments, prefer CalNet data over the legacy system for advisor data
+            # For legacy appointments, prefer CalNet over the legacy system for advisor data
             advisor_name = advisor_feed.get('name') or join_if_present(' ', [advisor_feed.get('firstName'), advisor_feed.get('lastName')]) \
                 or row.get('advisor_name')
             advisor_role = advisor_feed.get('title') or row.get('advisor_role')

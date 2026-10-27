@@ -68,7 +68,7 @@ CREATE TABLE boa_app_rds_data.advising_note_topics (
 
 CREATE TABLE boa_app_rds_data.advising_notes (
     id VARCHAR PRIMARY KEY,
-    sid VARCHAR NOT NULL,
+    student_sid VARCHAR NOT NULL,
     boa_id INTEGER NOT NULL,
     advisor_uid VARCHAR,
     author_name VARCHAR,
@@ -88,6 +88,24 @@ CREATE TABLE boa_app_rds_data.advising_notes (
 
 CREATE TABLE boa_app_rds_data.advising_notes_search_index (
     id VARCHAR PRIMARY KEY,
+    fts_index tsvector
+);
+
+CREATE TABLE boa_app_rds_data.eform_comments (
+    parent_eform_id VARCHAR NOT NULL,
+    boa_id INTEGER PRIMARY KEY,
+    author_uid VARCHAR NOT NULL,
+    author_name VARCHAR NOT NULL,
+    author_role VARCHAR NOT NULL,
+    author_dept_codes VARCHAR[] NOT NULL,
+    body TEXT NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL
+);
+
+CREATE TABLE boa_app_rds_data.eform_comments_search_index (
+    parent_eform_id VARCHAR,
+    boa_id INTEGER PRIMARY KEY,
     fts_index tsvector
 );
 
@@ -1136,7 +1154,7 @@ CREATE MATERIALIZED VIEW sis_advising_notes.student_course_load_eforms_search_in
   SELECT student_course_load_eforms.id,
     to_tsvector(
       'english',
-      (((((((((COALESCE(student_course_load_eforms.academic_standing_description, ''::character varying)::text || ' '::text) || student_course_load_eforms.request_type::text) || ' '::text) || student_course_load_eforms.request_type_description::text) || ' '::text) || student_course_load_eforms.eform_type::text) || ' '::text) || student_course_load_eforms.eform_id) || ' '::text) || student_course_load_eforms.eform_status::text
+      (((((((((COALESCE(student_course_load_eforms.academic_standing_description, ''::VARCHAR)::text || ' '::text) || student_course_load_eforms.request_type::text) || ' '::text) || student_course_load_eforms.request_type_description::text) || ' '::text) || student_course_load_eforms.eform_type::text) || ' '::text) || student_course_load_eforms.eform_id) || ' '::text) || student_course_load_eforms.eform_status::text
     ) AS fts_index
   FROM sis_advising_notes.student_course_load_eforms
 );
@@ -1154,7 +1172,7 @@ CREATE MATERIALIZED VIEW sis_advising_notes.student_cpp_change_eforms_search_ind
   SELECT student_cpp_change_eforms.id,
     to_tsvector(
       'english',
-      (((((((((((((((((COALESCE(student_cpp_change_eforms.academic_program_name, ''::character varying)::text || ' '::text) || COALESCE(student_cpp_change_eforms.academic_plan_name, ''::character varying)::text) || ' '::text) || COALESCE(student_cpp_change_eforms.academic_subplan_name, ''::character varying)::text) || ' '::text) || COALESCE(student_cpp_change_eforms.to_academic_program_name, ''::character varying)::text) || ' '::text) || COALESCE(student_cpp_change_eforms.to_academic_plan_name, ''::character varying)::text) || ' '::text) || COALESCE(student_cpp_change_eforms.to_academic_subplan_name, ''::character varying)::text) || ' '::text) || student_cpp_change_eforms.eform_type::text) || ' '::text) || student_cpp_change_eforms.eform_action_description::text) || ' '::text) || student_cpp_change_eforms.eform_id) || ' '::text) || student_cpp_change_eforms.eform_status::text
+      (((((((((((((((((COALESCE(student_cpp_change_eforms.academic_program_name, ''::VARCHAR)::text || ' '::text) || COALESCE(student_cpp_change_eforms.academic_plan_name, ''::VARCHAR)::text) || ' '::text) || COALESCE(student_cpp_change_eforms.academic_subplan_name, ''::VARCHAR)::text) || ' '::text) || COALESCE(student_cpp_change_eforms.to_academic_program_name, ''::VARCHAR)::text) || ' '::text) || COALESCE(student_cpp_change_eforms.to_academic_plan_name, ''::VARCHAR)::text) || ' '::text) || COALESCE(student_cpp_change_eforms.to_academic_subplan_name, ''::VARCHAR)::text) || ' '::text) || student_cpp_change_eforms.eform_type::text) || ' '::text) || student_cpp_change_eforms.eform_action_description::text) || ' '::text) || student_cpp_change_eforms.eform_id) || ' '::text) || student_cpp_change_eforms.eform_status::text
     ) AS fts_index
   FROM sis_advising_notes.student_cpp_change_eforms
 );
@@ -1171,9 +1189,67 @@ CREATE MATERIALIZED VIEW sis_advising_notes.student_late_drop_eforms_search_inde
   SELECT student_late_drop_eforms.id,
     to_tsvector(
       'english',
-      (((((((((((((COALESCE(student_late_drop_eforms.grading_basis_description, ''::character varying)::text || ' '::text) || COALESCE(student_late_drop_eforms.requested_grading_basis_description, ''::character varying)::text) || ' '::text) || student_late_drop_eforms.course_display_name::text) || ' '::text) || student_late_drop_eforms.course_title::text) || ' '::text) || student_late_drop_eforms.requested_action::text) || ' '::text) || student_late_drop_eforms.eform_type::text) || ' '::text) || student_late_drop_eforms.eform_id) || ' '::text) || student_late_drop_eforms.eform_status::text
+      (((((((((((((COALESCE(student_late_drop_eforms.grading_basis_description, ''::VARCHAR)::text || ' '::text) || COALESCE(student_late_drop_eforms.requested_grading_basis_description, ''::VARCHAR)::text) || ' '::text) || student_late_drop_eforms.course_display_name::text) || ' '::text) || student_late_drop_eforms.course_title::text) || ' '::text) || student_late_drop_eforms.requested_action::text) || ' '::text) || student_late_drop_eforms.eform_type::text) || ' '::text) || student_late_drop_eforms.eform_id) || ' '::text) || student_late_drop_eforms.eform_status::text
     ) AS fts_index
   FROM sis_advising_notes.student_late_drop_eforms
+);
+
+CREATE TABLE sis_advising_notes.student_eforms AS (
+  SELECT
+    id,
+    eform_id,
+    eform_status,
+    eform_type,
+    sid AS student_sid,
+    (
+      COALESCE(grading_basis_description, '') || ' ' || COALESCE(requested_grading_basis_description, '') || ' ' ||
+      course_display_name || ' ' || course_title || ' ' || requested_action || ' ' ||
+      eform_type || ' ' || eform_id || ' ' || eform_status
+    ) AS body,
+    to_jsonb(student_late_drop_eforms) AS eform,
+    created_at,
+    updated_at,
+    'student_late_drop_eforms' AS data_source
+  FROM sis_advising_notes.student_late_drop_eforms
+  UNION
+  SELECT
+    id,
+    eform_id,
+    eform_status,
+    eform_type,
+    sid AS student_sid,
+    (
+      COALESCE(academic_standing_description, '') || ' ' || request_type || ' ' || request_type_description || ' ' ||
+      eform_type || ' ' || eform_id || ' ' || eform_status
+    ) AS body,
+    to_jsonb(student_course_load_eforms) AS eform,
+    created_at,
+    updated_at,
+    'student_course_load_eforms' AS data_source
+  FROM sis_advising_notes.student_course_load_eforms
+  UNION
+  SELECT
+    id,
+    eform_id,
+    eform_status,
+    eform_type,
+    sid AS student_sid,
+    (
+      COALESCE(academic_program_name, '') || ' ' || COALESCE(academic_plan_name, '') || ' ' ||
+      COALESCE(academic_subplan_name, '') || ' ' || COALESCE(to_academic_program_name, '') || ' ' ||
+      COALESCE(to_academic_plan_name, '') || ' ' || COALESCE(to_academic_subplan_name, '') || ' ' ||
+      eform_type || ' ' || eform_action_description || ' ' || eform_id || ' ' || eform_status
+    ) AS body,
+    to_jsonb(student_cpp_change_eforms) AS eform,
+    created_at,
+    updated_at,
+    'student_cpp_change_eforms' AS data_source
+  FROM sis_advising_notes.student_cpp_change_eforms
+);
+
+CREATE MATERIALIZED VIEW sis_advising_notes.student_eforms_search_index AS (
+  SELECT id, to_tsvector('english', body) AS fts_index
+  FROM sis_advising_notes.student_eforms
 );
 
 INSERT INTO sis_data.basic_attributes(ldap_uid, sid, first_name, last_name, email_address, affiliations, person_type, pronouns)
@@ -1273,21 +1349,21 @@ CREATE UNIQUE INDEX idx_advising_appointments_search_index_pkey
   ON boac_advising_appointments.advising_appointments_search_index(id text_ops);
 
 CREATE TABLE boac_advising_notes.advising_notes AS (
-  SELECT sis.sid, sis.id, sis.note_body, sis.advisor_sid,
+  SELECT sis.sid AS student_sid, sis.id, sis.note_body, sis.advisor_sid,
          NULL::varchar AS advisor_uid, NULL::varchar AS author_name, NULL::varchar AS advisor_first_name,
          NULL::varchar AS advisor_last_name, ARRAY[]::varchar[] AS author_dept_codes, NULL::varchar AS subject,
          sis.note_category, sis.note_subcategory, FALSE AS is_private, NULL::varchar AS contact_type,
          NULL::date AS set_date, sis.created_by, sis.created_at, sis.updated_at
   FROM sis_advising_notes.advising_notes sis
 UNION
-  SELECT ascn.sid, ascn.id, NULL AS note_body, NULL AS advisor_sid,
+  SELECT ascn.sid AS student_sid, ascn.id, NULL AS note_body, NULL AS advisor_sid,
          ascn.advisor_uid, NULL AS author_name, ascn.advisor_first_name,
          ascn.advisor_last_name, ARRAY[]::varchar[] AS author_dept_codes, NULL AS subject,
          NULL AS note_category, NULL AS note_subcategory, FALSE AS is_private, NULL AS contact_type,
          NULL AS set_date, NULL AS created_by, ascn.created_at, ascn.updated_at
   FROM boac_advising_asc.advising_notes ascn
 UNION
-  SELECT dsn.sid, dsn.id, dsn.body AS note_body, dsna.sid AS advisor_sid,
+  SELECT dsn.sid AS student_sid, dsn.id, dsn.body AS note_body, dsna.sid AS advisor_sid,
          dsna.uid AS advisor_uid, NULL AS author_name, dsna.first_name AS advisor_first_name,
          dsna.last_name AS advisor_last_name, ARRAY[]::varchar[] AS author_dept_codes, NULL AS subject,
          NULL AS note_category, NULL AS note_subcategory, FALSE AS is_private, NULL AS contact_type,
@@ -1295,14 +1371,14 @@ UNION
   FROM boac_advising_data_science.advising_notes dsn
   JOIN boac_advising_notes.advising_note_authors dsna ON dsn.advisor_email = dsna.campus_email
 UNION
-  SELECT ein.sid, ein.id, NULL AS note_body, NULL AS advisor_sid,
+  SELECT ein.sid AS student_sid, ein.id, NULL AS note_body, NULL AS advisor_sid,
          ein.advisor_uid, NULL AS author_name, ein.advisor_first_name,
          ein.advisor_last_name, ARRAY[]::varchar[] AS author_dept_codes, NULL AS subject,
          NULL AS note_category, NULL AS note_subcategory, FALSE AS is_private, NULL AS contact_type,
          NULL AS set_date, NULL AS created_by, ein.created_at, ein.updated_at
   FROM boac_advising_e_i.advising_notes ein
 UNION
-  SELECT eop.sid, eop.id, note AS note_body, NULL AS advisor_sid,
+  SELECT eop.sid AS student_sid, eop.id, note AS note_body, NULL AS advisor_sid,
          eop.advisor_uid, NULL AS author_name, eop.advisor_first_name,
          eop.advisor_last_name, ARRAY[]::varchar[] AS author_dept_codes, NULL AS subject,
          NULL AS note_category, NULL AS note_subcategory,
@@ -1313,7 +1389,7 @@ UNION
          NULL AS set_date, eop.advisor_uid AS created_by, eop.created_at, eop.created_at AS updated_at
   FROM boac_advising_eop.advising_notes eop
 UNION
-  SELECT hdn.sid, hdn.id, hdn.note AS note_body, NULL AS advisor_sid,
+  SELECT hdn.sid AS student_sid, hdn.id, hdn.note AS note_body, NULL AS advisor_sid,
          NULL AS advisor_uid, NULL AS author_name, NULL AS advisor_first_name,
          NULL AS advisor_last_name,  ARRAY[]::varchar[] AS author_dept_codes, NULL AS subject,
          NULL AS note_category, NULL AS note_subcategory, FALSE AS is_private, NULL AS contact_type,

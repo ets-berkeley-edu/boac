@@ -449,7 +449,7 @@ def note_to_compatible_json(
         'parentType': _EFORM_DATA_SOURCE_TO_PARENT_TYPE.get(data_source) if data_source else None,
         'read': bool(note_read),
         'setDate': safe_strftime(note.get('set_date'), '%Y-%m-%d'),
-        'sid': note.get('sid'),
+        'sid': note.get('sid') or note.get('student_sid'),
         'subcategory': note.get('note_subcategory'),
         'subject': note.get('subject'),
         'topics': topics,
