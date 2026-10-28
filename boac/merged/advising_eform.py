@@ -128,11 +128,20 @@ def _get_loch_eforms_search_results(loch_rows, search_terms):
         return results
     for eform_row in loch_rows:
         is_comment = eform_row.get('boa_id')
-        summary = eform_row['body'] if is_comment else _eform_summary_text(eform_row)
+        if is_comment:
+            eform_id = eform_row['boa_id']
+            kind = 'commentOnEform'
+            summary = eform_row['body']
+            updated_at = to_iso_format(eform_row['updated_at'])
+        else:
+            eform_id = eform_row.get('id')
+            kind = 'eform'
+            summary = _eform_summary_text(eform_row)
+            updated_at = resolve_sis_updated_at(eform_row)
         eform_type = _EFORM_DATA_SOURCE_TO_PARENT_TYPE.get(eform_row.get('data_source'))
         result = {
-            'kind': 'commentOnEform' if is_comment else 'eform',
-            'id': eform_row.get('parent_eform_id'),
+            'kind': kind,
+            'id': eform_id,
             'type': eform_type,
             'createdAt': resolve_sis_created_at(eform_row),
             'snippet': search_result_text_snippet(summary, search_terms, TEXT_SEARCH_PATTERN),
@@ -143,12 +152,12 @@ def _get_loch_eforms_search_results(loch_rows, search_terms):
                 'lastName': eform_row['last_name'],
             },
             'rank': eform_row.get('rank'),
-            'updatedAt': to_iso_format(eform_row['updated_at']) if is_comment else resolve_sis_updated_at(eform_row),
+            'updatedAt': updated_at,
         }
         if is_comment:
             result['comment'] = {
               'advisor': get_note_author_summary(eform_row),
-              'id': eform_row['boa_id'],
+              'parentEformId': eform_row['id'],
             }
         results.append(result)
     return results

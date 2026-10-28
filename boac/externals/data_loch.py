@@ -1322,9 +1322,9 @@ def search_eforms(
     limit=20,
 ):
     columns = 'a.created_at, a.updated_at, spi.uid AS student_uid, spi.first_name, spi.last_name'
-    eform_comment_columns = f"""a.parent_eform_id, a.boa_id, aa.data_source, aa.student_sid, a.body,
+    eform_comment_columns = f"""a.parent_eform_id AS id, a.boa_id, aa.data_source, aa.student_sid, a.body,
             a.author_uid, a.author_name, a.author_role, a.author_dept_codes, NULL AS eform, {columns}"""
-    eform_columns = f"""a.id AS parent_eform_id, NULL AS boa_id, a.data_source, a.student_sid, NULL AS body,
+    eform_columns = f"""a.id, NULL AS boa_id, a.data_source, a.student_sid, NULL AS body,
             NULL AS author_uid, NULL AS author_name, NULL AS author_role, NULL AS author_dept_codes, a.eform, {columns}"""
     eform_comments_table = f'{boa_cdc_schema()}.eform_comments a'
     eforms_table = f'{sis_advising_notes_schema()}.student_eforms a'
@@ -1381,7 +1381,7 @@ def search_eforms(
             ) AS count"""
         else:
             return f"""WITH candidates AS (
-           (SELECT 'boa' AS src, a.parent_eform_id, a.boa_id, a.created_at, {rank_column}
+           (SELECT 'boa' AS src, a.parent_eform_id AS id, a.boa_id, a.created_at, {rank_column}
               FROM {eform_comments_table}
                   {join_eforms} {join_comments_search_index}
              WHERE {comments_match_criteria}
@@ -1389,7 +1389,7 @@ def search_eforms(
              ORDER BY rank DESC, a.created_at DESC, a.parent_eform_id, a.boa_id
              LIMIT %(offset)s + %(limit)s)
              UNION ALL
-           (SELECT 'legacy' AS src, a.id AS parent_eform_id, NULL AS boa_id, a.created_at, {rank_column}
+           (SELECT 'legacy' AS src, a.id, NULL AS boa_id, a.created_at, {rank_column}
               FROM {eforms_table} {join_eform_search_index}
              WHERE {eforms_match_criteria}
                {and_student_exists}
@@ -1398,20 +1398,20 @@ def search_eforms(
         ),
         page AS (
             SELECT * FROM candidates
-            ORDER BY rank DESC, created_at DESC, src, parent_eform_id, boa_id
+            ORDER BY rank DESC, created_at DESC, src, id, boa_id
             OFFSET %(offset)s LIMIT %(limit)s
         )
        SELECT page.src, page.rank, {eform_comment_columns}
           FROM page
-          JOIN {eform_comments_table} ON page.src = 'boa' AND a.parent_eform_id = page.parent_eform_id
+          JOIN {eform_comments_table} ON page.src = 'boa' AND a.boa_id = page.boa_id
           {join_eforms}
           {join_students}
          UNION ALL
         SELECT page.src, page.rank, {eform_columns}
           FROM page
-          JOIN {eforms_table} ON page.src = 'legacy' AND a.id = page.parent_eform_id
+          JOIN {eforms_table} ON page.src = 'legacy' AND a.id = page.id
           {join_students}
-         ORDER BY rank DESC, created_at DESC, src, parent_eform_id, boa_id"""
+         ORDER BY rank DESC, created_at DESC, src, id, boa_id"""
 
     return search_advising(
         build_query=_build_query,

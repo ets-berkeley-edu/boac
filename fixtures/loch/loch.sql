@@ -938,8 +938,8 @@ CREATE MATERIALIZED VIEW boac_advising_eop.advising_notes_search_index AS
 INSERT INTO boac_advising_history_dept.advising_notes
 (id, advisor_uid, note, sid, student_first_name, student_last_name, created_at)
 VALUES
-('history_dept_advising_note_1','82523','History dept note #1','11667051','Deborah','Davies', now()),
-('history_dept_advising_note_2','82523','History dept note #2','11667051','Deborah','Davies', now());
+('history_dept_advising_note_1','82523','History dept note #1','11667051','Deborah','Davies', '2020-12-05 00:00:00'),
+('history_dept_advising_note_2','82523','History dept note #2','11667051','Deborah','Davies', '2020-12-05 00:00:00');
 
 CREATE MATERIALIZED VIEW boac_advising_history_dept.advising_notes_search_index AS (
   SELECT id, to_tsvector('english', COALESCE(note || ' ', '')) AS fts_index
@@ -1145,9 +1145,9 @@ VALUES
 INSERT INTO sis_advising_notes.student_course_load_eforms
 (id, academic_career_code, academic_standing_status, academic_standing_description, eform_id, eform_last_user_uid, eform_last_user_name, eform_orig_user_name, eform_status, eform_type, request_type, request_type_description, requested_reduced_units, sid, term_enrolled_units, term_id, term_waitlist_units, created_at, updated_at)
 VALUES
-('scl-eform-82', 'UGRD', 'SUB', NULL, 1248476, '5219502', 'Naoko Yamano', 'Naoko Yamano', 'Executed', 'SRCRSLOAD', 'RCL', 'Reduced', '8', '9326995302', '12.000', '2252', '3.00', now(), now()),
-('scl-eform-204', 'UGRD', 'SUB', 'Subject to Disqualification', 1254029, '2881574', 'Michie Nakatani', 'Atsuko Yamano', 'Executed', 'SRCRSLOAD', 'RCLT', 'Reduced with Reduced Tuition', '11', '4636463076', '11.000', '2252', '0.00', now(), now()),
-('scl-eform-529', 'UGRD', 'SUB', NULL, 1276201, '7288415', 'Atsuko Yamano', 'Risa Kawano', 'Executed', 'SRCRSLOAD', 'RCL', 'Reduced', '9', '3813202730', '9.000', '2252', '0.00', now(), now());
+('scl-eform-82', 'UGRD', 'SUB', NULL, 1248476, '5219502', 'Naoko Yamano', 'Naoko Yamano', 'Executed', 'SRCRSLOAD', 'RCL', 'Reduced', '8', '9326995302', '12.000', '2252', '3.00', '2020-12-11 00:00:00', '2020-12-11 00:00:00'),
+('scl-eform-204', 'UGRD', 'SUB', 'Subject to Disqualification', 1254029, '2881574', 'Michie Nakatani', 'Atsuko Yamano', 'Executed', 'SRCRSLOAD', 'RCLT', 'Reduced with Reduced Tuition', '11', '4636463076', '11.000', '2252', '0.00', '2020-12-11 00:00:00', '2020-12-11 00:00:00'),
+('scl-eform-529', 'UGRD', 'SUB', NULL, 1276201, '7288415', 'Atsuko Yamano', 'Risa Kawano', 'Executed', 'SRCRSLOAD', 'RCL', 'Reduced', '9', '3813202730', '9.000', '2252', '0.00', '2020-12-21 00:00:00', '2020-12-21 00:00:00');
 
 
 CREATE MATERIALIZED VIEW sis_advising_notes.student_course_load_eforms_search_index AS (
@@ -1162,11 +1162,11 @@ CREATE MATERIALIZED VIEW sis_advising_notes.student_course_load_eforms_search_in
 INSERT INTO sis_advising_notes.student_cpp_change_eforms
 (id, academic_career_code, academic_plan_name, created_at, degree_expected_term_id, eform_action_code, eform_action_description, eform_id, eform_status, eform_type, overlap_course_1, overlap_course_2, academic_plan_code, academic_plan_type_description, academic_program_code, academic_program_name, requirement_term_id, sid, student_name, academic_subplan_code, academic_subplan_name, to_academic_plan_code, to_academic_plan_name, to_academic_plan_requirement_term_id, to_academic_program_code, to_academic_program_name, to_academic_subplan_code, to_academic_subplan_name, to_academic_subplan_requirement_term_id, to_degree_expected_term_id, to_requirement_term_id, updated_at)
 VALUES
-('eform-12', 'UGRD', 'Ethnic Studies BA', now(), '', 'UNMJ', 'Declare Major', 22656, 'Executed', 'CPPSTACK', NULL, NULL, '25360U', 'Major', 'UCLS', 'Undergrad Letters & Science', '2168', '22945418', 'Topl Rauete', NULL, NULL, ' ', NULL, ' ', ' ', NULL,'', NULL, ' ', NULL, NULL, now()),
-('eform-10', 'GRAD', 'Comp and Genomic Biology DE', now(), NULL, 'GADE', 'Add Plan', 22664, 'Executed', 'CPPSTACK', NULL, NULL, '00E002G', 'Major', 'GACAD', 'Graduate Academic Programs', '2168', '22787365', 'Sonis Denun', NULL, NULL, ' ', NULL, ' ', ' ', NULL,'', NULL, ' ', NULL, NULL, now()),
-('eform-28', 'UGRD', 'Economics BA', now(), NULL, 'UAMJ', 'Add Plan', 22610, 'Withdrawn', 'CPPSTACK', NULL, NULL, '25246U', 'Major', 'UCLS', 'Undergrad Letters & Science', '2168', '25920103', 'Sananvataratcha Prananont', NULL, NULL, ' ', NULL, ' ', ' ', NULL,'', NULL, ' ', NULL, NULL, now()),
-('eform-5', 'UGRD', 'Economics BA', now(), NULL, 'UCMJ', 'Change Plan', 22615, 'Executed', 'CPPSTACK', NULL, NULL, '25246U', 'Major', 'UCLS', 'Undergrad Letters & Science', '2168', '42994232', 'Zhing Yiju', NULL, NULL, '25891U', 'Statistics BA', '2168', ' ', NULL ,' ', NULL, ' ', NULL, NULL, now()),
-('eform-29', 'UGRD', 'Economics BA', now(), NULL, 'UAMJ', 'Add Plan', 22633, 'Withdrawn', 'CPPSTACK', 'none', 'none', '25246U', 'Major', 'UCLS', 'Undergrad Letters & Science', '2168', '25201039', 'Pratcha Sananvatananont', NULL, NULL, ' ', NULL, ' ', ' ', NULL,'', NULL, ' ', NULL, NULL, now());
+('eform-12', 'UGRD', 'Ethnic Studies BA', '2020-12-06 00:00:00', '', 'UNMJ', 'Declare Major', 22656, 'Executed', 'CPPSTACK', NULL, NULL, '25360U', 'Major', 'UCLS', 'Undergrad Letters & Science', '2168', '22945418', 'Topl Rauete', NULL, NULL, ' ', NULL, ' ', ' ', NULL,'', NULL, ' ', NULL, NULL, '2020-12-06 00:00:00'),
+('eform-10', 'GRAD', 'Comp and Genomic Biology DE', '2020-12-07 00:00:00', NULL, 'GADE', 'Add Plan', 22664, 'Executed', 'CPPSTACK', NULL, NULL, '00E002G', 'Major', 'GACAD', 'Graduate Academic Programs', '2168', '22787365', 'Sonis Denun', NULL, NULL, ' ', NULL, ' ', ' ', NULL,'', NULL, ' ', NULL, NULL, '2020-12-07 00:00:00'),
+('eform-28', 'UGRD', 'Economics BA', '2020-12-08 00:00:00', NULL, 'UAMJ', 'Add Plan', 22610, 'Withdrawn', 'CPPSTACK', NULL, NULL, '25246U', 'Major', 'UCLS', 'Undergrad Letters & Science', '2168', '25920103', 'Sananvataratcha Prananont', NULL, NULL, ' ', NULL, ' ', ' ', NULL,'', NULL, ' ', NULL, NULL, '2020-12-08 00:00:00'),
+('eform-5', 'UGRD', 'Economics BA', '2020-12-09 00:00:00', NULL, 'UCMJ', 'Change Plan', 22615, 'Executed', 'CPPSTACK', NULL, NULL, '25246U', 'Major', 'UCLS', 'Undergrad Letters & Science', '2168', '42994232', 'Zhing Yiju', NULL, NULL, '25891U', 'Statistics BA', '2168', ' ', NULL ,' ', NULL, ' ', NULL, NULL, '2020-12-09 00:00:00'),
+('eform-29', 'UGRD', 'Economics BA', '2020-12-10 00:00:00', NULL, 'UAMJ', 'Add Plan', 22633, 'Withdrawn', 'CPPSTACK', 'none', 'none', '25246U', 'Major', 'UCLS', 'Undergrad Letters & Science', '2168', '25201039', 'Pratcha Sananvatananont', NULL, NULL, ' ', NULL, ' ', ' ', NULL,'', NULL, ' ', NULL, NULL, '2020-12-10 00:00:00');
 
 CREATE MATERIALIZED VIEW sis_advising_notes.student_cpp_change_eforms_search_index AS (
   SELECT student_cpp_change_eforms.id,

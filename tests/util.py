@@ -23,12 +23,14 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import itertools
 from contextlib import contextmanager
 
 import boto3
 import moto
 from botocore.exceptions import ClientError
 
+from boac.lib.util import localized_timestamp_to_utc
 from boac.models.comment_parent import CommentParent
 
 
@@ -228,8 +230,8 @@ def refresh_loch_note_search_index(app, notes=None, deleted_notes=None):
     try:
         with engine.begin() as conn:
             if notes:
-                sql = ''
-                values = []
+                notes_insert_values = []
+                topics_insert_values = []
                 for note in notes:
                     note_id = f'boa-{note.sid}-{note.id}'
                     name_parts = (note.author_name or '').split(maxsplit=1)
@@ -239,7 +241,7 @@ def refresh_loch_note_search_index(app, notes=None, deleted_notes=None):
                     searchable_topics = ' '.join([t.topic for t in note.topics]) if note.topics else ''
                     searchable_text = f"{note.subject or ''} {searchable_body} {searchable_topics} {note.author_name or ''}"
 
-                    values.append({
+                    notes_insert_values.append({
                         'id': note_id,
                         'student_sid': note.sid,
                         'boa_id': note.id,
@@ -259,7 +261,15 @@ def refresh_loch_note_search_index(app, notes=None, deleted_notes=None):
                         'updated_at': note.updated_at,
                         'searchable_text': searchable_text,
                     })
-                sql += """INSERT INTO boa_app_rds_data.advising_notes
+                    if note.topics:
+                        for t in note.topics:
+                            topics_insert_values.append({
+                                'id': note_id,
+                                'boa_id': note.id,
+                                'sid': note.sid,
+                                'topic': t.topic,
+                            })
+                notes_insert_sql = """INSERT INTO boa_app_rds_data.advising_notes
                     (id, student_sid, boa_id, advisor_uid, author_name, advisor_first_name, advisor_last_name,
                     author_dept_codes, subject, note_body, is_private, contact_type, set_date,
                     parent_note_id, peer_advising_department_id, created_at, updated_at)
@@ -297,19 +307,13 @@ def refresh_loch_note_search_index(app, notes=None, deleted_notes=None):
                   ON CONFLICT(advisor_name)
                   DO UPDATE SET
                     advisor_uid = EXCLUDED.advisor_uid;"""
-                conn.execute(text(sql), values)
+                conn.execute(text(notes_insert_sql), notes_insert_values)
 
-                if note.topics and len(note.topics):
-                    params = [{
-                        'id': note_id,
-                        'boa_id': note.id,
-                        'sid': note.sid,
-                        'topic': t.topic,
-                    } for t in note.topics]
-                    sql = """INSERT INTO boa_app_rds_data.advising_note_topics
+                if len(topics_insert_values):
+                    topics_insert_sql = """INSERT INTO boa_app_rds_data.advising_note_topics
                           (id, boa_id, sid, topic)
                         VALUES (:id, :boa_id, :sid, :topic)"""
-                    conn.execute(text(sql), params)
+                    conn.execute(text(topics_insert_sql), topics_insert_values)
 
             if deleted_notes:
                 params = {
@@ -324,3 +328,84 @@ def refresh_loch_note_search_index(app, notes=None, deleted_notes=None):
                 conn.execute(text(sql), params)
     finally:
         engine.dispose()
+
+
+# Helpers for the search (notes, appointents, eforms) tests.
+
+def _search_filter_combinations(filters):
+    names = list(filters)
+    return [combo for count in range(len(names) + 1) for combo in itertools.combinations(names, count)]
+
+
+def active_search_criteria(filters, active_filters):
+    criteria = {}
+    for name in active_filters:
+        value = filters[name]
+        if name in ('datetime_from', 'datetime_to'):
+            value = localized_timestamp_to_utc(f'{value}T00:00:00')
+        criteria[name] = value
+    if 'search_phrases' not in filters:
+        criteria.setdefault('search_phrase', None)
+    return criteria
+
+def assert_every_search_filter_combination(filters, search, expected_keys, limit):
+    """Run the search once per combination of search filters, and report every combination whose results are wrong."""
+    combinations = _search_filter_combinations(filters)
+    assert len(combinations) == 2 ** len(filters)
+    failures = []
+    for active_filters in combinations:
+        criteria = active_search_criteria(filters, active_filters)
+        expected = sorted(expected_keys(**criteria), key=repr)
+        assert len(expected) < limit, 'Expected results exceed one page; raise the limit or narrow the fixture data.'
+        results = search(criteria)
+        actual = sorted([row['id'] for row in results['rows']], key=repr)
+        if actual != expected or results['total'] != len(expected):
+            failures.append(
+                f"{' + '.join(active_filters) or 'no search filters'}: "
+                f"total_matching_count={results['total']}, "
+                f'missing={[k for k in expected if k not in actual]}, '
+                f'unexpected={[k for k in actual if k not in expected]}, '
+                f'duplicates={sorted({k for k in actual if actual.count(k) > 1}, key=repr)}',
+            )
+    assert not failures, f'{len(failures)} of {len(combinations)} search filter combinations failed:\n' + '\n'.join(failures)
+
+
+def assert_search_filters_not_vacuous(filters, expected_keys_fn):
+    all_keys = set(expected_keys_fn(**active_search_criteria(filters, ())))
+    for name in filters:
+        filtered_keys = set(expected_keys_fn(**active_search_criteria(filters, (name,))))
+        assert filtered_keys, f'Filter {name} matches nothing'
+        assert filtered_keys < all_keys, f'Filter {name} excludes nothing'
+
+def expected_fts_results(index_table, id_column, search_phrase, execute):
+    """Return IDs matching the search phrase, or None when there is no phrase to match."""
+    if not search_phrase:
+        return None
+    sql = f"SELECT {id_column} AS id FROM {index_table} WHERE fts_index @@ plainto_tsquery('english', %(search_phrase)s)"
+    return {row['id'] for row in execute(sql, search_phrase=search_phrase)}
+
+
+def in_date_range(timestamp, datetime_from, datetime_to):
+    if datetime_from and (timestamp is None or timestamp < datetime_from):
+        return False
+    return not (datetime_to and (timestamp is None or timestamp >= datetime_to))
+
+
+def legacy_advisor_match(row, advisor_uids, advisor_sid):
+    if not advisor_uids and not advisor_sid:
+        return True
+    uid_match = bool(advisor_uids) and (row['created_by'] in advisor_uids or row['advisor_uid'] in advisor_uids)
+    sid_match = bool(advisor_sid) and row['advisor_sid'] == advisor_sid
+    return uid_match or sid_match
+
+
+def legacy_timestamp(row):
+    # UCBCONVERSION rows have no meaningful updated_at, so they are filtered on created_at.
+    return row['created_at'] if row['created_by'] == 'UCBCONVERSION' else row['updated_at']
+
+
+def get_topic_matches(topics_table, topic, execute):
+    """Return IDs of notes or appointments tagged with the topic, or None when there is no topic to match."""
+    if not topic:
+        return None
+    return {row['id'] for row in execute(f'SELECT id FROM {topics_table} WHERE topic = %(topic)s', topic=topic)}
