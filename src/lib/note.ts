@@ -1,4 +1,4 @@
-import {each, filter, findIndex, get, isEmpty, map, size, trim} from 'lodash'
+import {each, filter, findIndex, flatMap, get, includes, isEmpty, map, size, trim} from 'lodash'
 import type {
   AcademicTimelineMessage,
   Attachment,
@@ -138,6 +138,17 @@ export function updateNoteComments(parentNote: Note, comment: NoteComment) {
   } else {
     parentNote.comments.push(comment)
   }
+}
+
+export function getFileExtension(filename: string): string {
+  const name: string = trim(filename)
+  const index: number = name.lastIndexOf('.')
+  return index >= 0 ? name.substring(index + 1).toLowerCase() : ''
+}
+
+export function isAllowedAttachmentType(filename: string): boolean {
+  const allowedExtensions: string[] = flatMap(useContextStore().config.allowedAttachmentTypes, 'extensions')
+  return includes(allowedExtensions, getFileExtension(filename))
 }
 
 export function validateAttachment(attachments: Attachment[], existingAttachments: Attachment[]): string | null {
