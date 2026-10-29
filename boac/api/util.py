@@ -404,14 +404,21 @@ def get_note_attachments_from_http_post(tolerate_none=False):
             break
     if not tolerate_none and not len(attachments):
         raise BadRequestError('request.files is empty')
+    allowed_extensions = [e for t in app.config['NOTES_ATTACHMENTS_ALLOWED_TYPES'] for e in t['extensions']]
     byte_stream_bundle = []
     for attachment in attachments:
         filename = attachment.filename and attachment.filename.strip()
         if not filename:
             raise BadRequestError(f'Invalid file in request form data: {attachment}')
+        name = filename.rsplit('/', 1)[-1]
+        extension = name.rsplit('.', 1)[-1].lower() if '.' in name else None
+        if not extension:
+            raise BadRequestError(f'File attachment without a file type is not allowed: {name}')
+        elif extension not in allowed_extensions:
+            raise BadRequestError(f'.{extension} file attachment not allowed.')
         else:
             byte_stream_bundle.append({
-                'name': filename.rsplit('/', 1)[-1],
+                'name': name,
                 'byte_stream': attachment.read(),
             })
     return byte_stream_bundle

@@ -157,6 +157,12 @@ MAX_FORM_PARTS = 10000
 # At the beginning of a term, the bar may be lowered.
 MEANINGFUL_STATS_MINIMUM = 4
 
+NOTES_ATTACHMENTS_ALLOWED_TYPES = [
+    {'label': 'Documents', 'extensions': ['pdf', 'docx', 'doc', 'xlsx', 'xls', 'pptx', 'odt', 'pages', 'rtf']},
+    {'label': 'Data and plain text', 'extensions': ['txt', 'csv']},
+    {'label': 'Images', 'extensions': ['png', 'jpg', 'jpeg', 'jfif', 'heic', 'tiff', 'gif']},
+    {'label': 'Email', 'extensions': ['eml']},
+]
 NOTES_ATTACHMENTS_MAX_PER_NOTE = 10
 # During edit of draft note, we continually save changes via background thread. (This config is in milliseconds.)
 NOTES_DRAFT_AUTO_SAVE_INTERVAL = 10000

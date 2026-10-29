@@ -54,6 +54,7 @@ def app_config():
         })
     return tolerant_jsonify({
         'academicStandingDescriptions': ACADEMIC_STANDING_DESCRIPTIONS,
+        'allowedAttachmentTypes': app.config['NOTES_ATTACHMENTS_ALLOWED_TYPES'],
         'apptDeskRefreshInterval': app.config['APPT_DESK_REFRESH_INTERVAL'],
         'boacEnv': app.config['BOAC_ENV'],
         'csrfToken': generate_csrf(),

@@ -7,6 +7,35 @@
     >
       Attachments
     </div>
+    <template v-if="!isReadOnly">
+      <span class="font-size-16 ml-1">(</span><v-btn
+        :id="`${idPrefix}-allowed-attachment-types-toggle`"
+        :aria-controls="`${idPrefix}-allowed-attachment-types`"
+        :aria-expanded="showAllowedTypes"
+        class="font-size-16 px-0 text-none"
+        color="primary"
+        density="compact"
+        height="auto"
+        min-width="0"
+        slim
+        variant="text"
+        @click="showAllowedTypes = !showAllowedTypes"
+      >
+        <v-icon :icon="showAllowedTypes ? mdiMenuDown : mdiMenuRight" size="1.25rem" />
+        {{ showAllowedTypes ? 'hide' : 'show' }} allowed attachment file types
+      </v-btn><span class="font-size-16">)</span>
+      <v-expand-transition>
+        <ul
+          v-show="showAllowedTypes"
+          :id="`${idPrefix}-allowed-attachment-types`"
+          class="font-size-14 list-no-bullets mt-1"
+        >
+          <li v-for="allowedType in contextStore.config.allowedAttachmentTypes" :key="allowedType.label">
+            <span class="font-italic">{{ allowedType.label }}:</span> {{ allowedType.extensions.join(', ') }}
+          </li>
+        </ul>
+      </v-expand-transition>
+    </template>
     <div v-if="!isReadOnly" class="mt-2 position-relative">
       <label
         class="note-attachment-inner-label font-size-16 align-center d-flex flex-wrap justify-center"
@@ -125,16 +154,52 @@
         </PillItem>
       </li>
     </ul>
+    <ul
+      v-if="!isReadOnly && size(rejectedAttachments)"
+      :id="`${idPrefix}-rejected-attachments-list`"
+      class="list-no-bullets"
+    >
+      <li
+        v-for="(rejected, index) in rejectedAttachments"
+        :key="rejected.name"
+        class="align-center d-flex flex-wrap"
+      >
+        <PillItem
+          :id="`${idPrefix}-rejected-attachment-${index}`"
+          class="my-1 mr-2 w-fit-content"
+          :closable="true"
+          :disabled="disabled"
+          :icon="mdiPaperclip"
+          :label="rejected.name"
+          name="attachment"
+          @close-clicked="onRemoveRejectedAttachment(index)"
+        >
+          <span class="text-decoration-line-through wrap-anywhere">{{ rejected.name }}</span>
+        </PillItem>
+        <span
+          :id="`${idPrefix}-rejected-attachment-${index}-error`"
+          class="font-size-14 font-weight-bold text-error"
+        >
+          {{ rejected.message }}
+        </span>
+      </li>
+    </ul>
   </div>
 </template>
 
 <script setup>
 import {computed, onBeforeMount, onBeforeUnmount, reactive, ref, watch} from 'vue'
-import {each, size} from 'lodash'
-import {mdiAlert, mdiPaperclip} from '@mdi/js'
+import {each, find, partition, size} from 'lodash'
+import {mdiAlert, mdiMenuDown, mdiMenuRight, mdiPaperclip} from '@mdi/js'
 import {storeToRefs} from 'pinia'
 import PillItem from '@/components/util/PillItem'
-import {addFileDropEventListeners, canUserEditNote, validateAttachment} from '@/lib/note'
+import {
+  addFileDropEventListeners,
+  canUserEditNote,
+  getFileExtension,
+  isAllowedAttachmentType,
+  validateAttachment
+} from '@/lib/note'
 import {alertScreenReader, pluralize, putFocusNextTick} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
@@ -202,6 +267,8 @@ const isFocused = ref(false)
 const {isUploadingAttachments} = storeToRefs(noteStore)
 let progressBarAlert
 const progressBarId = computed(() => `${props.idPrefix}-attachment-progress`)
+const rejectedAttachments = ref([])
+const showAllowedTypes = ref(false)
 const canAddAttachments = computed(() => {
   return !isUploadingAttachments.value && !props.disabled && !attachmentLimitReached.value
 })
@@ -260,8 +327,17 @@ const downloadUrl = (attachment) => {
   return url
 }
 
-const onAttachmentsInput = files => {
+const onAttachmentsInput = selected => {
   attachmentError.value = null
+  const [files, rejected] = partition(selected, file => isAllowedAttachmentType(file.name))
+  each(rejected, file => {
+    if (!find(rejectedAttachments.value, {name: file.name})) {
+      const extension = getFileExtension(file.name)
+      const message = extension ? `.${extension.toUpperCase()} file attachment not allowed` : 'File attachment without a file type not allowed'
+      rejectedAttachments.value.push({message, name: file.name})
+      alertScreenReader(`${file.name}: ${message}`)
+    }
+  })
   if (size(files)) {
     const pluralized = pluralize('attachment', files.length)
     alertScreenReader(`Adding ${pluralized}`)
@@ -288,6 +364,17 @@ const onAttachmentsInput = files => {
 const onClickBrowseForAttachment = () => {
   attachmentError.value = null
   attachmentFileInput.value.click()
+}
+
+const onRemoveRejectedAttachment = index => {
+  const lastItemIndex = size(rejectedAttachments.value) - 1
+  if (lastItemIndex > 0) {
+    const nextFocusIndex = (index === lastItemIndex ) ? index - 1 : index
+    putFocusNextTick(`remove-${props.idPrefix}-rejected-attachment-${nextFocusIndex}-btn`)
+  } else {
+    putFocusNextTick(inputId.value)
+  }
+  rejectedAttachments.value.splice(index, 1)
 }
 
 const onRemoveAttachment = index => {

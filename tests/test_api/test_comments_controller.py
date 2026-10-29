@@ -23,6 +23,8 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from io import BytesIO
+
 from boac.models.appointment_read import AppointmentRead
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.comment import Comment
@@ -267,6 +269,25 @@ class TestCreateComment:
         assert response.status_code == 200
         assert len(response.json['attachments']) == 1
         assert response.json['attachments'][0]['filename'] == 'mock_advising_note_attachment_1.txt'
+
+    def test_create_comment_with_disallowed_attachment(self, app, client, fake_auth):
+        """Rejects a comment attachment with a file type not on the allowed list."""
+        fake_auth.login(coe_advisor_uid)
+        with mock_advising_note_s3_bucket(app):
+            data = {
+                'parentType': 'appointment',
+                'parentId': APPOINTMENT_PARENT_ID,
+                'body': 'A comment with a zip file.',
+                'attachment[0]': (BytesIO(b'PK'), 'archive.zip'),
+            }
+            response = client.post(
+                '/api/comments/create',
+                buffered=True,
+                content_type='multipart/form-data',
+                data=data,
+            )
+        assert response.status_code == 400
+        assert '.zip file attachment not allowed' in response.json['message']
 
 
 class TestUpdateComment:

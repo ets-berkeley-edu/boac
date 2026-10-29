@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 import json
 from datetime import date, datetime
+from io import BytesIO
 from urllib.parse import quote
 
 import pytest
@@ -961,6 +962,70 @@ class TestNoteAttachments:
         assert note['attachments'][0]['filename'] == 'mock_advising_note_attachment_1.txt'
         assert note['attachments'][1]['filename'] == 'mock_advising_note_attachment_2.txt'
         assert note['updatedAt'] is not None
+
+    def test_add_attachment_disallowed_file_type(self, app, client, fake_auth):
+        """Rejects an attachment with a file type not on the allowed list."""
+        fake_auth.login(coe_advisor_uid)
+        draft_note = _api_create_draft_note(client=client)
+        note_id = draft_note['id']
+        with mock_advising_note_s3_bucket(app):
+            response = client.post(
+                f'/api/notes/{note_id}/attachments',
+                buffered=True,
+                content_type='multipart/form-data',
+                data={'attachment[0]': (BytesIO(b'PK'), 'selecting_undergrad_minors.zip')},
+            )
+        assert response.status_code == 400
+        assert '.zip file attachment not allowed' in response.json['message']
+        assert not Note.find_by_id(note_id).attachments
+
+    def test_add_attachment_disallowed_file_type_in_batch(self, app, client, fake_auth):
+        """Rejects the whole upload if any one attachment has a disallowed file type."""
+        fake_auth.login(coe_advisor_uid)
+        base_dir = app.config['BASE_DIR']
+        draft_note = _api_create_draft_note(client=client)
+        note_id = draft_note['id']
+        with mock_advising_note_s3_bucket(app):
+            response = client.post(
+                f'/api/notes/{note_id}/attachments',
+                buffered=True,
+                content_type='multipart/form-data',
+                data={
+                    'attachment[0]': open(f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt', 'rb'),
+                    'attachment[1]': (BytesIO(b'MZ'), 'installer.exe'),
+                },
+            )
+        assert response.status_code == 400
+        assert not Note.find_by_id(note_id).attachments
+
+    def test_add_attachment_without_extension(self, app, client, fake_auth):
+        """Rejects an attachment with no file extension."""
+        fake_auth.login(coe_advisor_uid)
+        draft_note = _api_create_draft_note(client=client)
+        note_id = draft_note['id']
+        with mock_advising_note_s3_bucket(app):
+            response = client.post(
+                f'/api/notes/{note_id}/attachments',
+                buffered=True,
+                content_type='multipart/form-data',
+                data={'attachment[0]': (BytesIO(b'hello'), 'README')},
+            )
+        assert response.status_code == 400
+
+    def test_add_attachment_uppercase_extension(self, app, client, fake_auth):
+        """File type check ignores case."""
+        fake_auth.login(coe_advisor_uid)
+        draft_note = _api_create_draft_note(client=client)
+        note_id = draft_note['id']
+        with mock_advising_note_s3_bucket(app):
+            response = client.post(
+                f'/api/notes/{note_id}/attachments',
+                buffered=True,
+                content_type='multipart/form-data',
+                data={'attachment[0]': (BytesIO(b'%PDF-1.4'), 'HELPFUL_DOCUMENT_01.PDF')},
+            )
+        assert response.status_code == 200
+        assert response.json['attachments'][0]['filename'] == 'HELPFUL_DOCUMENT_01.PDF'
 
 
 class TestMarkNoteRead:

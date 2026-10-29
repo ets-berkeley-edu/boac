@@ -65,6 +65,12 @@ class TestConfigController:
         assert data['futureTermId'] == 2182
         assert '@' in data['supportEmailAddress']
         assert data['maxAttachmentsPerNote'] > 0
+        allowed_attachment_types = data['allowedAttachmentTypes']
+        assert [t['label'] for t in allowed_attachment_types] == ['Documents', 'Data and plain text', 'Images', 'Email']
+        extensions = [e for t in allowed_attachment_types for e in t['extensions']]
+        assert 'pdf' in extensions
+        assert 'eml' in extensions
+        assert 'zip' not in extensions
         assert data['pingFrequency'] == 900000
         assert data['timezone'] == 'America/Los_Angeles'
         category_type_options = data['degreeCategoryTypeOptions']
