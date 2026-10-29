@@ -24,10 +24,34 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
+from boac.externals import data_loch
 from boac.merged.advising_appointment import get_advising_appointments, search_advising_appointments
+from boac.models.university_dept import UniversityDept
+from tests.util import (
+    assert_every_search_filter_combination,
+    assert_search_filters_not_vacuous,
+    expected_fts_results,
+    get_topic_matches,
+    in_date_range,
+    legacy_advisor_match,
+    legacy_timestamp,
+)
 
+asc_advisor_uid = '1081940'
 student_sid = '11667051'
 
+# One value per filter, chosen so that filters overlap in fixture data and every combination is meaningful.
+APPOINTMENT_SEARCH_FILTERS = {
+    'search_phrase': 'life',
+    'advisor_uid': asc_advisor_uid,
+    'advisor_csid': '800700600',
+    'student_csid': '11667051',
+    'department_codes': ['COENG'],
+    'topic': 'Show Off',
+    'datetime_from': '2017-10-15',
+    'datetime_to': '2021-09-01',
+}
+SEARCH_RESULTS_LIMIT = 50
 
 class TestMergedAdvisingAppointment:
     """Advising appointment data, merged."""
@@ -148,3 +172,103 @@ you got to pull up the intruder by the root of the weed; N.Y. Chew through the m
         assert appointments[3]['student']['lastName'] == 'Barney'
         assert appointments[3]['createdAt']
         assert appointments[3]['updatedAt'] is None
+
+
+class TestAppointmentSearchFilterCombinations:
+    """Loch appointment search, every combination of filters."""
+
+    def test_every_filter_combination(self, mock_searchable_appointment_comments, mock_legacy_ucbconversion_records):  # noqa: ARG002
+        """Returns exactly the BOA comments and legacy appointments matching all active filters, for all 256 combinations."""
+        def _search_advising_appointments(criteria):
+            results = search_advising_appointments(**criteria, offset=0, limit=SEARCH_RESULTS_LIMIT)
+            return {
+                'rows': results['appointments'],
+                'total': results['totalAppointmentCount'],
+            }
+        assert_every_search_filter_combination(
+            filters=APPOINTMENT_SEARCH_FILTERS,
+            search=_search_advising_appointments,
+            expected_keys=_expected_appointment_ids,
+            limit=SEARCH_RESULTS_LIMIT,
+        )
+
+    def test_filters_are_not_vacuous(self, mock_searchable_appointment_comments, mock_legacy_ucbconversion_records):  # noqa: ARG002
+        """Each filter, applied alone, narrows the results and leaves at least one match."""
+        assert_search_filters_not_vacuous(APPOINTMENT_SEARCH_FILTERS, _expected_appointment_ids)
+
+def _advisor_uids(department_codes, advisor_uid, advisor_sid):
+    """Department codes, when present, take precedence over an individual advisor UID."""
+    if not department_codes:
+        if advisor_uid:
+            return {advisor_uid}
+        if advisor_sid:
+            return {row['ldap_uid'] for row in data_loch.safe_execute_rds(
+                'SELECT ldap_uid FROM sis_data.basic_attributes WHERE sid = %(sid)s',
+                sid=advisor_sid,
+            )}
+        return set()
+    uids = set()
+    for dept_code in department_codes:
+        dept = UniversityDept.find_by_dept_code(dept_code)
+        uids.update(membership.authorized_user.uid for membership in dept.authorized_users)
+    return uids
+
+
+def _expected_appointment_ids(
+        search_phrase=None,
+        advisor_uid=None,
+        advisor_csid=None,
+        student_csid=None,
+        department_codes=None,
+        topic=None,
+        datetime_from=None,
+        datetime_to=None,
+):
+    boa_cdc = data_loch.boa_cdc_schema()
+    legacy_appts = data_loch.advising_appointments_schema()
+    advisor_uids = _advisor_uids(department_codes, advisor_uid, advisor_csid)
+    all_student_sids = {row['sid'] for row in data_loch.safe_execute_rds(f'SELECT sid FROM {data_loch.student_schema()}.student_profile_index')}
+    appointment_ids = []
+
+    comment_text_matches = expected_fts_results(
+        f'{boa_cdc}.advising_appointment_comments_search_index',
+        'boa_id',
+        search_phrase,
+        data_loch.safe_execute_rds,
+    )
+    comments = data_loch.safe_execute_rds(f"""
+        SELECT c.boa_id, c.parent_appointment_id, c.author_uid, c.updated_at, aa.student_sid
+          FROM {boa_cdc}.advising_appointment_comments c
+          JOIN {legacy_appts}.advising_appointments aa ON aa.id = c.parent_appointment_id""")
+    for row in comments:
+        if (
+            not topic  # Comments on appointments have no topics.
+            and (not comment_text_matches or row['boa_id'] in comment_text_matches)
+            and (not advisor_uids or row['author_uid'] in advisor_uids)
+            and (not student_csid or row['student_sid'] == student_csid)
+            and (row['student_sid'] in all_student_sids)
+            and in_date_range(row['updated_at'], datetime_from, datetime_to)
+        ):
+            appointment_ids.append(row['boa_id'])
+
+    appointment_text_matches = expected_fts_results(
+        f'{legacy_appts}.advising_appointments_search_index',
+        'id',
+        search_phrase,
+        data_loch.safe_execute_rds,
+    )
+    topic_matches = get_topic_matches(f'{data_loch.advising_notes_schema()}.advising_note_topics_curated', topic, data_loch.safe_execute_rds)
+    appointments = data_loch.safe_execute_rds(f"""
+        SELECT id, student_sid, advisor_uid, advisor_sid, created_by, created_at, updated_at
+          FROM {legacy_appts}.advising_appointments""")
+    for row in appointments:
+        if (
+            (not appointment_text_matches or row['id'] in appointment_text_matches)
+            and (not topic_matches or row['id'] in topic_matches)
+            and legacy_advisor_match(row, advisor_uids, advisor_csid)
+            and (not student_csid or row['student_sid'] == student_csid)
+                        and (row['student_sid'] in all_student_sids)
+            and in_date_range(legacy_timestamp(row), datetime_from, datetime_to)
+        ):
+            appointment_ids.append(row['id'])
+    return appointment_ids

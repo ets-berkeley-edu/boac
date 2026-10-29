@@ -29,7 +29,7 @@ import os
 import random
 import string
 import time
-from datetime import datetime
+from datetime import UTC, datetime
 
 import boto3
 import pytest
@@ -50,6 +50,7 @@ from tests.util import (
     mock_advising_note_s3_bucket,
     override_config,
     refresh_loch_appointment_search_index,
+    refresh_loch_eform_search_index,
     refresh_loch_note_search_index,
 )
 
@@ -426,6 +427,172 @@ def mock_eform_comment(db):
 
 
 @pytest.fixture
+def mock_searchable_appointment_comments(app, db):
+    """Create appointment comments, indexed in the loch, that vary by search term, author, student and date."""
+    comments = [
+        _create_mock_comment(
+            parent_type='appointment',
+            parent_id='11667051-00010',
+            author_uid='1133399',
+            body='Life lessons from the lab.',
+            timestamp=datetime(2019, 6, 1, tzinfo=UTC),
+        ),
+        _create_mock_comment(
+            parent_type='appointment',
+            parent_id='9100000000-00010',
+            author_uid='1081940',
+            body='Life is like a comment on an appointment.',
+        ),
+        _create_mock_comment(
+            parent_type='appointment',
+            parent_id='11667051-00012',
+            author_uid='90412',
+            body='Rescheduled for next week.',
+            timestamp=datetime(2016, 6, 1, tzinfo=UTC),
+        ),
+    ]
+    for comment in comments:
+        refresh_loch_appointment_search_index(app, comment=comment)
+    yield comments
+    for comment in comments:
+        comment.soft_delete()
+        std_commit(allow_test_environment=True)
+        refresh_loch_appointment_search_index(app, deleted_comment=comment)
+
+
+@pytest.fixture
+def mock_searchable_eform_comments(app, db):
+    """Create eForm comments, indexed in the loch, that vary by search term, student and date. Each is on a different eForm."""
+    comments = [
+        _create_mock_comment(
+            parent_type='late_drop_eform',
+            parent_id='eform-10099',
+            author_uid='1133399',
+            body='Competing grand designs',
+            timestamp=datetime(2020, 12, 15, tzinfo=UTC),
+        ),
+        _create_mock_comment(
+            parent_type='late_drop_eform',
+            parent_id='eform-10098',
+            author_uid='1133399',
+            body='it appears that the designing of type has been taken in hand by artists of capacity',
+        ),
+        _create_mock_comment(
+            parent_type='late_drop_eform',
+            parent_id='eform-101',
+            author_uid='1133399',
+            body='Reviewed with student.',
+            timestamp=datetime(2019, 1, 1, tzinfo=UTC),
+        ),
+    ]
+    for comment in comments:
+        refresh_loch_eform_search_index(app, comment=comment)
+    yield comments
+    for comment in comments:
+        comment.soft_delete()
+        std_commit(allow_test_environment=True)
+        refresh_loch_eform_search_index(app, deleted_comment=comment)
+
+
+@pytest.fixture
+def mock_searchable_advising_notes(app, db):
+    """Create BOA advising notes, indexed in the loch, that vary by search term, author, student, topic and date.
+
+    The last note is private but otherwise matches the same filters as the first.
+    """
+    in_range = datetime(2019, 6, 1, tzinfo=UTC)
+    note_attributes = [
+        # Matches every note filter.
+        {'author_uid': '1133399', 'sid': '11667051', 'subject': 'Make a plan', 'topics': ['Good Show'], 'timestamp': in_range},
+        # Author is outside COENG; student, topic and date differ.
+        {'author_uid': '1081940', 'sid': '9000000000', 'subject': 'Make it count', 'topics': []},
+        # Author is in COENG; no search term match; created before the date range.
+        {
+            'author_uid': '90412',
+            'sid': '11667051',
+            'subject': 'Plan ahead',
+            'topics': ['Good Show'],
+            'timestamp': datetime(2013, 6, 1, tzinfo=UTC),
+        },
+        # Author is a COENG peer advisor.
+        {'author_uid': '1913062', 'sid': '11667051', 'subject': 'Make a plan', 'topics': [], 'timestamp': in_range},
+        {
+            'author_uid': '1133399',
+            'sid': '11667051',
+            'subject': 'Make a plan',
+            'topics': ['Good Show'],
+            'timestamp': in_range,
+            'is_private': True,
+        },
+    ]
+    notes = []
+    for attributes in note_attributes:
+        note = Note.create(
+            author_uid=attributes['author_uid'],
+            author_name='Joni Mitchell',
+            author_role='advisor',
+            author_dept_codes=['COENG'],
+            sid=attributes['sid'],
+            subject=attributes['subject'],
+            body='Students who plan ahead tend to progress.',
+            is_private=attributes.get('is_private', False),
+            topics=attributes['topics'],
+        )
+        db.session.add(note)
+        _backdate(note, attributes.get('timestamp'))
+        notes.append(note)
+    std_commit(allow_test_environment=True)
+    refresh_loch_note_search_index(app, notes=notes)
+    yield notes
+    for note in notes:
+        Note.delete(note_id=note.id)
+    std_commit(allow_test_environment=True)
+    refresh_loch_note_search_index(app, deleted_notes=notes)
+
+
+@pytest.fixture
+def mock_legacy_ucbconversion_records(app):
+    """Add UCBCONVERSION appointments and notes to the loch, whose created_at and updated_at fall on opposite sides of a date filter."""
+    from sqlalchemy import create_engine
+    from sqlalchemy.sql import text
+    appointments = [
+        {'id': 'ucbconversion-appt-1', 'created_at': '2018-01-01', 'updated_at': '2022-01-01', 'body': 'Life after graduation.'},
+        {'id': 'ucbconversion-appt-2', 'created_at': '2016-01-01', 'updated_at': '2018-01-01', 'body': 'Study abroad options.'},
+    ]
+    notes = [
+        {'id': 'ucbconversion-note-1', 'created_at': '2015-01-01', 'updated_at': '2021-01-01'},
+        {'id': 'ucbconversion-note-2', 'created_at': '2013-01-01', 'updated_at': '2016-01-01'},
+    ]
+    engine = create_engine(app.config['DATA_LOCH_RDS_URI'])
+    try:
+        with engine.begin() as conn:
+            conn.execute(
+                text("""INSERT INTO boac_advising_appointments.advising_appointments
+                    (id, student_sid, advisor_uid, advisor_sid, body, created_by, created_at, updated_at)
+                    VALUES (:id, '11667051', '1133399', '800700600', :body, 'UCBCONVERSION', :created_at, :updated_at);
+                  INSERT INTO boac_advising_appointments.advising_appointments_search_index (id, fts_index)
+                    VALUES (:id, TO_TSVECTOR('english', :body))"""),
+                appointments,
+            )
+            conn.execute(
+                text("""INSERT INTO boac_advising_notes.advising_notes
+                    (id, student_sid, advisor_sid, note_body, is_private, created_by, created_at, updated_at)
+                    VALUES (:id, '11667051', '800700600', 'Converted note.', FALSE, 'UCBCONVERSION', :created_at, :updated_at)"""),
+                notes,
+            )
+        yield
+    finally:
+        with engine.begin() as conn:
+            conn.execute(
+                text("""DELETE FROM boac_advising_appointments.advising_appointments WHERE id = ANY(:appointment_ids);
+                  DELETE FROM boac_advising_appointments.advising_appointments_search_index WHERE id = ANY(:appointment_ids);
+                  DELETE FROM boac_advising_notes.advising_notes WHERE id = ANY(:note_ids)"""),
+                {'appointment_ids': [a['id'] for a in appointments], 'note_ids': [n['id'] for n in notes]},
+            )
+        engine.dispose()
+
+
+@pytest.fixture
 def mock_note_draft(app, db):
     """Create advising note draft with attachment (mock s3)."""
     note = _create_mock_note(
@@ -743,6 +910,30 @@ def pytest_itemcollected(item):
     suf = node.__doc__.strip() if node.__doc__ else node.__name__
     if pref or suf:
         item._nodeid = ' '.join((pref, suf))
+
+
+def _backdate(record, timestamp):
+    """Set timestamps before a record is copied to the loch, so that date filters have something on either side of them."""
+    if timestamp:
+        record.created_at = timestamp
+        record.updated_at = timestamp
+
+
+def _create_mock_comment(parent_type, parent_id, author_uid, body, timestamp=None):
+    from boac.models.comment import Comment
+    from boac.models.comment_parent import CommentParent
+    comment_parent = CommentParent.find_or_create(parent_type=parent_type, parent_id=parent_id)
+    comment = Comment.create(
+        author_uid=author_uid,
+        author_name='Joni Mitchell',
+        author_role='advisor',
+        author_dept_codes=['COENG'],
+        comment_parent_id=comment_parent.id,
+        body=body,
+    )
+    std_commit(allow_test_environment=True)
+    _backdate(comment, timestamp)
+    return comment
 
 
 def _create_mock_note(

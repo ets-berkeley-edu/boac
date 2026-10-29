@@ -924,9 +924,9 @@ class TestEformSearch:
             assert result['kind'] == 'commentOnEform'
             assert result['student']['sid'] == '11667051'
             assert result['type'] == 'late_drop_eform'
-            assert result['id'] == 'eform-10096'
+            assert result['id'] == comment.id
             assert result['comment']
-            assert result['comment']['id'] == comment.id
+            assert result['comment']['parentEformId'] == 'eform-10096'
             assert result['comment']['advisor']['uid'] == coe_advisor_uid
             assert result['comment']['advisor']['name'] == 'COE Advisor'
             assert result['comment']['advisor']['role'] == 'advisor'

@@ -132,13 +132,12 @@ def search_advising_appointments(
     benchmark = get_benchmarker('search_advising_appointments')
     benchmark('begin')
 
+    advisor_uid = get_uid_for_csid(app, advisor_csid) if (not advisor_uid and advisor_csid) else advisor_uid
     search_terms = parse_search_phrases(search_phrase)
     if search_terms:
         search_phrase = ' & '.join(search_terms)
     else:
-        search_phrase = ''
-
-    advisor_uid = get_uid_for_csid(app, advisor_csid) if (not advisor_uid and advisor_csid) else advisor_uid
+        search_phrase = None
 
     benchmark('begin loch appointments query')
     loch_results = data_loch.search_advising_appointments(
