@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from contextlib import contextmanager
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 import pytz
 from dateutil.parser import parse
@@ -46,6 +46,7 @@ from tests.util import (
     in_date_range,
     legacy_advisor_match,
     legacy_timestamp,
+    override_config,
     refresh_loch_note_search_index,
 )
 
@@ -124,6 +125,58 @@ class TestSearchAdvisingNote:
         assert parse(notes[0]['createdAt']) == parse('2014-01-03T20:30:00+00')
         assert notes[0]['updatedAt'] is None
 
+    def test_search_result_strip_tags(self, app, fake_auth):
+        tag_embedded_note = """<p>01 Plain: Student discussed <b>transfer</b> credit with advisor.</p>
+            <p>*02 Real script: before<script>alert('real')</script>after</p>
+            <p>*03 Script with attrs and uppercase: A<SCRIPT type="text/javascript" src="https://example.com/x.js"></SCRIPT>B</p>
+            <p>*04 Encoded script: &lt;script&gt;alert('encoded')&lt;/script&gt;</p>
+            <p>*05 Double-encoded script: &amp;lt;script&amp;gt;alert('double')&amp;lt;/script&amp;gt;</p>
+            <p>*06 Numeric refs: &#60;script&#62;alert('dec')&#60;/script&#62; and &#x3C;script&#x3E;alert('hex')&#x3C;/script&#x3E;</p>
+            <p>*07 Real img onerror: <img src=x onerror="alert('img')">done</p>
+            <p>*08 Encoded img onerror: &lt;img src=x onerror="alert('img2')"&gt;done</p>
+            <p>*09 Encoded svg onload: &lt;svg onload=alert('svg')&gt;&lt;/svg&gt;done</p>
+            <p>*10 Link: <a href="javascript:alert('href')">click me</a></p>
+            <p>*11 Style: <style>body { display: none; }</style>visible text</p>
+            <p>*12 Iframe: <iframe src="https://example.com">fallback</iframe>after iframe</p>
+            <p>*13 Nested skip: <noscript><script>alert('nested')</script>hidden</noscript>shown</p>
+            <p>*14 Comment: before<!-- <script>alert('comment')</script> -->after</p>
+            <ul><li>*Testing!</li></ul>
+            <p>*15 Comparisons: GPA < 3.0, units > 120, and 2 <3 should survive</p>
+            <p>*16 Ampersands: R&amp;D, Q&A, and a bare & sign</p>
+            <p>*17 Unicode: café, naïve, 学生, emoji 🎓, non-breaking&nbsp;space</p>
+            <p>*18 Split word: trans<b>fer</b>red</p>
+            <p>*19 Triple-encoded (beyond max_passes, must be escaped on output): &amp;amp;lt;img src=x onerror=alert('triple')&amp;amp;gt;</p>
+            <p>*20 Unclosed script at end swallows the rest: <script>alert('unclosed')"""
+        with (
+            override_config(app, 'NOTES_SEARCH_RESULT_SNIPPET_PADDING', 60),
+            _create_coe_advisor_note(app, body=tag_embedded_note),
+        ):
+            fake_auth.login(coe_advisor_uid)
+            results = search_advising_notes(search_phrase='test')
+            notes = results['notes']
+            lines = notes[0]['noteSnippet'].split('*')
+            assert lines[0].lstrip() == '...with advisor. '
+            assert lines[1].lstrip() == '02 Real script: before after '
+            assert lines[2].lstrip() == '03 Script with attrs and uppercase: A B '
+            assert lines[3].lstrip() == '04 Encoded script: '
+            assert lines[4].lstrip() == '05 Double-encoded script: '
+            assert lines[5].lstrip() == '06 Numeric refs: and '
+            assert lines[6].lstrip() == '07 Real img onerror: done '
+            assert lines[7].lstrip() == '08 Encoded img onerror: done '
+            assert lines[8].lstrip() == '09 Encoded svg onload: done '
+            assert lines[9].lstrip() == '10 Link: click me '
+            assert lines[10].lstrip() == '11 Style: visible text '
+            assert lines[11].lstrip() == '12 Iframe: after iframe '
+            assert lines[12].lstrip() == '13 Nested skip: shown '
+            assert lines[13].lstrip() == '14 Comment: before after '
+            assert lines[14].lstrip() == '<strong>Testing</strong>! '
+            assert lines[15].lstrip() == '15 Comparisons: GPA &lt; 3.0, units &gt; 120, and 2 &lt; 3 should survive '
+            assert lines[16].lstrip() == '16 Ampersands: R&amp;D, Q&amp;A, and a bare &amp; sign '
+            assert lines[17].lstrip() == '17 Unicode: café, naïve, 学生, emoji 🎓, non-breaking space '
+            assert lines[18].lstrip() == '18 Split word: trans fer red '
+            assert lines[19].lstrip() == '19 Triple-encoded (beyond max_passes, must be escaped on output): &lt;img src=x onerror=alert(&#x27;&#x27;triple&#x27;&#x27;)&gt; '  # noqa: E501
+            assert lines[20].lstrip() == '20 Unclosed script at end swallows the rest: '
+
     def test_search_advising_notes_stemming(self, fake_auth):
         fake_auth.login(coe_advisor_uid)
         results = search_advising_notes(search_phrase='spare')
@@ -146,15 +199,55 @@ class TestSearchAdvisingNote:
         assert total_note_count == 1
         assert notes[0]['noteSnippet'] == 'Is this student even on <strong>campus</strong>?'
 
-    def test_search_advising_notes_ordered_by_relevance(self, fake_auth):
-        fake_auth.login(coe_advisor_uid)
-        results = search_advising_notes(search_phrase='confound')
-        notes = results['notes']
-        total_note_count = results['totalNoteCount']
-        assert len(notes) == 2
-        assert total_note_count == 2
-        assert '<strong>confounded</strong> that of himself' in notes[0]['noteSnippet']
-        assert notes[1]['noteSnippet'] == 'I am <strong>confounded</strong> by this <strong>confounding</strong> student'
+    def test_search_advising_notes_ordered_by_relevance(self, app, fake_auth):
+        """Ranks newer results higher but also prefers stronger text matches."""
+        with (
+            _create_coe_advisor_note(app, subject='Confound the confounders', created_at=datetime(2015, 11, 1, tzinfo=UTC)) as oldest_note,
+            _create_coe_advisor_note(
+                app,
+                body='"Confound" appearing only once.',
+                created_at=datetime.now() - timedelta(days=300),
+                parent_note_id=oldest_note.id,
+            ) as recent_comment,
+        ):
+            fake_auth.login(coe_advisor_uid)
+            results = search_advising_notes(search_phrase='confound')
+            notes = results['notes']
+            total_note_count = results['totalNoteCount']
+            assert len(notes) == 4
+            assert total_note_count == 4
+            # the most recent result is ranked first, though it contains only one instance of the search term.
+            # the 2nd ranked result is slightly older than the 3rd, but ranked higher because it contains more instances of the search term.
+            # the oldest result is ranked last, though it contains the most instances of the search term.
+            assert notes[0]['id'] == recent_comment.id
+            assert notes[0]['noteSnippet'] == '&quot;<strong>Confound</strong>&quot; appearing only once.'
+            assert notes[1]['noteSnippet'] == 'I am <strong>confounded</strong> by this <strong>confounding</strong> student'
+            assert '<strong>confounded</strong> that of himself' in notes[2]['noteSnippet']
+            assert notes[3]['id'] == oldest_note.id
+            assert notes[3]['noteSnippet'] == '<strong>Confound</strong> the <strong>confounders</strong>'
+
+    def test_search_prefers_exact_text_matches(self, app, fake_auth, mock_advising_note_with_comments):  # noqa: ARG002
+        """Ranks exact text matches highest, then adjacent words in order, then stemmed words in any order."""
+        with (
+            _create_coe_advisor_note(app, subject='Completed the online Orienteering. Has not selected any classes.') as single_exact_match,
+            _create_coe_advisor_note(
+                app,
+                subject='Discussed selecting classes, then they selected 5 classes. Will follow up.',
+            ) as double_phrase_match,
+            _create_coe_advisor_note(app, subject='Classes classes classes have not been selected selected selected.') as triple_word_match,
+        ):
+            fake_auth.login(coe_advisor_uid)
+            results = search_advising_notes(search_phrase='Has not selected any classes')
+            notes = results['notes']
+            total_note_count = results['totalNoteCount']
+            assert len(notes) == 3
+            assert total_note_count == 3
+            assert notes[0]['id'] == single_exact_match.id
+            assert notes[0]['noteSnippet'] == 'Completed the online Orienteering. <strong>Has</strong> <strong>not</strong> <strong>selected</strong> <strong>any</strong> <strong>classes</strong>.'  # noqa: E501
+            assert notes[1]['id'] == double_phrase_match.id
+            assert notes[1]['noteSnippet'] == 'Discussed <strong>selecting</strong> <strong>classes</strong>, then they <strong>selected</strong> 5 <strong>classes</strong>. Will follow up.'  # noqa: E501
+            assert notes[2]['id'] == triple_word_match.id
+            assert notes[2]['noteSnippet'] == '<strong>Classes</strong> <strong>classes</strong> <strong>classes</strong> have <strong>not</strong> been <strong>selected</strong> <strong>selected</strong> <strong>selected</strong>.'  # noqa: E501
 
     def test_search_advising_notes_multiple_terms(self, fake_auth):
         fake_auth.login(coe_advisor_uid)
@@ -206,7 +299,7 @@ class TestSearchAdvisingNote:
         total_note_count = results['totalNoteCount']
         assert len(notes) == 1
         assert total_note_count == 1
-        assert 'Student continued on <strong>2</strong>.<strong>0</strong> prob (COP) until Sp \'19.' in notes[0]['noteSnippet']
+        assert 'Student continued on <strong>2</strong>.<strong>0</strong> prob (COP) until Sp &#x27;19.' in notes[0]['noteSnippet']
 
     def test_search_email_address(self, fake_auth):
         fake_auth.login(coe_advisor_uid)
@@ -216,7 +309,7 @@ class TestSearchAdvisingNote:
         assert len(notes) == 1
         assert total_note_count == 1
         assert (
-               'Student continued on 2.0 prob (COP) until Sp \'19. <strong>E-mailed</strong> '
+               'Student continued on 2.0 prob (COP) until Sp &#x27;19. <strong>E-mailed</strong> '
                '<strong>test</strong>@<strong>berkeley</strong>.<strong>edu</strong>:') in notes[0]['noteSnippet']
 
     def test_search_advising_notes_timestamp_format(self, fake_auth):
@@ -234,7 +327,6 @@ class TestSearchAdvisingNote:
         fake_auth.login(coe_advisor_uid)
         with _create_coe_advisor_note(
             app,
-            sid='11667051',
             subject='Confound this note',
             body='and its successors and assigns',
         ):
@@ -244,39 +336,39 @@ class TestSearchAdvisingNote:
             assert len(notes) == 3
             assert total_note_count == 3
             assert notes[0]['noteSnippet'] == '<strong>Confound</strong> this note - and its successors and assigns'
-            assert notes[1]['noteSnippet'].startswith('...pity the founder')
-            assert notes[2]['noteSnippet'].startswith('I am <strong>confounded</strong>')
+            assert notes[1]['noteSnippet'] == 'I am <strong>confounded</strong> by this <strong>confounding</strong> student'
+            assert notes[2]['noteSnippet'].startswith('...pity the founder')
 
     def test_search_advising_notes_paginates_new_and_old(self, app, fake_auth):
-        def _create_note(i):
+        """Correctly paginates the combined set of BOA notes and legacy notes."""
+        def _create_note(i, parent_id=None):
+            label = 'comment' if parent_id else 'note'
             return _create_coe_advisor_note(
                 app,
-                sid='11667051',
                 subject='Planned redundancy',
-                body=f'Confounded note {i}',
+                body=f'Confounded {label} {i}',
+                created_at=datetime.now() - timedelta(days=i),
+                parent_note_id=parent_id,
             )
 
         fake_auth.login(coe_advisor_uid)
-        with _create_note(1), _create_note(2), _create_note(3), _create_note(4),_create_note(5):
+        with _create_note(1) as note, _create_note(2), _create_note(3), _create_note(4), _create_note(5), _create_note(6, note.id):
             results = search_advising_notes(search_phrase='confound', offset=0, limit=4)
             notes = results['notes']
-            total_note_count = results['totalNoteCount']
             assert len(notes) == 4
-            assert total_note_count > 4
-            previous_created_at = None
-            for note in notes:
-                assert 'Planned redundancy - <strong>Confounded</strong> note' in note['noteSnippet']
-                if previous_created_at:
-                    # Assert order by created_at, descending.
-                    assert note['createdAt'] <= previous_created_at
-                previous_created_at = note['createdAt']
+            assert results['totalNoteCount'] == 8
+            # results with similar text matches are ranked newest to oldest
+            for index, note in enumerate(notes):
+                assert note['noteSnippet'] == f'Planned redundancy - <strong>Confounded</strong> note {index + 1}'
+
             results = search_advising_notes(search_phrase='confound', offset=4, limit=4)
             notes = results['notes']
-            total_note_count = results['totalNoteCount']
-            assert len(notes) == 3
-            assert notes[0]['noteSnippet'].startswith('Planned redundancy - <strong>Confounded</strong> note')
-            assert notes[1]['noteSnippet'].startswith('...pity the founder')
-            assert notes[2]['noteSnippet'].startswith('I am <strong>confounded</strong>')
+            assert len(notes) == 4
+            assert results['totalNoteCount'] == 8
+            assert notes[0]['noteSnippet'] == 'Planned redundancy - <strong>Confounded</strong> note 5'
+            assert notes[1]['noteSnippet'] == 'Planned redundancy - <strong>Confounded</strong> comment 6'
+            assert notes[2]['noteSnippet'] == 'I am <strong>confounded</strong> by this <strong>confounding</strong> student'
+            assert notes[3]['noteSnippet'].startswith('...pity the founder')
 
     def test_search_advising_notes_narrowed_by_author(self, app, fake_auth):
         """Narrows results for both new and legacy advising notes by author SID."""
@@ -285,7 +377,6 @@ class TestSearchAdvisingNote:
                 app,
                 author_uid=author['uid'],
                 author_name=author['name'],
-                sid='11667051',
                 subject='Futher on France',
                 body='Brigitte has been molded to middle class circumstance',
             )
@@ -358,7 +449,6 @@ class TestSearchAdvisingNote:
         def _create_note(topic):
             return _create_coe_advisor_note(
                 app,
-                sid='11667051',
                 topics=[topic],
                 subject='Brigitte',
             )
@@ -412,7 +502,6 @@ class TestSearchAdvisingNote:
         fake_auth.login(coe_advisor_uid)
         with _create_coe_advisor_note(
             app,
-            sid='11667051',
             subject='Bryant Park',
             body='There were loads of them',
         ):
@@ -429,7 +518,7 @@ class TestSearchAdvisingNote:
             assert len(search_advising_notes(search_phrase='Bryant', datetime_from=yesterday, datetime_to=tomorrow)['notes']) == 1
 
     def test_every_filter_combination(self, mock_searchable_advising_notes, mock_legacy_ucbconversion_records):  # noqa: ARG002
-        """Returns exactly the non-private BOA notes and legacy notes matching all active filters, for all 256 combinations."""
+        """Returns exactly the BOA notes and legacy notes matching all active filters, for all 256 combinations."""
         def _search_advising_notes(criteria):
             results = search_advising_notes(**criteria, offset=0, limit=SEARCH_RESULTS_LIMIT)
             return {
@@ -461,14 +550,16 @@ class TestSearchAdvisingNote:
 @contextmanager
 def _create_coe_advisor_note(
     app,
-    sid,
-    subject,
+    sid='11667051',
+    subject='',
     body='',
     topics=(),
     author_uid=coe_advisor_uid,
     author_name='Balloon Man',
     author_role='Spherical',
     author_dept_codes='COENG',
+    created_at=None,
+    parent_note_id=None,
 ):
     note = Note.create(
         author_uid=author_uid,
@@ -479,12 +570,15 @@ def _create_coe_advisor_note(
         sid=sid,
         subject=subject,
         body=body,
+        parent_note_id=parent_note_id,
     )
-    refresh_loch_note_search_index(app, notes=[note])
+    if created_at:
+        note.created_at = created_at
     std_commit(allow_test_environment=True)
+    refresh_loch_note_search_index(app, notes=[note])
     yield note
-    Note.delete(note_id=note.id)
     refresh_loch_note_search_index(app, deleted_notes=[note])
+    Note.delete(note_id=note.id)
     std_commit(allow_test_environment=True)
 
 
@@ -543,11 +637,12 @@ def _expected_note_ids(
     legacy_note_text_matches = expected_fts_results(f'{legacy_notes}.advising_notes_search_index', 'id', search_phrase, data_loch.safe_execute_rds)
     legacy_topic_matches = get_topic_matches(f'{legacy_notes}.advising_note_topics_curated', topic, data_loch.safe_execute_rds)
     legacy_notes = data_loch.safe_execute_rds(f"""
-        SELECT id, student_sid, advisor_uid, advisor_sid, created_by, created_at, updated_at
+        SELECT id, student_sid, advisor_uid, advisor_sid, is_private, created_by, created_at, updated_at
           FROM {legacy_notes}.advising_notes""")
     for row in legacy_notes:
         if (
-            (not legacy_note_text_matches or row['id'] in legacy_note_text_matches)
+            not row['is_private']
+            and (not legacy_note_text_matches or row['id'] in legacy_note_text_matches)
             and (not legacy_topic_matches or row['id'] in legacy_topic_matches)
             and legacy_advisor_match(row, advisor_uids, author_csid)
             and (not student_csid or row['student_sid'] == student_csid)

@@ -23,6 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import html
 import inspect
 import re
 import string
@@ -253,34 +254,65 @@ def note_attachment_to_api_json(attachment):
 
 
 class HTMLTagStripper(HTMLParser):
+    # Tags whose content should be dropped, not just the tags themselves
+    SKIP_CONTENT_TAGS = {'script', 'style', 'iframe', 'object', 'embed', 'noscript', 'template'}
+
     def __init__(self):
         super().__init__()
         self.reset()
         self.strict = False
         self.convert_charrefs = True
 
+    def handle_starttag(self, tag, attrs):  # noqa: ARG002
+        if tag in self.SKIP_CONTENT_TAGS:
+            self._skip_depth += 1
+
+    def handle_endtag(self, tag):
+        if tag in self.SKIP_CONTENT_TAGS and self._skip_depth:
+            self._skip_depth -= 1
+
     def handle_data(self, d):
-        self.fed.append(d)
+        if len(d) and not self._skip_depth:
+            self.fed.append(d)
 
     def get_data(self):
-        return ''.join(self.fed)
+        return ' '.join(self.fed)
 
     def reset(self):
         super().reset()
         self.fed = []
+        self._skip_depth = 0
 
 
-tag_stripper = HTMLTagStripper()
+def strip_html(text, max_passes=3):
+    """Strip tags, including tags that were entity-encoded (e.g. &lt;script&gt; &amp;lt;script&amp;gt;)."""
+    for _ in range(max_passes):
+        tag_stripper = HTMLTagStripper()
+        tag_stripper.feed(text)
+        tag_stripper.close()
+        stripped_text = tag_stripper.get_data()
+        if stripped_text == text:
+            # nothing left to decode or strip
+            break
+        text = stripped_text
+    return re.sub(r'\s+', ' ', text)
+
+
+def parse_search_phrases(search_phrase):
+    if not search_phrase or not str(search_phrase).strip():
+        return []
+    return list({t.group(0) for t in re.finditer(TEXT_SEARCH_PATTERN, search_phrase) if t})
+
+
 stemmer = SnowballStemmer('english')
 
 
-def search_result_text_snippet(text, search_terms, search_pattern):
-    tag_stripper.feed(text)
-    tag_stripped_body = tag_stripper.get_data()
-    tag_stripper.reset()
+def search_result_text_snippet(text, search_phrase):
+    search_terms = parse_search_phrases(search_phrase)
+    tag_stripped_body = strip_html(text)
 
     snippet_padding = app.config['NOTES_SEARCH_RESULT_SNIPPET_PADDING']
-    words = list(re.finditer(search_pattern, tag_stripped_body))
+    words = list(re.finditer(TEXT_SEARCH_PATTERN, tag_stripped_body))
     stemmed_search_terms = [stemmer.stem(term) for term in search_terms]
 
     snippet = None
@@ -295,18 +327,18 @@ def search_result_text_snippet(text, search_terms, search_pattern):
                 start_position = words[index - snippet_padding].start(0)
             snippet = '...' if start_position > 0 else ''
         if match_index is not None:
-            snippet += tag_stripped_body[start_position:word_match.start(0)]
+            snippet += html.escape(tag_stripped_body[start_position:word_match.start(0)])
             if stem in stemmed_search_terms:
                 snippet += '<strong>'
-            snippet += word_match.group(0)
+            snippet += html.escape(word_match.group(0))
             if stem in stemmed_search_terms:
                 snippet += '</strong>'
             if index == len(words) - 1:
-                snippet += tag_stripped_body[word_match.end(0):len(tag_stripped_body)]
+                snippet += html.escape(tag_stripped_body[word_match.end(0):len(tag_stripped_body)])
                 break
             if index == match_index + snippet_padding:
                 end_position = words[index].end(0)
-                snippet += tag_stripped_body[word_match.end(0):end_position]
+                snippet += html.escape(tag_stripped_body[word_match.end(0):end_position])
                 snippet += '...'
                 break
             start_position = word_match.end(0)

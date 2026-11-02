@@ -296,11 +296,18 @@ def refresh_loch_note_search_index(app, notes=None, deleted_notes=None):
                     created_at = EXCLUDED.created_at,
                     updated_at = EXCLUDED.updated_at;
                   INSERT INTO boa_app_rds_data.advising_notes_search_index
-                    (id, fts_index)
-                  VALUES (:id, TO_TSVECTOR('english', :searchable_text))
+                    (id, raw_text, fts_index, age_days)
+                  VALUES (
+                    :id,
+                    :searchable_text,
+                    TO_TSVECTOR('english', :searchable_text),
+                    GREATEST(EXTRACT(EPOCH FROM (now() - :created_at)), 0) / 86400.0
+                  )
                   ON CONFLICT(id)
                   DO UPDATE SET
-                    fts_index = EXCLUDED.fts_index;
+                    raw_text = EXCLUDED.raw_text,
+                    fts_index = EXCLUDED.fts_index,
+                    age_days = EXCLUDED.age_days;
                   INSERT INTO boa_app_rds_data.advising_note_authors_index
                     (advisor_name, advisor_uid)
                   VALUES (:author_name, :advisor_uid)
