@@ -32,10 +32,7 @@ from flask_login import current_user
 from boac.externals import data_loch
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.sis_advising import get_sis_advising_attachments, get_sis_advising_topics, resolve_sis_created_at, resolve_sis_updated_at
-from boac.lib.util import TEXT_SEARCH_PATTERN, get_benchmarker, join_if_present, search_result_text_snippet, to_iso_format
-from boac.merged.advising_search import (
-    parse_search_phrases,
-)
+from boac.lib.util import get_benchmarker, join_if_present, parse_search_phrases, search_result_text_snippet, to_iso_format
 from boac.merged.calnet import get_calnet_users_for_csids, get_uid_for_csid
 from boac.models.appointment_read import AppointmentRead
 from boac.models.authorized_user import AuthorizedUser
@@ -154,7 +151,7 @@ def search_advising_appointments(
     )
     benchmark('end loch appointments query')
     benchmark('begin loch appointments parsing')
-    appointments_feed = _parse_appointments_search_results(loch_results['rows'], search_terms)
+    appointments_feed = _parse_appointments_search_results(loch_results['rows'], search_phrase)
     benchmark('end loch appointments parsing')
     return {
         'appointments': appointments_feed,
@@ -221,7 +218,7 @@ def appointment_to_compatible_json(appointment, topics=(), attachments=None, eve
     return api_json
 
 
-def _parse_appointment_comment_search_result(row, advisor_feed, search_terms):
+def _parse_appointment_comment_search_result(row, advisor_feed, search_phrase):
     parent_appointment_id = row.get('appointment_id')
     # For appointment comments, prefer BOA over CalNet for advisor data
     advisor_name =  row.get('advisor_name') or advisor_feed.get('name') or join_if_present(
@@ -245,7 +242,7 @@ def _parse_appointment_comment_search_result(row, advisor_feed, search_terms):
         },
         'createdAt': to_iso_format(row.get('created_at')),
         'updatedAt': to_iso_format(row.get('updated_at')),
-        'snippet': search_result_text_snippet(row.get('body'), search_terms, TEXT_SEARCH_PATTERN),
+        'snippet': search_result_text_snippet(row.get('body'), search_phrase),
         'student': {
             'uid': row.get('student_uid'),
             'firstName': row.get('first_name'),
@@ -259,7 +256,7 @@ def _parse_appointment_comment_search_result(row, advisor_feed, search_terms):
     }
 
 
-def _parse_appointments_search_results(search_results, search_terms):
+def _parse_appointments_search_results(search_results, search_phrase):
     appointments_feed = []
     if not search_results:
         return appointments_feed
@@ -270,7 +267,7 @@ def _parse_appointments_search_results(search_results, search_terms):
         advisor_feed = calnet_advisor_feeds.get(advisor_sid, {})
 
         if row.get('boa_id'):
-            appointment_comment = _parse_appointment_comment_search_result(row, advisor_feed, search_terms)
+            appointment_comment = _parse_appointment_comment_search_result(row, advisor_feed, search_phrase)
             if appointment_comment:
                 appointments_feed.append(appointment_comment)
         else:
@@ -297,7 +294,7 @@ def _parse_appointments_search_results(search_results, search_terms):
                 },
                 'createdAt': resolve_sis_created_at(row),
                 'details': details,
-                'detailsSnippet': search_result_text_snippet(details, search_terms, TEXT_SEARCH_PATTERN),
+                'detailsSnippet': search_result_text_snippet(details, search_phrase),
                 'updatedAt': resolve_sis_updated_at(row),
                 'student': {
                     'uid': row.get('student_uid'),

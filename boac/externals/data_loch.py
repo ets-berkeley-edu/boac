@@ -1140,21 +1140,37 @@ def search_advising_notes(
     join_students = f"""JOIN {student_schema()}.student_profile_index spi ON a.student_sid = spi.sid"""
     and_student_exists = f"""AND EXISTS (SELECT 1 FROM {student_schema()}.student_profile_index spi WHERE spi.sid = a.student_sid)"""
     rank_column = ''
+    half_life_days = 365
+    recency_weight = 0.8
+    search_phrase_cte = None
     join_boa_search_index = ''
     join_legacy_search_index = ''
     uid_advisor_filter = None
     advisor_uids = None
-    criteria = ['TRUE']
-    boa_criteria = ['NOT a.is_private']
+    criteria = ['NOT a.is_private']
+    boa_criteria = []
     legacy_criteria = []
 
     if search_phrase:
-        rank_column = "ts_rank(idx.fts_index, plainto_tsquery('english', %(search_phrase)s)) AS rank"
-        criteria.append("idx.fts_index @@ plainto_tsquery('english', %(search_phrase)s)")
+        search_phrase_cte = """ts_queries AS (
+            SELECT
+              %(search_phrase_pattern)s                          AS raw,
+              phraseto_tsquery('english', %(search_phrase)s)     AS phrase,
+              websearch_to_tsquery('english', %(search_phrase)s) AS loose
+          )
+        """
+        rank_column = f"""
+                (   CASE WHEN idx.raw_text ILIKE ts_queries.raw THEN 10 ELSE 0 END
+                  + CASE WHEN idx.fts_index @@ ts_queries.phrase THEN 5 ELSE 0 END
+                  + ts_rank_cd(idx.fts_index, ts_queries.loose, 32)
+                ) * ((1 - {recency_weight}) + {recency_weight} * power(0.5, idx.age_days / {half_life_days})) AS rank"""
+        criteria.append("idx.fts_index @@ ts_queries.loose")
         join_boa_search_index += f"""
-              JOIN {boa_cdc_schema()}.advising_notes_search_index idx ON idx.id = a.id"""
+                 JOIN {boa_cdc_schema()}.advising_notes_search_index idx ON idx.id = a.id
+                 CROSS JOIN ts_queries"""
         join_legacy_search_index += f"""
-              JOIN {advising_notes_schema()}.advising_notes_search_index idx ON idx.id = a.id"""
+                 JOIN {advising_notes_schema()}.advising_notes_search_index idx ON idx.id = a.id
+                 CROSS JOIN ts_queries"""
     else:
         rank_column = '0 AS rank'
 
@@ -1213,13 +1229,14 @@ def search_advising_notes(
             OR ((a.created_by != 'UCBCONVERSION' OR a.created_by IS NULL) AND a.updated_at < %(datetime_to)s))""")
 
     boa_notes_criteria = """
-            AND """.join(criteria + boa_criteria)
+                AND """.join(criteria + boa_criteria)
     legacy_notes_criteria = """
-            AND """.join(criteria + legacy_criteria)
+                AND """.join(criteria + legacy_criteria)
 
     def _build_query(count_only=False):
         if count_only:
-            return f"""SELECT (
+            with_text_queries = f'WITH {search_phrase_cte}' if search_phrase_cte else ''
+            return f"""{with_text_queries} SELECT (
                SELECT COUNT(*) AS count
                  FROM {boa_notes_table} {join_boa_search_index}
                 WHERE {boa_notes_criteria}
@@ -1231,40 +1248,43 @@ def search_advising_notes(
                   {and_student_exists}
             ) AS count"""
         else:
-            return f"""WITH candidates AS (
-           (SELECT 'boa' AS src, a.id, a.created_at, {rank_column}
-              FROM {boa_notes_table} {join_boa_search_index}
-             WHERE {boa_notes_criteria}
-               {and_student_exists}
-             ORDER BY a.created_at DESC, rank DESC, a.id
-             LIMIT %(offset)s + %(limit)s)
-             UNION ALL
-           (SELECT 'legacy' AS src, a.id, a.created_at, {rank_column}
-              FROM {legacy_notes_table} {join_legacy_search_index}
-             WHERE {legacy_notes_criteria}
-               {and_student_exists}
-             ORDER BY a.created_at DESC, rank DESC, a.id
-             LIMIT %(offset)s + %(limit)s)
-        ),
-        page AS (
-            SELECT * FROM candidates
-            ORDER BY created_at DESC, rank DESC, src, id
-            OFFSET %(offset)s LIMIT %(limit)s
-        )
-       SELECT page.src, page.rank, {boa_note_columns}
-          FROM page
-          JOIN {boa_notes_table} ON page.src = 'boa' AND a.id = page.id
-          {join_students}
-         UNION ALL
-        SELECT page.src, page.rank, {legacy_note_columns}
-          FROM page
-          JOIN {legacy_notes_table} ON page.src = 'legacy' AND a.id = page.id
-          {join_students}
-         ORDER BY created_at DESC, rank DESC, src, id"""
+            text_queries = f'{search_phrase_cte},' if search_phrase_cte else ''
+            return f"""WITH {text_queries}
+          candidates AS (
+             (SELECT 'boa' AS src, a.id, a.created_at, {rank_column}
+                FROM {boa_notes_table} {join_boa_search_index}
+               WHERE {boa_notes_criteria}
+                 {and_student_exists}
+               ORDER BY rank DESC, a.created_at DESC, a.id
+               LIMIT %(offset)s + %(limit)s)
+               UNION ALL
+             (SELECT 'legacy' AS src, a.id, a.created_at, {rank_column}
+                FROM {legacy_notes_table} {join_legacy_search_index}
+               WHERE {legacy_notes_criteria}
+                 {and_student_exists}
+               ORDER BY rank DESC, a.created_at DESC, a.id
+               LIMIT %(offset)s + %(limit)s)
+          ),
+          page AS (
+              SELECT * FROM candidates
+              ORDER BY rank DESC, created_at DESC, src, id
+              OFFSET %(offset)s LIMIT %(limit)s
+          )
+         SELECT page.src, page.rank, {boa_note_columns}
+            FROM page
+            JOIN {boa_notes_table} ON page.src = 'boa' AND a.id = page.id
+            {join_students}
+           UNION ALL
+          SELECT page.src, page.rank, {legacy_note_columns}
+            FROM page
+            JOIN {legacy_notes_table} ON page.src = 'legacy' AND a.id = page.id
+            {join_students}
+           ORDER BY rank DESC, created_at DESC, src, id"""
 
     return search_advising(
         build_query=_build_query,
         search_phrase=search_phrase,
+        search_phrase_pattern=f'%{search_phrase}%',
         advisor_uids=advisor_uids,
         advisor_csid=author_csid,
         student_csid=student_csid,
@@ -1279,6 +1299,7 @@ def search_advising_notes(
 def search_advising(
     build_query,
     search_phrase,
+    search_phrase_pattern=None,
     advisor_uids=None,
     advisor_csid=None,
     student_csid=None,
@@ -1292,6 +1313,7 @@ def search_advising(
     offset = abs(offset or 0)
     params = dict(
         search_phrase=search_phrase,
+        search_phrase_pattern=search_phrase_pattern,
         advisor_csid=advisor_csid,
         advisor_uids=advisor_uids,
         student_csid=student_csid,

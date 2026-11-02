@@ -345,7 +345,7 @@ def mock_advising_note_with_comments(app, db, fake_auth, mock_advising_note):
         sid=mock_advising_note.sid,
         body='A comment from the note author.',
         parent_note_id=mock_advising_note.id,
-        subject='',
+        subject='This student is on campus',
     )
     db.session.add(author_comment)
     logout_user()
@@ -577,7 +577,7 @@ def mock_legacy_ucbconversion_records(app):
             conn.execute(
                 text("""INSERT INTO boac_advising_notes.advising_notes
                     (id, student_sid, advisor_sid, note_body, is_private, created_by, created_at, updated_at)
-                    VALUES (:id, '11667051', '800700600', 'Converted note.', FALSE, 'UCBCONVERSION', :created_at, :updated_at)"""),
+                    VALUES (:id, '11667051', '800700600', 'Is this a student?', FALSE, 'UCBCONVERSION', :created_at, :updated_at)"""),
                 notes,
             )
         yield
@@ -931,8 +931,8 @@ def _create_mock_comment(parent_type, parent_id, author_uid, body, timestamp=Non
         comment_parent_id=comment_parent.id,
         body=body,
     )
-    std_commit(allow_test_environment=True)
     _backdate(comment, timestamp)
+    std_commit(allow_test_environment=True)
     return comment
 
 

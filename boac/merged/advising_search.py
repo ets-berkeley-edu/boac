@@ -23,7 +23,6 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-import re
 
 from flask import current_app as app
 from flask_login import current_user
@@ -33,16 +32,17 @@ from boac.lib.sis_advising import (
     resolve_sis_created_at,
     resolve_sis_updated_at,
 )
-from boac.lib.util import TEXT_SEARCH_PATTERN, camelize, get_benchmarker, join_if_present, search_result_text_snippet, to_iso_format
+from boac.lib.util import (
+    camelize,
+    get_benchmarker,
+    join_if_present,
+    parse_search_phrases,
+    search_result_text_snippet,
+    to_iso_format,
+)
 from boac.merged.advising_note import get_note_author_summary
 from boac.merged.calnet import get_calnet_users_for_csids, get_uid_for_csid
 from boac.models.note import Note
-
-
-def parse_search_phrases(search_phrase):
-    if not search_phrase or not str(search_phrase).strip():
-        return []
-    return list({t.group(0) for t in re.finditer(TEXT_SEARCH_PATTERN, search_phrase) if t})
 
 
 def get_students_by_sid(sids):
@@ -68,7 +68,6 @@ def search_advising_notes(
     benchmark('begin')
 
     author_uid = get_uid_for_csid(app, author_csid) if (not author_uid and author_csid) else author_uid
-    search_phrases = parse_search_phrases(search_phrase)
 
     # Our offset calculations are unforuntately fussy because note parsing might reveal notes associated with students no
     # longer in BOA, which we won't include in the feed; so we don't actually know the length of our result set until parsing
@@ -81,6 +80,7 @@ def search_advising_notes(
     while True:
         if peer_advising_department_id:
             benchmark(f'begin peer advising notes query (iteration {notes_query_iteration})')
+            search_phrases = parse_search_phrases(search_phrase)
             search_results = data_loch.search_peer_advising_notes(
                 search_phrases,
                 peer_advising_department_id,
@@ -127,7 +127,7 @@ def search_advising_notes(
                 advisor_sids = list(set([row.get('advisor_sid') for row in search_results['rows'] if row.get('advisor_sid') is not None]))
                 advisors_by_sid = get_calnet_users_for_csids(app, advisor_sids)
                 _parse_note_search_results(
-                    search_phrases,
+                    search_phrase,
                     search_results,
                     students_by_sid,
                     advisors_by_sid,
@@ -144,7 +144,7 @@ def search_advising_notes(
         'totalNoteCount': total_matching_count,
     }
 
-def _external_note_to_search_result(note, search_terms, advisor_feed):
+def _external_note_to_search_result(note, search_phrase, advisor_feed):
     advisor_name = None
     if advisor_feed:
         advisor_name = advisor_feed.get('name') or join_if_present(' ', [advisor_feed.get('first_name'), advisor_feed.get('last_name')])
@@ -156,12 +156,12 @@ def _external_note_to_search_result(note, search_terms, advisor_feed):
         'studentName': join_if_present(' ', [note.get('first_name'), note.get('last_name')]),
         'advisorSid': note.get('advisor_sid'),
         'advisorName': advisor_name or join_if_present(' ', [note.get('advisor_first_name'), note.get('advisor_last_name')]),
-        'noteSnippet': search_result_text_snippet(note_body, search_terms, TEXT_SEARCH_PATTERN),
+        'noteSnippet': search_result_text_snippet(note_body, search_phrase),
         'createdAt': resolve_sis_created_at(note),
         'updatedAt': resolve_sis_updated_at(note),
     }
 
-def _local_note_to_search_result(note, sid, search_terms, student_row):
+def _local_note_to_search_result(note, sid, search_phrase, student_row):
     omit_note_body = note.get('isPrivate') and not current_user.can_access_private_notes
     subject = note.get('subject')
     text = subject if omit_note_body else join_if_present(' - ', [subject, note.get('body')])
@@ -174,7 +174,7 @@ def _local_note_to_search_result(note, sid, search_terms, student_row):
         'advisorUid': note.get('authorUid') or note.get('advisorUid'),
         'advisorName': note.get('authorName'),
         'attachmentCount': note.get('attachmentCount'),
-        'noteSnippet': search_result_text_snippet(text, search_terms, TEXT_SEARCH_PATTERN),
+        'noteSnippet': search_result_text_snippet(text, search_phrase),
         'createdAt': to_iso_format(note.get('createdAt')),
         'updatedAt': to_iso_format(note.get('updatedAt')),
     }
@@ -212,7 +212,7 @@ def _parse_peer_advising_note_search_results(notes_and_comments, cutoff, student
             break
     return notes_json
 
-def _parse_note_search_results(search_phrases, search_results, students_by_sid, advisors_by_sid, notes_feed):
+def _parse_note_search_results(search_phrase, search_results, students_by_sid, advisors_by_sid, notes_feed):
     for note in search_results['rows']:
         if note['id'].startswith('boa-'):
             local_note = {
@@ -223,8 +223,8 @@ def _parse_note_search_results(search_phrases, search_results, students_by_sid, 
             sid = local_note.get('studentSid')
             student_row = students_by_sid.get(sid, {})
             if student_row:
-                notes_feed.append(_local_note_to_search_result(local_note, sid, search_phrases, student_row))
+                notes_feed.append(_local_note_to_search_result(local_note, sid, search_phrase, student_row))
         else:
             advisor_feed = advisors_by_sid.get(note.get('advisor_sid'))
-            notes_feed.append(_external_note_to_search_result(note, search_phrases, advisor_feed))
+            notes_feed.append(_external_note_to_search_result(note, search_phrase, advisor_feed))
 

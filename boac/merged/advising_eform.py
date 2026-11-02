@@ -28,16 +28,13 @@ from flask import current_app as app
 from boac.externals import data_loch
 from boac.lib.sis_advising import resolve_sis_created_at, resolve_sis_updated_at
 from boac.lib.util import (
-    TEXT_SEARCH_PATTERN,
     get_benchmarker,
     join_if_present,
+    parse_search_phrases,
     search_result_text_snippet,
     to_iso_format,
 )
-from boac.merged.advising_search import (
-    get_note_author_summary,
-    parse_search_phrases,
-)
+from boac.merged.advising_search import get_note_author_summary
 from boac.merged.calnet import get_uid_for_csid
 
 _EFORM_DATA_SOURCE_TO_PARENT_TYPE = {
@@ -99,7 +96,7 @@ def search_advising_eforms(
     )
     benchmark('end loch eforms query')
 
-    eforms_feed = _get_loch_eforms_search_results(loch_results['rows'], search_terms)
+    eforms_feed = _get_loch_eforms_search_results(loch_results['rows'], search_phrase)
 
     return {
         'eforms': eforms_feed,
@@ -122,7 +119,7 @@ def _eform_summary_text(eform_row):
     return join_if_present(' - ', [f'eForm: {action}', status])
 
 
-def _get_loch_eforms_search_results(loch_rows, search_terms):
+def _get_loch_eforms_search_results(loch_rows, search_phrase):
     results = []
     if not loch_rows:
         return results
@@ -144,7 +141,7 @@ def _get_loch_eforms_search_results(loch_rows, search_terms):
             'id': eform_id,
             'type': eform_type,
             'createdAt': resolve_sis_created_at(eform_row),
-            'snippet': search_result_text_snippet(summary, search_terms, TEXT_SEARCH_PATTERN),
+            'snippet': search_result_text_snippet(summary, search_phrase),
             'student': {
                 'sid': eform_row['student_sid'],
                 'uid': eform_row['student_uid'],

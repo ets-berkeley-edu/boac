@@ -88,7 +88,9 @@ CREATE TABLE boa_app_rds_data.advising_notes (
 
 CREATE TABLE boa_app_rds_data.advising_notes_search_index (
     id VARCHAR PRIMARY KEY,
-    fts_index tsvector
+    raw_text TEXT,
+    fts_index tsvector,
+    age_days NUMERIC
 );
 
 CREATE TABLE boa_app_rds_data.eform_comments (
@@ -827,8 +829,14 @@ CREATE MATERIALIZED VIEW boac_advising_asc.advising_notes_search_index AS
   GROUP BY id
 )
 SELECT
-  n.id, to_tsvector('english', COALESCE(n.subject, '') || ' ' || COALESCE(n.body, '') || ' ' || COALESCE(t.topics, '') || ' ' || COALESCE(n.advisor_first_name, '') || ' ' || COALESCE(n.advisor_last_name, '')
-    ) AS fts_index
+  n.id,
+  (
+    COALESCE(n.subject, '') || ' ' || COALESCE(n.body, '') || ' ' || COALESCE(t.topics, '') || ' ' || COALESCE(n.advisor_first_name, '') || ' ' || COALESCE(n.advisor_last_name, '')
+  ) AS raw_text,
+  to_tsvector(
+    'english', COALESCE(n.subject, '') || ' ' || COALESCE(n.body, '') || ' ' || COALESCE(t.topics, '') || ' ' || COALESCE(n.advisor_first_name, '') || ' ' || COALESCE(n.advisor_last_name, '')
+  ) AS fts_index,
+  GREATEST(EXTRACT(EPOCH FROM (now() - n.created_at)), 0) / 86400.0 AS age_days
 FROM boac_advising_asc.advising_notes n
 LEFT JOIN topics t ON n.id::text = t.id::text;
 
@@ -888,7 +896,11 @@ VALUES
 ('11667051-20181003051208','11667051','Deborah','Davies','33333@berkeley.edu','Declaring the major, Course planning, Domain Emphasis','Unscheduled Drop-in','Data that is loved tends to survive.','2018-10-04 00:12:08+00');
 
 CREATE MATERIALIZED VIEW boac_advising_data_science.advising_notes_search_index AS (
-  SELECT n.id, to_tsvector('english', COALESCE(n.body || ' ', '') || n.reason_for_appointment) AS fts_index
+  SELECT
+    n.id,
+    COALESCE(n.body || ' ', '') || n.reason_for_appointment AS raw_text,
+    to_tsvector('english', COALESCE(n.body || ' ', '') || n.reason_for_appointment) AS fts_index,
+    GREATEST(EXTRACT(EPOCH FROM (now() - n.created_at)), 0) / 86400.0 AS age_days
   FROM boac_advising_data_science.advising_notes n
 );
 
@@ -912,8 +924,13 @@ CREATE MATERIALIZED VIEW boac_advising_e_i.advising_notes_search_index AS
     FROM boac_advising_e_i.advising_note_topics
     GROUP BY advising_note_topics.id
   )
-  SELECT n.id, to_tsvector('english'::regconfig, COALESCE(t.topics, '') || ' ' || COALESCE(n.overview, '') || ' ' || COALESCE(n.advisor_first_name, '') || ' ' || COALESCE(n.advisor_last_name, '')
-    ) AS fts_index
+  SELECT
+    n.id,
+    COALESCE(t.topics, '') || ' ' || COALESCE(n.overview, '') || ' ' || COALESCE(n.advisor_first_name, '') || ' ' || COALESCE(n.advisor_last_name, '') AS raw_text,
+    to_tsvector(
+      'english'::regconfig, COALESCE(t.topics, '') || ' ' || COALESCE(n.overview, '') || ' ' || COALESCE(n.advisor_first_name, '') || ' ' || COALESCE(n.advisor_last_name, '')
+    ) AS fts_index,
+    GREATEST(EXTRACT(EPOCH FROM (now() - n.created_at)), 0) / 86400.0 AS age_days
   FROM boac_advising_e_i.advising_notes n
   LEFT JOIN topics t ON n.id::text = t.id::text;
 
@@ -932,7 +949,13 @@ VALUES
 ('eop_advising_note_102', '890127492', 'Siegfried', 'Schlemiel', '2/7/2023', '2525', 'MARIAN', 'LIBRARY', 'On the neon, neon side of town', NULL, 'In Person', NULL, 'Note available only to CE3', '[]', '2023-03-06 16:00:00+00');
 
 CREATE MATERIALIZED VIEW boac_advising_eop.advising_notes_search_index AS
-  SELECT n.id, to_tsvector('english', COALESCE(n.searchable_topics || ' ', '') || n.advisor_first_name || ' ' || n.advisor_last_name || ' ' || n.overview || ' ' || n.note) AS fts_index
+  SELECT
+    n.id,
+    COALESCE(n.searchable_topics, '') || ' ' || COALESCE(n.note, '') || ' ' || n.advisor_first_name || ' ' || n.advisor_last_name || ' ' || n.overview AS raw_text,
+    to_tsvector(
+      'english', COALESCE(n.searchable_topics, '') || ' ' || COALESCE(n.note, '') || ' ' || n.advisor_first_name || ' ' || n.advisor_last_name || ' ' || n.overview
+    ) AS fts_index,
+    GREATEST(EXTRACT(EPOCH FROM (now() - n.created_at)), 0) / 86400.0 AS age_days
   FROM boac_advising_eop.advising_notes n;
 
 INSERT INTO boac_advising_history_dept.advising_notes
@@ -942,8 +965,13 @@ VALUES
 ('history_dept_advising_note_2','82523','History dept note #2','11667051','Deborah','Davies', '2020-12-05 00:00:00');
 
 CREATE MATERIALIZED VIEW boac_advising_history_dept.advising_notes_search_index AS (
-  SELECT id, to_tsvector('english', COALESCE(note || ' ', '')) AS fts_index
+  SELECT
+    id,
+    note AS raw_text,
+    to_tsvector('english', note) AS fts_index,
+    GREATEST(EXTRACT(EPOCH FROM (now() - created_at)), 0) / 86400.0 AS age_days
   FROM boac_advising_history_dept.advising_notes
+  WHERE note IS NOT NULL AND note <> ''
 );
 
 INSERT INTO boac_advising_l_s.students
@@ -1102,14 +1130,19 @@ VALUES
 ('2718281828-00002', '2718281828', '00002', '100100100', NULL, 'Student Request', 'Hangouts', 'Things usually happen around us, not to us.', NULL, NULL, '2018-11-05T12:00:00+00', '2018-11-06T12:00:00+00');
 
 CREATE MATERIALIZED VIEW sis_advising_notes.advising_notes_search_index AS (
-  SELECT id, to_tsvector(
-    'english',
+  SELECT
+    id,
     CASE
-      WHEN note_body IS NOT NULL and TRIM(note_body) != '' THEN note_body
-      WHEN note_subcategory IS NOT NULL THEN note_category || ' ' || note_subcategory
-      ELSE note_category
-    END
-  ) AS fts_index
+        WHEN note_body IS NOT NULL and TRIM(note_body) != '' THEN note_body
+        ELSE COALESCE(note_category, '') || ' ' || COALESCE(note_subcategory, '')
+    END AS raw_text,
+    to_tsvector('english',
+      CASE
+        WHEN note_body IS NOT NULL and TRIM(note_body) != '' THEN note_body
+        ELSE COALESCE(note_category, '') || ' ' || COALESCE(note_subcategory, '')
+      END
+    ) AS fts_index,
+    GREATEST(EXTRACT(EPOCH FROM (now() - created_at)), 0) / 86400.0 AS age_days
   FROM sis_advising_notes.advising_notes
 );
 
@@ -1398,12 +1431,12 @@ UNION
 );
 
 CREATE MATERIALIZED VIEW boac_advising_notes.advising_notes_search_index AS (
-  SELECT id, fts_index FROM boac_advising_asc.advising_notes_search_index
-  UNION SELECT id, fts_index FROM boac_advising_data_science.advising_notes_search_index
-  UNION SELECT id, fts_index FROM boac_advising_e_i.advising_notes_search_index
-  UNION SELECT id, fts_index FROM boac_advising_eop.advising_notes_search_index
-  UNION SELECT id, fts_index FROM boac_advising_history_dept.advising_notes_search_index
-  UNION SELECT id, fts_index FROM sis_advising_notes.advising_notes_search_index
+  SELECT id, raw_text, fts_index, age_days FROM boac_advising_asc.advising_notes_search_index
+  UNION SELECT id, raw_text, fts_index, age_days FROM boac_advising_data_science.advising_notes_search_index
+  UNION SELECT id, raw_text, fts_index, age_days FROM boac_advising_e_i.advising_notes_search_index
+  UNION SELECT id, raw_text, fts_index, age_days FROM boac_advising_eop.advising_notes_search_index
+  UNION SELECT id, raw_text, fts_index, age_days FROM boac_advising_history_dept.advising_notes_search_index
+  UNION SELECT id, raw_text, fts_index, age_days FROM sis_advising_notes.advising_notes_search_index
 );
 CREATE UNIQUE INDEX advising_notes_search_index_pkey ON boac_advising_notes.advising_notes_search_index(id text_ops);
 
