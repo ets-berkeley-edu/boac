@@ -20,7 +20,7 @@
         Choose...
       </option>
       <option
-        v-for="template in degreeTemplates"
+        v-for="template in unarchivedDegreeTemplates"
         :id="`degree-template-option-${template.id}`"
         :key="template.id"
         :aria-label="`Add degree check ${template.name}`"
@@ -30,12 +30,35 @@
       >
         {{ template.name }}
       </option>
+      <option
+        v-if="archivedDegreeTemplates.length"
+        aria-hidden="true"
+        disabled
+      />
+      <optgroup
+        v-if="archivedDegreeTemplates.length"
+        id="degree-template-archived-optgroup"
+        label="Archived Degree Checks"
+      >
+        <option
+          v-for="template in archivedDegreeTemplates"
+          :id="`degree-template-option-${template.id}`"
+          :key="template.id"
+          :aria-label="`Add archived degree check ${template.name}`"
+          class="wrap-anywhere"
+          :title="template.name"
+          :value="template"
+        >
+          {{ template.name }}
+        </option>
+      </optgroup>
     </select>
   </div>
 </template>
 
 <script setup>
-import {onMounted, ref, watch} from 'vue'
+import {computed, onMounted, ref, watch} from 'vue'
+import {filter as _filter, sortBy} from 'lodash'
 import {getDegreeTemplates} from '@/api/degree'
 
 const props = defineProps({
@@ -51,6 +74,9 @@ const props = defineProps({
 
 const degreeTemplates = ref(undefined)
 const selectedTemplate = ref(undefined)
+
+const archivedDegreeTemplates = computed(() => sortBy(_filter(degreeTemplates.value, 'archivedAt'), 'name'))
+const unarchivedDegreeTemplates = computed(() => sortBy(_filter(degreeTemplates.value, t => !t.archivedAt), 'name'))
 
 watch(selectedTemplate, props.onSelect)
 
