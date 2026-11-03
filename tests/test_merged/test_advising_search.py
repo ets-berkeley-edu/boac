@@ -70,8 +70,7 @@ SEARCH_RESULTS_LIMIT = 50
 class TestSearchAdvisingNote:
     """Search merged advising note data."""
 
-    def test_search_advising_notes(self, fake_auth):
-        fake_auth.login(coe_advisor_uid)
+    def test_search_advising_notes(self):
         results = search_advising_notes(search_phrase='herostratus')
         notes = results['notes']
         total_note_count = results['totalNoteCount']
@@ -88,17 +87,15 @@ class TestSearchAdvisingNote:
         assert parse(notes[0]['createdAt']) == parse('2017-11-05T12:00:00+00')
         assert notes[0]['updatedAt'] is None
 
-    def test_search_for_private_advising_notes(self, fake_auth, mock_private_advising_note):  # noqa: ARG002
-        fake_auth.login(ce3_advisor_uid)
+    def test_search_for_private_advising_notes(self, mock_private_advising_note):  # noqa: ARG002
         results = search_advising_notes(search_phrase='neon', author_uid=ce3_advisor_uid)
         notes = results['notes']
         total_note_count = results['totalNoteCount']
         assert total_note_count == 0
         assert notes == []
 
-    def test_search_advising_notes_by_category(self, fake_auth):
+    def test_search_advising_notes_by_category(self):
         """Matches legacy category/subcategory for SIS advising notes only if body is blank."""
-        fake_auth.login(coe_advisor_uid)
         results = search_advising_notes(search_phrase='Quick Question')
         notes = results['notes']
         total_note_count = results['totalNoteCount']
@@ -106,8 +103,7 @@ class TestSearchAdvisingNote:
         assert total_note_count == 1
         assert notes[0]['noteSnippet'] == '<strong>Quick</strong> <strong>Question</strong>, Unanswered'
 
-    def test_search_for_asc_advising_notes(self, fake_auth):
-        fake_auth.login(asc_advisor_uid)
+    def test_search_for_asc_advising_notes(self):
         results = search_advising_notes(search_phrase='kilmister')
         notes = results['notes']
         total_note_count = results['totalNoteCount']
@@ -125,7 +121,7 @@ class TestSearchAdvisingNote:
         assert parse(notes[0]['createdAt']) == parse('2014-01-03T20:30:00+00')
         assert notes[0]['updatedAt'] is None
 
-    def test_search_result_strip_tags(self, app, fake_auth):
+    def test_search_result_strip_tags(self, app):
         tag_embedded_note = """<p>01 Plain: Student discussed <b>transfer</b> credit with advisor.</p>
             <p>*02 Real script: before<script>alert('real')</script>after</p>
             <p>*03 Script with attrs and uppercase: A<SCRIPT type="text/javascript" src="https://example.com/x.js"></SCRIPT>B</p>
@@ -151,7 +147,6 @@ class TestSearchAdvisingNote:
             override_config(app, 'NOTES_SEARCH_RESULT_SNIPPET_PADDING', 60),
             _create_coe_advisor_note(app, body=tag_embedded_note),
         ):
-            fake_auth.login(coe_advisor_uid)
             results = search_advising_notes(search_phrase='test')
             notes = results['notes']
             lines = notes[0]['noteSnippet'].split('*')
@@ -177,8 +172,7 @@ class TestSearchAdvisingNote:
             assert lines[19].lstrip() == '19 Triple-encoded (beyond max_passes, must be escaped on output): &lt;img src=x onerror=alert(&#x27;&#x27;triple&#x27;&#x27;)&gt; '  # noqa: E501
             assert lines[20].lstrip() == '20 Unclosed script at end swallows the rest: '
 
-    def test_search_advising_notes_stemming(self, fake_auth):
-        fake_auth.login(coe_advisor_uid)
+    def test_search_advising_notes_stemming(self):
         results = search_advising_notes(search_phrase='spare')
         notes = results['notes']
         total_note_count = results['totalNoteCount']
@@ -190,8 +184,7 @@ class TestSearchAdvisingNote:
         notes = results['notes']
         assert '<strong>felicities</strong>' in notes[0]['noteSnippet']
 
-    def test_search_advising_notes_too_short_to_snippet(self, fake_auth):
-        fake_auth.login(coe_advisor_uid)
+    def test_search_advising_notes_too_short_to_snippet(self):
         results = search_advising_notes(search_phrase='campus')
         notes = results['notes']
         total_note_count = results['totalNoteCount']
@@ -199,7 +192,7 @@ class TestSearchAdvisingNote:
         assert total_note_count == 1
         assert notes[0]['noteSnippet'] == 'Is this student even on <strong>campus</strong>?'
 
-    def test_search_advising_notes_ordered_by_relevance(self, app, fake_auth):
+    def test_search_advising_notes_ordered_by_relevance(self, app):
         """Ranks newer results higher but also prefers stronger text matches."""
         with (
             _create_coe_advisor_note(app, subject='Confound the confounders', created_at=datetime(2015, 11, 1, tzinfo=UTC)) as oldest_note,
@@ -210,7 +203,6 @@ class TestSearchAdvisingNote:
                 parent_note_id=oldest_note.id,
             ) as recent_comment,
         ):
-            fake_auth.login(coe_advisor_uid)
             results = search_advising_notes(search_phrase='confound')
             notes = results['notes']
             total_note_count = results['totalNoteCount']
@@ -226,7 +218,7 @@ class TestSearchAdvisingNote:
             assert notes[3]['id'] == oldest_note.id
             assert notes[3]['noteSnippet'] == '<strong>Confound</strong> the <strong>confounders</strong>'
 
-    def test_search_prefers_exact_text_matches(self, app, fake_auth, mock_advising_note_with_comments):  # noqa: ARG002
+    def test_search_prefers_exact_text_matches(self, app, mock_advising_note_with_comments):  # noqa: ARG002
         """Ranks exact text matches highest, then adjacent words in order, then stemmed words in any order."""
         with (
             _create_coe_advisor_note(app, subject='Completed the online Orienteering. Has not selected any classes.') as single_exact_match,
@@ -236,7 +228,6 @@ class TestSearchAdvisingNote:
             ) as double_phrase_match,
             _create_coe_advisor_note(app, subject='Classes classes classes have not been selected selected selected.') as triple_word_match,
         ):
-            fake_auth.login(coe_advisor_uid)
             results = search_advising_notes(search_phrase='Has not selected any classes')
             notes = results['notes']
             total_note_count = results['totalNoteCount']
@@ -249,8 +240,7 @@ class TestSearchAdvisingNote:
             assert notes[2]['id'] == triple_word_match.id
             assert notes[2]['noteSnippet'] == '<strong>Classes</strong> <strong>classes</strong> <strong>classes</strong> have <strong>not</strong> been <strong>selected</strong> <strong>selected</strong> <strong>selected</strong>.'  # noqa: E501
 
-    def test_search_advising_notes_multiple_terms(self, fake_auth):
-        fake_auth.login(coe_advisor_uid)
+    def test_search_advising_notes_multiple_terms(self):
         results = search_advising_notes(search_phrase='burnt diana temple')
         notes = results['notes']
         total_note_count = results['totalNoteCount']
@@ -258,16 +248,14 @@ class TestSearchAdvisingNote:
         assert total_note_count == 1
         assert 'Herostratus lives that <strong>burnt</strong> the <strong>Temple</strong> of <strong>Diana</strong>' in notes[0]['noteSnippet']
 
-    def test_search_advising_notes_no_match(self, fake_auth):
-        fake_auth.login(coe_advisor_uid)
+    def test_search_advising_notes_no_match(self):
         results = search_advising_notes(search_phrase='pyramid octopus')
         notes = results['notes']
         total_note_count = results['totalNoteCount']
         assert len(notes) == 0
         assert total_note_count == 0
 
-    def test_search_advising_notes_funny_characters(self, fake_auth):
-        fake_auth.login(coe_advisor_uid)
+    def test_search_advising_notes_funny_characters(self):
         results = search_advising_notes(search_phrase='horse & epitaph')
         notes = results['notes']
         total_note_count = results['totalNoteCount']
@@ -275,8 +263,7 @@ class TestSearchAdvisingNote:
         assert total_note_count == 1
         assert 'Time hath spared the <strong>Epitaph</strong> of Adrians <strong>horse</strong>' in notes[0]['noteSnippet']
 
-    def test_search_dates(self, fake_auth):
-        fake_auth.login(coe_advisor_uid)
+    def test_search_dates(self):
         results = search_advising_notes(search_phrase='2/1/2019 1:30')
         notes = results['notes']
         total_note_count = results['totalNoteCount']
@@ -292,8 +279,7 @@ class TestSearchAdvisingNote:
         assert total_note_count == 1
         assert 'drop Eng. 123 by <strong>1-24-19</strong>' in notes[0]['noteSnippet']
 
-    def test_search_decimals(self, fake_auth):
-        fake_auth.login(coe_advisor_uid)
+    def test_search_decimals(self):
         results = search_advising_notes(search_phrase='2.0')
         notes = results['notes']
         total_note_count = results['totalNoteCount']
@@ -301,8 +287,7 @@ class TestSearchAdvisingNote:
         assert total_note_count == 1
         assert 'Student continued on <strong>2</strong>.<strong>0</strong> prob (COP) until Sp &#x27;19.' in notes[0]['noteSnippet']
 
-    def test_search_email_address(self, fake_auth):
-        fake_auth.login(coe_advisor_uid)
+    def test_search_email_address(self):
         results = search_advising_notes(search_phrase='E-mailed test@berkeley.edu')
         notes = results['notes']
         total_note_count = results['totalNoteCount']
@@ -312,8 +297,7 @@ class TestSearchAdvisingNote:
                'Student continued on 2.0 prob (COP) until Sp &#x27;19. <strong>E-mailed</strong> '
                '<strong>test</strong>@<strong>berkeley</strong>.<strong>edu</strong>:') in notes[0]['noteSnippet']
 
-    def test_search_advising_notes_timestamp_format(self, fake_auth):
-        fake_auth.login(coe_advisor_uid)
+    def test_search_advising_notes_timestamp_format(self):
         results = search_advising_notes(search_phrase='confound')
         notes = results['notes']
         ucbconversion_note = notes[0]
@@ -323,8 +307,7 @@ class TestSearchAdvisingNote:
         assert cs_note['createdAt']
         assert cs_note['updatedAt'] is None
 
-    def test_search_advising_notes_includes_newly_created(self, app, fake_auth):
-        fake_auth.login(coe_advisor_uid)
+    def test_search_advising_notes_includes_newly_created(self, app):
         with _create_coe_advisor_note(
             app,
             subject='Confound this note',
@@ -339,7 +322,7 @@ class TestSearchAdvisingNote:
             assert notes[1]['noteSnippet'] == 'I am <strong>confounded</strong> by this <strong>confounding</strong> student'
             assert notes[2]['noteSnippet'].startswith('...pity the founder')
 
-    def test_search_advising_notes_paginates_new_and_old(self, app, fake_auth):
+    def test_search_advising_notes_paginates_new_and_old(self, app):
         """Correctly paginates the combined set of BOA notes and legacy notes."""
         def _create_note(i, parent_id=None):
             label = 'comment' if parent_id else 'note'
@@ -351,7 +334,6 @@ class TestSearchAdvisingNote:
                 parent_note_id=parent_id,
             )
 
-        fake_auth.login(coe_advisor_uid)
         with _create_note(1) as note, _create_note(2), _create_note(3), _create_note(4), _create_note(5), _create_note(6, note.id):
             results = search_advising_notes(search_phrase='confound', offset=0, limit=4)
             notes = results['notes']
@@ -370,7 +352,7 @@ class TestSearchAdvisingNote:
             assert notes[2]['noteSnippet'] == 'I am <strong>confounded</strong> by this <strong>confounding</strong> student'
             assert notes[3]['noteSnippet'].startswith('...pity the founder')
 
-    def test_search_advising_notes_narrowed_by_author(self, app, fake_auth):
+    def test_search_advising_notes_narrowed_by_author(self, app):
         """Narrows results for both new and legacy advising notes by author SID."""
         def _create_note(author):
             return _create_coe_advisor_note(
@@ -390,7 +372,6 @@ class TestSearchAdvisingNote:
             'uid': '2040',
         }
         with _create_note(joni), _create_note(not_joni):
-            fake_auth.login(coe_advisor_uid)
             wide_response = search_advising_notes(search_phrase='Brigitte')
             notes = wide_response['notes']
             total_note_count = wide_response['totalNoteCount']
@@ -405,7 +386,7 @@ class TestSearchAdvisingNote:
             assert new_note['advisorUid'] == joni['uid']
             assert legacy_note['advisorSid'] == joni['sid']
 
-    def test_search_advising_notes_narrowed_by_student(self, app, fake_auth):
+    def test_search_advising_notes_narrowed_by_student(self, app):
         """Narrows results for both new and legacy advising notes by student SID."""
         def _create_note(sid):
             return _create_coe_advisor_note(
@@ -415,7 +396,6 @@ class TestSearchAdvisingNote:
                 body='Another day, another student',
             )
         with _create_note('9000000000'), _create_note('9100000000'):
-            fake_auth.login(coe_advisor_uid)
             wide_response = search_advising_notes(search_phrase='student')
             notes = wide_response['notes']
             total_note_count = wide_response['totalNoteCount']
@@ -428,8 +408,7 @@ class TestSearchAdvisingNote:
             assert new_note['studentSid'] == '9100000000'
             assert legacy_note['studentSid'] == '9100000000'
 
-    def test_search_advising_notes_restricted_to_students_in_loch(self, app, fake_auth):
-        fake_auth.login(coe_advisor_uid)
+    def test_search_advising_notes_restricted_to_students_in_loch(self, app):
         with _create_coe_advisor_note(
             app,
             sid='6767676767',
@@ -445,7 +424,7 @@ class TestSearchAdvisingNote:
             ):
                 assert len(search_advising_notes(search_phrase='loch')['notes']) == 1
 
-    def test_search_advising_notes_narrowed_by_topic(self, app, fake_auth):
+    def test_search_advising_notes_narrowed_by_topic(self, app):
         def _create_note(topic):
             return _create_coe_advisor_note(
                 app,
@@ -453,7 +432,6 @@ class TestSearchAdvisingNote:
                 subject='Brigitte',
             )
         with _create_note('Good Show'), _create_note('Bad Show'):
-            fake_auth.login(coe_advisor_uid)
             wide_response = search_advising_notes(search_phrase='Brigitte')
             notes = wide_response['notes']
             total_note_count = wide_response['totalNoteCount']
@@ -465,7 +443,7 @@ class TestSearchAdvisingNote:
             assert len(notes) == 2
             assert total_note_count == 2
 
-    def test_search_legacy_advising_notes_narrowed_by_date(self, app, fake_auth):
+    def test_search_legacy_advising_notes_narrowed_by_date(self, app):
         halloween_2017 = datetime(2017, 10, 31, tzinfo=pytz.timezone(app.config['TIMEZONE'])).astimezone(pytz.utc)
         days = [
             halloween_2017 - timedelta(days=1),
@@ -474,8 +452,6 @@ class TestSearchAdvisingNote:
             halloween_2017 + timedelta(days=2),
             halloween_2017 + timedelta(days=3),
         ]
-        fake_auth.login(coe_advisor_uid)
-
         unbounded = search_advising_notes(search_phrase='Brigitte')
         notes = unbounded['notes']
         total_note_count = unbounded['totalNoteCount']
@@ -494,12 +470,11 @@ class TestSearchAdvisingNote:
         closed_4 = search_advising_notes(search_phrase='Brigitte', datetime_from=days[3], datetime_to=days[4])
         assert len(closed_4['notes']) == 0
 
-    def test_search_new_advising_notes_narrowed_by_date(self, app, fake_auth):
+    def test_search_new_advising_notes_narrowed_by_date(self, app):
         today = datetime.now().replace(hour=0, minute=0, second=0, tzinfo=pytz.timezone(app.config['TIMEZONE'])).astimezone(pytz.utc)
         yesterday = today - timedelta(days=1)
         tomorrow = today + timedelta(days=1)
 
-        fake_auth.login(coe_advisor_uid)
         with _create_coe_advisor_note(
             app,
             subject='Bryant Park',

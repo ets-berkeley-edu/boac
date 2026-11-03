@@ -32,7 +32,7 @@ from flask_login import current_user
 from boac.externals import data_loch
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.sis_advising import get_sis_advising_attachments, get_sis_advising_topics, resolve_sis_created_at, resolve_sis_updated_at
-from boac.lib.util import get_benchmarker, join_if_present, parse_search_phrases, search_result_text_snippet, to_iso_format
+from boac.lib.util import get_benchmarker, join_if_present, search_result_text_snippet, to_iso_format
 from boac.merged.calnet import get_calnet_users_for_csids, get_uid_for_csid
 from boac.models.appointment_read import AppointmentRead
 from boac.models.authorized_user import AuthorizedUser
@@ -128,13 +128,7 @@ def search_advising_appointments(
 ):
     benchmark = get_benchmarker('search_advising_appointments')
     benchmark('begin')
-
     advisor_uid = get_uid_for_csid(app, advisor_csid) if (not advisor_uid and advisor_csid) else advisor_uid
-    search_terms = parse_search_phrases(search_phrase)
-    if search_terms:
-        search_phrase = ' & '.join(search_terms)
-    else:
-        search_phrase = None
 
     benchmark('begin loch appointments query')
     loch_results = data_loch.search_advising_appointments(

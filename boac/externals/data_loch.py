@@ -984,7 +984,6 @@ def search_advising_appointments(
     join_appointments = f'JOIN {advising_appointments_schema()}.advising_appointments aa ON a.parent_appointment_id = aa.id'
     join_students = f'JOIN {student_schema()}.student_profile_index spi ON student_sid = spi.sid'
     and_student_exists = f'AND EXISTS (SELECT 1 FROM {student_schema()}.student_profile_index spi WHERE spi.sid = student_sid)'
-    rank_column = ''
     join_comments_search_index = ''
     join_appt_search_index = ''
     uid_advisor_filter = None
@@ -994,14 +993,13 @@ def search_advising_appointments(
     appointment_criteria = []
 
     if search_phrase:
-        rank_column = "ts_rank(idx.fts_index, plainto_tsquery('english', %(search_phrase)s)) AS rank"
-        criteria.append("idx.fts_index @@ plainto_tsquery('english', %(search_phrase)s)")
+        criteria.append("idx.fts_index @@ ts_queries.loose")
         join_comments_search_index += f"""
-              JOIN {boa_cdc_schema()}.advising_appointment_comments_search_index idx ON idx.boa_id = a.boa_id"""
+                  JOIN {boa_cdc_schema()}.advising_appointment_comments_search_index idx ON idx.boa_id = a.boa_id
+                  CROSS JOIN ts_queries"""
         join_appt_search_index += f"""
-              JOIN {advising_appointments_schema()}.advising_appointments_search_index idx ON idx.id = a.id"""
-    else:
-        rank_column = '0 AS rank'
+                  JOIN {advising_appointments_schema()}.advising_appointments_search_index idx ON idx.id = a.id
+                  CROSS JOIN ts_queries"""
 
     if topic:
         comment_criteria.append('FALSE')
@@ -1052,9 +1050,10 @@ def search_advising_appointments(
     appointments_match_criteria = """
             AND """.join(criteria + appointment_criteria)
 
-    def _build_query(count_only=False):
+    def _build_query(search_phrase_cte, rank_column=None, count_only=False):
         if count_only:
-            return f"""SELECT (
+            with_text_queries = f'WITH {search_phrase_cte}' if search_phrase_cte else ''
+            return f"""{with_text_queries} SELECT (
                SELECT COUNT(*) AS count
                  FROM {appt_comments_table}
                       {join_appointments} {join_comments_search_index}
@@ -1067,7 +1066,9 @@ def search_advising_appointments(
                   {and_student_exists}
               ) AS count"""
         else:
-            return f"""WITH candidates AS (
+            text_queries = f'{search_phrase_cte},' if search_phrase_cte else ''
+            return f"""WITH {text_queries}
+          candidates AS (
            (SELECT 'boa' AS src, a.boa_id, a.parent_appointment_id AS appointment_id, a.created_at, {rank_column}
               FROM {appt_comments_table}
                    {join_appointments} {join_comments_search_index}
@@ -1139,10 +1140,6 @@ def search_advising_notes(
     legacy_notes_table = f'{advising_notes_schema()}.advising_notes a'
     join_students = f"""JOIN {student_schema()}.student_profile_index spi ON a.student_sid = spi.sid"""
     and_student_exists = f"""AND EXISTS (SELECT 1 FROM {student_schema()}.student_profile_index spi WHERE spi.sid = a.student_sid)"""
-    rank_column = ''
-    half_life_days = 365
-    recency_weight = 0.8
-    search_phrase_cte = None
     join_boa_search_index = ''
     join_legacy_search_index = ''
     uid_advisor_filter = None
@@ -1152,18 +1149,6 @@ def search_advising_notes(
     legacy_criteria = []
 
     if search_phrase:
-        search_phrase_cte = """ts_queries AS (
-            SELECT
-              %(search_phrase_pattern)s                          AS raw,
-              phraseto_tsquery('english', %(search_phrase)s)     AS phrase,
-              websearch_to_tsquery('english', %(search_phrase)s) AS loose
-          )
-        """
-        rank_column = f"""
-                (   CASE WHEN idx.raw_text ILIKE ts_queries.raw THEN 10 ELSE 0 END
-                  + CASE WHEN idx.fts_index @@ ts_queries.phrase THEN 5 ELSE 0 END
-                  + ts_rank_cd(idx.fts_index, ts_queries.loose, 32)
-                ) * ((1 - {recency_weight}) + {recency_weight} * power(0.5, idx.age_days / {half_life_days})) AS rank"""
         criteria.append("idx.fts_index @@ ts_queries.loose")
         join_boa_search_index += f"""
                  JOIN {boa_cdc_schema()}.advising_notes_search_index idx ON idx.id = a.id
@@ -1171,8 +1156,6 @@ def search_advising_notes(
         join_legacy_search_index += f"""
                  JOIN {advising_notes_schema()}.advising_notes_search_index idx ON idx.id = a.id
                  CROSS JOIN ts_queries"""
-    else:
-        rank_column = '0 AS rank'
 
     if topic:
         join_boa_search_index += f"""
@@ -1233,7 +1216,7 @@ def search_advising_notes(
     legacy_notes_criteria = """
                 AND """.join(criteria + legacy_criteria)
 
-    def _build_query(count_only=False):
+    def _build_query(search_phrase_cte, rank_column=None, count_only=False):
         if count_only:
             with_text_queries = f'WITH {search_phrase_cte}' if search_phrase_cte else ''
             return f"""{with_text_queries} SELECT (
@@ -1284,7 +1267,6 @@ def search_advising_notes(
     return search_advising(
         build_query=_build_query,
         search_phrase=search_phrase,
-        search_phrase_pattern=f'%{search_phrase}%',
         advisor_uids=advisor_uids,
         advisor_csid=author_csid,
         student_csid=student_csid,
@@ -1299,7 +1281,6 @@ def search_advising_notes(
 def search_advising(
     build_query,
     search_phrase,
-    search_phrase_pattern=None,
     advisor_uids=None,
     advisor_csid=None,
     student_csid=None,
@@ -1313,7 +1294,6 @@ def search_advising(
     offset = abs(offset or 0)
     params = dict(
         search_phrase=search_phrase,
-        search_phrase_pattern=search_phrase_pattern,
         advisor_csid=advisor_csid,
         advisor_uids=advisor_uids,
         student_csid=student_csid,
@@ -1323,10 +1303,30 @@ def search_advising(
         offset=offset,
         limit=limit,
     )
-    total_matching = safe_execute_rds(build_query(count_only=True), **params)
+    if search_phrase:
+        half_life_days = 365
+        recency_weight = 0.8
+        params['search_phrase_pattern'] = f'%{search_phrase}%'
+        search_phrase_cte = """ts_queries AS (
+            SELECT
+              %(search_phrase_pattern)s                          AS raw,
+              phraseto_tsquery('english', %(search_phrase)s)     AS phrase,
+              websearch_to_tsquery('english', %(search_phrase)s) AS loose
+          )
+        """
+        rank_column = f"""
+                (   CASE WHEN idx.raw_text ILIKE ts_queries.raw THEN 10 ELSE 0 END
+                  + CASE WHEN idx.fts_index @@ ts_queries.phrase THEN 5 ELSE 0 END
+                  + ts_rank_cd(idx.fts_index, ts_queries.loose, 32)
+                ) * ((1 - {recency_weight}) + {recency_weight} * power(0.5, idx.age_days / {half_life_days})) AS rank"""
+    else:
+        search_phrase_cte = None
+        rank_column = '0 AS rank'
+
+    total_matching = safe_execute_rds(build_query(search_phrase_cte, count_only=True), **params)
     total_count = total_matching[0]['count']
     if total_count:
-        rows = safe_execute_rds(build_query(), **params)
+        rows = safe_execute_rds(build_query(search_phrase_cte, rank_column=rank_column), **params)
     else:
         rows = []
     return {
@@ -1354,7 +1354,6 @@ def search_eforms(
     join_students = f'JOIN {student_schema()}.student_profile_index spi ON student_sid = spi.sid'
     and_student_exists = f'AND EXISTS (SELECT 1 FROM {student_schema()}.student_profile_index spi WHERE spi.sid = student_sid)'
     search_phrase = None
-    rank_column = ''
     join_comments_search_index = ''
     join_eform_search_index = ''
     criteria = ['TRUE']
@@ -1365,14 +1364,12 @@ def search_eforms(
         # Append the prefix operator to each token individually
         tokens_with_prefix = [f'{token}:*' for token in search_phrases]
         search_phrase = ' & '.join(tokens_with_prefix)
-        rank_column = "ts_rank(idx.fts_index, plainto_tsquery('english', %(search_phrase)s)) AS rank"
         criteria.append("idx.fts_index @@ plainto_tsquery('english', %(search_phrase)s)")
         join_comments_search_index += f"""
               JOIN {boa_cdc_schema()}.eform_comments_search_index idx ON idx.boa_id = a.boa_id"""
         join_eform_search_index += f"""
               JOIN {sis_advising_notes_schema()}.student_eforms_search_index idx ON idx.id = a.id"""
-    else:
-        rank_column = '0 AS rank'
+
     if student_csid:
         criteria.append('student_sid = %(student_csid)s')
     if datetime_from:
@@ -1387,7 +1384,7 @@ def search_eforms(
     eforms_match_criteria = """
                 AND """.join(criteria + eform_criteria)
 
-    def _build_query(count_only=False):
+    def _build_query(search_phrase_cte, rank_column=None, count_only=False):
         if count_only:
             return f"""SELECT (
                SELECT COUNT(*) AS count
@@ -1402,8 +1399,9 @@ def search_eforms(
                   {and_student_exists}
             ) AS count"""
         else:
+            rank_col = "ts_rank(idx.fts_index, plainto_tsquery('english', %(search_phrase)s)) AS rank" if search_phrase else '0 as rank'
             return f"""WITH candidates AS (
-           (SELECT 'boa' AS src, a.parent_eform_id AS id, a.boa_id, a.created_at, {rank_column}
+           (SELECT 'boa' AS src, a.parent_eform_id AS id, a.boa_id, a.created_at, {rank_col}
               FROM {eform_comments_table}
                   {join_eforms} {join_comments_search_index}
              WHERE {comments_match_criteria}
@@ -1411,7 +1409,7 @@ def search_eforms(
              ORDER BY rank DESC, a.created_at DESC, a.parent_eform_id, a.boa_id
              LIMIT %(offset)s + %(limit)s)
              UNION ALL
-           (SELECT 'legacy' AS src, a.id, NULL AS boa_id, a.created_at, {rank_column}
+           (SELECT 'legacy' AS src, a.id, NULL AS boa_id, a.created_at, {rank_col}
               FROM {eforms_table} {join_eform_search_index}
              WHERE {eforms_match_criteria}
                {and_student_exists}

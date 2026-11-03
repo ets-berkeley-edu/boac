@@ -147,8 +147,14 @@ def refresh_loch_appointment_search_index(app, comment=None, deleted_comment=Non
                     created_at = EXCLUDED.created_at,
                     updated_at = EXCLUDED.updated_at;
                   INSERT INTO boa_app_rds_data.advising_appointment_comments_search_index
-                    (parent_appointment_id, boa_id, fts_index)
-                  VALUES (:parent_appointment_id, :boa_id, TO_TSVECTOR('english', :searchable_text))
+                    (parent_appointment_id, boa_id, raw_text, fts_index, age_days)
+                  VALUES (
+                    :parent_appointment_id,
+                    :boa_id,
+                    :searchable_text,
+                    TO_TSVECTOR('english', :searchable_text),
+                    GREATEST(EXTRACT(EPOCH FROM (now() - :created_at)), 0) / 86400.0
+                  )
                   ON CONFLICT(boa_id)
                   DO UPDATE SET
                     parent_appointment_id = EXCLUDED.parent_appointment_id,

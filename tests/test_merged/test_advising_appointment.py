@@ -23,9 +23,14 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from contextlib import contextmanager
+from datetime import UTC, datetime
 
+from boac import std_commit
 from boac.externals import data_loch
 from boac.merged.advising_appointment import get_advising_appointments, search_advising_appointments
+from boac.models.comment import Comment
+from boac.models.comment_parent import CommentParent
 from boac.models.university_dept import UniversityDept
 from tests.util import (
     assert_every_search_filter_combination,
@@ -35,6 +40,7 @@ from tests.util import (
     in_date_range,
     legacy_advisor_match,
     legacy_timestamp,
+    refresh_loch_appointment_search_index,
 )
 
 asc_advisor_uid = '1081940'
@@ -173,11 +179,30 @@ you got to pull up the intruder by the root of the weed; N.Y. Chew through the m
         assert appointments[3]['createdAt']
         assert appointments[3]['updatedAt'] is None
 
+    def test_search_advising_notes_ordered_by_relevance(self, app, db):
+        """Ranks newer results higher but also prefers stronger text matches."""
+        legacy_exact_match_id = '9100000000-00010'
+        with (
+            _create_appointment_comment(app, db, body='Art imitates life.') as exact_match,
+            _create_appointment_comment(app, db, body='Art imitates life.', created_at=datetime(2015, 11, 1, tzinfo=UTC)) as exact_match_old,
+            _create_appointment_comment(app, db, body='Life imitates art.', created_at=datetime(2026, 11, 1, tzinfo=UTC)) as loose_match,
+        ):
+            results = search_advising_appointments(search_phrase='art imitates life')
+            appointments = results['appointments']
+            total_appointment_count = results['totalAppointmentCount']
+            assert len(appointments) == 4
+            assert total_appointment_count == 4
+            assert appointments[0]['id'] == exact_match.id
+            assert appointments[0]['snippet'] == '<strong>Art</strong> <strong>imitates</strong> <strong>life</strong>.'
+            assert appointments[1]['id'] == legacy_exact_match_id
+            assert appointments[1]['detailsSnippet'] == '<strong>Art</strong> <strong>imitates</strong> <strong>life</strong>. Cancellation'
+            assert appointments[2]['id'] == exact_match_old.id
+            assert appointments[2]['snippet'] == '<strong>Art</strong> <strong>imitates</strong> <strong>life</strong>.'
+            assert appointments[3]['id'] == loose_match.id
+            assert appointments[3]['snippet'] == '<strong>Life</strong> <strong>imitates</strong> <strong>art</strong>.'
 
-class TestAppointmentSearchFilterCombinations:
-    """Loch appointment search, every combination of filters."""
 
-    def test_every_filter_combination(self, mock_searchable_appointment_comments, mock_legacy_ucbconversion_records):  # noqa: ARG002
+    def test_every_search_filter_combination(self, mock_searchable_appointment_comments, mock_legacy_ucbconversion_records):  # noqa: ARG002
         """Returns exactly the BOA comments and legacy appointments matching all active filters, for all 256 combinations."""
         def _search_advising_appointments(criteria):
             results = search_advising_appointments(**criteria, offset=0, limit=SEARCH_RESULTS_LIMIT)
@@ -192,7 +217,7 @@ class TestAppointmentSearchFilterCombinations:
             limit=SEARCH_RESULTS_LIMIT,
         )
 
-    def test_filters_are_not_vacuous(self, mock_searchable_appointment_comments, mock_legacy_ucbconversion_records):  # noqa: ARG002
+    def test_search_filters_are_not_vacuous(self, mock_searchable_appointment_comments, mock_legacy_ucbconversion_records):  # noqa: ARG002
         """Each filter, applied alone, narrows the results and leaves at least one match."""
         assert_search_filters_not_vacuous(APPOINTMENT_SEARCH_FILTERS, _expected_appointment_ids)
 
@@ -272,3 +297,30 @@ def _expected_appointment_ids(
         ):
             appointment_ids.append(row['id'])
     return appointment_ids
+
+
+@contextmanager
+def _create_appointment_comment(
+    app,
+    db,
+    body,
+    created_at=None,
+):
+    comment_parent = CommentParent.find_or_create(parent_type='appointment', parent_id='11667051-00010')
+    comment = Comment.create(
+        author_uid='1133399',
+        author_name='COE Advisor',
+        author_role='advisor',
+        author_dept_codes=['COENG'],
+        comment_parent_id=comment_parent.id,
+        body=body,
+    )
+    if created_at:
+        comment.created_at = created_at
+    db.session.add(comment)
+    std_commit(allow_test_environment=True)
+    refresh_loch_appointment_search_index(app, comment=comment)
+    yield comment
+    comment.soft_delete()
+    std_commit(allow_test_environment=True)
+    refresh_loch_appointment_search_index(app, deleted_comment=comment)
