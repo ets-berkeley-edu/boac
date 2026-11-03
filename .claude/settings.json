@@ -1,13 +1,13 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git *)",
-      "Bash(npm run *)"
+      "Bash(git status*)", "Bash(git diff*)", "Bash(git log*)", "Bash(git show*)", "Bash(git blame*)",
+      "Bash(npm run *)", "Bash(tox *)", "Bash(pytest *)", "Bash(ruff *)"
     ],
     "deny": [
-      "Bash(git push*)",
-      "Read(**/.env.local)",
-      "Read(**/.env.*.local)"
+      "Bash(git commit*)", "Bash(git push*)",
+      "Read(**/.env.local)", "Read(**/.env.*.local)",
+      "Read(**/config/*-local.py)", "Read(**/config/*.json)"
     ]
   }
 }
