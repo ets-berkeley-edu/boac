@@ -50,7 +50,9 @@ CREATE TABLE boa_app_rds_data.advising_appointment_comments (
 CREATE TABLE boa_app_rds_data.advising_appointment_comments_search_index (
     parent_appointment_id VARCHAR,
     boa_id INTEGER PRIMARY KEY,
-    fts_index tsvector
+    raw_text TEXT,
+    fts_index tsvector,
+    age_days NUMERIC
 );
 
 CREATE TABLE boa_app_rds_data.advising_note_authors_index (
@@ -1089,10 +1091,11 @@ VALUES
 ('2718281828-00002', '2718281828', '00002', '600500400', NULL, 'Appointment Type', 'Same-day Advising', 'As the largest Pez dispenser on record recouped his numbers', 'UCBCONVERSION', NULL, '2006-11-02T12:00:00+00', '2006-11-02T12:00:00+00');
 
 CREATE MATERIALIZED VIEW sis_advising_notes.advising_appointments_search_index AS (
-  SELECT id, to_tsvector(
-    'english',
-    COALESCE(note_body, '') || ' ' || note_subcategory
-  ) AS fts_index
+  SELECT
+    id,
+    COALESCE(note_body, '') || ' ' || note_subcategory AS raw_text,
+    to_tsvector('english', COALESCE(note_body, '') || ' ' || note_subcategory) AS fts_index,
+    GREATEST(EXTRACT(EPOCH FROM (now() - created_at)), 0) / 86400.0 AS age_days
   FROM sis_advising_notes.advising_appointments
 );
 
@@ -1370,12 +1373,21 @@ CREATE TABLE boac_advising_appointments.advising_appointments AS(
 );
 
 CREATE TABLE boac_advising_appointments.advising_appointments_search_index AS (
-  SELECT id, fts_index FROM sis_advising_notes.advising_appointments_search_index
+  SELECT id, raw_text, fts_index, age_days
+    FROM sis_advising_notes.advising_appointments_search_index
    UNION
-  SELECT id, to_tsvector('english', COALESCE(meeting_notes_plain, '') || ' ' || COALESCE(title, '')) AS fts_index
+  SELECT
+      id,
+      COALESCE(meeting_notes_plain, '') || ' ' || COALESCE(title, '') AS raw_text,
+      to_tsvector('english', COALESCE(meeting_notes_plain, '') || ' ' || COALESCE(title, '')) AS fts_index,
+      GREATEST(EXTRACT(EPOCH FROM (now() - created_at)), 0) / 86400.0 AS age_days
     FROM boac_advising_appointments.calendly_advising_appointments
    UNION
-  SELECT id, to_tsvector('english', COALESCE(details, '') || ' ' || COALESCE(title, '')) AS fts_index
+  SELECT
+      id,
+      COALESCE(details, '') || ' ' || COALESCE(title, '') AS raw_text,
+      to_tsvector('english', COALESCE(details, '') || ' ' || COALESCE(title, '')) AS fts_index,
+      GREATEST(EXTRACT(EPOCH FROM (now() - starts_at)), 0) / 86400.0 AS age_days
     FROM boac_advising_appointments.ycbm_advising_appointments
 );
 CREATE UNIQUE INDEX idx_advising_appointments_search_index_pkey
