@@ -1,6 +1,6 @@
 # Curated groups
 
-A curated group is a hand-picked, named list of SIDs owned by one advisor. A cohort (`.claude/docs/cohorts.md`), by contrast, is a saved set of filters evaluated against the data loch. A curated group's membership is stored in the BOA database and changes only when someone adds or removes a student, or when the nightly cleanup drops SIDs that are no longer available. The backend calls it `CuratedGroup` (`boac/models/curated_group.py`), but the tables are named `student_groups` and `student_group_members`.
+A curated group is a hand-picked, named list of SIDs owned by one advisor. A cohort (`.claude/docs/cohorts.md`), by contrast, is a saved set of filters evaluated against the data loch. A curated group's membership is stored in the BOA database and changes only when someone adds or removes a student, or when the current-term refresh job drops SIDs that are no longer available. The backend calls it `CuratedGroup` (`boac/models/curated_group.py`), but the tables are named `student_groups` and `student_group_members`.
 
 ## Curated groups vs cohorts
 

@@ -4,7 +4,7 @@ An alert is a row in the BOA-owned `alerts` table. It flags one student (`sid`) 
 
 Model: `boac/models/alert.py` (`Alert`). Per-viewer dismissals: `AlertView` in `boac/models/db_relationships.py`.
 
-Don't confuse student alerts with `alertScreenReader` (`src/lib/utils.ts`) or `DismissibleFooterAlert.vue` / service announcements. Those are screen-reader and banner features.
+Don't confuse student alerts with `alertScreenReader` (`src/lib/utils.ts`), `DismissibleFooterAlert.vue` (the `fixedWarningOnAllPages` footer), or `ServiceAnnouncement.vue` (the admin-written banner). Those are screen-reader and banner features.
 
 ## Alert types
 
@@ -90,7 +90,7 @@ Every count means active, current-term alerts that **this viewer** hasn't dismis
 | Student page timeline | `put_notifications()` → `Alert.current_alerts_for_sid(viewer_id, sid)`, returning `{id, alertType, key, message, createdAt, updatedAt, dismissed}` plus `read` (= `dismissed`) and `type: 'alert'` | none |
 | Cohort `alertCount` (Home, cohort page) | `CohortFilter.to_api_json(include_alerts_for_user_id=…)` → `Alert.current_alert_counts_for_sids` | Stored in `cohort_filters.alert_count`, written only when it's `None`. `refresh_alert_counts_for_owner` rewrites it after a dismissal. See `.claude/docs/cohorts.md` |
 | Curated group `alertCount` | `alert_counts_for_curated_group()` (`boac/api/util.py`) → `Alert.current_alert_counts_for_curated_group(count_only=True)` | `@stow('alert_counts_curated_group_{group_id}_user_{viewer_id}')`. Cleared when students are added or removed, on dismissal, and by `refresh_alerts` |
-| Student lists: course page, search, cohort and group rows | `course_controller._include_alert_counts`, `search_controller` + `add_alert_counts`, `curated_group_controller._include_alert_counts` | none for course and search |
+| Student lists: course page, search, cohort and group rows | `course_controller._include_alert_counts`, `search_controller` + `add_alert_counts`, `curated_group_controller._include_alert_counts` | none for course and search. The course page API returns `alertCount` per student, but `CourseStudents.vue` doesn't display it |
 
 `Alert.alert_counts_by_query()` returns `[{sid, alertCount}]` when `count_only=True`. When `count_only=False` it also calls `data_loch.get_basic_student_data(sids)`.
 
@@ -121,4 +121,4 @@ Every count means active, current-term alerts that **this viewer** hasn't dismis
 - **Viewer ID, not UID.** `current_alerts_for_sid` and the count queries take `viewer_id` = `authorized_users.id`.
 - **Dismissal is a GET and fires on expand.** Any code that opens timeline messages programmatically (e.g. `scrollToPermalink`) dismisses alerts as a side effect.
 - **Past-term gating uses the current term.** The no-activity and infrequent-activity gates check the *current* term's start date and name, even when `update_all_for_term` runs for another term.
-- **Unused helpers.** `Alert.get_alerts_per_date_range` and `Alert.deactivate_all` have no callers outside tests (unverified for scripts).
+- **Unused helpers.** `Alert.get_alerts_per_date_range` and `Alert.deactivate_all` have no callers outside tests.

@@ -13,7 +13,7 @@ BOA authorization has two parts. **Who you are** is an `authorized_users` row pl
 | `can_access_advising_data` | Notes/appointments data. Required by `advising_data_access_required` |
 | `can_access_canvas_data` | bCourses/course-site data. Checked inline in `course_controller.get_section` and `search_controller` (courses domain) |
 | `degree_progress_permission` | ENUM `generic_permission_types`: `'read'`, `'read_write'`, or NULL |
-| `automate_degree_progress_permission` | If True, the nightly refresh may overwrite `degree_progress_permission` |
+| `automate_degree_progress_permission` | If True, the scheduled refresh job may overwrite `degree_progress_permission` |
 | `deleted_at` | Soft delete. `find_by_uid` and `get_id_per_uid` ignore deleted rows by default |
 | `disabled_at` | Set by `disable_accounts_with_no_recent_activity()` (`boac/api/cache_utils.py`) after `LOGIN_INACTIVITY_THRESHOLD` days |
 | `is_blocked` | Stops `create_or_restore()` from reviving a deleted user during the automated refresh |
@@ -81,7 +81,7 @@ Every decorator also passes when `_api_key_ok()` is true, with exceptions noted 
 | `advisor_or_peer_advisor_required` | admin, advisor/director, or `peer_advisor` | `POST /api/students/find_by_name_sid_or_email`; `POST /api/user/demo_mode` |
 | `can_read_degree_progress` | `current_user.can_read_degree_progress` | `GET /api/degrees/student/<sid>` |
 | `can_edit_degree_progress` | `current_user.can_edit_degree_progress` | `POST /api/degree/check/batch` |
-| `ce3_required` | `util.can_access_admitted_students()`: admin, or **advisor/director** in `ZCEEE` | `GET /api/admit/by_sid/<sid>`; `POST /api/search/admits` |
+| `ce3_required` | `util.can_access_admitted_students()`: admin, or **advisor/director** in `ZCEEE` | `GET /api/admit/by_sid/<sid>`; `GET /api/admits/all`; `POST /api/search/admits` |
 | `peer_advisor_required` | admin or `peer_advisor` | `POST /api/peer_advising/note/create` |
 | `peer_advisor_manager_required` | admin or `peer_advisor_manager` (any dept) | `DELETE /api/peer_advising/delete_peer_advisor/<dept_id>/<user_id>` |
 | `peer_advisor_or_peer_advisor_manager` | admin, peer advisor, or peer advisor manager | `GET /api/peer_advising/note_topics` |
@@ -132,7 +132,7 @@ Router guards (`beforeEnter` in `src/router.ts`) send unauthenticated users to l
 
 Component-level flags:
 
-- `currentUser.canAccessCanvasData`: `StudentRowCourseActivity.vue`, `stores/search.ts`.
+- `currentUser.canAccessCanvasData`: `StudentRowCourseActivity.vue`, `StudentCourse.vue` (Canvas data per class), `Student.vue` (whether a class links to the course page), and the search UI (`stores/search.ts`, `lib/search.ts`, `AdvancedSearch.vue`, `AdvancedSearchModal.vue`, `SearchResults.vue`).
 - `canAccessAdmittedStudents`: `Sidebar.vue`.
 - `canAccessPrivateNotes`: `EditAdvisingNote.vue`, `EditBatchNoteModal.vue`.
 - `isPeerAdvisorManager`: `PeerAdvisingNotesTable.vue`.
@@ -183,6 +183,6 @@ Component-level flags:
 - **Admins are not "advisors".** `create_draft_note` rejects admins, and `isAdvisor()` is false for an admin with no departments.
 - **`advisor_required` doesn't check `is_authenticated`.** It relies on the anonymous `UserSession` having no departments.
 - **A manager role alone doesn't count.** A user whose only role is `peer_advisor_manager` is inactive and cannot log in (`_get_api_json`).
-- **Automated memberships are rebuilt nightly.** `automate_membership=True` rows are deleted and recreated, and users left with no membership are soft-deleted unless they're admins. To keep a manual grant, set `automate_membership=False`. To keep a removed user from coming back, set `is_blocked`.
+- **Automated memberships are rebuilt by every current-term refresh job** (see `.claude/docs/data-refresh-and-terms.md`). `automate_membership=True` rows are deleted and recreated, and users left with no membership are soft-deleted unless they're admins. To keep a manual grant, set `automate_membership=False`. To keep a removed user from coming back, set `is_blocked`.
 - **Missing CalNet data revokes access.** Without a CalNet profile a user is inactive, and without a CalNet name `canAccessAdvisingData` is False, even when the DB flags say otherwise.
 - **`UserSession.same_day_advisor_departments`** reads `sameDayAdvisorStatus`, which `_get_api_json` never sets, so accessing it raises `KeyError`. It's dead code; don't use it.
