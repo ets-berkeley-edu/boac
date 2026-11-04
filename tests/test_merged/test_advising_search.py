@@ -38,6 +38,7 @@ from boac.models.peer_advising_department import PeerAdvisingDepartment
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 from boac.models.university_dept import UniversityDept
 from tests.util import (
+    ExpectedSearchResults,
     active_search_criteria,
     assert_every_search_filter_combination,
     assert_search_filters_not_vacuous,
@@ -503,13 +504,13 @@ class TestSearchAdvisingNote:
         assert_every_search_filter_combination(
             filters=NOTE_SEARCH_FILTERS,
             search=_search_advising_notes,
-            expected_keys=_expected_note_ids,
+            expected_keys=_ExpectedNoteIds(),
             limit=SEARCH_RESULTS_LIMIT,
         )
 
     def test_filters_are_not_vacuous(self, mock_searchable_advising_notes, mock_legacy_ucbconversion_records):  # noqa: ARG002
         """Each filter, applied alone, narrows the results and leaves at least one match."""
-        assert_search_filters_not_vacuous(NOTE_SEARCH_FILTERS, _expected_note_ids)
+        assert_search_filters_not_vacuous(NOTE_SEARCH_FILTERS, _ExpectedNoteIds())
 
     def test_private_notes_excluded(self, mock_searchable_advising_notes):
         """A private BOA note is never returned, even when it matches every filter."""
@@ -578,52 +579,82 @@ def _advisor_uids(department_codes, advisor_uid, advisor_sid):
     return uids
 
 
-def _expected_note_ids(
-        search_phrase=None,
-        author_uid=None,
-        author_csid=None,
-        student_csid=None,
-        department_codes=None,
-        topic=None,
-        datetime_from=None,
-        datetime_to=None,
-):
-    boa_cdc = data_loch.boa_cdc_schema()
-    legacy_notes = data_loch.advising_notes_schema()
-    advisor_uids = _advisor_uids(department_codes, author_uid, author_csid)
-    all_student_sids = {row['sid'] for row in data_loch.safe_execute_rds(f'SELECT sid FROM {data_loch.student_schema()}.student_profile_index')}
-    note_ids = []
+class _ExpectedNoteIds(ExpectedSearchResults):
+    """Expected note search results: loads BOA and legacy notes once, then filters them in Python per combination."""
 
-    boa_note_text_matches = expected_fts_results(f'{boa_cdc}.advising_notes_search_index', 'id', search_phrase, data_loch.safe_execute_rds)
-    boa_topic_matches = get_topic_matches(f'{boa_cdc}.advising_note_topics', topic, data_loch.safe_execute_rds)
-    boa_notes = data_loch.safe_execute_rds(f'SELECT id, boa_id, student_sid, advisor_uid, is_private, updated_at FROM {boa_cdc}.advising_notes')
-    for row in boa_notes:
-        if (
-            not row['is_private']
-            and (not boa_note_text_matches or row['id'] in boa_note_text_matches)
-            and (not boa_topic_matches or row['id'] in boa_topic_matches)
-            and (not advisor_uids or row['advisor_uid'] in advisor_uids)
-            and (not student_csid or row['student_sid'] == student_csid)
-            and (row['student_sid'] in all_student_sids)
-            and in_date_range(row['updated_at'], datetime_from, datetime_to)
-        ):
-            note_ids.append(row['boa_id'])
+    def __init__(self):
+        super().__init__()
+        self.boa_cdc = data_loch.boa_cdc_schema()
+        self.legacy_schema = data_loch.advising_notes_schema()
+        self.all_student_sids = {
+            row['sid'] for row in data_loch.safe_execute_rds(f'SELECT sid FROM {data_loch.student_schema()}.student_profile_index')
+        }
+        self.boa_notes = data_loch.safe_execute_rds(
+            f'SELECT id, boa_id, student_sid, advisor_uid, is_private, updated_at FROM {self.boa_cdc}.advising_notes',
+        )
+        self.legacy_notes = data_loch.safe_execute_rds(f"""
+            SELECT id, student_sid, advisor_uid, advisor_sid, is_private, created_by, created_at, updated_at
+              FROM {self.legacy_schema}.advising_notes""")
 
-    legacy_note_text_matches = expected_fts_results(f'{legacy_notes}.advising_notes_search_index', 'id', search_phrase, data_loch.safe_execute_rds)
-    legacy_topic_matches = get_topic_matches(f'{legacy_notes}.advising_note_topics_curated', topic, data_loch.safe_execute_rds)
-    legacy_notes = data_loch.safe_execute_rds(f"""
-        SELECT id, student_sid, advisor_uid, advisor_sid, is_private, created_by, created_at, updated_at
-          FROM {legacy_notes}.advising_notes""")
-    for row in legacy_notes:
-        if (
-            not row['is_private']
-            and (not legacy_note_text_matches or row['id'] in legacy_note_text_matches)
-            and (not legacy_topic_matches or row['id'] in legacy_topic_matches)
-            and legacy_advisor_match(row, advisor_uids, author_csid)
-            and (not student_csid or row['student_sid'] == student_csid)
-            and (row['student_sid'] in all_student_sids)
-            and in_date_range(legacy_timestamp(row), datetime_from, datetime_to)
-        ):
-            note_ids.append(row['id'])
-    return note_ids
+    def __call__(
+            self,
+            search_phrase=None,
+            author_uid=None,
+            author_csid=None,
+            student_csid=None,
+            department_codes=None,
+            topic=None,
+            datetime_from=None,
+            datetime_to=None,
+    ):
+        advisor_uids = self._cached(
+            'advisor_uids', department_codes, author_uid, author_csid,
+            compute=lambda: _advisor_uids(department_codes, author_uid, author_csid),
+        )
+        note_ids = []
 
+        boa_note_text_matches = self._cached(
+            'boa_text', search_phrase,
+            compute=lambda: expected_fts_results(f'{self.boa_cdc}.advising_notes_search_index', 'id', search_phrase, data_loch.safe_execute_rds),
+        )
+        boa_topic_matches = self._cached(
+            'boa_topic', topic,
+            compute=lambda: get_topic_matches(f'{self.boa_cdc}.advising_note_topics', topic, data_loch.safe_execute_rds),
+        )
+        for row in self.boa_notes:
+            if (
+                not row['is_private']
+                and (not boa_note_text_matches or row['id'] in boa_note_text_matches)
+                and (not boa_topic_matches or row['id'] in boa_topic_matches)
+                and (not advisor_uids or row['advisor_uid'] in advisor_uids)
+                and (not student_csid or row['student_sid'] == student_csid)
+                and (row['student_sid'] in self.all_student_sids)
+                and in_date_range(row['updated_at'], datetime_from, datetime_to)
+            ):
+                note_ids.append(row['boa_id'])
+
+        legacy_note_text_matches = self._cached(
+            'legacy_text', search_phrase,
+            compute=lambda: expected_fts_results(
+                f'{self.legacy_schema}.advising_notes_search_index',
+                'id',
+                search_phrase,
+                data_loch.safe_execute_rds,
+            ),
+        )
+        legacy_topic_matches = self._cached(
+            'legacy_topic', topic,
+            compute=lambda: get_topic_matches(f'{self.legacy_schema}.advising_note_topics_curated', topic, data_loch.safe_execute_rds),
+        )
+        for row in self.legacy_notes:
+            if (
+                not row['is_private']
+                and (not legacy_note_text_matches or row['id'] in legacy_note_text_matches)
+                and (not legacy_topic_matches or row['id'] in legacy_topic_matches)
+                and legacy_advisor_match(row, advisor_uids, author_csid)
+                and (not student_csid or row['student_sid'] == student_csid)
+                and (row['student_sid'] in self.all_student_sids)
+                and in_date_range(legacy_timestamp(row), datetime_from, datetime_to)
+            ):
+                note_ids.append(row['id'])
+        return note_ids

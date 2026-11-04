@@ -110,7 +110,9 @@ CREATE TABLE boa_app_rds_data.eform_comments (
 CREATE TABLE boa_app_rds_data.eform_comments_search_index (
     parent_eform_id VARCHAR,
     boa_id INTEGER PRIMARY KEY,
-    fts_index tsvector
+    raw_text TEXT,
+    fts_index tsvector,
+    age_days NUMERIC
 );
 
 CREATE TABLE boac_advising_appointments.calendly_advising_appointments
@@ -1187,10 +1189,10 @@ VALUES
 
 
 CREATE MATERIALIZED VIEW sis_advising_notes.student_course_load_eforms_search_index AS (
-  SELECT student_course_load_eforms.id,
-    to_tsvector(
-      'english',
-      (((((((((COALESCE(student_course_load_eforms.academic_standing_description, ''::VARCHAR)::text || ' '::text) || student_course_load_eforms.request_type::text) || ' '::text) || student_course_load_eforms.request_type_description::text) || ' '::text) || student_course_load_eforms.eform_type::text) || ' '::text) || student_course_load_eforms.eform_id) || ' '::text) || student_course_load_eforms.eform_status::text
+  SELECT id, to_tsvector('english',
+      COALESCE(academic_standing_description, '') || ' ' ||
+      request_type || ' ' || request_type_description || ' ' ||
+      eform_type || ' ' || eform_id || ' ' || eform_status
     ) AS fts_index
   FROM sis_advising_notes.student_course_load_eforms
 );
@@ -1205,10 +1207,14 @@ VALUES
 ('eform-29', 'UGRD', 'Economics BA', '2020-12-10 00:00:00', NULL, 'UAMJ', 'Add Plan', 22633, 'Withdrawn', 'CPPSTACK', 'none', 'none', '25246U', 'Major', 'UCLS', 'Undergrad Letters & Science', '2168', '25201039', 'Pratcha Sananvatananont', NULL, NULL, ' ', NULL, ' ', ' ', NULL,'', NULL, ' ', NULL, NULL, '2020-12-10 00:00:00');
 
 CREATE MATERIALIZED VIEW sis_advising_notes.student_cpp_change_eforms_search_index AS (
-  SELECT student_cpp_change_eforms.id,
-    to_tsvector(
-      'english',
-      (((((((((((((((((COALESCE(student_cpp_change_eforms.academic_program_name, ''::VARCHAR)::text || ' '::text) || COALESCE(student_cpp_change_eforms.academic_plan_name, ''::VARCHAR)::text) || ' '::text) || COALESCE(student_cpp_change_eforms.academic_subplan_name, ''::VARCHAR)::text) || ' '::text) || COALESCE(student_cpp_change_eforms.to_academic_program_name, ''::VARCHAR)::text) || ' '::text) || COALESCE(student_cpp_change_eforms.to_academic_plan_name, ''::VARCHAR)::text) || ' '::text) || COALESCE(student_cpp_change_eforms.to_academic_subplan_name, ''::VARCHAR)::text) || ' '::text) || student_cpp_change_eforms.eform_type::text) || ' '::text) || student_cpp_change_eforms.eform_action_description::text) || ' '::text) || student_cpp_change_eforms.eform_id) || ' '::text) || student_cpp_change_eforms.eform_status::text
+  SELECT id, to_tsvector('english',
+      COALESCE(academic_program_name, '') || ' ' ||
+      COALESCE(academic_plan_name, '') || ' ' ||
+      COALESCE(academic_subplan_name, '') || ' ' ||
+      COALESCE(to_academic_program_name, '') || ' ' ||
+      COALESCE(to_academic_plan_name, '') || ' ' ||
+      COALESCE(to_academic_subplan_name, '') || ' ' ||
+      eform_type || ' ' || eform_action_description || ' ' || eform_id || ' ' || eform_status
     ) AS fts_index
   FROM sis_advising_notes.student_cpp_change_eforms
 );
@@ -1222,10 +1228,11 @@ VALUES
 ('eform-101', 'UGRD', 'PBHLTH 126', 'HEALTH ECONOMICS', '2020-04-15 00:00:00+00', '2021-09-01', 378785, 'Executed', 'SRLATEDROP', ' ', 'DefaultPNP', 'Late Drop', ' ', ' ', '0.00', 10589, '001', '11667051', 'Deborah Davies', '2202', '3', '2020-04-15 12:46:01+00');
 
 CREATE MATERIALIZED VIEW sis_advising_notes.student_late_drop_eforms_search_index AS (
-  SELECT student_late_drop_eforms.id,
-    to_tsvector(
-      'english',
-      (((((((((((((COALESCE(student_late_drop_eforms.grading_basis_description, ''::VARCHAR)::text || ' '::text) || COALESCE(student_late_drop_eforms.requested_grading_basis_description, ''::VARCHAR)::text) || ' '::text) || student_late_drop_eforms.course_display_name::text) || ' '::text) || student_late_drop_eforms.course_title::text) || ' '::text) || student_late_drop_eforms.requested_action::text) || ' '::text) || student_late_drop_eforms.eform_type::text) || ' '::text) || student_late_drop_eforms.eform_id) || ' '::text) || student_late_drop_eforms.eform_status::text
+  SELECT id, to_tsvector('english',
+      COALESCE(grading_basis_description, '') || ' ' ||
+      COALESCE(requested_grading_basis_description, '') || ' ' ||
+      course_display_name || ' ' || course_title || ' ' || requested_action || ' ' ||
+      eform_type || ' ' || eform_id || ' ' || eform_status
     ) AS fts_index
   FROM sis_advising_notes.student_late_drop_eforms
 );
@@ -1284,7 +1291,11 @@ CREATE TABLE sis_advising_notes.student_eforms AS (
 );
 
 CREATE MATERIALIZED VIEW sis_advising_notes.student_eforms_search_index AS (
-  SELECT id, to_tsvector('english', body) AS fts_index
+  SELECT
+    id,
+    body AS raw_text,
+    to_tsvector('english', body) AS fts_index,
+    GREATEST(EXTRACT(EPOCH FROM (now() - created_at)), 0) / 86400.0 AS age_days
   FROM sis_advising_notes.student_eforms
 );
 
