@@ -404,11 +404,11 @@ def mock_appointment_comment(app, db):
     )
     db.session.add(comment)
     std_commit(allow_test_environment=True)
-    refresh_loch_appointment_search_index(app, comment=comment)
+    refresh_loch_appointment_search_index(app, comments=[comment])
     yield comment
     comment.soft_delete()
     std_commit(allow_test_environment=True)
-    refresh_loch_appointment_search_index(app, deleted_comment=comment)
+    refresh_loch_appointment_search_index(app, deleted_comments=[comment])
 
 
 @pytest.fixture
@@ -451,13 +451,12 @@ def mock_searchable_appointment_comments(app, db):
             timestamp=datetime(2016, 6, 1, tzinfo=UTC),
         ),
     ]
-    for comment in comments:
-        refresh_loch_appointment_search_index(app, comment=comment)
+    refresh_loch_appointment_search_index(app, comments=comments)
     yield comments
     for comment in comments:
         comment.soft_delete()
-        std_commit(allow_test_environment=True)
-        refresh_loch_appointment_search_index(app, deleted_comment=comment)
+    std_commit(allow_test_environment=True)
+    refresh_loch_appointment_search_index(app, deleted_comments=comments)
 
 
 @pytest.fixture
@@ -485,13 +484,12 @@ def mock_searchable_eform_comments(app, db):
             timestamp=datetime(2019, 1, 1, tzinfo=UTC),
         ),
     ]
-    for comment in comments:
-        refresh_loch_eform_search_index(app, comment=comment)
+    refresh_loch_eform_search_index(app, comments=comments)
     yield comments
     for comment in comments:
         comment.soft_delete()
-        std_commit(allow_test_environment=True)
-        refresh_loch_eform_search_index(app, deleted_comment=comment)
+    std_commit(allow_test_environment=True)
+    refresh_loch_eform_search_index(app, deleted_comments=comments)
 
 
 @pytest.fixture

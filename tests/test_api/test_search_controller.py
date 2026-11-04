@@ -843,7 +843,7 @@ class TestAppointmentSearch:
             author_dept_codes=['COENG'],
             body='A pterodactyl has exceptional wingspan.',
         )
-        refresh_loch_appointment_search_index(app, comment)
+        refresh_loch_appointment_search_index(app, comments=[comment])
         try:
             fake_auth.login(coe_advisor_uid)
             api_json = _api_search(client, 'wingspan', appointments=True)
@@ -858,7 +858,7 @@ class TestAppointmentSearch:
             assert '<strong>wingspan</strong>' in result['snippet']
         finally:
             comment.soft_delete()
-            refresh_loch_appointment_search_index(app, deleted_comment=comment)
+            refresh_loch_appointment_search_index(app, deleted_comments=[comment])
 
 
 class TestEformSearch:
@@ -914,7 +914,7 @@ class TestEformSearch:
             author_dept_codes=['COENG'],
             body='A bougainvillea grows along the fence.',
         )
-        refresh_loch_eform_search_index(app, comment)
+        refresh_loch_eform_search_index(app, comments=[comment])
         try:
             fake_auth.login(coe_advisor_uid)
             api_json = _api_search(client, 'bougainvillea', eforms=True)
@@ -934,7 +934,7 @@ class TestEformSearch:
             assert '<strong>bougainvillea</strong>' in result['snippet']
         finally:
             comment.soft_delete()
-            refresh_loch_appointment_search_index(app, deleted_comment=comment)
+            refresh_loch_eform_search_index(app, deleted_comments=[comment])
 
     def test_search_eforms_comment_excludes_other_student(self, client, fake_auth, app):
         """Eform comment search filtered by student SID excludes comments on other students' eForms."""
@@ -947,7 +947,7 @@ class TestEformSearch:
             author_dept_codes=['COENG'],
             body='A frangipani blooms in summer.',
         )
-        refresh_loch_appointment_search_index(app, comment)
+        refresh_loch_eform_search_index(app, comments=[comment])
         try:
             fake_auth.login(coe_advisor_uid)
             # eform-10096 belongs to student 11667051; filtering for 9000000000 should return nothing
@@ -960,7 +960,7 @@ class TestEformSearch:
             assert api_json['eforms'] == []
         finally:
             comment.soft_delete()
-            refresh_loch_appointment_search_index(app, deleted_comment=comment)
+            refresh_loch_eform_search_index(app, deleted_comments=[comment])
 
 
 class TestAdmittedStudentSearch:

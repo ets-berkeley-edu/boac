@@ -109,36 +109,71 @@ def pause_mock_sts():
     finally:
         moto.mock_aws().start()
 
-def refresh_loch_appointment_search_index(app, comment=None, deleted_comment=None):
+def refresh_loch_appointment_search_index(app, comments=None, deleted_comments=None):
+    """Copy appointment comments into the loch's CDC tables and search index, or remove them, so search tests can find them."""
+    _refresh_loch_comment_search_index(
+        app,
+        comments_table='boa_app_rds_data.advising_appointment_comments',
+        search_index_table='boa_app_rds_data.advising_appointment_comments_search_index',
+        parent_id_column='parent_appointment_id',
+        comments=comments,
+        deleted_comments=deleted_comments,
+    )
+
+
+def refresh_loch_eform_search_index(app, comments=None, deleted_comments=None):
+    """Copy eForm comments into the loch's CDC tables and search index, or remove them, so search tests can find them."""
+    _refresh_loch_comment_search_index(
+        app,
+        comments_table='boa_app_rds_data.eform_comments',
+        search_index_table='boa_app_rds_data.eform_comments_search_index',
+        parent_id_column='parent_eform_id',
+        comments=comments,
+        deleted_comments=deleted_comments,
+    )
+
+
+def _refresh_loch_comment_search_index(
+        app,
+        comments_table,
+        search_index_table,
+        parent_id_column,
+        comments=None,
+        deleted_comments=None,
+):
+    # Appointment and eForm comments share one loch layout and differ only in table and parent-column names.
+    # Those names are hard-coded by the two public wrappers above, never taken from test input, so the f-strings are safe.
     from sqlalchemy import create_engine
     from sqlalchemy.sql import text
     engine = create_engine(app.config['DATA_LOCH_RDS_URI'])
     try:
         with engine.begin() as conn:
-            if comment:
-                parent_appointment = CommentParent.find_by_id(comment.comment_parent_id)
-                searchable_text = f"{comment.body or ''} {comment.author_name or ''}"
-                values = [{
-                    'parent_appointment_id': parent_appointment.parent_id,
-                    'boa_id': comment.id,
-                    'author_uid': comment.author_uid,
-                    'author_name': comment.author_name,
-                    'author_role': comment.author_role,
-                    'author_dept_codes': comment.author_dept_codes,
-                    'body': comment.body.replace("'", r"''") if comment.body else None,
-                    'created_at': comment.created_at,
-                    'updated_at': comment.updated_at,
-                    'searchable_text': searchable_text,
-                }]
-                sql = """INSERT INTO boa_app_rds_data.advising_appointment_comments
-                    (parent_appointment_id, boa_id, author_uid, author_name, author_role,
+            if comments:
+                values = []
+                for comment in comments:
+                    parent = CommentParent.find_by_id(comment.comment_parent_id)
+                    values.append({
+                        'parent_id': parent.parent_id,
+                        'boa_id': comment.id,
+                        'author_uid': comment.author_uid,
+                        'author_name': comment.author_name,
+                        'author_role': comment.author_role,
+                        'author_dept_codes': comment.author_dept_codes,
+                        'body': comment.body.replace("'", r"''") if comment.body else None,
+                        'created_at': comment.created_at,
+                        'updated_at': comment.updated_at,
+                        'searchable_text': f"{comment.body or ''} {comment.author_name or ''}",
+                    })
+                # age_days is computed from created_at at insert time, so callers must backdate comments before indexing them.
+                sql = f"""INSERT INTO {comments_table}
+                    ({parent_id_column}, boa_id, author_uid, author_name, author_role,
                     author_dept_codes, body, created_at, updated_at)
                   VALUES (
-                    :parent_appointment_id, :boa_id, :author_uid, :author_name, :author_role,
+                    :parent_id, :boa_id, :author_uid, :author_name, :author_role,
                     CAST(:author_dept_codes AS varchar[]), :body, :created_at, :updated_at)
                   ON CONFLICT (boa_id)
                   DO UPDATE SET
-                    parent_appointment_id = EXCLUDED.parent_appointment_id,
+                    {parent_id_column} = EXCLUDED.{parent_id_column},
                     author_uid = EXCLUDED.author_uid,
                     author_name = EXCLUDED.author_name,
                     author_role = EXCLUDED.author_role,
@@ -146,10 +181,10 @@ def refresh_loch_appointment_search_index(app, comment=None, deleted_comment=Non
                     body = EXCLUDED.body,
                     created_at = EXCLUDED.created_at,
                     updated_at = EXCLUDED.updated_at;
-                  INSERT INTO boa_app_rds_data.advising_appointment_comments_search_index
-                    (parent_appointment_id, boa_id, raw_text, fts_index, age_days)
+                  INSERT INTO {search_index_table}
+                    ({parent_id_column}, boa_id, raw_text, fts_index, age_days)
                   VALUES (
-                    :parent_appointment_id,
+                    :parent_id,
                     :boa_id,
                     :searchable_text,
                     TO_TSVECTOR('english', :searchable_text),
@@ -157,77 +192,23 @@ def refresh_loch_appointment_search_index(app, comment=None, deleted_comment=Non
                   )
                   ON CONFLICT(boa_id)
                   DO UPDATE SET
-                    parent_appointment_id = EXCLUDED.parent_appointment_id,
-                    fts_index = EXCLUDED.fts_index;"""
+                    {parent_id_column} = EXCLUDED.{parent_id_column},
+                    raw_text = EXCLUDED.raw_text,
+                    fts_index = EXCLUDED.fts_index,
+                    age_days = EXCLUDED.age_days;"""
                 conn.execute(text(sql), values)
-            if deleted_comment:
+            if deleted_comments:
                 params = {
-                    'delete_id': deleted_comment.id,
+                    'delete_ids': [comment.id for comment in deleted_comments],
                 }
-                sql = """DELETE FROM boa_app_rds_data.advising_appointment_comments
-                      WHERE boa_id = :delete_id;
-                    DELETE FROM boa_app_rds_data.advising_appointment_comments_search_index
-                      WHERE boa_id = :delete_id;"""
+                sql = f"""DELETE FROM {comments_table}
+                      WHERE boa_id = ANY(:delete_ids);
+                    DELETE FROM {search_index_table}
+                      WHERE boa_id = ANY(:delete_ids);"""
                 conn.execute(text(sql), params)
     finally:
-            engine.dispose()
+        engine.dispose()
 
-def refresh_loch_eform_search_index(app, comment=None, deleted_comment=None):
-    from sqlalchemy import create_engine
-    from sqlalchemy.sql import text
-    engine = create_engine(app.config['DATA_LOCH_RDS_URI'])
-    try:
-        with engine.begin() as conn:
-            if comment:
-                parent_eform = CommentParent.find_by_id(comment.comment_parent_id)
-                searchable_text = f"{comment.body or ''} {comment.author_name or ''}"
-                values = [{
-                    'parent_eform_id': parent_eform.parent_id,
-                    'boa_id': comment.id,
-                    'author_uid': comment.author_uid,
-                    'author_name': comment.author_name,
-                    'author_role': comment.author_role,
-                    'author_dept_codes': comment.author_dept_codes,
-                    'body': comment.body.replace("'", r"''") if comment.body else None,
-                    'created_at': comment.created_at,
-                    'updated_at': comment.updated_at,
-                    'searchable_text': searchable_text,
-                }]
-                sql = """INSERT INTO boa_app_rds_data.eform_comments
-                    (parent_eform_id, boa_id, author_uid, author_name, author_role,
-                    author_dept_codes, body, created_at, updated_at)
-                  VALUES (
-                    :parent_eform_id, :boa_id, :author_uid, :author_name, :author_role,
-                    CAST(:author_dept_codes AS varchar[]), :body, :created_at, :updated_at)
-                  ON CONFLICT (boa_id)
-                  DO UPDATE SET
-                    parent_eform_id = EXCLUDED.parent_eform_id,
-                    author_uid = EXCLUDED.author_uid,
-                    author_name = EXCLUDED.author_name,
-                    author_role = EXCLUDED.author_role,
-                    author_dept_codes = EXCLUDED.author_dept_codes,
-                    body = EXCLUDED.body,
-                    created_at = EXCLUDED.created_at,
-                    updated_at = EXCLUDED.updated_at;
-                  INSERT INTO boa_app_rds_data.eform_comments_search_index
-                    (parent_eform_id, boa_id, fts_index)
-                  VALUES (:parent_eform_id, :boa_id, TO_TSVECTOR('english', :searchable_text))
-                  ON CONFLICT(boa_id)
-                  DO UPDATE SET
-                    parent_eform_id = EXCLUDED.parent_eform_id,
-                    fts_index = EXCLUDED.fts_index;"""
-                conn.execute(text(sql), values)
-            if deleted_comment:
-                params = {
-                    'delete_id': deleted_comment.id,
-                }
-                sql = """DELETE FROM boa_app_rds_data.eform_comments
-                      WHERE boa_id = :delete_id;
-                    DELETE FROM boa_app_rds_data.eform_comments_search_index
-                      WHERE boa_id = :delete_id;"""
-                conn.execute(text(sql), params)
-    finally:
-            engine.dispose()
 
 def refresh_loch_note_search_index(app, notes=None, deleted_notes=None):
     from sqlalchemy import create_engine
@@ -389,6 +370,26 @@ def assert_search_filters_not_vacuous(filters, expected_keys_fn):
         filtered_keys = set(expected_keys_fn(**active_search_criteria(filters, (name,))))
         assert filtered_keys, f'Filter {name} matches nothing'
         assert filtered_keys < all_keys, f'Filter {name} excludes nothing'
+
+class ExpectedSearchResults:
+    """Base class for computing expected search results in Python, for comparison against the real search.
+
+    The filter-combination tests run hundreds of searches against fixture data that doesn't change mid-test.
+    Subclasses load the loch rows they need once, in __init__, and filter them in Python for each combination.
+    Lookups that depend on a filter value, such as full-text or topic matches, go through _cached() so that each
+    distinct value is queried only once. Create a new instance in each test, after fixtures have seeded the loch.
+    """
+
+    def __init__(self):
+        self._cache = {}
+
+    def _cached(self, name, *args, compute):
+        # Lists, such as department codes, become tuples so that they can be part of a dict key.
+        key = (name, *(tuple(arg) if isinstance(arg, list) else arg for arg in args))
+        if key not in self._cache:
+            self._cache[key] = compute()
+        return self._cache[key]
+
 
 def expected_fts_results(index_table, id_column, search_phrase, execute):
     """Return IDs matching the search phrase, or None when there is no phrase to match."""

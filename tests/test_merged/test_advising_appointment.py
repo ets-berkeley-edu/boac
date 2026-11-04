@@ -33,6 +33,7 @@ from boac.models.comment import Comment
 from boac.models.comment_parent import CommentParent
 from boac.models.university_dept import UniversityDept
 from tests.util import (
+    ExpectedSearchResults,
     assert_every_search_filter_combination,
     assert_search_filters_not_vacuous,
     expected_fts_results,
@@ -179,28 +180,31 @@ you got to pull up the intruder by the root of the weed; N.Y. Chew through the m
         assert appointments[3]['createdAt']
         assert appointments[3]['updatedAt'] is None
 
-    def test_search_advising_notes_ordered_by_relevance(self, app, db):
+    def test_search_appointments_ordered_by_relevance(self, app, db):
         """Ranks newer results higher but also prefers stronger text matches."""
         legacy_exact_match_id = '9100000000-00010'
-        with (
-            _create_appointment_comment(app, db, body='Art imitates life.') as exact_match,
-            _create_appointment_comment(app, db, body='Art imitates life.', created_at=datetime(2015, 11, 1, tzinfo=UTC)) as exact_match_old,
-            _create_appointment_comment(app, db, body='Life imitates art.', created_at=datetime(2026, 11, 1, tzinfo=UTC)) as loose_match,
-        ):
+        with _create_appointment_comments(app, db, [
+            {'body': 'Art imitates life.'},
+            {'body': 'Art imitates life.', 'created_at': datetime(2015, 11, 1, tzinfo=UTC)},
+            {'body': 'Life imitates art.', 'created_at': datetime(2026, 11, 1, tzinfo=UTC)},
+        ]) as (exact_match, exact_match_old, loose_match):
             results = search_advising_appointments(search_phrase='art imitates life')
             appointments = results['appointments']
             total_appointment_count = results['totalAppointmentCount']
             assert len(appointments) == 4
             assert total_appointment_count == 4
             assert appointments[0]['id'] == exact_match.id
+            assert appointments[0]['kind'] == 'commentOnAppointment'
             assert appointments[0]['snippet'] == '<strong>Art</strong> <strong>imitates</strong> <strong>life</strong>.'
             assert appointments[1]['id'] == legacy_exact_match_id
+            assert appointments[1]['kind'] == 'appointment'
             assert appointments[1]['detailsSnippet'] == '<strong>Art</strong> <strong>imitates</strong> <strong>life</strong>. Cancellation'
             assert appointments[2]['id'] == exact_match_old.id
+            assert appointments[2]['kind'] == 'commentOnAppointment'
             assert appointments[2]['snippet'] == '<strong>Art</strong> <strong>imitates</strong> <strong>life</strong>.'
             assert appointments[3]['id'] == loose_match.id
+            assert appointments[3]['kind'] == 'commentOnAppointment'
             assert appointments[3]['snippet'] == '<strong>Life</strong> <strong>imitates</strong> <strong>art</strong>.'
-
 
     def test_every_search_filter_combination(self, mock_searchable_appointment_comments, mock_legacy_ucbconversion_records):  # noqa: ARG002
         """Returns exactly the BOA comments and legacy appointments matching all active filters, for all 256 combinations."""
@@ -213,13 +217,13 @@ you got to pull up the intruder by the root of the weed; N.Y. Chew through the m
         assert_every_search_filter_combination(
             filters=APPOINTMENT_SEARCH_FILTERS,
             search=_search_advising_appointments,
-            expected_keys=_expected_appointment_ids,
+            expected_keys=_ExpectedAppointmentIds(),
             limit=SEARCH_RESULTS_LIMIT,
         )
 
     def test_search_filters_are_not_vacuous(self, mock_searchable_appointment_comments, mock_legacy_ucbconversion_records):  # noqa: ARG002
         """Each filter, applied alone, narrows the results and leaves at least one match."""
-        assert_search_filters_not_vacuous(APPOINTMENT_SEARCH_FILTERS, _expected_appointment_ids)
+        assert_search_filters_not_vacuous(APPOINTMENT_SEARCH_FILTERS, _ExpectedAppointmentIds())
 
 def _advisor_uids(department_codes, advisor_uid, advisor_sid):
     """Department codes, when present, take precedence over an individual advisor UID."""
@@ -239,88 +243,115 @@ def _advisor_uids(department_codes, advisor_uid, advisor_sid):
     return uids
 
 
-def _expected_appointment_ids(
-        search_phrase=None,
-        advisor_uid=None,
-        advisor_csid=None,
-        student_csid=None,
-        department_codes=None,
-        topic=None,
-        datetime_from=None,
-        datetime_to=None,
-):
-    boa_cdc = data_loch.boa_cdc_schema()
-    legacy_appts = data_loch.advising_appointments_schema()
-    advisor_uids = _advisor_uids(department_codes, advisor_uid, advisor_csid)
-    all_student_sids = {row['sid'] for row in data_loch.safe_execute_rds(f'SELECT sid FROM {data_loch.student_schema()}.student_profile_index')}
-    appointment_ids = []
+class _ExpectedAppointmentIds(ExpectedSearchResults):
+    """Expected appointment search results: loads comments and legacy appointments once, then filters them in Python per combination."""
 
-    comment_text_matches = expected_fts_results(
-        f'{boa_cdc}.advising_appointment_comments_search_index',
-        'boa_id',
-        search_phrase,
-        data_loch.safe_execute_rds,
-    )
-    comments = data_loch.safe_execute_rds(f"""
-        SELECT c.boa_id, c.parent_appointment_id, c.author_uid, c.updated_at, aa.student_sid
-          FROM {boa_cdc}.advising_appointment_comments c
-          JOIN {legacy_appts}.advising_appointments aa ON aa.id = c.parent_appointment_id""")
-    for row in comments:
-        if (
-            not topic  # Comments on appointments have no topics.
-            and (not comment_text_matches or row['boa_id'] in comment_text_matches)
-            and (not advisor_uids or row['author_uid'] in advisor_uids)
-            and (not student_csid or row['student_sid'] == student_csid)
-            and (row['student_sid'] in all_student_sids)
-            and in_date_range(row['updated_at'], datetime_from, datetime_to)
-        ):
-            appointment_ids.append(row['boa_id'])
+    def __init__(self):
+        super().__init__()
+        self.boa_cdc = data_loch.boa_cdc_schema()
+        self.legacy_schema = data_loch.advising_appointments_schema()
+        self.all_student_sids = {
+            row['sid'] for row in data_loch.safe_execute_rds(f'SELECT sid FROM {data_loch.student_schema()}.student_profile_index')
+        }
+        self.comments = data_loch.safe_execute_rds(f"""
+            SELECT c.boa_id, c.parent_appointment_id, c.author_uid, c.updated_at, aa.student_sid
+              FROM {self.boa_cdc}.advising_appointment_comments c
+              JOIN {self.legacy_schema}.advising_appointments aa ON aa.id = c.parent_appointment_id""")
+        self.appointments = data_loch.safe_execute_rds(f"""
+            SELECT id, student_sid, advisor_uid, advisor_sid, created_by, created_at, updated_at
+              FROM {self.legacy_schema}.advising_appointments""")
 
-    appointment_text_matches = expected_fts_results(
-        f'{legacy_appts}.advising_appointments_search_index',
-        'id',
-        search_phrase,
-        data_loch.safe_execute_rds,
-    )
-    topic_matches = get_topic_matches(f'{data_loch.advising_notes_schema()}.advising_note_topics_curated', topic, data_loch.safe_execute_rds)
-    appointments = data_loch.safe_execute_rds(f"""
-        SELECT id, student_sid, advisor_uid, advisor_sid, created_by, created_at, updated_at
-          FROM {legacy_appts}.advising_appointments""")
-    for row in appointments:
-        if (
-            (not appointment_text_matches or row['id'] in appointment_text_matches)
-            and (not topic_matches or row['id'] in topic_matches)
-            and legacy_advisor_match(row, advisor_uids, advisor_csid)
-            and (not student_csid or row['student_sid'] == student_csid)
-                        and (row['student_sid'] in all_student_sids)
-            and in_date_range(legacy_timestamp(row), datetime_from, datetime_to)
-        ):
-            appointment_ids.append(row['id'])
-    return appointment_ids
+    def __call__(
+            self,
+            search_phrase=None,
+            advisor_uid=None,
+            advisor_csid=None,
+            student_csid=None,
+            department_codes=None,
+            topic=None,
+            datetime_from=None,
+            datetime_to=None,
+    ):
+        advisor_uids = self._cached(
+            'advisor_uids', department_codes, advisor_uid, advisor_csid,
+            compute=lambda: _advisor_uids(department_codes, advisor_uid, advisor_csid),
+        )
+        appointment_ids = []
+
+        comment_text_matches = self._cached(
+            'comment_text', search_phrase,
+            compute=lambda: expected_fts_results(
+                f'{self.boa_cdc}.advising_appointment_comments_search_index',
+                'boa_id',
+                search_phrase,
+                data_loch.safe_execute_rds,
+            ),
+        )
+        for row in self.comments:
+            if (
+                not topic  # Comments on appointments have no topics.
+                and (not comment_text_matches or row['boa_id'] in comment_text_matches)
+                and (not advisor_uids or row['author_uid'] in advisor_uids)
+                and (not student_csid or row['student_sid'] == student_csid)
+                and (row['student_sid'] in self.all_student_sids)
+                and in_date_range(row['updated_at'], datetime_from, datetime_to)
+            ):
+                appointment_ids.append(row['boa_id'])
+
+        appointment_text_matches = self._cached(
+            'appointment_text', search_phrase,
+            compute=lambda: expected_fts_results(
+                f'{self.legacy_schema}.advising_appointments_search_index',
+                'id',
+                search_phrase,
+                data_loch.safe_execute_rds,
+            ),
+        )
+        topic_matches = self._cached(
+            'topic', topic,
+            compute=lambda: get_topic_matches(
+                f'{data_loch.advising_notes_schema()}.advising_note_topics_curated',
+                topic,
+                data_loch.safe_execute_rds,
+            ),
+        )
+        for row in self.appointments:
+            if (
+                (not appointment_text_matches or row['id'] in appointment_text_matches)
+                and (not topic_matches or row['id'] in topic_matches)
+                and legacy_advisor_match(row, advisor_uids, advisor_csid)
+                and (not student_csid or row['student_sid'] == student_csid)
+                and (row['student_sid'] in self.all_student_sids)
+                and in_date_range(legacy_timestamp(row), datetime_from, datetime_to)
+            ):
+                appointment_ids.append(row['id'])
+        return appointment_ids
 
 
 @contextmanager
-def _create_appointment_comment(
-    app,
-    db,
-    body,
-    created_at=None,
-):
+def _create_appointment_comments(app, db, comment_specs):
     comment_parent = CommentParent.find_or_create(parent_type='appointment', parent_id='11667051-00010')
-    comment = Comment.create(
-        author_uid='1133399',
-        author_name='COE Advisor',
-        author_role='advisor',
-        author_dept_codes=['COENG'],
-        comment_parent_id=comment_parent.id,
-        body=body,
-    )
-    if created_at:
-        comment.created_at = created_at
-    db.session.add(comment)
+    comments = []
+    for spec in comment_specs:
+        comment = Comment.create(
+            author_uid='1133399',
+            author_name='COE Advisor',
+            author_role='advisor',
+            author_dept_codes=['COENG'],
+            comment_parent_id=comment_parent.id,
+            body=spec['body'],
+        )
+        # Backdating must happen before indexing, because the loch search index derives age_days from created_at.
+        if spec.get('created_at'):
+            comment.created_at = spec['created_at']
+        db.session.add(comment)
+        comments.append(comment)
     std_commit(allow_test_environment=True)
-    refresh_loch_appointment_search_index(app, comment=comment)
-    yield comment
-    comment.soft_delete()
-    std_commit(allow_test_environment=True)
-    refresh_loch_appointment_search_index(app, deleted_comment=comment)
+    refresh_loch_appointment_search_index(app, comments=comments)
+    try:
+        yield comments
+    finally:
+        for comment in comments:
+            comment.soft_delete()
+        std_commit(allow_test_environment=True)
+        refresh_loch_appointment_search_index(app, deleted_comments=comments)

@@ -1336,7 +1336,7 @@ def search_advising(
 
 
 def search_eforms(
-    search_phrases=None,
+    search_phrase=None,
     student_csid=None,
     datetime_from=None,
     datetime_to=None,
@@ -1353,22 +1353,20 @@ def search_eforms(
     join_eforms = f'JOIN {sis_advising_notes_schema()}.student_eforms aa ON a.parent_eform_id = aa.id'
     join_students = f'JOIN {student_schema()}.student_profile_index spi ON student_sid = spi.sid'
     and_student_exists = f'AND EXISTS (SELECT 1 FROM {student_schema()}.student_profile_index spi WHERE spi.sid = student_sid)'
-    search_phrase = None
     join_comments_search_index = ''
     join_eform_search_index = ''
     criteria = ['TRUE']
     comment_criteria = []
     eform_criteria = []
 
-    if search_phrases:
-        # Append the prefix operator to each token individually
-        tokens_with_prefix = [f'{token}:*' for token in search_phrases]
-        search_phrase = ' & '.join(tokens_with_prefix)
-        criteria.append("idx.fts_index @@ plainto_tsquery('english', %(search_phrase)s)")
+    if search_phrase:
+        criteria.append("idx.fts_index @@ ts_queries.loose")
         join_comments_search_index += f"""
-              JOIN {boa_cdc_schema()}.eform_comments_search_index idx ON idx.boa_id = a.boa_id"""
+                  JOIN {boa_cdc_schema()}.eform_comments_search_index idx ON idx.boa_id = a.boa_id
+                  CROSS JOIN ts_queries"""
         join_eform_search_index += f"""
-              JOIN {sis_advising_notes_schema()}.student_eforms_search_index idx ON idx.id = a.id"""
+                  JOIN {sis_advising_notes_schema()}.student_eforms_search_index idx ON idx.id = a.id
+                  CROSS JOIN ts_queries"""
 
     if student_csid:
         criteria.append('student_sid = %(student_csid)s')
@@ -1386,7 +1384,8 @@ def search_eforms(
 
     def _build_query(search_phrase_cte, rank_column=None, count_only=False):
         if count_only:
-            return f"""SELECT (
+            with_text_queries = f'WITH {search_phrase_cte}' if search_phrase_cte else ''
+            return f"""{with_text_queries} SELECT (
                SELECT COUNT(*) AS count
                  FROM {eform_comments_table}
                   {join_eforms} {join_comments_search_index}
@@ -1399,9 +1398,10 @@ def search_eforms(
                   {and_student_exists}
             ) AS count"""
         else:
-            rank_col = "ts_rank(idx.fts_index, plainto_tsquery('english', %(search_phrase)s)) AS rank" if search_phrase else '0 as rank'
-            return f"""WITH candidates AS (
-           (SELECT 'boa' AS src, a.parent_eform_id AS id, a.boa_id, a.created_at, {rank_col}
+            text_queries = f'{search_phrase_cte},' if search_phrase_cte else ''
+            return f"""WITH {text_queries}
+          candidates AS (
+           (SELECT 'boa' AS src, a.parent_eform_id AS id, a.boa_id, a.created_at, {rank_column}
               FROM {eform_comments_table}
                   {join_eforms} {join_comments_search_index}
              WHERE {comments_match_criteria}
@@ -1409,7 +1409,7 @@ def search_eforms(
              ORDER BY rank DESC, a.created_at DESC, a.parent_eform_id, a.boa_id
              LIMIT %(offset)s + %(limit)s)
              UNION ALL
-           (SELECT 'legacy' AS src, a.id, NULL AS boa_id, a.created_at, {rank_col}
+           (SELECT 'legacy' AS src, a.id, NULL AS boa_id, a.created_at, {rank_column}
               FROM {eforms_table} {join_eform_search_index}
              WHERE {eforms_match_criteria}
                {and_student_exists}

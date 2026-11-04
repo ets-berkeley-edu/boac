@@ -23,6 +23,8 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import re
+
 from flask import current_app as app
 
 from boac.externals import data_loch
@@ -30,7 +32,6 @@ from boac.lib.sis_advising import resolve_sis_created_at, resolve_sis_updated_at
 from boac.lib.util import (
     get_benchmarker,
     join_if_present,
-    parse_search_phrases,
     search_result_text_snippet,
     to_iso_format,
 )
@@ -51,22 +52,7 @@ _EFORM_DISPLAY_TITLE_PREFIX_STRIP = (
     ('Late Change of Schedule Request eForm', frozenset({'Late', 'Change', 'Schedule', 'Request', 'eForm'})),
 )
 
-
-def parse_search_phrases_for_eforms(search_phrase):
-    """Drop label-only tokens when the query includes a known eForm display-title prefix."""
-    terms = parse_search_phrases(search_phrase)
-    if not terms:
-        return terms
-    phrase = str(search_phrase).replace('\u2013', ' ').replace('\u2014', ' ').lower()
-    strip_tokens = set()
-    for prefix, tokens in _EFORM_DISPLAY_TITLE_PREFIX_STRIP:
-        if prefix.lower() in phrase:
-            strip_tokens |= tokens
-    if not strip_tokens:
-        return terms
-    stripped = [term for term in terms if term not in strip_tokens]
-    return stripped or terms
-
+_DASHES = re.compile('[\u2013\u2014]')
 
 def search_advising_eforms(
     search_phrase,
@@ -80,14 +66,12 @@ def search_advising_eforms(
 ):
     benchmark = get_benchmarker('search_advising_eforms')
     benchmark('begin')
-
-    search_terms = parse_search_phrases_for_eforms(search_phrase)
     advisor_uid = get_uid_for_csid(app, advisor_csid) if (not advisor_uid and advisor_csid) else advisor_uid
     fetch_limit = offset + limit
 
     benchmark('begin loch eforms query')
     loch_results = data_loch.search_eforms(
-        search_phrases=search_terms,
+        search_phrase=search_phrase,
         student_csid=student_csid,
         datetime_from=datetime_from,
         datetime_to=datetime_to,
@@ -123,6 +107,7 @@ def _get_loch_eforms_search_results(loch_rows, search_phrase):
     results = []
     if not loch_rows:
         return results
+    clean_search_phrase = _strip_labels_and_dashes(search_phrase)
     for eform_row in loch_rows:
         is_comment = eform_row.get('boa_id')
         if is_comment:
@@ -141,7 +126,7 @@ def _get_loch_eforms_search_results(loch_rows, search_phrase):
             'id': eform_id,
             'type': eform_type,
             'createdAt': resolve_sis_created_at(eform_row),
-            'snippet': search_result_text_snippet(summary, search_phrase),
+            'snippet': search_result_text_snippet(summary, clean_search_phrase),
             'student': {
                 'sid': eform_row['student_sid'],
                 'uid': eform_row['student_uid'],
@@ -158,3 +143,19 @@ def _get_loch_eforms_search_results(loch_rows, search_phrase):
             }
         results.append(result)
     return results
+
+def _strip_labels_and_dashes(search_phrase):
+    """Drop label-only tokens when the query includes a known eForm display-title prefix."""
+    if not search_phrase or not str(search_phrase).strip():
+        return ''
+    phrase = _DASHES.sub(' ', str(search_phrase))
+    lowered = phrase.lower()
+    strip_tokens = set()
+    for prefix, tokens in _EFORM_DISPLAY_TITLE_PREFIX_STRIP:
+        if prefix.lower() in lowered:
+            strip_tokens |= tokens
+    if not strip_tokens:
+        return phrase.strip()
+    pattern = r'\b(?:' + '|'.join(sorted(re.escape(t) for t in strip_tokens)) + r')\b'
+    stripped = ' '.join(re.sub(pattern, ' ', phrase, flags=re.IGNORECASE).split())
+    return stripped or phrase.strip()
