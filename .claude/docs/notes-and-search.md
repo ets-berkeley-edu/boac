@@ -72,12 +72,12 @@ The "new note" flow has no create endpoint. It always starts as a draft. Peer ad
 | `notes` | `create` | `_create_notes()` (all non-draft creates) and `Note.update()` when publishing a draft |
 | `notes` | `update` | `Note.update()` (non-draft), `Note.update_subject()` |
 | `notes` | `delete` | `Note.delete()` (non-draft) |
-| `note_topics` | `create` / `update` | `_add_topics_to_notes()`, `Note._update_note_topics()` (BOAC-6794: when a draft is published, its existing topics are queued as `create`) |
-| `comments` | `create` / `update` / `delete` | `Comment.create()`, `Comment.update()`, `Comment.soft_delete()` (BOAC-6797) |
+| `note_topics` | `create` / `update` | `_add_topics_to_notes()`, `Note._update_note_topics()`. When a draft is published, its existing topics are queued as `create` |
+| `comments` | `create` / `update` / `delete` | `Comment.create()`, `Comment.update()`, `Comment.soft_delete()` |
 
 `Comment.to_sqs_json()` sends `comment_parent_id` set to the **loch parent id** (`CommentParent.parent_id`), not the `comment_parents` row id, and adds `parent_type`.
 
-The consumer (the "CDC handler") is not in this repo (where it runs is unverified). Based on the fixture DDL in `fixtures/loch/loch.sql`, it maintains these tables in the loch schema named by `DATA_LOCH_BOA_CDC_SCHEMA` (default `boa_app_rds_data`):
+The consumer (the "CDC handler") is not in this repo. Based on the fixture DDL in `fixtures/loch/loch.sql`, it maintains these tables in the loch schema named by `DATA_LOCH_BOA_CDC_SCHEMA` (default `boa_app_rds_data`):
 
 - `advising_notes`, with `id` like `'boa-<n>'` and `boa_id` the integer note id (inferred)
 - `advising_notes_search_index`, with columns `raw_text`, `fts_index`, and `age_days`
@@ -86,7 +86,7 @@ The consumer (the "CDC handler") is not in this repo (where it runs is unverifie
 - `advising_appointment_comments` and its `_search_index`
 - `eform_comments` and its `_search_index`
 
-**History.** BOA used to keep its own `notes_fts_index` and `advisor_author_index` materialized views, refreshed by a background job. BOAC-6791 removed that job (and `boac/lib/background.py`) and the `/api/admin/reindex/notes` endpoint. BOAC-6790 dropped the views; the migration is `scripts/db/migrate/2026/20261008-BOAC-6790/`.
+BOA keeps no search index of its own. There's no materialized view, background reindex job, or reindex endpoint; search reads only the loch tables above.
 
 ### Read path
 
@@ -95,8 +95,8 @@ The consumer (the "CDC handler") is not in this repo (where it runs is unverifie
 - **Notes:** `_notes_search()` → `search_advising_notes()` (`boac/merged/advising_search.py`) → `data_loch.search_advising_notes()`. This runs a UNION of BOA CDC notes and legacy `boac_advising_notes.advising_notes`, each joined to its `advising_notes_search_index`. Rank = exact `ILIKE` bonus (10) + `phraseto_tsquery` bonus (5) + `ts_rank_cd(websearch_to_tsquery)`, multiplied by a recency decay (half-life 365 days, weight 0.8).
   - Filters: `topic`, advisor (`advisorUid`/`advisorCsid`, or `departmentCodes` resolved to UIDs from `boac` dept tables), `studentCsid`, and dates.
   - Results with an id starting `boa-` are parsed as local notes in `_parse_note_search_results()`.
-- **Appointments:** `_appointments_search()` → `advising_appointment.search_advising_appointments()` → `data_loch.search_advising_appointments()`. This is a UNION of `boa_app_rds_data.advising_appointment_comments` with the loch `advising_appointments` and their search indexes (BOAC-6746). Appointments are skipped when a top-level `departmentCodes` param is present.
-- **eForms:** `_eform_search()` → `advising_eform.search_advising_eforms()` → `data_loch.search_eforms()`. This is a UNION of `eform_comments` with `sis_advising_notes.student_eforms` (BOAC-6805). Results have `kind` set to `eform` or `commentOnEform`.
+- **Appointments:** `_appointments_search()` → `advising_appointment.search_advising_appointments()` → `data_loch.search_advising_appointments()`. This is a UNION of `boa_app_rds_data.advising_appointment_comments` with the loch `advising_appointments` and their search indexes. Appointments are skipped when a top-level `departmentCodes` param is present.
+- **eForms:** `_eform_search()` → `advising_eform.search_advising_eforms()` → `data_loch.search_eforms()`. This is a UNION of `eform_comments` with `sis_advising_notes.student_eforms`. Results have `kind` set to `eform` or `commentOnEform`.
 - All three go through `data_loch.search_advising()`, which runs a COUNT query first (and skips the page query when the count is 0), then a paged `candidates`/`page` CTE. `limit` is capped at 150.
 - **Peer advising search:** `POST /api/search/peer_advising_notes` → `search_advising_notes(peer_advising_department_id=...)` → `data_loch.search_peer_advising_notes()`. It returns note ids, then reloads the full ORM `Note` objects and their comments from the `boac` DB with `Note.find_peer_notes_and_comments_by_ids()`, because the frontend edits them directly.
 - **Advisor autocomplete:** `GET /api/search/advisors/find_by_name` → `match_local_note_authors_by_name()` (CDC `advising_note_authors_index`), plus legacy note authors and appointment advisors.
@@ -106,7 +106,7 @@ The consumer (the "CDC handler") is not in this repo (where it runs is unverifie
 
 - **Upload:** `put_attachment_to_s3()` in `boac/lib/util.py` writes to bucket `DATA_LOCH_S3_ADVISING_NOTE_BUCKET` under `DATA_LOCH_S3_BOA_NOTE_ATTACHMENTS_PATH/YYYY/MM/DD/YYYYMMDD_HHMMSS_<filename>`. `get_attachment_filename()` strips that timestamp prefix for display.
 - **Download:** `GET /api/notes/attachment/<id>` (`download_attachment`) streams the file through `s3.stream_object()`. Non-integer ids are legacy SIS or EOP attachments (`_get_legacy_attachment_stream`).
-- **Allowed types:** an *allowlist*, not an exclude list (BOAC-6788). It is `NOTES_ATTACHMENTS_ALLOWED_TYPES` in `config/default.py`, grouped by label (documents, txt/csv, images, eml).
+- **Allowed types:** an *allowlist*, not an exclude list. It is `NOTES_ATTACHMENTS_ALLOWED_TYPES` in `config/default.py`, grouped by label (documents, txt/csv, images, eml).
   - The server checks it in `get_note_attachments_from_http_post()` (`boac/api/util.py`) and returns 400 when a file has no extension or a disallowed one.
   - The list is exposed to the frontend as `allowedAttachmentTypes` (`boac/api/config_controller.py`) and checked there by `isAllowedAttachmentType()` in `src/lib/note.ts`.
 - **Limit:** at most `NOTES_ATTACHMENTS_MAX_PER_NOTE` (10) attachments per note.

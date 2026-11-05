@@ -73,7 +73,7 @@ Admit data also flows through endpoints owned by other features:
 
 - An admit and an enrolled student are the same person when `student_admits.cs_empl_id` equals `student_profile_index.sid`. The left join in `data_loch.get_admitted_students_by_sids()` returns that student's `uid` as `studentUid`, or `null` if there's no match (tested in `tests/test_merged/test_admitted_student.py`).
 - `studentUid` is different from the admit's own `uid` column, which comes from OUA.
-- The link is one-way. `AdmitStudent.vue` shows "View <name>'s profile page" (`studentRoutePath(studentUid)`) when `studentUid` is set. The student profile page doesn't link back to the admit record.
+- The link is one-way. `AdmitStudent.vue` shows "View <name>'s profile page" (`studentRoutePath(admit.studentUid, currentUser.inDemoMode)`) when `studentUid` is set. The student profile page doesn't link back to the admit record.
 - Admits and enrolled students never mix in one list. A curated group or cohort has one domain, and general search (`/api/search`) doesn't return admits.
 
 ## Frontend
@@ -115,7 +115,7 @@ Admit data also flows through endpoints owned by other features:
 - **Search returns at most 50.** `totalAdmitCount` is the full count, but `admits` is the first 50 in server order. `SortableAdmits` re-sorts only those rows.
 - **Large limits are dropped.** `query_admitted_students` adds `LIMIT` only when `limit < 100`, so `limit=100` or more returns every row after `offset`.
 - **`@ce3_required` on a helper.** `_response_with_admits_csv_download` is not a route, but it's decorated, so a non-CE3 user who reaches it gets a 401 from `login_manager.unauthorized()` rather than a CSV.
-- **Status codes differ by path.** Admit endpoints return 401, `validate_sids` returns 403, and the cohort CSV endpoints return 404 for an unauthorized admit domain.
+- **Status codes differ by path.** Admit endpoints return 401, `validate_sids` returns 403, `/api/cohort_csv/download_per_filters` returns 404, and `/api/cohort_csv/download` on a saved admit cohort returns 401 from the `@ce3_required` CSV helper (see `.claude/docs/csv-exports.md`).
 - **Name search is prefix-only.** Each search word must match the start of a `student_admit_names` row (`LIKE 'WORD%'`). A fragment from the middle of a name finds nothing.
 - **`AdmittedStudentResults.vue` isn't used.** `SearchResults.vue` renders the admit tab itself. Change the inline markup there.
 - **Admit data is sensitive.** The profile and CSV include birthdate, home address, phone, income, citizenship, and ethnicity. Never copy fixture values into code, tests, or docs, and never log them.

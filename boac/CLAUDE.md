@@ -60,7 +60,7 @@ Raise the classes in `boac/api/errors.py`. The handlers in `boac/api/error_handl
 - **Never build SQL by interpolating request values** (f-strings, `%`, `+`). Always pass them as bound parameters.
 - **Commit with `std_commit()`** from `boac/__init__.py`, not `db.session.commit()`. In tests it only flushes, so each test's changes roll back.
 - **Soft delete is the norm.** Most tables have `deleted_at`. Filter it in queries, and set it rather than deleting rows unless the existing model hard-deletes.
-- **Notes, topics, and comments feed search.** If you change how they're written, read `.claude/docs/notes-and-search.md`. Every write path must also call `sqs.send`.
+- **Notes, note topics, and comments feed search.** They reach the data loch only through SQS change messages, so every write path must also call `sqs.send` (see `boac/models/note.py` and `comment.py`). If you change how they're written, read `.claude/docs/notes-and-search.md`.
 - **Schema changes** follow `scripts/db/CLAUDE.md`.
 
 ## Caching
@@ -79,7 +79,7 @@ Raise the classes in `boac/api/errors.py`. The handlers in `boac/api/error_handl
 
 - New settings go in `config/default.py` with a safe default, and are read with `app.config['NAME']`.
 - Secrets get a placeholder or `None` in `config/default.py`. Real values come from local or deployed config, never from the repo.
-- Don't read or print the contents of `config/*-local.py` or `BOAC_LOCAL_CONFIGS`.
+- Don't read or print the contents of `config/*-local.py`, `config/*.json`, or `BOAC_LOCAL_CONFIGS`. See `config/CLAUDE.md` for how config is loaded and how to add a setting.
 
 ## Python style
 

@@ -26,7 +26,7 @@ Supported `--browser` values: `chrome`, `firefox`, `safari` (Safari is headless-
 
 | Setting | Purpose |
 |---|---|
-| `BASE_URL` | BOA instance under test (default: `https://boa-qa.berkeley.edu`) |
+| `BASE_URL` | BOA instance under test (default: `https://qa.boa.berkeley.edu`) |
 | `BROWSER` / `BROWSER_BINARY_PATH` | Browser selection and Chrome binary location |
 | `BROWSER_HEADLESS` | Default headless flag (overridden by `--headless` CLI arg) |
 | `TIMEOUT_SHORT/MEDIUM/LONG` | Selenium `WebDriverWait` timeouts (seconds) |
@@ -50,7 +50,7 @@ assets/         — Sample files used in attachment upload tests
 ### Page Object Model (`pages/`)
 
 - `page.py` — `Page` base class: wraps Selenium `find_element`, `WebDriverWait`, `ActionChains`, etc.
-- All page classes inherit from `Page` (and mix in domain-specific base classes like `BоaPages`, `StudentPageTimeline`).
+- All page classes inherit from `Page` (and mix in domain-specific base classes like `BoaPages`, `StudentPageTimeline`).
 - Locators are defined as class-level tuples: `FOO_BUTTON = (By.ID, 'foo-btn')`.
 - Page classes never contain assertions; they expose action and query methods that tests call.
 

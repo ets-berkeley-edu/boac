@@ -101,7 +101,7 @@ Units come from SIS at create time and aren't re-synced. `sis.units` is returned
 
 - `authorized_users.degree_progress_permission` is `'read' | 'read_write' | NULL`. Admins are forced to `read_write` in `UserSession`.
 - The value is kept only for users in `COENG` (`_update_or_create_authorized_user` in `boac/api/user_controller.py`).
-- **Nightly refresh** (`refresh_department_memberships` → `_get_degree_progress_permissions` in `boac/api/cache_utils.py`):
+- **Refresh job** (`refresh_department_memberships` → `_get_degree_progress_permissions` in `boac/api/cache_utils.py`):
   - The value comes from `data_loch.get_advisor_uids_for_affiliations`: `UCOE` gives `read`, upgraded to `read_write` if the dept is `EDESS`/`EDDNO` or the advisor type is `DNDS`.
   - It's applied only when `automate_degree_progress_permission` is true. That flag defaults to `dept_code == 'COENG'` for new users.
 - Locking a student check (archive) needs admin or director. This is checked server-side and mirrored by the toggle in `StudentDegreeCheckHeader.vue`.

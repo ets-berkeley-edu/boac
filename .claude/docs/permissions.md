@@ -24,7 +24,7 @@ BOA authorization has two parts. **Who you are** is an `authorized_users` row pl
 - `university_dept_members(university_dept_id, authorized_user_id, role, automate_membership)`.
 - `role` is the ENUM `university_dept_member_role_types`: `'advisor' | 'director'`. New memberships default to `'advisor'` (`create_or_update_membership`).
 - Rows with `automate_membership=True` are deleted and rebuilt by `refresh_department_memberships()` (`boac/api/cache_utils.py`) from `data_loch.get_user_permissions_per_affiliations()`. `UniversityDept.delete_automated_members()` also soft-deletes any non-admin user left with no department or peer advising membership. Rows with `automate_membership=False` are managed by hand (admin UI, `POST /api/user/dept_membership/add`).
-- There is **no "scheduler" role** any more. The `schedulers` table and `is_scheduler` column were dropped in `scripts/db/migrate/2024/20240122-BOAC-5013/`.
+- There is **no "scheduler" role.** Older migrations mention a `schedulers` table and an `is_scheduler` column, but neither exists in the current schema.
 
 ### Peer advising roles — `boac/models/peer_advising_department_member.py`
 
@@ -37,7 +37,7 @@ BOA authorization has two parts. **Who you are** is an `authorized_users` row pl
 
 ### `authorized_user_extension.py`
 
-`AuthorizedUserExtension` and `Advisor` are `__abstract__` and have no concrete subclass in `boac/` (unverified: looks like a leftover). Don't build new permission logic on them.
+`AuthorizedUserExtension` and `Advisor` are `__abstract__`, and nothing in `boac/` or `tests/` subclasses or imports them. Don't build new permission logic on them.
 
 ## Authentication
 
@@ -128,7 +128,7 @@ Router guards (`beforeEnter` in `src/router.ts`) send unauthenticated users to l
 - `/analytics/:deptCode`: `isDirector || isAdmin`, matching `admin_or_director_required`.
 - `/admit/students`, `/admit/student/:sid`: admin, or `getDeptCodesPerRoles(user, ['advisor','director']).includes('ZCEEE')`, matching `ce3_required`.
 - Degree routes (`/degrees`, `/degree/:id`, ...): `$_requiresDegreeProgress` checks `currentUser.canReadDegreeProgress`, matching `can_read_degree_progress`.
-- `/home`, `/profile`, and `/404`: peer advisors are redirected to `/peer_advisor${path}`.
+- `/home`, `/profile`, `/error`, `/404`, and any unmatched path (the last `StandardLayout` route group in `src/router.ts`): peer advisors are redirected to `/peer_advisor${fullPath}`.
 
 Component-level flags:
 
@@ -178,7 +178,7 @@ Component-level flags:
 - **The API key doesn't work alone on peer decorators.** In `advisor_or_peer_advisor_required` and the five `peer_advisor*` decorators, `_api_key_ok()` sits *inside* `current_user.is_authenticated and (...)`, so a request with only the key gets 401.
 - **401 vs 403.** Decorators return **401**; inline checks usually raise `ForbiddenRequestError` (**403**, `boac/api/error_handlers.py`). Tests assert specific codes.
 - **The session is cached.** `UserSession.load_user` uses `@stow`, so DB changes to roles or flags are invisible until the cache is flushed (`flush_cached_user_session`, or a login with `flush_cached=True`).
-- **Two different CE3 checks.** The session's `canAccessAdmittedStudents` / `canAccessPrivateNotes` are true for *any* ZCEEE membership, including merged-in peer advising memberships. `ce3_required` and `is_unauthorized_domain` require an advisor or director role in ZCEEE. So a ZCEEE peer advisor may see a true flag in the UI but get 401/403 from the API (unverified whether this is intended).
+- **Two different CE3 checks.** The session's `canAccessAdmittedStudents` / `canAccessPrivateNotes` (`UserSession._get_api_json`) are true for admins and for *any* ZCEEE membership, including merged-in peer advising memberships. `ce3_required` and `is_unauthorized_domain` require an advisor or director role in ZCEEE. So a ZCEEE peer advisor can see a true flag in the UI and still get 401/403 from the API. Gate CE3 API access on the decorator, not the session flag.
 - **`can_access_admitted_students(user)`** (`boac/api/util.py`) reads `current_user` for the role check, not its argument.
 - **Admins are not "advisors".** `create_draft_note` rejects admins, and `isAdvisor()` is false for an admin with no departments.
 - **`advisor_required` doesn't check `is_authenticated`.** It relies on the anonymous `UserSession` having no departments.

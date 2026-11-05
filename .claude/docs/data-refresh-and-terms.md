@@ -103,7 +103,7 @@ A **term ID** is a 4-character string: century digit (`1` = 19xx, `2` = 20xx), t
 
 ## Health check (`boac/api/status_controller.py`)
 
-`GET /api/ping` has no auth decorator. It always returns 200 with `{app: true, db, data_loch, sqs}`. `db` runs `SELECT 1` on the BOA database, `data_loch` runs `SELECT 1` through `safe_execute_rds`, and `sqs` is `sqs_status()`, which only builds a boto client and doesn't call SQS. Check the booleans, not the status code. (`config.pingFrequency` in the frontend drives `/api/user/session_keep_alive`, not `/api/ping`.)
+`GET /api/ping` has no auth decorator. It returns 200 with `{app: true, db, data_loch, sqs}`. `db` runs `SELECT 1` on the BOA database, `data_loch` runs `SELECT 1` through `safe_execute_rds`, and `sqs` is `sqs_status()`, which assumes the app's AWS role through STS and builds an SQS client without calling SQS. Check the booleans, not the status code. (`config.pingFrequency` in the frontend drives `/api/user/session_keep_alive`, not `/api/ping`.)
 
 ## Tests
 
