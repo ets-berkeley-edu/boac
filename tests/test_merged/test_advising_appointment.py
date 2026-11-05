@@ -132,8 +132,7 @@ you got to pull up the intruder by the root of the weed; N.Y. Chew through the m
         assert appointments[0]['updatedAt'] is None
 
         assert appointments[1]['id'] == mock_appointment_comment.id
-        assert appointments[1]['parentType'] == 'appointment'
-        assert appointments[1]['parentId'] == '11667051-00010'
+        assert appointments[1]['parent']['id'] == '11667051-00010'
         assert appointments[1]['advisor']['name'] == 'COE Advisor'
         assert appointments[1]['advisor']['role'] == 'advisor'
         assert appointments[1]['advisor']['sid'] == '53791'
