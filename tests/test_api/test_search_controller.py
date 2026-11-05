@@ -853,8 +853,7 @@ class TestAppointmentSearch:
             assert len(comment_results) == 1
             result = comment_results[0]
             assert result['student']['sid'] == '11667051'
-            assert result['parentType'] == 'appointment'
-            assert result['parentId'] == '11667051-00010'
+            assert result['parent']['id'] == '11667051-00010'
             assert '<strong>wingspan</strong>' in result['snippet']
         finally:
             comment.soft_delete()
@@ -925,12 +924,12 @@ class TestEformSearch:
             assert result['student']['sid'] == '11667051'
             assert result['type'] == 'late_drop_eform'
             assert result['id'] == comment.id
-            assert result['comment']
-            assert result['comment']['parentEformId'] == 'eform-10096'
-            assert result['comment']['advisor']['uid'] == coe_advisor_uid
-            assert result['comment']['advisor']['name'] == 'COE Advisor'
-            assert result['comment']['advisor']['role'] == 'advisor'
-            assert result['comment']['advisor']['departments'][0]['deptCode'] == 'COENG'
+            assert result['parent']
+            assert result['parent']['id'] == 'eform-10096'
+            assert result['parent']['advisor']['uid'] == coe_advisor_uid
+            assert result['parent']['advisor']['name'] == 'COE Advisor'
+            assert result['parent']['advisor']['role'] == 'advisor'
+            assert result['parent']['advisor']['departments'][0]['deptCode'] == 'COENG'
             assert '<strong>bougainvillea</strong>' in result['snippet']
         finally:
             comment.soft_delete()

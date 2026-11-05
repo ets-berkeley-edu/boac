@@ -225,8 +225,6 @@ def _parse_appointment_comment_search_result(row, advisor_feed, search_phrase):
     return {
         'kind': 'commentOnAppointment',
         'id': row.get('boa_id'),
-        'parentType': 'appointment',
-        'parentId': parent_appointment_id,
         'advisor': {
             'deptCodes': advisor_dept_codes,
             'name': advisor_name,
@@ -244,7 +242,7 @@ def _parse_appointment_comment_search_result(row, advisor_feed, search_phrase):
             'sid': row.get('student_sid'),
         },
         'rank': row.get('rank'),
-        'appointment': {
+        'parent': {
             'id': parent_appointment_id,
         },
     }
