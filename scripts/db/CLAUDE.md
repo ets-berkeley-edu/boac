@@ -34,4 +34,4 @@ pytest tests/test_models
 
 Nothing automatically checks that the migration produces the same result as `schema.sql`. Read them side by side before calling the change done.
 
-`schema.sql` has already drifted in places, e.g. the `degree_progress_courses` unique constraint still reflects the version before BOAC-4199, and the BOAC-6781 foreign-key indexes are missing. Before relying on a constraint or index in `schema.sql`, check the later migrations for the same table. Don't fix unrelated drift as part of another change; mention it to the developer instead.
+`schema.sql` has already drifted in places, e.g. the `degree_progress_courses` unique constraint still uses `display_name` instead of the `manually_created_at` / `manually_created_by` columns from `migrate/2021/20210727-BOAC-4199`, and `degree_progress_category_unit_requirements_category_id_idx` from `migrate/2026/20260819-BOAC-6781` is missing. Before relying on a constraint or index in `schema.sql`, check the later migrations for the same table. Don't fix unrelated drift as part of another change; mention it to the developer instead.

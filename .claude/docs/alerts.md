@@ -62,7 +62,7 @@ GET /api/admin/cachejob/refresh  (@admin_required; scripts/refresh_current_term_
       → (current term only) ... load_filtered_cohort_counts()  # resets every cohort's sids/student_count/alert_count and recomputes for the owner
 ```
 
-- BOA has no in-app scheduler. Something outside BOA calls the endpoint or script on a schedule (where that cron lives is unverified).
+- BOA has no in-app scheduler. Something outside this repo calls the endpoint or `scripts/refresh_current_term_cache.sh` on a schedule. No cron entry is defined in `.ebextensions` or `.platform`.
 - **Reactivation, not recreation.** `create_or_activate()` looks up the most recently updated row with the same `(sid, alert_type, key)` and reuses it (clears `deleted_at`, sets the new `message`) when either:
   - the row was updated in the last **2 hours**, meaning it was deactivated earlier in this same run, or
   - `force_use_existing=True` is passed (academic standing does this).

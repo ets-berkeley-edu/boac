@@ -13,7 +13,7 @@ These apply to every task in this repo.
 - **Never commit or push.** Make changes in the working tree and leave them uncommitted. The developer reviews and commits all work. If a task seems to call for a commit, stop and say so instead.
 - **Accessibility is required: WCAG 2.2 AA.** Every frontend change must meet it. Treat accessibility as part of the change, not a follow-up. See `src/CLAUDE.md` for the specific rules and BOA's existing helpers.
 - **Protect student data.** BOA handles FERPA-protected records, and this repo is public. Never put real student IDs (SIDs), names, grades, note text, or other personal data into code, fixtures, tests, logs, comments, or docs. Use synthetic values like the existing fixtures do. Never log secrets, tokens, or personal data.
-- **Never read or copy local config overrides** (`config/*-local.py`, `.env*.local`, or anything under `BOAC_LOCAL_CONFIGS`). They can hold credentials.
+- **Never read or copy local config overrides** (`config/*-local.py`, `config/*.json`, `.env*.local`, or anything under `BOAC_LOCAL_CONFIGS`). They can hold credentials. See `config/CLAUDE.md`.
 - **Comment the code you write.** Add comments wherever they help the next reader understand intent: why the code exists, a non-obvious decision, or how a piece fits into the larger flow. Write them in plain, complete sentences. Aim for one or two sentences: long enough to be clear, short enough to skim. Don't restate what the code literally does.
 - **Keep the guidance current.** If a change alters how something described in a `CLAUDE.md` file or a `.claude/docs/` doc works (a table, an endpoint's access rules, a flow, a convention), update that doc in the same change. If you notice a doc is already wrong, fix it or tell the developer. Don't leave it stale. Docs should describe how the code works now, not its history or known bugs.
 - **Run the checks before you call work done.** When you finish a change, run all three and fix anything they report:
@@ -88,7 +88,7 @@ Two PostgreSQL databases:
 
 ### Configuration
 
-Config files live in `config/` (`default.py`, `development.py`, `test.py`). The `BOAC_ENV` environment variable selects the config. Tests set `BOAC_ENV=test` automatically. A `BOAC_LOCAL_CONFIGS` env var can point to an encrypted volume with local overrides.
+Config files live in `config/` (`default.py`, `development.py`, `test.py`, and `bea.py` for the BEA browser tests). See `config/CLAUDE.md`. The `BOAC_ENV` environment variable selects the config. Tests set `BOAC_ENV=test` automatically. A `BOAC_LOCAL_CONFIGS` env var can point to an encrypted volume with local overrides.
 
 ### Testing approach
 
@@ -136,3 +136,7 @@ Background on specific areas of BOA. Read the relevant doc before changing code 
 - `.claude/docs/course-page.md` — the course (class section) page: its endpoint, the roster and Canvas data behind it, and how users reach it.
 - `.claude/docs/admin-and-users.md` — managing BOA users and department memberships, the admin pages, service announcements, admin reports, and the config endpoint.
 - `.claude/docs/data-refresh-and-terms.md` — the cache refresh job and its steps, `json_cache` / `@stow` keys, and how term IDs and the current term work.
+- `.claude/docs/csv-exports.md` — every file download (cohort, group, and admit CSVs, the notes zip, admin and peer reports): access checks, columns, and the export UI.
+- `.claude/docs/external-services.md` — the data loch, CalNet, S3, SQS, CAS, and Google Analytics: what BOA uses each for, the settings they read, and how tests fake them.
+- `.claude/docs/frontend-shell.md` — app startup, layouts, router guards, axios error handling, the context store, demo mode, analytics, and how to wire up a new page.
+- `.claude/docs/deployment.md` — how BOA is built and deployed to Elastic Beanstalk, how server config arrives, logs, CI, and which files change together on a version bump.
