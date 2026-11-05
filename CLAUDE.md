@@ -131,3 +131,8 @@ Background on specific areas of BOA. Read the relevant doc before changing code 
 - `.claude/docs/peer-advising.md` — peer advising departments, peer advisors and managers, their notes, topics, templates, and reports.
 - `.claude/docs/curated-groups.md` — hand-picked student groups, how they relate to cohorts, and bulk-adding students.
 - `.claude/docs/alerts.md` — student alert types, how they're generated and dismissed, and where alert counts appear.
+- `.claude/docs/student-profile.md` — the student page: how the profile is assembled from the data loch, what each role sees, and its frontend components.
+- `.claude/docs/admitted-students.md` — CE3 admitted students: access checks, the OUA loch tables, admit endpoints and search, and how admits link to enrolled students.
+- `.claude/docs/course-page.md` — the course (class section) page: its endpoint, the roster and Canvas data behind it, and how users reach it.
+- `.claude/docs/admin-and-users.md` — managing BOA users and department memberships, the admin pages, service announcements, admin reports, and the config endpoint.
+- `.claude/docs/data-refresh-and-terms.md` — the cache refresh job and its steps, `json_cache` / `@stow` keys, and how term IDs and the current term work.

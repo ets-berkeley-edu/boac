@@ -112,7 +112,7 @@ All available filters are defined in `boac/merged/cohort_filter_options.py` (`Co
 
 ### Filter categories (admitted_students domain)
 
-`admitColleges`, `familyDependentRanges`, `freshmanOrTransfer`, `hasFeeWaiver`, `inFosterCare`, `isFamilySingleParent`, `isFirstGenerationCollege`, `isHispanic`, `isLastSchoolLCFF`, `isReentry`, `isSir`, `isStudentSingleParent`, `isUrem`, `residencyCategories`, `specialProgramCep`, `studentDependentRanges`, `xEthnicities`
+`admitColleges`, `familyDependentRanges`, `freshmanOrTransfer`, `hasFeeWaiver`, `inFosterCare`, `isFamilySingleParent`, `isFirstGenerationCollege`, `isHispanic`, `isLastSchoolLCFF`, `isReentry`, `isStudentSingleParent`, `isUrem`, `residencyCategories`, `sir`, `specialProgramCep`, `studentDependentRanges`, `xEthnicities`
 
 ### Protected filters and access control
 
