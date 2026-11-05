@@ -137,9 +137,9 @@ def _get_loch_eforms_search_results(loch_rows, search_phrase):
             'updatedAt': updated_at,
         }
         if is_comment:
-            result['comment'] = {
+            result['parent'] = {
               'advisor': get_note_author_summary(eform_row),
-              'parentEformId': eform_row['id'],
+              'id': eform_row['id'],
             }
         results.append(result)
     return results
