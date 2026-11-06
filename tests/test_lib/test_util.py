@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 from boac.lib import util
+from tests.util import override_config
 
 
 class TestUtil:
@@ -100,3 +101,65 @@ class TestUtil:
         assert util.escape_like('100%') == '100\\%'
         assert util.escape_like('a_b') == 'a\\_b'
         assert util.escape_like('c:\\temp') == 'c:\\\\temp'
+
+
+# Synthetic note text for the snippet tests. Filler words pad the note so that the phrase sits far from the start.
+_FILLER = ' '.join(['filler'] * 20)
+
+
+class TestSearchResultTextSnippet:
+    """Search result snippets show the part of the text that best matches the whole query."""
+
+    def test_prefers_contiguous_phrase_over_early_common_words(self, app):
+        """A phrase late in the text wins over stop words that match near the start."""
+        body = f'I wrote to ask for help with my schedule. {_FILLER} Although I finally submitted the missing lab report, the grade did not change.'
+        with override_config(app, 'NOTES_SEARCH_RESULT_SNIPPET_PADDING', 5):
+            snippet = util.search_result_text_snippet(body, 'Although I finally submitted the missing lab report')
+        assert snippet.startswith('...')
+        assert 'wrote' not in snippet
+        assert (
+            '<strong>Although</strong> <strong>I</strong> <strong>finally</strong> <strong>submitted</strong> '
+            '<strong>the</strong> <strong>missing</strong> <strong>lab</strong> <strong>report</strong>'
+        ) in snippet
+
+    def test_shows_whole_phrase_longer_than_padding(self, app):
+        """The window stretches to the end of a long phrase match instead of cutting it off."""
+        body = f'{_FILLER} Although I finally submitted the missing lab report, the grade did not change. {_FILLER}'
+        with override_config(app, 'NOTES_SEARCH_RESULT_SNIPPET_PADDING', 3):
+            snippet = util.search_result_text_snippet(body, 'Although I finally submitted the missing lab report')
+        assert '<strong>lab</strong> <strong>report</strong>' in snippet
+
+    def test_stop_words_outside_phrase_are_not_bolded(self, app):
+        """Common words are highlighted only as part of a matched phrase."""
+        body = 'I asked for advice about calculus tutoring this term.'
+        with override_config(app, 'NOTES_SEARCH_RESULT_SNIPPET_PADDING', 29):
+            snippet = util.search_result_text_snippet(body, 'I need tutoring for calculus')
+        assert snippet == 'I asked for advice about <strong>calculus</strong> <strong>tutoring</strong> this term.'
+
+    def test_prefers_densest_cluster_of_terms(self, app):
+        """Without a phrase match, the window goes where the most distinct query terms appear together."""
+        body = f'Tutoring was mentioned once. {_FILLER} {_FILLER} We booked tutoring sessions before the calculus exam and the midterm.'
+        with override_config(app, 'NOTES_SEARCH_RESULT_SNIPPET_PADDING', 5):
+            snippet = util.search_result_text_snippet(body, 'midterm calculus tutoring')
+        assert snippet.startswith('...')
+        assert '<strong>calculus</strong>' in snippet
+        assert '<strong>midterm</strong>' in snippet
+
+    def test_single_term_uses_first_occurrence(self, app):
+        """A one-word query still centers on its first match, using stemming."""
+        body = f'{_FILLER} The student tested twice. {_FILLER} Tested again later.'
+        with override_config(app, 'NOTES_SEARCH_RESULT_SNIPPET_PADDING', 2):
+            snippet = util.search_result_text_snippet(body, 'test')
+        assert snippet == '...The student <strong>tested</strong> twice. filler...'
+
+    def test_stop_word_only_query_still_highlights(self, app):
+        """If every query word is a stop word, those words are still treated as matches."""
+        with override_config(app, 'NOTES_SEARCH_RESULT_SNIPPET_PADDING', 29):
+            snippet = util.search_result_text_snippet('Where are the forms?', 'the')
+        assert snippet == 'Where are <strong>the</strong> forms?'
+
+    def test_no_match_is_escaped(self, app):
+        """The fallback snippet is HTML-escaped like every other snippet, since the frontend renders it as HTML."""
+        with override_config(app, 'NOTES_SEARCH_RESULT_SNIPPET_PADDING', 29):
+            snippet = util.search_result_text_snippet('GPA &lt; 3.0 &amp; units &gt; 120', 'zebra')
+        assert snippet == 'GPA &lt; 3.0 &amp; units &gt; 120'

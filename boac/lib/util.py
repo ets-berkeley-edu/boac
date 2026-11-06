@@ -326,50 +326,136 @@ def parse_search_phrases(search_phrase):
 stemmer = SnowballStemmer('english')
 
 
-def search_result_text_snippet(text, search_phrase):
-    search_terms = parse_search_phrases(search_phrase)
-    tag_stripped_body = strip_html(text)
+# Postgres's English stop words, which full-text search ignores. They count as matches only inside a phrase match,
+# so that a query like "I tested for it" doesn't anchor the snippet on the first "I" in the note.
+_SNIPPET_STOP_WORDS = frozenset({
+    'a', 'about', 'above', 'after', 'again', 'against', 'all', 'am', 'an', 'and', 'any', 'are', 'as', 'at', 'be', 'because', 'been',
+    'before', 'being', 'below', 'between', 'both', 'but', 'by', 'can', 'did', 'do', 'does', 'doing', 'don', 'down', 'during', 'each', 'few',
+    'for', 'from', 'further', 'had', 'has', 'have', 'having', 'he', 'her', 'here', 'hers', 'herself', 'him', 'himself', 'his', 'how', 'i',
+    'if', 'in', 'into', 'is', 'it', 'its', 'itself', 'just', 'me', 'more', 'most', 'my', 'myself', 'no', 'nor', 'not', 'now', 'of', 'off',
+    'on', 'once', 'only', 'or', 'other', 'our', 'ours', 'ourselves', 'out', 'over', 'own', 's', 'same', 'she', 'should', 'so', 'some',
+    'such', 't', 'than', 'that', 'the', 'their', 'theirs', 'them', 'themselves', 'then', 'there', 'these', 'they', 'this', 'those',
+    'through', 'to', 'too', 'under', 'until', 'up', 'very', 'was', 'we', 'were', 'what', 'when', 'where', 'which', 'while', 'who', 'whom',
+    'why', 'will', 'with', 'you', 'your', 'yours', 'yourself', 'yourselves',
+})
 
+
+def search_result_text_snippet(text, search_phrase):
+    """Return an HTML snippet of the text around the passage that best matches the search phrase.
+
+    The window goes to the longest run of words that matches the query in order, if that run holds at least two
+    meaningful (non-stop) words. Otherwise it goes where the most distinct meaningful query terms sit close together,
+    with ties going to the earliest match. Matching is by stem, and every piece of text is HTML-escaped because the
+    frontend renders snippets with v-html.
+    """
+    tag_stripped_body = strip_html(text)
     snippet_padding = app.config['NOTES_SEARCH_RESULT_SNIPPET_PADDING']
     words = list(re.finditer(TEXT_SEARCH_PATTERN, tag_stripped_body))
-    stemmed_search_terms = [stemmer.stem(term) for term in search_terms]
+    if not words:
+        return html.escape(tag_stripped_body)
+    word_stems = [stemmer.stem(w.group(0)) for w in words]
 
-    snippet = None
-    match_index = None
-    start_position = 0
+    # Query words stay in their typed order, since phrase matching depends on it.
+    query_words = [t.group(0).lower() for t in re.finditer(TEXT_SEARCH_PATTERN, search_phrase or '')]
+    query_stems = [stemmer.stem(w) for w in query_words]
+    content_stems = {stemmer.stem(w) for w in query_words if w not in _SNIPPET_STOP_WORDS}
+    if not content_stems:
+        # A query made only of stop words still deserves highlighting.
+        content_stems = set(query_stems)
 
-    for index, word_match in enumerate(words):
-        stem = stemmer.stem(word_match.group(0))
-        if match_index is None and stem in stemmed_search_terms:
-            match_index = index
-            if index > snippet_padding:
-                start_position = words[index - snippet_padding].start(0)
-            snippet = '...' if start_position > 0 else ''
-        if match_index is not None:
-            snippet += html.escape(tag_stripped_body[start_position:word_match.start(0)])
-            if stem in stemmed_search_terms:
-                snippet += '<strong>'
-            snippet += html.escape(word_match.group(0))
-            if stem in stemmed_search_terms:
-                snippet += '</strong>'
-            if index == len(words) - 1:
-                snippet += html.escape(tag_stripped_body[word_match.end(0):len(tag_stripped_body)])
-                break
-            if index == match_index + snippet_padding:
-                end_position = words[index].end(0)
-                snippet += html.escape(tag_stripped_body[word_match.end(0):end_position])
-                snippet += '...'
-                break
-            start_position = word_match.end(0)
+    phrase_start, phrase_end, highlighted = _find_snippet_phrase(word_stems, query_stems, content_stems)
+    for index, stem in enumerate(word_stems):
+        if stem in content_stems:
+            highlighted.add(index)
 
-    if snippet:
-        return snippet
+    if phrase_start is not None:
+        anchor_start, anchor_end = phrase_start, phrase_end
     else:
-        if len(words) > snippet_padding:
-            end_position = words[snippet_padding].end(0)
-            return tag_stripped_body[0:end_position] + '...'
-        else:
-            return tag_stripped_body
+        anchor_start = _find_densest_snippet_anchor(word_stems, content_stems, snippet_padding)
+        anchor_end = anchor_start
+    if anchor_start is None:
+        # Nothing matched, so show the start of the text.
+        return _render_snippet(tag_stripped_body, words, 0, min(len(words) - 1, snippet_padding), highlighted)
+
+    first = max(0, anchor_start - snippet_padding)
+    # Stretch the window to the end of a long phrase. A phrase is never longer than the query, so this stays bounded.
+    last = min(len(words) - 1, max(anchor_start + snippet_padding, anchor_end))
+    return _render_snippet(tag_stripped_body, words, first, last, highlighted)
+
+
+def _find_snippet_phrase(word_stems, query_stems, content_stems):
+    """Find the longest run of text words matching consecutive query words, scored by its count of meaningful words.
+
+    Returns the best run's first and last word indexes (or None, None) and the set of word indexes inside every run
+    that counts as a phrase, so those words, stop words included, get highlighted.
+    """
+    query_positions = {}
+    for position, stem in enumerate(query_stems):
+        query_positions.setdefault(stem, []).append(position)
+
+    # Dynamic programming from right to left: runs[j] holds (length, meaningful words) of the match that starts at the
+    # current text word and query word j. Only positions where the stems agree are stored, so long notes stay cheap.
+    best = None
+    phrase_words = set()
+    next_runs = {}
+    for index in range(len(word_stems) - 1, -1, -1):
+        runs = {}
+        for position in query_positions.get(word_stems[index], []):
+            length, meaningful = next_runs.get(position + 1, (0, 0))
+            runs[position] = (length + 1, meaningful + (query_stems[position] in content_stems))
+        if runs:
+            length, meaningful = max(runs.values(), key=lambda run: (run[1], run[0]))
+            if length > 1 and meaningful > 1:
+                phrase_words.update(range(index, index + length))
+                # The scan runs backward, so ">=" lets an earlier run win a tie.
+                if best is None or (meaningful, length) >= (best[1], best[2]):
+                    best = (index, meaningful, length)
+        next_runs = runs
+    if best is None:
+        return None, None, phrase_words
+    return best[0], best[0] + best[2] - 1, phrase_words
+
+
+def _find_densest_snippet_anchor(word_stems, content_stems, snippet_padding):
+    """Return the index of the matching word whose centered window holds the most distinct query terms, or None."""
+    matches = [index for index, stem in enumerate(word_stems) if stem in content_stems]
+    best_index = None
+    best_count = 0
+    counts = {}
+    left = right = 0
+    # Two pointers keep a running count of the matches within the padding on either side of each candidate.
+    for index in matches:
+        while right < len(matches) and matches[right] <= index + snippet_padding:
+            stem = word_stems[matches[right]]
+            counts[stem] = counts.get(stem, 0) + 1
+            right += 1
+        while matches[left] < index - snippet_padding:
+            stem = word_stems[matches[left]]
+            counts[stem] -= 1
+            if not counts[stem]:
+                del counts[stem]
+            left += 1
+        if len(counts) > best_count:
+            best_index, best_count = index, len(counts)
+    return best_index
+
+
+def _render_snippet(body, words, first, last, highlighted):
+    """Render words first through last as escaped HTML, bolding highlighted words and marking cut-off ends."""
+    # A window that starts at the first word keeps any leading punctuation, such as an opening quote.
+    snippet = '...' if first > 0 else ''
+    position = words[first].start(0) if first > 0 else 0
+    for index in range(first, last + 1):
+        word_match = words[index]
+        snippet += html.escape(body[position:word_match.start(0)])
+        word = html.escape(word_match.group(0))
+        snippet += f'<strong>{word}</strong>' if index in highlighted else word
+        position = word_match.end(0)
+    if last == len(words) - 1:
+        snippet += html.escape(body[position:])
+    else:
+        snippet += '...'
+    return snippet
 
 
 def strip_html(text, max_passes=3):
