@@ -239,7 +239,8 @@ class TestSearchAdvisingNote:
             assert notes[1]['id'] == double_phrase_match.id
             assert notes[1]['noteSnippet'] == 'Discussed <strong>selecting</strong> <strong>classes</strong>, then they <strong>selected</strong> 5 <strong>classes</strong>. Will follow up.'  # noqa: E501
             assert notes[2]['id'] == triple_word_match.id
-            assert notes[2]['noteSnippet'] == '<strong>Classes</strong> <strong>classes</strong> <strong>classes</strong> have <strong>not</strong> been <strong>selected</strong> <strong>selected</strong> <strong>selected</strong>.'  # noqa: E501
+            # Stop words such as "not" are bolded only inside a phrase match, so the lone "not" here stays plain.
+            assert notes[2]['noteSnippet'] == '<strong>Classes</strong> <strong>classes</strong> <strong>classes</strong> have not been <strong>selected</strong> <strong>selected</strong> <strong>selected</strong>.'  # noqa: E501
 
     def test_search_advising_notes_multiple_terms(self):
         results = search_advising_notes(search_phrase='burnt diana temple')
