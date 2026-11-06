@@ -25,7 +25,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 from flask import current_app as app
-from flask_caching import Cache
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import CSRFProtect
 from sqlalchemy.exc import SQLAlchemyError
@@ -33,10 +32,6 @@ from sqlalchemy.exc import SQLAlchemyError
 __version__ = '6.15'
 
 db = SQLAlchemy()
-
-# TODO: Flask-caching and Amazon ElastiCache for route caching?
-# Use @cache.cached() and @cache.memoize to cache routes and functions, respectively
-cache = Cache()
 
 # Not auto-applied via WTF_CSRF_CHECK_DEFAULT; boac.routes explicitly calls csrf.protect() per-request so that
 # API-key-authenticated (non-cookie) service calls and the pre-session CAS callback can be exempted.

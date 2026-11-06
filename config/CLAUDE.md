@@ -15,7 +15,7 @@ Finally `app.config['BOAC_ENV']` is set to the environment name.
 - Only UPPERCASE names in these files become settings, which is why helpers like `_db_port` in `test.py` are private lowercase names.
 - Environment variables are not mapped into `app.config`. The loader itself reads only `BOAC_ENV` and `BOAC_LOCAL_CONFIGS`. A config file may read the environment itself, as `test.py` does with `PGPORT`.
 - `BOAC_LOCAL_CONFIGS` replaces the local-file location rather than adding to it. When it's set, `config/{BOAC_ENV}-local.py` is not loaded.
-- `tests/conftest.py` sets `BOAC_ENV=test` and `bea/conftest.py` sets `BOAC_ENV=bea` before creating the app. With `bea`, `create_app()` skips the cache and route registration.
+- `tests/conftest.py` sets `BOAC_ENV=test` and `bea/conftest.py` sets `BOAC_ENV=bea` before creating the app. With `bea`, `create_app()` skips route registration.
 
 ## Tracked files
 
