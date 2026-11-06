@@ -512,6 +512,20 @@ class TestSearchAdvisingNote:
         """Each filter, applied alone, narrows the results and leaves at least one match."""
         assert_search_filters_not_vacuous(NOTE_SEARCH_FILTERS, _ExpectedNoteIds())
 
+    def test_leading_hyphen_does_not_exclude(self, mock_searchable_advising_notes):  # noqa: ARG002
+        """A hyphen before a word doesn't turn it into an exclusion, so '-make' finds the same notes as 'make'."""
+        def _note_ids(search_phrase):
+            return sorted(str(row['id']) for row in search_advising_notes(search_phrase=search_phrase, limit=SEARCH_RESULTS_LIMIT)['notes'])
+        expected = _note_ids('make')
+        assert expected
+        assert _note_ids('-make') == expected
+
+    def test_search_phrase_with_nothing_searchable(self, mock_searchable_advising_notes):  # noqa: ARG002
+        """A search phrase that cleans down to nothing matches nothing, rather than being ignored."""
+        results = search_advising_notes(search_phrase=' - ', limit=SEARCH_RESULTS_LIMIT)
+        assert results['notes'] == []
+        assert results['totalNoteCount'] == 0
+
     def test_private_notes_excluded(self, mock_searchable_advising_notes):
         """A private BOA note is never returned, even when it matches every filter."""
         public_note, private_note = mock_searchable_advising_notes[0], mock_searchable_advising_notes[-1]

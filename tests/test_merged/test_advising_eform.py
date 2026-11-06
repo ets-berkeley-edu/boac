@@ -211,8 +211,6 @@ class _ExpectedEformIds(ExpectedSearchResults):
         self.eforms = data_loch.safe_execute_rds(f'SELECT id, student_sid, created_at FROM {self.sis_advising}.student_eforms')
 
     def __call__(self, search_phrase=None, student_csid=None, datetime_from=None, datetime_to=None):
-        # search_eforms adds a prefix operator to each token, which plainto_tsquery then discards as punctuation.
-        search_phrase = f'{search_phrase}:*' if search_phrase else None
         eform_ids = []
 
         comment_text_matches = self._cached(
