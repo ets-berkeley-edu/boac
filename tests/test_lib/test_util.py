@@ -66,3 +66,37 @@ class TestUtil:
         assert util.unix_timestamp_to_localtime(1536300000).hour == 23
         assert util.unix_timestamp_to_localtime(1536305000).day == 7
         assert util.unix_timestamp_to_localtime(1536305000).hour == 0
+
+    def test_clean_websearch_phrase(self):
+        """Normalizes whitespace and removes word-exclusion hyphens, keeping hyphens inside words."""
+        assert util.clean_websearch_phrase(None) == ''
+        assert util.clean_websearch_phrase('   ') == ''
+        assert util.clean_websearch_phrase('  late\t\n drop  ') == 'late drop'
+        # A leading hyphen would exclude the word, so it is dropped wherever a word starts.
+        assert util.clean_websearch_phrase('late -drop') == 'late drop'
+        assert util.clean_websearch_phrase('-late --drop') == 'late drop'
+        assert util.clean_websearch_phrase('late - drop') == 'late drop'
+        # Input made only of exclusion hyphens leaves nothing to search for.
+        assert util.clean_websearch_phrase(' - ') == ''
+        # Hyphens inside a word are part of the token, so they stay.
+        assert util.clean_websearch_phrase('1-14') == '1-14'
+        assert util.clean_websearch_phrase('late-drop') == 'late-drop'
+        # Full-width letters fold to their plain forms.
+        assert util.clean_websearch_phrase('\uff4c\uff41\uff54\uff45 drop') == 'late drop'
+        assert util.clean_websearch_phrase('abc def', max_length=5) == 'abc d'
+
+    def test_clean_websearch_phrase_keeps_search_syntax(self):
+        """Leaves quoted phrases and OR in place unless literal matching is requested."""
+        assert util.clean_websearch_phrase('"late drop" or dogs') == '"late drop" or dogs'
+        assert util.clean_websearch_phrase('"late drop" or -dogs', literal=True) == 'late drop dogs'
+        assert util.clean_websearch_phrase('cats OR dogs', literal=True) == 'cats dogs'
+        # Only the standalone word is an operator, not words that contain it.
+        assert util.clean_websearch_phrase('orange order', literal=True) == 'orange order'
+        assert util.clean_websearch_phrase('"', literal=True) == ''
+
+    def test_escape_like(self):
+        """Escapes LIKE wildcards and the escape character itself."""
+        assert util.escape_like('plain') == 'plain'
+        assert util.escape_like('100%') == '100\\%'
+        assert util.escape_like('a_b') == 'a\\_b'
+        assert util.escape_like('c:\\temp') == 'c:\\\\temp'

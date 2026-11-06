@@ -39,7 +39,7 @@ from sqlalchemy.sql import text
 from boac import db
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_PROGRAM_AFFILIATIONS, COE_PREP_STATUS_OPTIONS, previous_term_id, sis_term_id_for_name
 from boac.lib.mockingdata import fixture
-from boac.lib.util import join_if_present, tolerant_remove
+from boac.lib.util import clean_websearch_phrase, escape_like, join_if_present, tolerant_remove
 
 connection_pool = None
 
@@ -1293,7 +1293,6 @@ def search_advising(
     limit = min(abs(limit or 0), 150)  # Sanity check large limits
     offset = abs(offset or 0)
     params = dict(
-        search_phrase=search_phrase,
         advisor_csid=advisor_csid,
         advisor_uids=advisor_uids,
         student_csid=student_csid,
@@ -1304,9 +1303,21 @@ def search_advising(
         limit=limit,
     )
     if search_phrase:
+        cleaned_search_phrase = clean_websearch_phrase(search_phrase)
+        if not cleaned_search_phrase:
+            # Input with nothing searchable in it, such as a lone '-', matches nothing. Falling through to the
+            # no-phrase branch would instead return every result.
+            return {
+                'rows': [],
+                'total_matching_count': 0,
+            }
         half_life_days = 365
         recency_weight = 0.8
-        params['search_phrase_pattern'] = f'%{search_phrase}%'
+        params['search_phrase'] = cleaned_search_phrase
+        # The exact-text bonus compares against raw text, which has no search syntax in it, so drop the quotes and
+        # escape LIKE wildcards in what the user typed.
+        unquoted_search_phrase = ' '.join(cleaned_search_phrase.replace('"', ' ').split())
+        params['search_phrase_pattern'] = f'%{escape_like(unquoted_search_phrase)}%'
         search_phrase_cte = """ts_queries AS (
             SELECT
               %(search_phrase_pattern)s                          AS raw,
