@@ -26,7 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from flask import Flask
 
-from boac import cache, csrf, db
+from boac import csrf, db
 from boac.configs import load_configs
 from boac.logger import initialize_logger
 from boac.routes import register_routes
@@ -40,8 +40,6 @@ def create_app():
     db.init_app(app)
     csrf.init_app(app)
     if app.config['BOAC_ENV'] != 'bea':
-        cache.init_app(app, app.config)
-
         with app.app_context():
             register_routes(app)
 

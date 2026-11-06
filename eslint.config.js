@@ -6,6 +6,7 @@ import {configureVueProject, defineConfigWithVueTs, vueTsConfigs} from '@vue/esl
 import globals from 'globals'
 import js from '@eslint/js'
 import pluginVue from 'eslint-plugin-vue'
+import pluginVueScopedCss from 'eslint-plugin-vue-scoped-css'
 import parser from 'vue-eslint-parser'
 import * as tsParser from '@typescript-eslint/parser'
 
@@ -30,13 +31,14 @@ export default [
     pluginVue.configs['flat/recommended'],
     vueTsConfigs.recommended
   ),
+  // eslint-plugin-vue-scoped-css 3.x ships flat configs only; 'recommended' targets Vue 3.
+  ...pluginVueScopedCss.configs['flat/recommended'],
   ...compat.extends(
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:import/errors',
     'plugin:import/typescript',
     'plugin:import/warnings',
-    'plugin:vue-scoped-css/vue3-recommended',
     'plugin:vue/recommended'
   ),
   includeIgnoreFile(path.resolve(__dirname, '.gitignore')),
