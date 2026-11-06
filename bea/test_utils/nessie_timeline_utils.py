@@ -40,8 +40,9 @@ from bea.test_utils import utils
 from boac.externals import data_loch
 
 
-def wait_for_cdc_upsert(note_id):
-    sql = f"""SELECT count(*) AS count FROM boa_app_rds_data.advising_notes_cdc_log WHERE boa_id = {note_id}"""
+def wait_for_cdc_upsert(boa_id, table_name='notes'):
+    sql = f"""SELECT count(*) AS count FROM boa_app_rds_data.advising_notes_cdc_log
+            WHERE boa_id = {boa_id} AND table_name = '{table_name}'"""
     app.logger.info(sql)
     result = data_loch.safe_execute_rds(sql)
     app.logger.info(result)

@@ -22,6 +22,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 """
+
 import random
 
 import pytest
@@ -30,6 +31,7 @@ from flask import current_app as app
 from bea.config.bea_test_config import BEATestConfig
 from bea.models.notes_and_appts.note_comment import NoteComment
 from bea.test_utils import boa_utils, nessie_timeline_utils, utils
+from bea.test_utils.nessie_timeline_utils import wait_for_cdc_upsert
 
 
 @pytest.mark.usefixtures('page_objects')
@@ -89,6 +91,7 @@ class TestApptMgmt:
         assert self.student_page.appt_comment_body_text(self.test_appt, self.comment_1) == self.comment_1.body
 
     def test_search_new_appt_comment(self):
+        wait_for_cdc_upsert(self.comment_1.comment_id, table_name='comments')
         self.homepage.enter_simple_search_and_hit_enter(self.comment_1.body)
         self.search_results_page.assert_appt_comment_result_present(self.comment_1)
         self.student_page.load_page(self.test_student)
@@ -106,6 +109,7 @@ class TestApptMgmt:
         assert self.student_page.appt_comment_body_text(self.test_appt, self.comment_1) == self.comment_1.body
 
     def test_search_edited_appt_comment(self):
+        wait_for_cdc_upsert(self.comment_1.comment_id, table_name='comments')
         self.homepage.enter_simple_search_and_hit_enter(self.comment_1.body)
         self.search_results_page.assert_appt_comment_result_present(self.comment_1)
 
