@@ -28,6 +28,7 @@ import inspect
 import re
 import string
 import time
+import unicodedata
 from datetime import UTC, datetime
 from html.parser import HTMLParser
 
@@ -42,6 +43,7 @@ from boac.externals import s3
 
 """Generic utilities."""
 
+DASHES = re.compile('[\u2013\u2014\-—]')
 TEXT_SEARCH_PATTERN = r'[0-9A-Za-z/\-]+'
 
 
@@ -284,18 +286,35 @@ class HTMLTagStripper(HTMLParser):
         self._skip_depth = 0
 
 
-def strip_html(text, max_passes=3):
-    """Strip tags, including tags that were entity-encoded (e.g. &lt;script&gt; &amp;lt;script&amp;gt;)."""
-    for _ in range(max_passes):
-        tag_stripper = HTMLTagStripper()
-        tag_stripper.feed(text)
-        tag_stripper.close()
-        stripped_text = tag_stripper.get_data()
-        if stripped_text == text:
-            # nothing left to decode or strip
-            break
-        text = stripped_text
-    return re.sub(r'\s+', ' ', text)
+
+# A hyphen at the start of a word, which websearch_to_tsquery reads as "exclude this word".
+_LEADING_HYPHENS = re.compile(r'(?:^|(?<=\s))-+')
+# The word "or" in any case, which websearch_to_tsquery reads as the OR operator.
+_OR_OPERATOR = re.compile(r'\bor\b', re.IGNORECASE)
+
+
+def clean_websearch_phrase(phrase, max_length=500, literal=False):
+    """Normalize a user's search phrase for websearch_to_tsquery, returning '' when nothing searchable remains.
+
+    Leading hyphens are always removed, because BOA search doesn't offer word exclusion and a stray '-word' would
+    silently hide results. Hyphens inside a word, as in '1-14', are left alone. With literal=True, quoted phrases
+    and OR are disabled too, so that every word is simply required.
+    """
+    # NFKC folds look-alike characters, such as full-width letters, into their plain forms.
+    phrase = unicodedata.normalize('NFKC', str(phrase or ''))
+    # The length cap keeps a pasted document from becoming an enormous query.
+    phrase = ' '.join(phrase.split())[:max_length]
+    phrase = _LEADING_HYPHENS.sub('', phrase)
+    if literal:
+        phrase = phrase.replace('"', ' ')
+        phrase = _OR_OPERATOR.sub(' ', phrase)
+    return ' '.join(phrase.split())
+
+
+def escape_like(text):
+    """Escape LIKE and ILIKE wildcards, so that user text such as '100%' matches only itself."""
+    # Backslash is Postgres's default LIKE escape character, so it has to be escaped first.
+    return str(text).replace('\\', '\\\\').replace('%', '\\%').replace('_', '\\_')
 
 
 def parse_search_phrases(search_phrase):
@@ -351,6 +370,20 @@ def search_result_text_snippet(text, search_phrase):
             return tag_stripped_body[0:end_position] + '...'
         else:
             return tag_stripped_body
+
+
+def strip_html(text, max_passes=3):
+    """Strip tags, including tags that were entity-encoded (e.g. &lt;script&gt; &amp;lt;script&amp;gt;)."""
+    for _ in range(max_passes):
+        tag_stripper = HTMLTagStripper()
+        tag_stripper.feed(text)
+        tag_stripper.close()
+        stripped_text = tag_stripper.get_data()
+        if stripped_text == text:
+            # nothing left to decode or strip
+            break
+        text = stripped_text
+    return re.sub(r'\s+', ' ', text)
 
 
 def _localize_datetime(dt):
