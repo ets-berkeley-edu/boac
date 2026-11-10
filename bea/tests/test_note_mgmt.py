@@ -616,7 +616,7 @@ class TestNoteMgmt:
         assert self.student_page.comment_body_text(self.note_1, self.comment_1) == self.comment_1.body
 
     def test_search_edited_note(self):
-        wait_for_cdc_upsert(self.note_1.record_id)
+        wait_for_cdc_upsert(self.note_1.record_id, 'update')
         self.homepage.load_page()
         self.homepage.enter_simple_search_and_hit_enter(self.note_1.subject)
         self.search_results_page.assert_note_result_present(self.note_1)

@@ -274,7 +274,7 @@ class TestPeerNoteEdit:
         self.peer_page.add_topics(note_3_by_ls_peer, topics_to_add)
         self.peer_page.select_contact_type(note_3_by_ls_peer)
         self.peer_page.save_peer_note_edit(note_3_by_ls_peer)
-        wait_for_cdc_upsert(note_3_by_ls_peer.record_id)
+        wait_for_cdc_upsert(note_3_by_ls_peer.record_id, 'update')
 
     def test_edit_note_attachments(self):
         attachments_to_add = valid_attachments[4:5]
