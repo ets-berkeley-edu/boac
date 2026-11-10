@@ -290,6 +290,12 @@
 .height-unset {
   height: unset !important;
 }
+/* Highcharts sizes an HTML (useHTML) tooltip's box from its text's measured width. Near a narrow chart's right
+   edge the browser squeezes that text, Highcharts pins the squeezed width inline, and the text spills past the
+   border (worse with enlarged text). max-content lets the box fit the whole text. */
+div.highcharts-tooltip > span {
+  width: max-content !important;
+}
 .img-blur {
   -webkit-filter: blur(15px) contrast(0.2);
   filter: blur(15px) contrast(0.2);

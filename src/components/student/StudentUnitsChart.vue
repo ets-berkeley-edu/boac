@@ -151,10 +151,11 @@ onMounted(() => {
           y: point.plotY + 35
         }
       },
+      // No 'width' here: Highcharts reads a rem width as px (e.g. '37.5rem' becomes 37px), which pins the HTML
+      // tooltip to that width so its text spills out of the box. Without it the box fits its text at any size.
       style: {
         fontSize: '0.875rem',
-        whiteSpace: 'nowrap',
-        width: '37.5rem'
+        whiteSpace: 'nowrap'
       },
       useHTML: true
     },

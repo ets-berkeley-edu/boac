@@ -1,12 +1,17 @@
 <template>
-  <v-card-title id="edit-note-header" class="d-flex pb-0">
-    <div class="w-100">
-      <div class="align-start d-flex flex-column flex-sm-row">
+  <!--
+    The header rows wrap instead of overflowing: v-card-title hides overflow, so with enlarged text the title and
+    auto-save status used to push the Templates button out of view. flex-1-1-0 lets a block fill the row while
+    wrapping only when its content no longer fits beside its neighbor.
+  -->
+  <v-card-title id="edit-note-header" class="d-flex flex-wrap pb-0">
+    <div class="flex-1-1-0">
+      <div class="align-start d-flex flex-column flex-sm-row flex-wrap">
         <ModalHeader header-id="dialog-header-note">
           <span :aria-hidden="'createBatch' === noteStore.mode">{{ HEADER_TEXT_LOOKUP[noteStore.mode] }}</span>
           <span v-if="'createBatch' === noteStore.mode" class="sr-only">Create Notes</span>
         </ModalHeader>
-        <div aria-live="polite" class="auto-save d-flex flex-wrap w-100 pb-2">
+        <div aria-live="polite" class="auto-save d-flex flex-1-1-0 flex-wrap pb-2">
           <div class="auto-save-alert">
             <v-fade-transition>
               <div
@@ -41,7 +46,7 @@
         </div>
       </div>
     </div>
-    <SelectNoteTemplateForNote />
+    <SelectNoteTemplateForNote class="ml-auto" />
     <v-btn
       v-if="noteStore.mode === 'editDraft'"
       id="close-btn-in-modal-header"
