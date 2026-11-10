@@ -237,6 +237,20 @@ class SearchResultsPage(ListViewAdmitPages):
         date_loc = By.ID, f'advising-note-last-modified-{note.record_id}'
         return self.el_text_if_exists(date_loc)
 
+    # Each result is a div with an h3 header; the snippet, advisor and date elements share the id prefix but have no h3.
+    NOTE_SEARCH_RESULT_ROW = By.XPATH, '//div[starts-with(@id, "advising-note-search-result-")][h3]'
+
+    def note_search_result_ids(self):
+        count = self.wait_for_note_search_result_count()
+        if count == '0':
+            return []
+        self.wait_for_element_and_click(self.NOTE_RESULTS_BUTTON)
+        Wait(self.driver, utils.get_short_timeout()).until(ec.presence_of_all_elements_located(self.NOTE_SEARCH_RESULT_ROW))
+        time.sleep(1)
+        ids = [el.get_attribute('id').replace('advising-note-search-result-', '') for el in self.elements(self.NOTE_SEARCH_RESULT_ROW)]
+        app.logger.info(f'Note search result IDs in display order: {ids}')
+        return ids
+
     # APPOINTMENTS
 
     APPT_RESULTS_BUTTON = By.ID, 'search-results-tab-appointments'

@@ -23,12 +23,16 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 import datetime
+import time
 from datetime import timedelta
 
 import pytest
 from flask import current_app as app
+from selenium.webdriver.support import expected_conditions as ec
+from selenium.webdriver.support.wait import WebDriverWait as Wait
 
 from bea.config.bea_test_config import BEATestConfig
+from bea.models.notes_and_appts.note import Note
 from bea.models.notes_and_appts.timeline_record_source import TimelineRecordSource
 from bea.models.notes_and_appts.topic import Topics
 from bea.test_utils import nessie_timeline_utils, utils
@@ -61,8 +65,8 @@ class TestSearchNote:
         self.search_results_page.assert_note_result_present(tc.note)
 
     def test_adv_search_matching_topics(self, tc):
-        if tc.note.source in [TimelineRecordSource.ASC, TimelineRecordSource.DATA]:
-            app.logger.info('Skipping topic search since note source is ASC or Data Science, unable to search by topic')
+        if tc.note.source in [TimelineRecordSource.ASC, TimelineRecordSource.DATA, TimelineRecordSource.HISTORY]:
+            app.logger.info('Skipping topic search since note source is ASC, Data Science, or History, unable to search by topic')
         else:
             if tc.note.topics:
                 all_topics = [t.value['name'].title() for t in Topics]
@@ -76,16 +80,13 @@ class TestSearchNote:
                         self.search_results_page.assert_note_result_present(tc.note)
 
     def test_adv_search_non_matching_topics(self, tc):
-        if tc.note.source in [TimelineRecordSource.ASC, TimelineRecordSource.DATA]:
-            app.logger.info('Skipping topic search since note source is ASC or Data Science, unable to search by topic')
-        else:
-            all_topics = [t.value['name'].title() for t in Topics]
-            note_topics = [t for t in all_topics if t in tc.note.topics]
-            non_note_topics = list(set(all_topics) - set(note_topics))
-            self.homepage.reopen_and_reset_adv_search()
-            self.homepage.select_note_topic(non_note_topics[0])
-            self.homepage.enter_adv_search_and_hit_enter(tc.search_string)
-            self.search_results_page.assert_note_result_not_present(tc.note)
+        all_topics = [t.value['name'].title() for t in Topics]
+        note_topics = [t for t in all_topics if t in tc.note.topics]
+        non_note_topics = list(set(all_topics) - set(note_topics))
+        self.homepage.reopen_and_reset_adv_search()
+        self.homepage.select_note_topic(non_note_topics[0])
+        self.homepage.enter_adv_search_and_hit_enter(tc.search_string)
+        self.search_results_page.assert_note_result_not_present(tc.note)
 
     def test_adv_search_posted_by_you(self, tc):
         if tc.note.advisor:
@@ -207,3 +208,97 @@ class TestSearchNote:
             self.homepage.enter_adv_search(tc.search_string)
             self.homepage.click_adv_search_button()
             self.search_results_page.assert_note_result_not_present(tc.note)
+
+
+@pytest.mark.usefixtures('page_objects')
+class TestSearchNoteOrder:
+
+    # Search ranks a stronger text match above a weaker one, and a newer match above an older one of the same strength.
+    # These tests create their own notes so that the expected order doesn't depend on other data in the environment. The
+    # timestamp in the search phrase keeps every other note out of the results.
+    unique_id = str(int(time.time()))
+    phrase = f'zephyr quartz {unique_id}'
+    student = test.test_students[0]
+    exact_note = Note({'advisor': test.advisor})
+    loose_note = Note({'advisor': test.advisor})
+
+    # The recency test copies the search string of an existing note at least two years old into a new note. At that age
+    # the old note's ranking is cut by more than half, so the new note should come first even though both match exactly.
+    old = next(
+        (
+            tc for tc in test.test_cases
+            if not tc.note.is_private
+            and tc.note.created_date
+            and tc.note.created_date < utils.date_to_local_tz(datetime.datetime.now()) - timedelta(days=730)
+        ),
+        None,
+    )
+    recent_note = Note({'advisor': test.advisor})
+
+    def test_create_exact_match_note(self):
+        self.student_page.load_page(self.student)
+        self.exact_note.subject = f'Search order exact {self.unique_id}'
+        self.exact_note.body = f'Discussed the {self.phrase} plan.'
+        self.student_page.create_note(self.exact_note, [], [])
+        self.student_page.verify_note(self.exact_note, test.advisor)
+
+    def test_create_newer_loose_match_note(self):
+        # Created after the exact match, so it is newer, but its words are not in phrase order.
+        self.loose_note.subject = f'Search order loose {self.unique_id}'
+        self.loose_note.body = 'The plan covers quartz first and zephyr later.'
+        self.student_page.create_note(self.loose_note, [], [])
+        self.student_page.verify_note(self.loose_note, test.advisor)
+
+    def test_exact_match_ranked_above_newer_loose_match(self):
+        nessie_timeline_utils.wait_for_cdc_upsert(self.exact_note.record_id, 'create')
+        nessie_timeline_utils.wait_for_cdc_upsert(self.loose_note.record_id, 'create')
+        self.homepage.load_page()
+        self.homepage.enter_simple_search_and_hit_enter(self.phrase)
+        result_ids = self.search_results_page.note_search_result_ids()
+        utils.assert_equivalence(result_ids, [self.exact_note.record_id, self.loose_note.record_id])
+
+    def test_loose_match_ranked_below_exact_match_in_adv_search(self):
+        self.homepage.reopen_and_reset_adv_search()
+        self.homepage.set_notes_student(self.student)
+        self.homepage.enter_adv_search_and_hit_enter(self.phrase)
+        result_ids = self.search_results_page.note_search_result_ids()
+        utils.assert_equivalence(result_ids, [self.exact_note.record_id, self.loose_note.record_id])
+
+    def test_create_recent_copy_of_old_note(self):
+        if self.old:
+            app.logger.info(f'Copying search string of note {self.old.note.record_id}: {self.old.search_string}')
+            self.student_page.load_page(self.old.student)
+            self.recent_note.subject = f'Search order recent {self.unique_id}'
+            self.recent_note.body = self.old.search_string
+            self.student_page.create_note(self.recent_note, [], [])
+            self.student_page.verify_note(self.recent_note, test.advisor)
+        else:
+            app.logger.info('Skipping recency test since no test note is at least two years old')
+
+    def test_newer_match_ranked_above_older_match(self):
+        if self.old:
+            nessie_timeline_utils.wait_for_cdc_upsert(self.recent_note.record_id, 'create')
+            self.homepage.load_page()
+            self.homepage.enter_simple_search_and_hit_enter(self.old.search_string)
+            result_ids = self.search_results_page.note_search_result_ids()
+            assert result_ids
+            utils.assert_equivalence(result_ids[0], self.recent_note.record_id)
+            # The old note may be past the first page of results; when it is listed, it must come after the new one.
+            if self.old.note.record_id in result_ids:
+                assert result_ids.index(self.old.note.record_id) > result_ids.index(self.recent_note.record_id)
+
+    def test_delete_search_order_notes(self):
+        # Advisors can't delete notes, so the admin removes the notes these tests created.
+        self.homepage.switch_user()
+        notes = [(self.exact_note, self.student), (self.loose_note, self.student)]
+        if self.old:
+            notes.append((self.recent_note, self.old.student))
+        for note, student in notes:
+            if note.record_id:
+                self.student_page.load_page(student)
+                self.student_page.show_notes()
+                self.student_page.expand_item(note)
+                self.student_page.delete_note(note)
+                Wait(self.driver, utils.get_short_timeout()).until(
+                    ec.invisibility_of_element_located(self.student_page.collapsed_item_loc(note)),
+                )

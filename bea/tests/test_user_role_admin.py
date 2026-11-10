@@ -173,7 +173,7 @@ class TestAdminUserRole:
     def test_search_note_by_new_topic(self):
         self.student_page.load_page(self.student)
         self.student_page.create_note(self.note, topics=[self.topic], attachments=None, student=self.student)
-        wait_for_cdc_upsert(self.note.record_id)
+        wait_for_cdc_upsert(self.note.record_id, 'create')
         self.student_page.log_out()
         self.homepage.dev_auth()
         self.homepage.open_adv_search()
