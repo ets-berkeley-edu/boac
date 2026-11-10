@@ -1038,12 +1038,12 @@ def search_advising_appointments(
     # We prefer to filter on updated_at, but that value is not meaningful for UCBCONVERSION notes.
     if datetime_from:
         comment_criteria.append('a.updated_at >= %(datetime_from)s')
-        appointment_criteria.append("""((a.created_by = 'UCBCONVERSION' AND a.created_at >= %(datetime_from)s)
-            OR ((a.created_by != 'UCBCONVERSION' OR a.created_by IS NULL) AND a.updated_at >= %(datetime_from)s))""")
+        appointment_criteria.append("""((a.created_by IN ('UCBCONVERSION', 'YCBM') AND a.created_at >= %(datetime_from)s)
+            OR ((a.created_by NOT IN ('UCBCONVERSION', 'YCBM') OR a.created_by IS NULL) AND a.updated_at >= %(datetime_from)s))""")
     if datetime_to:
         comment_criteria.append('a.updated_at < %(datetime_to)s')
-        appointment_criteria.append("""((a.created_by = 'UCBCONVERSION' AND a.created_at < %(datetime_to)s)
-            OR ((a.created_by != 'UCBCONVERSION' OR a.created_by IS NULL) AND a.updated_at < %(datetime_to)s))""")
+        appointment_criteria.append("""((a.created_by IN ('UCBCONVERSION', 'YCBM') AND a.created_at < %(datetime_to)s)
+            OR ((a.created_by NOT IN ('UCBCONVERSION', 'YCBM') OR a.created_by IS NULL) AND a.updated_at < %(datetime_to)s))""")
 
     comments_match_criteria = """
             AND """.join(criteria + comment_criteria)
