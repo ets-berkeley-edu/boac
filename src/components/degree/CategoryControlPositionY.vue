@@ -84,12 +84,21 @@ const moveUp = () => {
 </script>
 
 <style scoped>
+/* Vuetify computes these buttons' width as a rem height minus a fixed 8px, so with enlarged text the two buttons
+   grew wider than the container's fixed width. The group (max-width: 100%, overflow-x: auto) then showed a stray
+   scrollbar. Sizing the buttons purely in rem, letting the container grow, and overflow: visible prevent that. */
 .btn-control-position-y {
   color: rgb(var(--v-theme-primary));
   height: 1.75rem;
+  overflow: visible;
+}
+.btn-control-position-y :deep(.v-btn) {
+  height: 100%;
+  min-width: 0;
+  width: 1.75rem;
 }
 .controls-container {
-  height: 1.875rem !important;
-  width: 3.625rem !important;
+  min-height: 1.875rem;
+  min-width: 3.625rem;
 }
 </style>

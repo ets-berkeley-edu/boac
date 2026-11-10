@@ -7,7 +7,7 @@
       sm="3"
       xl="8"
     >
-      <img alt="UC Berkeley" src="@/assets/uc-berkeley-logo.svg">
+      <img alt="UC Berkeley" class="berkeley-logo" src="@/assets/uc-berkeley-logo.svg">
     </v-col>
     <v-col
       class="font-size-14"
@@ -44,4 +44,14 @@ import {useContextStore} from '@/stores/context'
 
 const supportEmailAddress = useContextStore().config.supportEmailAddress
 </script>
+
+<style scoped>
+/* The logo is text rendered as an image, so it is sized in rem (its native 117px wide at the default font
+   size) to grow with the user's text size, per WCAG 1.4.4. max-width keeps it inside its column. */
+.berkeley-logo {
+  height: auto;
+  max-width: 100%;
+  width: 7.3125rem;
+}
+</style>
 

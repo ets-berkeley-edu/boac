@@ -21,6 +21,10 @@ export function displayCoeAcademicStanding(student: object) {
   return isAuthorized && get(student, 'coeProfile') && get(student, 'coeProfile.acadStatusDescription')
 }
 
+// In the Classes section, a year's three terms sit side by side when the text-scaled window width (see
+// useTextScaledDisplayWidth) is at least this wide, which is Vuetify's 'lg' breakpoint. Otherwise they stack.
+export const TERMS_SIDE_BY_SIDE_MIN_WIDTH = 1400
+
 export function getEnrollmentTermsByYear(student: Student, descending: boolean) {
   const currentEnrollmentTerm = useContextStore().config.currentEnrollmentTerm
   const grouped = groupBy(student.enrollmentTerms, 'academicYear')
