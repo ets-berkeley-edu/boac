@@ -13,6 +13,9 @@
   --ck-border-radius: 4px !important;
   /* Overrides the default font size in the theme. */
   --ck-font-size-base: 0.875rem !important;
+  /* CKEditor sizes note text with the 'medium' keyword, which ignores the root font size. Using rem makes it
+     grow with the user's browser font-size setting (WCAG 1.4.4, Resize Text). */
+  --ck-content-font-size: 1rem !important;
   /* Helper variables to avoid duplication in the colors. */
   --ck-custom-background: hsl(270, 1%, 29%) !important;
   --ck-custom-foreground: hsl(255, 3%, 18%) !important;

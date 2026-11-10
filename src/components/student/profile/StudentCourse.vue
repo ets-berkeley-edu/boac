@@ -1,5 +1,5 @@
 <template>
-  <div class="course d-flex flex-column position-relative" :class="{'course-expanded': showCourseDetails, 'border-b-0': $vuetify.display.lgAndUp}">
+  <div class="course d-flex flex-column position-relative" :class="{'course-expanded': showCourseDetails, 'border-b-0': isTermsSideBySide}">
     <div
       :id="baseElementId"
       class="align-center course-row d-flex"
@@ -98,7 +98,7 @@
         'align-self-start': columnIndex === 0,
         'align-self-center': columnIndex === 1,
         'align-self-end': columnIndex === 2,
-        'span-columns': $vuetify.display.lgAndUp
+        'span-columns': isTermsSideBySide
       }"
     >
       <div v-show="showCourseDetails" role="row">
@@ -205,6 +205,8 @@ import {
 } from '@/lib/berkeley-utils'
 import {normalizeId} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
+import {TERMS_SIDE_BY_SIDE_MIN_WIDTH} from '@/lib/student'
+import {useTextScaledDisplayWidth} from '@/lib/text-scale'
 
 const props = defineProps({
   columnIndex: {
@@ -237,7 +239,11 @@ const contextStore = useContextStore()
 
 const baseElementId = `term-${props.term.termId}-course-${get(props.course, 'sections[0].ccn')}`
 const currentUser = contextStore.currentUser
-const lengthTruncateButtonText = computed(() => vuetify.display.lgAndUp.value ? 16 : (vuetify.display.mdAndUp.value ? 36 : 18))
+const textScaledDisplayWidth = useTextScaledDisplayWidth()
+// Must match StudentClasses.vue: when terms sit side by side, expanded course details stretch across all three
+// columns. When they stack (small window or enlarged text), the details stay within the term's own width.
+const isTermsSideBySide = computed(() => textScaledDisplayWidth.value >= TERMS_SIDE_BY_SIDE_MIN_WIDTH)
+const lengthTruncateButtonText = computed(() => isTermsSideBySide.value ? 16 : (vuetify.display.mdAndUp.value ? 36 : 18))
 const sectionsWithIncompleteStatus = ref(getSectionsWithIncompleteStatus(props.course.sections))
 const showCourseDetails = ref(false)
 const showSpacer = ref(false)

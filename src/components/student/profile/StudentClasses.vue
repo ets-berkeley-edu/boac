@@ -96,7 +96,7 @@
         >
           <v-container class="pt-0" fluid>
             <v-row>
-              <v-col :cols="$vuetify.display.lgAndUp ? 4 : 12">
+              <v-col :cols="termColumnSpan">
                 <StudentEnrollmentTerm
                   :id="`term-fall-${year.label - 1}`"
                   :column-index="0"
@@ -104,7 +104,7 @@
                   :term="getTerm(`Fall ${year.label - 1}`, year)"
                 />
               </v-col>
-              <v-col :cols="$vuetify.display.lgAndUp ? 4 : 12">
+              <v-col :cols="termColumnSpan">
                 <StudentEnrollmentTerm
                   :id="`term-spring-${year.label}`"
                   :column-index="1"
@@ -112,7 +112,7 @@
                   :term="getTerm(`Spring ${year.label}`, year)"
                 />
               </v-col>
-              <v-col :cols="$vuetify.display.lgAndUp ? 4 : 12">
+              <v-col :cols="termColumnSpan">
                 <StudentEnrollmentTerm
                   :id="`term-summer-${year.label}`"
                   :column-index="2"
@@ -131,13 +131,14 @@
 <script setup>
 import {each, find, orderBy, sumBy} from 'lodash'
 import {mdiArrowDownThin, mdiArrowUpThin, mdiMenuDown, mdiMenuRight} from '@mdi/js'
-import {onMounted, ref} from 'vue'
+import {computed, onMounted, ref} from 'vue'
 import {alertScreenReader} from '@/lib/utils'
 import StudentDegreeCheckLink from '@/components/student/StudentDegreeCheckLink'
 import StudentEnrollmentTerm from '@/components/student/profile/StudentEnrollmentTerm'
 import {sisIdForTermName} from '@/lib/berkeley-utils'
 import {useContextStore} from '@/stores/context'
-import {getEnrollmentTermsByYear} from '@/lib/student.js'
+import {TERMS_SIDE_BY_SIDE_MIN_WIDTH, getEnrollmentTermsByYear} from '@/lib/student.js'
+import {useTextScaledDisplayWidth} from '@/lib/text-scale'
 
 const props = defineProps({
   student: {
@@ -151,6 +152,10 @@ const currentUser = contextStore.currentUser
 const enrollmentTermsByYear = ref({})
 const expanded = ref(false)
 const yearSortOrder = ref('desc')
+const textScaledDisplayWidth = useTextScaledDisplayWidth()
+// Show a year's three terms side by side only on large screens. Scaling for text size makes the terms stack when
+// enlarged text would otherwise make the columns overlap. StudentCourse.vue uses the same test.
+const termColumnSpan = computed(() => textScaledDisplayWidth.value >= TERMS_SIDE_BY_SIDE_MIN_WIDTH ? 4 : 12)
 
 onMounted(() => {
   const descending = yearSortOrder.value === 'desc'

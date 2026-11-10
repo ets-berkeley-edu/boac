@@ -7,7 +7,7 @@
       id: withTableUid(`td-student-${data.item.sid}-column-${data.column.key}`)
     })"
     class="responsive-data-table--sortable-students v-table-hidden-row-override"
-    :class="{'stacked-table': $vuetify.display.width <= mobileBreakpoint}"
+    :class="{'stacked-table': isStacked}"
     density="compact"
     :headers="headers"
     :items="items"
@@ -24,7 +24,7 @@
         v-if="columns.length"
         :columns="columns"
         :id-prefix="tableUid"
-        :is-compact="$vuetify.display.width <= mobileBreakpoint"
+        :is-compact="isStacked"
         :is-sorted="isSorted"
         :set-order="onUpdateSortBy"
         :sorted-by="sortedBy[0]"
@@ -111,7 +111,7 @@
       <div v-if="!item.expectedGraduationTerm">
         <span aria-hidden="true">--</span><span class="sr-only">No data</span>
       </div>
-      <span :class="{'text-no-wrap': $vuetify.display.width > mobileBreakpoint}">
+      <span :class="{'text-no-wrap': !isStacked}">
         {{ abbreviateTermName(item.expectedGraduationTerm && item.expectedGraduationTerm.name) }}
       </span>
     </template>
@@ -161,6 +161,7 @@ import StudentAvatar from '@/components/student/StudentAvatar'
 import {alertScreenReader, lastNameFirst, numFormat, pluralize, round, sortComparator, studentRoutePath} from '@/lib/utils'
 import {displayAsAscInactive, displayAsCoeInactive} from '@/lib/student'
 import {useContextStore} from '@/stores/context'
+import {useTextScaledDisplayWidth} from '@/lib/text-scale'
 
 const props = defineProps({
   compact: {
@@ -200,6 +201,10 @@ const currentUser = contextStore.currentUser
 const headers = ref([])
 const items = ref(undefined)
 const mobileBreakpoint = 1200
+const textScaledDisplayWidth = useTextScaledDisplayWidth()
+// Below the breakpoint, or when enlarged text makes the window effectively that narrow, the table switches
+// to its stacked layout instead of scrolling sideways.
+const isStacked = computed(() => textScaledDisplayWidth.value <= mobileBreakpoint)
 const sortBy = ref(props.initialSortBy)
 const withTableUid = suffix => (props.tableUid ? `${props.tableUid}-${suffix}` : suffix)
 
@@ -295,9 +300,8 @@ const sortRaw = (a, b) => {
 </script>
 
 <style scoped>
-@media (max-width: 1200px) {
-  .responsive-data-table--sortable-students :deep(.v-table__wrapper) {
-    overflow-x: visible !important;
-  }
+/* Tied to the stacked layout (not a pixel media query) so it also applies when enlarged text triggers stacking. */
+.responsive-data-table--sortable-students.stacked-table :deep(.v-table__wrapper) {
+  overflow-x: visible !important;
 }
 </style>

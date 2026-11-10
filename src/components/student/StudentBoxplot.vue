@@ -140,9 +140,10 @@ const getHighchartsOptions = () => {
           </div>
         </div>
       `,
+      // No 'width' here: Highcharts reads a rem width as px (e.g. '25rem' becomes 25px), which pins the HTML
+      // tooltip to that width so its text spills out of the box. Without it the box fits its text at any size.
       style: {
         fontSize: '0.875rem',
-        width: '25rem',
         whiteSpace: 'nowrap'
       },
       useHTML: true
