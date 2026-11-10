@@ -22,7 +22,9 @@
         disable-sort
         :headers="[
           {key: 'name', headerProps: {class: 'pl-3 manage-degree-checks-column-header text-medium-emphasis'}, width: '60%'},
-          {key: 'createdAt', headerProps: {class: 'manage-degree-checks-column-header text-medium-emphasis'}, width: '125px'},
+          // The date column is sized in rem, not px, so it widens with the user's text size instead of letting the
+          // date spill under the action links (the table uses table-layout: fixed).
+          {key: 'createdAt', headerProps: {class: 'manage-degree-checks-column-header text-medium-emphasis'}, width: '9rem'},
           {key: 'actions', headerProps: {class: 'pr-1 manage-degree-checks-column-header text-medium-emphasis'}, width: '40%'}
         ]"
         :header-props="{class: 'pl-0 text-no-wrap', tabindex: undefined}"

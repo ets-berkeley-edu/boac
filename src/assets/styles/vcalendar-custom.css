@@ -13,3 +13,53 @@
 .vc-focus:focus-within {
   box-shadow: none;
 }
+
+/* v-calendar sizes its text and day cells in px, so the date picker ignored the browser's font-size setting.
+   These rem equivalents (same size at the default 16px root) let it grow with the user's text (WCAG 1.4.4).
+   Selectors are prefixed with .vc-container so they outrank the library's own rules. */
+:root {
+  --vc-text-2xs: 0.625rem;
+  --vc-text-xs: 0.75rem;
+  --vc-text-sm: 0.875rem;
+  --vc-text-base: 1rem;
+  --vc-text-lg: 1.125rem;
+  --vc-text-xl: 1.25rem;
+  --vc-text-2xl: 1.5rem;
+}
+.vc-container .vc-pane {
+  min-width: 15.625rem;
+}
+.vc-container .vc-weeks {
+  min-width: 14.5rem;
+}
+.vc-container .vc-header {
+  height: auto;
+  min-height: 1.875rem;
+}
+.vc-container .vc-header .vc-title {
+  line-height: 1.875rem;
+}
+.vc-container .vc-header .vc-arrow {
+  height: 1.875rem;
+  width: 1.75rem;
+}
+.vc-container .vc-arrow .vc-base-icon,
+.vc-container .vc-nav-arrow .vc-base-icon {
+  height: 1.5rem;
+  width: 1.5rem;
+}
+.vc-container .vc-weekday {
+  line-height: 0.875rem;
+}
+.vc-container .vc-day {
+  min-height: 2rem;
+}
+.vc-container .vc-day-content,
+.vc-container .vc-highlight {
+  height: 1.75rem;
+  line-height: 1.75rem;
+  width: 1.75rem;
+}
+.vc-container .vc-nav-item {
+  width: 3rem;
+}
