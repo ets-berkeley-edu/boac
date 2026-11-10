@@ -40,7 +40,6 @@ from tests.util import (
     get_topic_matches,
     in_date_range,
     legacy_advisor_match,
-    legacy_timestamp,
     refresh_loch_appointment_search_index,
 )
 
@@ -242,6 +241,12 @@ def _advisor_uids(department_codes, advisor_uid, advisor_sid):
     return uids
 
 
+def _legacy_timestamp(row):
+    # UCBCONVERSION and YCBM appointments have no meaningful updated_at, so search filters them on created_at, which for
+    # YCBM is the appointment's start time. Every other appointment is filtered on updated_at.
+    return row['created_at'] if row['created_by'] in ('UCBCONVERSION', 'YCBM') else row['updated_at']
+
+
 class _ExpectedAppointmentIds(ExpectedSearchResults):
     """Expected appointment search results: loads comments and legacy appointments once, then filters them in Python per combination."""
 
@@ -321,7 +326,7 @@ class _ExpectedAppointmentIds(ExpectedSearchResults):
                 and legacy_advisor_match(row, advisor_uids, advisor_csid)
                 and (not student_csid or row['student_sid'] == student_csid)
                 and (row['student_sid'] in self.all_student_sids)
-                and in_date_range(legacy_timestamp(row), datetime_from, datetime_to)
+                and in_date_range(_legacy_timestamp(row), datetime_from, datetime_to)
             ):
                 appointment_ids.append(row['id'])
         return appointment_ids
