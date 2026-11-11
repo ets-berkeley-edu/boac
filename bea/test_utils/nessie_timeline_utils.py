@@ -581,6 +581,41 @@ def get_ycbm_appts(student):
     return appts
 
 
+def get_searchable_calendly_and_ycbm_appts(student):
+    sql = f"""SELECT id,
+                     subject,
+                     body,
+                     advisor_uid,
+                     advisor_name,
+                     created_by,
+                     created_at,
+                     updated_at
+                FROM boac_advising_appointments.advising_appointments
+               WHERE student_sid = '{student.sid}'
+                 AND created_by IN ('Calendly', 'YCBM')
+            ORDER BY id ASC"""
+    app.logger.info(sql)
+    results = data_loch.safe_execute_rds(sql)
+    appts = []
+    for row in results:
+        advisor = User({
+            'uid': (str(row['advisor_uid']) if row['advisor_uid'] else None),
+            'full_name': row['advisor_name'],
+        })
+        source = TimelineRecordSource.CALENDLY if row['created_by'] == 'Calendly' else TimelineRecordSource.YCBM
+        appts.append(Appointment(data={
+            'record_id': str(row['id']),
+            'advisor': advisor,
+            'created_date': (row['created_at'] and utils.date_to_local_tz(row['created_at'])),
+            'detail': row['body'],
+            'source': source,
+            'student': student,
+            'title': re.sub(r'\s+', ' ', str(row['subject'])).strip() if row['subject'] else None,
+            'updated_date': (row['updated_at'] and utils.date_to_local_tz(row['updated_at'])),
+        }))
+    return appts
+
+
 def get_sids_with_calendly_appts():
     sql = """SELECT DISTINCT student_sid AS sid
                FROM boac_advising_appointments.calendly_advising_appointments

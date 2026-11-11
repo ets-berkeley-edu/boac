@@ -23,6 +23,8 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import datetime
+
 import pytest
 from flask import current_app as app
 
@@ -234,25 +236,38 @@ class BEATestConfig(BEATestBaseConfigs):
                                opts={'appts': True, 'inactive': True})
 
         count = app.config['MAX_NOTES_OR_APPTS_COUNT']
+        now = utils.date_to_local_tz(datetime.datetime.now())
         all_appts = []
         for student in self.test_students:
-            all_student_appts = nessie_timeline_utils.get_sis_appts(student)
+            all_student_appts = (nessie_timeline_utils.get_sis_appts(student)
+                                 + nessie_timeline_utils.get_searchable_calendly_and_ycbm_appts(student))
             for student_appt in all_student_appts:
                 # Throw out junk SIS appts
-                if '504GatewayTimeout' not in student_appt.detail:
-                    all_appts.append(student_appt)
+                if '504GatewayTimeout' in (student_appt.detail or ''):
+                    continue
+                # A YCBM appointment's date is its start time, which can be in the future. The date range tests can't
+                # search future dates, so leave those appointments out.
+                if student_appt.created_date and student_appt.created_date > now:
+                    app.logger.info(f'Skipping appointment {student_appt.record_id} because it has not happened yet')
+                    continue
+                all_appts.append(student_appt)
 
         test_cases = []
         for appt in all_appts:
             search_string = boa_utils.generate_appt_search_query(appt)
             if search_string:
-                test_case_id = f'UID {appt.student.uid} SIS {search_string}'
+                test_case_id = f"UID {appt.student.uid} {appt.source.value['name']} {search_string}"
                 test_cases.append(BEATestCase(student=appt.student,
                                               appt=appt,
                                               search_string=search_string,
                                               test_case_id=test_case_id))
 
-        self.test_cases = test_cases[:count]
+        # Take up to the configured count from each source, so that every searchable source is covered.
+        for source in [TimelineRecordSource.SIS, TimelineRecordSource.CALENDLY, TimelineRecordSource.YCBM]:
+            source_cases = [tc for tc in test_cases if tc.appt.source == source]
+            if not source_cases:
+                app.logger.info(f"No searchable {source.value['name']} appointments found for the test students")
+            self.test_cases.extend(source_cases[:count])
         for tc in self.test_cases:
             app.logger.info(f"Test case: {tc.test_case_id}, '{tc.search_string}'")
 

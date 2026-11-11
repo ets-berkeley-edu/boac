@@ -327,6 +327,33 @@ class SearchResultsPage(ListViewAdmitPages):
                 self.wait_for_element_and_click(self.APPT_RESULTS_BUTTON)
             assert self.is_present(self.comment_result_loc(comment))
 
+    # Appointments and comments on appointments share one ranked list. Matching on the result class leaves out the
+    # snippet and date elements inside each result, whose ids share the same prefix.
+    APPT_OR_COMMENT_SEARCH_RESULT_ROW = (
+        By.XPATH,
+        '//div[starts-with(@id, "appointment-search-result-") or starts-with(@id, "comment-search-result-")]'
+        '[contains(concat(" ", normalize-space(@class), " "), " advising-note-search-result ")]',
+    )
+
+    def appt_search_result_ids(self):
+        count = self.wait_for_appt_search_result_count()
+        if count == '0':
+            return []
+        self.wait_for_element_and_click(self.APPT_RESULTS_BUTTON)
+        Wait(self.driver, utils.get_short_timeout()).until(
+            ec.presence_of_all_elements_located(self.APPT_OR_COMMENT_SEARCH_RESULT_ROW),
+        )
+        time.sleep(1)
+        # Each result is returned as ('appointment', record_id) or ('comment', comment_id), in display order. Hidden
+        # elements are skipped, because eForm comment results in another tab use the same comment id prefix.
+        ids = []
+        for el in self.elements(self.APPT_OR_COMMENT_SEARCH_RESULT_ROW):
+            if el.is_displayed():
+                kind, _, record_id = el.get_attribute('id').partition('-search-result-')
+                ids.append((kind, record_id))
+        app.logger.info(f'Appointment search result IDs in display order: {ids}')
+        return ids
+
     # EFORMS
 
     EFORM_RESULTS_BUTTON = By.ID, 'search-results-tab-eForms'
