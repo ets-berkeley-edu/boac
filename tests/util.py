@@ -413,11 +413,6 @@ def legacy_advisor_match(row, advisor_uids, advisor_sid):
     return uid_match or sid_match
 
 
-def legacy_timestamp(row):
-    # UCBCONVERSION rows have no meaningful updated_at, so they are filtered on created_at.
-    return row['created_at'] if row['created_by'] == 'UCBCONVERSION' else row['updated_at']
-
-
 def get_topic_matches(topics_table, topic, execute):
     """Return IDs of notes or appointments tagged with the topic, or None when there is no topic to match."""
     if not topic:

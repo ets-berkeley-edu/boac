@@ -46,7 +46,6 @@ from tests.util import (
     get_topic_matches,
     in_date_range,
     legacy_advisor_match,
-    legacy_timestamp,
     override_config,
     refresh_loch_note_search_index,
 )
@@ -594,6 +593,11 @@ def _advisor_uids(department_codes, advisor_uid, advisor_sid):
     return uids
 
 
+def _legacy_timestamp(row):
+    # UCBCONVERSION rows have no meaningful updated_at, so they are filtered on created_at.
+    return row['created_at'] if row['created_by'] == 'UCBCONVERSION' else row['updated_at']
+
+
 class _ExpectedNoteIds(ExpectedSearchResults):
     """Expected note search results: loads BOA and legacy notes once, then filters them in Python per combination."""
 
@@ -669,7 +673,7 @@ class _ExpectedNoteIds(ExpectedSearchResults):
                 and legacy_advisor_match(row, advisor_uids, author_csid)
                 and (not student_csid or row['student_sid'] == student_csid)
                 and (row['student_sid'] in self.all_student_sids)
-                and in_date_range(legacy_timestamp(row), datetime_from, datetime_to)
+                and in_date_range(_legacy_timestamp(row), datetime_from, datetime_to)
             ):
                 note_ids.append(row['id'])
         return note_ids

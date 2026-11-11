@@ -130,6 +130,6 @@ BOA keeps no search index of its own. There's no materialized view, background r
 - **Every write path must call `sqs.send`.** If you add a code path that changes a published note, topic, or comment and skip `sqs.send`, the search index silently drifts. Attachment changes are not queued at all.
 - **"Comment" means two things.** On a note it is a `notes` row with `parent_note_id`. On an appointment or eForm it is a row in `comments`/`comment_parents`. Read state is split the same way (`notes_read` vs `comments_read`).
 - **Private notes never appear in general note search.** `data_loch.search_advising_notes()` filters `NOT a.is_private`, even for CE3 users. Peer advising search has no such filter.
-- **Date filters:** `UCBCONVERSION` legacy rows are filtered on `created_at`; everything else on `updated_at`.
+- **Date filters:** `UCBCONVERSION` legacy rows and YCBM appointments are filtered on `created_at` (for YCBM, the start time); everything else on `updated_at`. YCBM appointments have no `updated_at`.
 - **`parse_search_phrases()` returns terms from a set,** so term order is not stable.
 - **Template and batch notes share S3 objects.** They reuse the same S3 key across many `note_attachments` rows. Attachment deletes are soft only, so never delete the S3 object.
