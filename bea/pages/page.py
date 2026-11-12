@@ -162,9 +162,14 @@ class Page(object):
         Wait(self.driver, utils.get_medium_timeout()).until(ec.title_contains(string))
 
     def hide_boa_footer(self):
-        if self.is_present(Page.FOOTER) and self.element(Page.FOOTER).is_displayed():
-            app.logger.debug('Chasing away the speedbird')
-            self.click_element_js(Page.SPEEDBIRD)
+        # The footer can be removed between these checks (e.g. it was just dismissed or the page is changing), so a
+        # missing speedbird just means there's nothing left to hide.
+        try:
+            if self.is_present(Page.FOOTER) and self.element(Page.FOOTER).is_displayed() and self.is_present(Page.SPEEDBIRD):
+                app.logger.debug('Chasing away the speedbird')
+                self.click_element_js(Page.SPEEDBIRD)
+        except (exceptions.NoSuchElementException, exceptions.StaleElementReferenceException) as e:
+            app.logger.debug(f'Speedbird already gone: {e}')
 
     def click_element(self, locator, addl_pause=None):
         sleep_default = app.config['CLICK_SLEEP']

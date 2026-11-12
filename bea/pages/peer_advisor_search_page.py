@@ -43,7 +43,13 @@ class PeerAdvisorSearchPage(PeerAdvisingNoteTable):
         return self.element(self.NOTE_RESULTS_COUNT).text
 
     def note_results_summary(self):
-        return self.element(self.PEER_NOTE_RESULTS_SUMMARY).text
+        # The summary only renders once the search finishes, and Selenium returns no text for it while the notes tab is
+        # still sliding into view, so wait until it's visible and log what it says.
+        self.when_visible(self.PEER_NOTE_RESULTS_SUMMARY, utils.get_short_timeout())
+        summary = self.text_value(self.element(self.PEER_NOTE_RESULTS_SUMMARY))
+        # Log only the phrase before the quoted query, since the query can be a student's name.
+        app.logger.info(f'Note search results summary starts "{summary.split(chr(34))[0].strip()}"')
+        return summary
 
     def wait_for_note_search_result_count(self):
         self.wait_for_spinner(timeout=utils.get_medium_timeout())

@@ -152,7 +152,9 @@ class StudentPageTimeline(BoaPages):
         try:
             name_el = el.find_element(
                 By.XPATH,
-                './/span[contains(@class, "truncate-with-ellipsis") and not(contains(@class, "sr-only"))]',
+                # The link also holds screen-reader-only spans ("Download attachment", the note description), so read
+                # only the visible span that holds the file name.
+                './span[not(contains(@class, "sr-only"))]',
             )
             return self.text_value(name_el)
         except NoSuchElementException:
