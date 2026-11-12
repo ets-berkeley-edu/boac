@@ -364,14 +364,19 @@ class DegreeTemplatePage(BoaPages):
     def course_reqt_row(self, course):
         return By.XPATH, self.course_reqt_xpath(course)
 
+    # Course cells are found by class rather than position, since the leading 'assign course' column is only
+    # rendered when a student is in context and so is absent on the template page.
+    def course_reqt_cell_loc(self, course, css_class):
+        return By.XPATH, f'{self.course_reqt_xpath(course)}/td[contains(concat(" ", normalize-space(@class), " "), " {css_class} ")]'
+
     def visible_template_course_reqt_name(self, course):
-        return self.el_text_if_exists((By.XPATH, f'{self.course_reqt_xpath(course)}/td[2]'))
+        return self.el_text_if_exists(self.course_reqt_cell_loc(course, 'td-name'))
 
     def visible_template_course_reqt_units(self, course):
-        return self.el_text_if_exists((By.XPATH, f'{self.course_reqt_xpath(course)}/td[3]'))
+        return self.el_text_if_exists(self.course_reqt_cell_loc(course, 'td-units'))
 
     def visible_template_course_reqt_fulfillment(self, course):
-        return self.el_text_if_exists((By.XPATH, f'{self.course_reqt_xpath(course)}/td[4]'))
+        return self.el_text_if_exists(self.course_reqt_cell_loc(course, 'td-fulfillment'))
 
     @staticmethod
     def campus_reqts_xpath(col_num):
