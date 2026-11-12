@@ -443,7 +443,11 @@ class TestDegreeCheckBatch:
         self.degree_check_batch_page.add_sids_to_batch(batch_degree_1, batch_students)
         self.degree_check_batch_page.add_cohorts_to_batch(batch_degree_1, cohorts)
         self.degree_check_batch_page.add_groups_to_batch(batch_degree_1, groups)
-        expected_count = len(boa_utils.unique_students_in_batch(batch_students, cohorts, groups))
+        # The page leaves out students who already have a current check for the selected template, e.g., from
+        # earlier test runs, so do the same when working out the expected count.
+        students = boa_utils.unique_students_in_batch(batch_students, cohorts, groups)
+        excluded_sids = boa_degree_progress_utils.get_sids_with_current_degree_check(template, [s.sid for s in students])
+        expected_count = len([s for s in students if s.sid not in excluded_sids])
         utils.assert_actual_includes_expected(
             self.degree_check_batch_page.element(self.degree_check_batch_page.STUDENT_COUNT_MSG).text,
             str(expected_count))

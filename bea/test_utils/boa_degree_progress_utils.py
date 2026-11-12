@@ -106,6 +106,23 @@ def get_degree_sids_by_degree_name(degree_name):
     return sids
 
 
+def get_sids_with_current_degree_check(template, sids):
+    # Mirrors the query behind the batch degree check page's exclusion list: a student is skipped only if the
+    # template's check is also the student's most recently updated, non-deleted degree check.
+    sql = """SELECT t.student_sid
+               FROM degree_progress_templates t
+              WHERE t.parent_template_id = :parent_template_id
+                AND t.student_sid = ANY(:sids)
+                AND t.updated_at = (SELECT max(updated_at)
+                                      FROM degree_progress_templates
+                                     WHERE student_sid = t.student_sid
+                                       AND deleted_at IS NULL)"""
+    app.logger.info(sql)
+    results = db.session.execute(text(sql), {'parent_template_id': template.template_id, 'sids': list(sids)})
+    std_commit(allow_test_environment=True)
+    return [str(row['student_sid']) for row in results.mappings()]
+
+
 def degree_id(degree):
     return degree.check_id if isinstance(degree, DegreeCheck) else degree.template_id
 
