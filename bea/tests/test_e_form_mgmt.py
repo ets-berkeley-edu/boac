@@ -89,6 +89,7 @@ class TestEFormMgmt:
         assert self.student_page.e_form_comment_body_text(self.test_e_form, self.comment_1) == self.comment_1.body
 
     def test_search_new_e_form_comment(self):
+        nessie_timeline_utils.wait_for_cdc_upsert(self.comment_1.comment_id, 'create', table_name='comments')
         self.homepage.enter_simple_search_and_hit_enter(self.comment_1.body)
         self.search_results_page.assert_eform_comment_result_present(self.comment_1)
         self.student_page.load_page(self.test_student)
@@ -106,6 +107,7 @@ class TestEFormMgmt:
         assert self.student_page.e_form_comment_body_text(self.test_e_form, self.comment_1) == self.comment_1.body
 
     def test_search_edited_e_form_comment(self):
+        nessie_timeline_utils.wait_for_cdc_upsert(self.comment_1.comment_id, 'update', table_name='comments')
         self.homepage.enter_simple_search_and_hit_enter(self.comment_1.body)
         self.search_results_page.assert_eform_comment_result_present(self.comment_1)
 
