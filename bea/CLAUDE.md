@@ -44,7 +44,7 @@ pages/          — Page Object Model: one class per page or page fragment
 models/         — Plain data classes mirroring BOA domain objects
 test_utils/     — Shared helpers (DB queries, Nessie data fetching, WebDriver setup)
 fixtures/       — Static test data (JSON)
-assets/         — Sample files used in attachment upload tests
+assets/         — Sample files used in attachment upload tests (set_note_attachments() skips types BOA doesn't allow)
 ```
 
 ### Page Object Model (`pages/`)

@@ -149,7 +149,8 @@ class PeerAdvisorManagerPage(PeerAdvisingNoteTable):
     def click_peer_notes(self, user):
         app.logger.info(f'Opening the detailed view of peer notes by UID {user.uid}')
         self.wait_for_element_and_click(self.peer_note_count_button(user))
-        self.when_visible(self.PEER_NOTE_TABLE, 2)
+        # The modal fetches the notes before it renders the table, which can take longer than a couple of seconds.
+        self.when_visible(self.PEER_NOTE_TABLE, utils.get_short_timeout())
 
     # NOTE TEMPLATES
 

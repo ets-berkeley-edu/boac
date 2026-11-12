@@ -1,0 +1,2 @@
+BEA test attachment. This plain-text file holds no real data. It keeps more than ten allowed attachments in the
+asset folder so the "no more than 10 attachments" check can be tested.

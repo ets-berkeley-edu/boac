@@ -460,7 +460,8 @@ class StudentPageAdvisingNote(StudentPageTimeline, CreateNoteModal):
     def visible_comment_attachments(self, note, comment):
         loc = By.XPATH, (
             f'//ul[@id="note-{note.record_id}-comment-{comment.comment_id}-attachments-list"]'
-            f'//span[contains(@class, "truncate-with-ellipsis")]'
+            # The file name is the visible span inside each attachment pill's link (or plain span when not downloadable).
+            f'//div[contains(@class, "pill-item")]/*[self::a or self::span]/span[not(contains(@class, "sr-only"))]'
         )
         return [el.text.strip().lower() for el in self.elements(loc)]
 

@@ -535,8 +535,12 @@ class BEATestBaseConfigs(object):
 
     def set_note_attachments(self):
         attachments = []
+        # BOA rejects attachments whose file type isn't on its allowlist, so tests only get the asset files BOA accepts.
+        allowed_extensions = [ext for t in app.config['NOTES_ATTACHMENTS_ALLOWED_TYPES'] for ext in t['extensions']]
         files = os.listdir(utils.attachments_dir())
         for f in files:
+            if os.path.splitext(f)[1].lstrip('.').lower() not in allowed_extensions:
+                continue
             size = os.path.getsize(f'{utils.attachments_dir()}/{f}')
             attachment = NoteAttachment({
                 'file_name': f,
