@@ -875,6 +875,17 @@ def generate_note_search_query(note):
     return search_string
 
 
+def generate_e_form_text_search_query(e_form):
+    # Unlike generate_e_form_search_query, which returns only the form ID for timeline search, this builds a phrase for
+    # global search. eForm search text ends with the form type, form ID and status, so take the form ID and the three
+    # words before it. That is a phrase an advisor could type, and the form ID keeps it from matching other eForms.
+    words = (e_form.body or '').split()
+    if e_form.form_id and e_form.form_id in words:
+        index = words.index(e_form.form_id)
+        return ' '.join(words[max(0, index - 3):index + 1])
+    return ''
+
+
 def generate_appt_search_query(appt):
     search_string = ''
     if appt.detail:

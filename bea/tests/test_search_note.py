@@ -33,12 +33,21 @@ from selenium.webdriver.support.wait import WebDriverWait as Wait
 
 from bea.config.bea_test_config import BEATestConfig
 from bea.models.notes_and_appts.note import Note
+from bea.models.notes_and_appts.note_comment import NoteComment
 from bea.models.notes_and_appts.timeline_record_source import TimelineRecordSource
 from bea.models.notes_and_appts.topic import Topics
-from bea.test_utils import nessie_timeline_utils, utils
+from bea.test_utils import boa_utils, nessie_timeline_utils, utils
 
 test = BEATestConfig()
 test.search_notes()
+
+comments_by_test_case = {}
+
+
+def is_commentable(note):
+    # BOA allows comments only on BOA notes, not on notes from legacy sources. Private and draft notes are left out too,
+    # since search results hide private note content and drafts aren't searchable.
+    return note.source == TimelineRecordSource.BOA and not note.is_private and not note.is_draft
 # Tests for Posted by Your Departments(s) will be found in the user_role_advisor test script
 
 
@@ -208,6 +217,74 @@ class TestSearchNote:
             self.homepage.enter_adv_search(tc.search_string)
             self.homepage.click_adv_search_button()
             self.search_results_page.assert_note_result_not_present(tc.note)
+
+    # COMMENTS
+
+    def test_add_comment(self, tc):
+        if is_commentable(tc.note):
+            comment = NoteComment()
+            comment.body = f'Comment on note {tc.note.record_id} {utils.get_test_identifier()}'
+            self.student_page.load_page(tc.student)
+            self.student_page.show_notes()
+            self.student_page.expand_item(tc.note)
+            self.student_page.add_comment(tc.note, comment)
+            matching = [c for c in boa_utils.get_note_comments(tc.note) if c.body == comment.body]
+            assert len(matching) == 1
+            comment.comment_id = matching[0].comment_id
+            comments_by_test_case[tc.test_case_id] = comment
+        else:
+            app.logger.info(f"Skipping comment tests since note {tc.note.record_id} is from {tc.note.source.value['name']}, private or a draft")
+
+    def test_simple_search_comment(self, tc):
+        comment = comments_by_test_case.get(tc.test_case_id)
+        if comment:
+            nessie_timeline_utils.wait_for_cdc_upsert(comment.comment_id, 'create')
+            self.homepage.load_page()
+            self.homepage.enter_simple_search_and_hit_enter(comment.body)
+            self.search_results_page.assert_note_comment_result_present(comment)
+
+    def test_adv_search_comment_matching_student(self, tc):
+        comment = comments_by_test_case.get(tc.test_case_id)
+        if comment:
+            self.homepage.reopen_and_reset_adv_search()
+            self.homepage.set_notes_student(tc.student)
+            self.homepage.enter_adv_search_and_hit_enter(comment.body)
+            self.search_results_page.assert_note_comment_result_present(comment)
+
+    def test_adv_search_comment_posted_by_you(self, tc):
+        comment = comments_by_test_case.get(tc.test_case_id)
+        if comment:
+            self.homepage.reopen_and_reset_adv_search()
+            self.homepage.select_notes_posted_by_you()
+            self.homepage.enter_adv_search_and_hit_enter(comment.body)
+            self.search_results_page.assert_note_comment_result_present(comment)
+
+    def test_comment_result_is_only_result(self, tc):
+        # The test identifier in the comment body matches nothing else, so the comment should be the only result.
+        comment = comments_by_test_case.get(tc.test_case_id)
+        if comment:
+            self.homepage.load_page()
+            self.homepage.enter_simple_search_and_hit_enter(comment.body)
+            utils.assert_equivalence(self.search_results_page.note_search_result_ids(), [comment.comment_id])
+
+    def test_delete_comment(self, tc):
+        comment = comments_by_test_case.get(tc.test_case_id)
+        if comment:
+            # Admin removes the comment. The advisor then logs back in, so that the next test case runs as the advisor.
+            self.homepage.switch_user()
+            self.student_page.load_page(tc.student)
+            self.student_page.show_notes()
+            self.student_page.expand_item(tc.note)
+            self.student_page.delete_comment(tc.note, comment)
+            self.homepage.switch_user(test.advisor)
+
+    def test_deleted_comment_not_in_search_results(self, tc):
+        comment = comments_by_test_case.get(tc.test_case_id)
+        if comment:
+            nessie_timeline_utils.wait_for_cdc_upsert(comment.comment_id, 'delete')
+            self.homepage.load_page()
+            self.homepage.enter_simple_search_and_hit_enter(comment.body)
+            assert comment.comment_id not in self.search_results_page.note_search_result_ids()
 
 
 @pytest.mark.usefixtures('page_objects')

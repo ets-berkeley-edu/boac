@@ -133,6 +133,19 @@ def get_sids_with_notes_of_src(src, eop_private=False):
     return list(map(lambda r: str(r['sid']), results))
 
 
+def get_sids_with_searchable_e_forms():
+    # Search covers every kind of eForm through the combined student_eforms view, so group students by the kind of eForm
+    # they have, letting the search tests cover each kind.
+    sql = """SELECT DISTINCT student_sid AS sid, data_source
+               FROM sis_advising_notes.student_eforms"""
+    app.logger.info(sql)
+    results = data_loch.safe_execute_rds(sql)
+    sids_by_data_source = {}
+    for row in results:
+        sids_by_data_source.setdefault(row['data_source'], []).append(str(row['sid']))
+    return sids_by_data_source
+
+
 def get_sids_with_e_forms():
     sql = """SELECT DISTINCT sid
                FROM sis_advising_notes.student_late_drop_eforms"""
@@ -667,6 +680,34 @@ def get_student_holds(student):
 
 
 # E-FORMS
+
+
+def get_searchable_e_forms(student):
+    sql = f"""SELECT e.id,
+                     e.data_source,
+                     e.created_at,
+                     e.updated_at,
+                     e.eform_id AS form_id,
+                     e.eform_status AS status,
+                     idx.raw_text
+                FROM sis_advising_notes.student_eforms e
+                JOIN sis_advising_notes.student_eforms_search_index idx ON idx.id = e.id
+               WHERE e.student_sid = '{student.sid}'
+            ORDER BY e.id ASC"""
+    app.logger.info(sql)
+    results = data_loch.safe_execute_rds(sql)
+    return [TimelineEForm(data={
+        'record_id': str(r['id']),
+        'body': re.sub(r'\s+', ' ', r['raw_text'] or '').strip(),
+        'created_date': (r['created_at'] and utils.date_to_local_tz(r['created_at'])),
+        'data_source': r['data_source'],
+        # The form ID is numeric in the loch, but it is matched against the words of the search text, so keep it as text.
+        'form_id': (str(r['form_id']) if r['form_id'] is not None else None),
+        'source': TimelineRecordSource.E_FORM,
+        'status': r['status'],
+        'student': student,
+        'updated_date': (r['updated_at'] and utils.date_to_local_tz(r['updated_at'])),
+    }) for r in results]
 
 
 def get_e_form_notes(student):

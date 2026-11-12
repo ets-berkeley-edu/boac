@@ -372,6 +372,47 @@ class SearchResultsPage(ListViewAdmitPages):
         app.logger.info(f'eForm search results count is {count}')
         return count
 
+    @staticmethod
+    def eform_result_loc(e_form):
+        return By.ID, f'eform-search-result-{e_form.record_id}'
+
+    def is_eform_in_search_result(self, e_form):
+        return True if self.is_present(self.eform_result_loc(e_form)) else False
+
+    def assert_eform_result_present(self, e_form):
+        count = self.wait_for_eform_search_result_count()
+        if count == '20+':
+            app.logger.info(f'Skipping test with eForm {e_form.record_id} because there are too many results')
+        else:
+            if count != '0':
+                self.wait_for_element_and_click(self.EFORM_RESULTS_BUTTON)
+            assert self.is_eform_in_search_result(e_form)
+
+    def assert_eform_result_not_present(self, e_form):
+        count = self.wait_for_eform_search_result_count()
+        if count == '20+':
+            app.logger.info(f'Skipping test with eForm {e_form.record_id} because there are too many results')
+        else:
+            if count != '0':
+                self.wait_for_element_and_click(self.EFORM_RESULTS_BUTTON)
+            assert not self.is_eform_in_search_result(e_form)
+
+    def eform_result_student_name(self, e_form):
+        name_loc = By.XPATH, f'//div[@id="eform-search-result-{e_form.record_id}"]/h3/a'
+        self.when_present(name_loc, utils.get_short_timeout())
+        time.sleep(utils.get_click_sleep())
+        return self.el_text_if_exists(name_loc)
+
+    def eform_result_sid(self, student, e_form):
+        sid_loc = By.XPATH, f'//div[@id="eform-search-result-{e_form.record_id}"]/h3'
+        if self.is_present(sid_loc):
+            return self.element(sid_loc).text.replace(student.full_name, '').strip()[1:-1]
+        else:
+            return None
+
+    def eform_result_date(self, e_form):
+        return self.el_text_if_exists((By.ID, f'eform-created-at-date-{e_form.record_id}'))
+
     def assert_eform_comment_result_present(self, comment):
         count = self.wait_for_eform_search_result_count()
         if count == '20+':
@@ -380,6 +421,33 @@ class SearchResultsPage(ListViewAdmitPages):
             if count != '0':
                 self.wait_for_element_and_click(self.EFORM_RESULTS_BUTTON)
             assert self.is_present(self.comment_result_loc(comment))
+
+    # eForms and comments on eForms share one ranked list. Matching on the result class leaves out the snippet and date
+    # elements inside each result, whose ids share the same prefix.
+    EFORM_OR_COMMENT_SEARCH_RESULT_ROW = (
+        By.XPATH,
+        '//div[starts-with(@id, "eform-search-result-") or starts-with(@id, "comment-search-result-")]'
+        '[contains(concat(" ", normalize-space(@class), " "), " advising-note-search-result ")]',
+    )
+
+    def eform_search_result_ids(self):
+        count = self.wait_for_eform_search_result_count()
+        if count == '0':
+            return []
+        self.wait_for_element_and_click(self.EFORM_RESULTS_BUTTON)
+        Wait(self.driver, utils.get_short_timeout()).until(
+            ec.presence_of_all_elements_located(self.EFORM_OR_COMMENT_SEARCH_RESULT_ROW),
+        )
+        time.sleep(1)
+        # Each result is returned as ('eform', record_id) or ('comment', comment_id), in display order. Hidden elements
+        # are skipped, because appointment comment results in another tab use the same comment id prefix.
+        ids = []
+        for el in self.elements(self.EFORM_OR_COMMENT_SEARCH_RESULT_ROW):
+            if el.is_displayed():
+                kind, _, record_id = el.get_attribute('id').partition('-search-result-')
+                ids.append((kind, record_id))
+        app.logger.info(f'eForm search result IDs in display order: {ids}')
+        return ids
 
     # GROUPS
 
