@@ -23,6 +23,9 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import time
+
+from flask import current_app as app
 from selenium.webdriver.common.by import By
 
 from bea.pages.boa_pages import BoaPages
@@ -41,6 +44,7 @@ class EveryoneCohortsPage(BoaPages):
             self.wait_for_element_and_click(self.EXPAND_ALL_BTN)
         self.wait_for_section_spinner()
         self.when_present(self.STUDENT_COHORT, utils.get_short_timeout())
+        self.wait_for_stable_count(self.STUDENT_COHORT)
         return self.els_text_if_exist(self.STUDENT_COHORT)
 
     def visible_admit_cohorts(self):
@@ -49,4 +53,24 @@ class EveryoneCohortsPage(BoaPages):
             self.wait_for_element_and_click(self.EXPAND_ALL_BTN)
         self.wait_for_section_spinner()
         self.when_present(self.ADMIT_COHORT, utils.get_short_timeout())
+        self.wait_for_stable_count(self.ADMIT_COHORT)
         return self.els_text_if_exist(self.ADMIT_COHORT)
+
+    def wait_for_stable_count(self, locator, stable_secs=5, timeout=None):
+        # 'Expand all' loads each department's cohorts with its own request, and the section spinners can all
+        # disappear before the slower departments have rendered. Keep polling until the number of cohort links
+        # has not changed for several consecutive seconds, or until the timeout.
+        timeout = timeout or utils.get_medium_timeout()
+        last_count = -1
+        stable = 0
+        for _ in range(timeout):
+            count = len(self.elements(locator))
+            if count == last_count:
+                stable += 1
+                if stable >= stable_secs:
+                    break
+            else:
+                last_count = count
+                stable = 0
+            time.sleep(1)
+        app.logger.info(f'{last_count} cohort links visible after waiting for the count to stabilize')
