@@ -37,6 +37,11 @@ class TimelineEForm(TimelineRecord):
         return self.data.get('course')
 
     @property
+    def data_source(self):
+        # The loch table the eForm comes from, such as student_late_drop_eforms, which identifies the kind of eForm.
+        return self.data.get('data_source')
+
+    @property
     def form_id(self):
         return self.data.get('form_id')
 

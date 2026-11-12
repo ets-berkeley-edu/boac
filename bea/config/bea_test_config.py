@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 import datetime
+import random
 
 import pytest
 from flask import current_app as app
@@ -268,6 +269,39 @@ class BEATestConfig(BEATestBaseConfigs):
             if not source_cases:
                 app.logger.info(f"No searchable {source.value['name']} appointments found for the test students")
             self.test_cases.extend(source_cases[:count])
+        for tc in self.test_cases:
+            app.logger.info(f"Test case: {tc.test_case_id}, '{tc.search_string}'")
+
+    def search_e_forms(self):
+        self.set_base_configs(opts={'include_inactive': True})
+        count = app.config['MAX_SEARCH_STUDENTS_COUNT']
+        # A fixed set of UIDs still wins; otherwise take students with each kind of eForm, since search covers all three.
+        self.set_test_students(count=count)
+        if not self.test_students:
+            all_sids = nessie_utils.get_all_student_sids()
+            test_sids = []
+            for data_source, sids in nessie_timeline_utils.get_sids_with_searchable_e_forms().items():
+                sids = list(set(sids) & set(all_sids))
+                app.logger.info(f'There are {len(sids)} students with {data_source}')
+                random.shuffle(sids)
+                test_sids.extend(sids[:count])
+            self.test_students = [st for st in self.students if st.sid in test_sids]
+
+        test_cases = []
+        for student in self.test_students:
+            for e_form in nessie_timeline_utils.get_searchable_e_forms(student):
+                search_string = boa_utils.generate_e_form_text_search_query(e_form)
+                if search_string:
+                    test_case_id = f'UID {student.uid} {e_form.data_source} {search_string}'
+                    test_cases.append(BEATestCase(student=student,
+                                                  e_form=e_form,
+                                                  search_string=search_string,
+                                                  test_case_id=test_case_id))
+
+        # Take up to the configured count of each kind of eForm.
+        per_kind = app.config['MAX_NOTES_OR_APPTS_COUNT']
+        for data_source in sorted({tc.e_form.data_source for tc in test_cases}):
+            self.test_cases.extend([tc for tc in test_cases if tc.e_form.data_source == data_source][:per_kind])
         for tc in self.test_cases:
             app.logger.info(f"Test case: {tc.test_case_id}, '{tc.search_string}'")
 
