@@ -94,6 +94,8 @@ class TestAdvisorNoCanvasAccess:
 
     def test_search_results(self):
         self.homepage.enter_adv_search_and_hit_enter('Math')
+        self.search_results_page.when_present(self.search_results_page.RESULTS_LOADED_MSG, utils.get_medium_timeout())
+        self.search_results_page.wait_for_spinner(utils.get_medium_timeout())
         assert self.search_results_page.are_students_in_results()
         assert not self.search_results_page.are_admits_in_results()
         assert not self.search_results_page.are_classes_in_results()
@@ -196,6 +198,8 @@ class TestAdvisorNoCanvasNoNotesAccess:
 
     def test_search_results(self):
         self.homepage.enter_simple_search_and_hit_enter('Math')
+        self.search_results_page.when_present(self.search_results_page.RESULTS_LOADED_MSG, utils.get_medium_timeout())
+        self.search_results_page.wait_for_spinner(utils.get_medium_timeout())
         assert self.search_results_page.are_students_in_results()
         assert not self.search_results_page.are_admits_in_results()
         assert not self.search_results_page.are_classes_in_results()
