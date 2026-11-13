@@ -673,7 +673,9 @@ class TestNoteDraft:
         self.note_4.body = f'Draft note 4 {self.test.test_id} body'
         self.note_4.set_date = datetime.strptime(self.today, '%Y-%m-%d') - timedelta(days=1)
         self.note_4.contact_type = 'Admin'
-        self.note_4.is_private = True
+        # Keep this note universal because test_search_for_published_draft_by_topic searches for it, and note search
+        # never returns private notes. Note 5 covers saving a draft as private.
+        self.note_4.is_private = False
 
         self.draft_notes_page.add_students_to_batch(self.note_4, [self.student])
         self.draft_notes_page.enter_new_note_subject(self.note_4)
