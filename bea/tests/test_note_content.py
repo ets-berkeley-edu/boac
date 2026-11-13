@@ -96,6 +96,10 @@ class TestNoteDetail:
         elif tc.note.source in [TimelineRecordSource.ASC, TimelineRecordSource.DATA, TimelineRecordSource.HISTORY,
                                 TimelineRecordSource.SIS] and tc.note.body:
             assert visible
+        # A BOA note without a subject gets a pseudo-subject built from the first line of its body. Private notes are
+        # left out because the API omits their body for advisors who can't see private notes.
+        elif tc.note.source == TimelineRecordSource.BOA and tc.note.body and not tc.note.is_private:
+            assert visible
         elif tc.note.source == TimelineRecordSource.ASC:
             utils.assert_actual_includes_expected(visible, 'Athletic Study Center advisor')
         elif tc.note.source == TimelineRecordSource.HISTORY:
