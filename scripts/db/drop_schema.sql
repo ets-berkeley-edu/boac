@@ -89,6 +89,9 @@ ALTER TABLE IF EXISTS ONLY public.comments_read DROP CONSTRAINT IF EXISTS commen
 ALTER TABLE IF EXISTS ONLY public.comment_attachments DROP CONSTRAINT IF EXISTS comment_attachments_comment_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.comments DROP CONSTRAINT IF EXISTS comments_comment_parent_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.comment_attachments DROP CONSTRAINT IF EXISTS comment_attachments_comment_id_path_to_attachment_unique_constraint;
+ALTER TABLE IF EXISTS ONLY public.user_tags DROP CONSTRAINT IF EXISTS user_tags_user_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.user_tags DROP CONSTRAINT IF EXISTS user_tags_note_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.user_tags DROP CONSTRAINT IF EXISTS user_tags_comment_id_fkey;
 
 --
 
@@ -128,6 +131,9 @@ DROP INDEX IF EXISTS public.student_groups_owner_id_idx;
 DROP INDEX IF EXISTS public.tool_settings_key_idx;
 DROP INDEX IF EXISTS public.user_logins_uid_idx;
 DROP INDEX IF EXISTS public.peer_advising_departments_university_dept_id_idx;
+DROP INDEX IF EXISTS public.user_tags_user_id_idx;
+DROP INDEX IF EXISTS public.user_tags_object_id_idx;
+DROP INDEX IF EXISTS public.user_tags_user_id_object_type_object_id_idx;
 
 --
 
@@ -172,6 +178,7 @@ ALTER TABLE IF EXISTS ONLY public.user_logins DROP CONSTRAINT IF EXISTS user_log
 ALTER TABLE IF EXISTS ONLY public.peer_advising_departments DROP CONSTRAINT IF EXISTS peer_advising_departments_pkey;
 ALTER TABLE IF EXISTS ONLY public.peer_advising_department_members DROP CONSTRAINT IF EXISTS peer_advising_department_members_pkey;
 ALTER TABLE IF EXISTS ONLY public.peer_advising_topics DROP CONSTRAINT IF EXISTS peer_advising_topics_id_pkey;
+ALTER TABLE IF EXISTS ONLY public.user_tags DROP CONSTRAINT IF EXISTS user_tags_pkey;
 
 ALTER TABLE IF EXISTS public.alerts ALTER COLUMN id DROP DEFAULT;
 ALTER TABLE IF EXISTS public.authorized_users ALTER COLUMN id DROP DEFAULT;
@@ -180,6 +187,8 @@ ALTER TABLE IF EXISTS public.json_cache ALTER COLUMN id DROP DEFAULT;
 
 --
 
+DROP TABLE IF EXISTS public.user_tags;
+DROP SEQUENCE IF EXISTS public.user_tags_id_seq;
 DROP TABLE IF EXISTS public.comments_read;
 DROP TABLE IF EXISTS public.comment_attachments;
 DROP SEQUENCE IF EXISTS public.comment_attachments_id_seq;
@@ -244,6 +253,7 @@ DROP SEQUENCE IF EXISTS public.peer_advising_topics_id_seq;
 DROP TYPE IF EXISTS public.role_type_enum;
 DROP TYPE IF EXISTS public.cohort_filter_event_types;
 DROP TYPE IF EXISTS public.cohort_domain_types;
+DROP TYPE IF EXISTS public.user_tag_object_types;
 DROP TYPE IF EXISTS public.degree_progress_category_types;
 DROP TYPE IF EXISTS public.generic_permission_types;
 DROP TYPE IF EXISTS public.comment_parent_types;
