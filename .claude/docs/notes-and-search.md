@@ -30,6 +30,7 @@ The student timeline is assembled in `put_notifications(student)` in `boac/api/u
 - `note_attachments` (`boac/models/note_attachment.py`): one row per attachment, holding `path_to_attachment` (an S3 key).
 - `note_templates`, `note_template_topics`, `note_template_attachments` (`boac/models/note_template*.py`, `boac/api/note_templates_controller.py`): templates belong to their creator (`creator_id`) or to a peer advising department.
 - `notes_read` (`NoteRead`).
+- `user_tags` (`boac/models/user_tag.py`, `UserTag`): one row per BOA user tagged in a note or comment, with read, archived, and email-sent flags. `object_id` points to `notes.id` or `comments.id` depending on `object_type`; the generated `note_id` and `comment_id` columns exist only to carry the real foreign keys. Callers create rows when tagged text is saved and call `UserTag.delete` or `UserTag.delete_for_object` when a mention is removed or its note or comment is deleted. All deletes are soft.
 
 ### Lifecycle (`boac/api/notes_controller.py`)
 
