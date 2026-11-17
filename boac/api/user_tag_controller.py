@@ -36,3 +36,10 @@ from boac.models.user_tag import UserTag
 def list_user_tags():
     user_tags = UserTag.get_all_for_user(current_user.get_id())
     return tolerant_jsonify({'notifications': [tag.to_api_json() for tag in user_tags]})
+
+
+@app.route('/api/user_tag/archived')
+@advisor_required
+def archived_user_tags():
+    user_tags = UserTag.get_all_for_user(current_user.get_id(), archived=True)
+    return tolerant_jsonify({'archived': [tag.to_api_json() for tag in user_tags]})
