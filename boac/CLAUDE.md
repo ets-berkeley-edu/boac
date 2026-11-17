@@ -69,6 +69,12 @@ Raise the classes in `boac/api/errors.py`. The handlers in `boac/api/error_handl
 - Cached values don't expire on their own. If you change data that a stowed function returns, clear the key (`json_cache.clear(key_like)`) or the stale value stays. The user session is the most common case: call `UserSession.flush_cached_user_session(user_id)` after changing anyone's roles or flags.
 - Don't stow anything that depends on who is asking, unless the user is part of the key (e.g. `..._for_{owner_uid}`).
 
+## Background tasks
+
+- `boac/lib/background.py` runs a scheduler loop in a daemon thread. `create_app()` starts it, once per process, through `initialize_scheduler_loop`. To add a recurring task, add a no-argument callable to `scheduled_methods()`. The loop runs each one every `BACKGROUND_TASK_LOOP_INTERVAL` seconds (`config/default.py`) and logs an exception rather than stopping.
+- Every app process runs its own loop. A task that must not run twice at once should hand its work to `bg_execute(method)`, which takes a Postgres advisory lock and passes the method a separate `db_session`.
+- `BACKGROUND_TASKS` turns all of this off. `config/test.py` sets it to `False`, so tests never start the loop, and `bg_execute` then runs the method in the foreground.
+
 ## Logging
 
 - Use `app.logger`, with `.warning` for denied or unexpected requests and `.exception` inside `except` blocks.

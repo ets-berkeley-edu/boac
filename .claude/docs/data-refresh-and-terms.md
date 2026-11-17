@@ -18,7 +18,7 @@ Related docs: alert generation is in `.claude/docs/alerts.md`. Cohort count cach
 | Script | `scripts/refresh_current_term_cache.sh <config file>` | `BOAC_API_KEY` from the config file | `curl`s `/api/admin/cachejob/refresh` with an `app-key` header and logs the response to `$LOGDIR` |
 
 - **API key.** `@admin_required` passes when `_api_key_ok()` (`boac/api/decorators.py`) matches the `App-Key` header to `config['API_KEY']`. The default is `None`, which turns key access off. The script sends a hyphenated header because the AWS load balancer strips underscored ones. Key requests are also CSRF-exempt (`_enforce_csrf_protection` in `boac/routes.py`).
-- **No in-app scheduler.** BOA has no cron, APScheduler, or `.ebextensions` job. Something outside the repo runs the script or calls the endpoint.
+- **Not run by the in-app scheduler.** The scheduler loop in `boac/lib/background.py` (see `boac/CLAUDE.md`) does not run the refresh, and BOA has no cron or `.ebextensions` job for it. Something outside the repo runs the script or calls the endpoint.
 - **The endpoint returns right away.** The work runs on a daemon `Thread`. Poll `GET /api/admin/cachejob` for progress.
 
 ## Job flow (`boac/api/cache_utils.py`)
