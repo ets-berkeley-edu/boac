@@ -61,7 +61,7 @@ def register_routes(app):  #noqa: PLR0915
     login_manager.user_loader(_user_loader)
     login_manager.anonymous_user = _user_loader
 
-    # Register API routes.
+    # Register API routes and error handlers.
     import boac.api.admin_reports_controller
     import boac.api.admit_controller
     import boac.api.alerts_controller
@@ -78,8 +78,6 @@ def register_routes(app):  #noqa: PLR0915
     import boac.api.degree_progress_category_controller
     import boac.api.degree_progress_controller
     import boac.api.degree_progress_student_controller
-
-    # Register error handlers.
     import boac.api.error_handlers
     import boac.api.note_templates_controller
     import boac.api.notes_controller
@@ -92,6 +90,7 @@ def register_routes(app):  #noqa: PLR0915
     import boac.api.student_controller
     import boac.api.topic_controller
     import boac.api.user_controller
+    import boac.api.user_tag_controller
 
     index_html = open(app.config['INDEX_HTML']).read()
 

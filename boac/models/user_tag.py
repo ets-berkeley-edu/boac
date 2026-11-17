@@ -124,9 +124,9 @@ class UserTag(Base):
         ).first()
 
     @classmethod
-    def get_all_for_user(cls, user_id):
+    def get_all_for_user(cls, user_id, archived=False):
         return cls.query.filter(
-            and_(cls.user_id == user_id, cls.deleted_at == None),  # noqa: E711
+            and_(cls.user_id == user_id, cls.deleted_at == None, cls.archived_by_user == archived),  # noqa: E711
         ).order_by(cls.created_at.desc(), cls.id.desc()).all()
 
     def to_api_json(self):
