@@ -74,7 +74,7 @@ Shared pieces (`src/layouts/shared/`, `src/components/`):
 | status 404 | `router.push('/404')` |
 | anything else, not cancelled, URL not in `SKIP_REDIRECT_ON_ERROR` | `router.push('/error')` with query `c` (error class), `m` (message), `s` (status), `t` (status text) |
 
-- A 403 from a signed-in user therefore lands on `/error`. `SKIP_REDIRECT_ON_ERROR` (user create/update and create peer advisor) lets those forms show their own errors.
+- A 403 from a signed-in user therefore lands on `/error`. `SKIP_REDIRECT_ON_ERROR` (user create/update, create peer advisor, and the taggable-user lookup) lets those forms show their own errors, and keeps a failed lookup while typing from navigating away from an unsaved note.
 - The promise is still rejected, so a caller's `.catch` runs after the redirect starts.
 - `appErrorHandler` (uncaught component errors) logs the message and stack to the console and calls `setApplicationState(500, ...)`. No component reads `applicationState`.
 
@@ -138,7 +138,7 @@ If `config.pingFrequency` is set (`PING_FREQUENCY`, milliseconds, `config/defaul
 - **Route names must be unique across the whole table.** vue-router drops an earlier route when a later one reuses its name, even under a different parent. Since names double as titles, pick a new one rather than copying a neighbor's.
 - **Focus after navigation is per view.** Most views call `loadingComplete()` with no ID, so focus stays where it was. New pages should pass their `<h1>` ID.
 - **`loading` hides `#content` with `v-show`.** Elements inside it exist but aren't focusable until `loadingComplete()`. Call `putFocusNextTick` after that, not before.
-- **An error anywhere navigates away.** Any rejected axios call (other than a cancel or the two skipped URLs) sends the user to `/error` or `/404`, even from a background request. Cancelled requests (e.g. via `AbortController`) are the exception.
+- **An error anywhere navigates away.** Any rejected axios call (other than a cancel or the three skipped URLs) sends the user to `/error` or `/404`, even from a background request. Cancelled requests (e.g. via `AbortController`) are the exception.
 - **`config.isProduction` is not in the `/api/config` payload.** It's declared in `BoaConfig`, but checks against it (`loadingComplete`'s timing log, `Error.vue`'s status details) always see it as falsy.
 - **The CSRF token is read from `config` on each request.** Don't send unsafe methods with another axios instance, or the header is missing.
 - **`removeEventHandler(type)` without a handler removes every handler of that type** (mitt behavior). Pass the same function you registered.
