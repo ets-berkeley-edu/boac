@@ -246,6 +246,13 @@ export interface HasName {
   lastName: string
 }
 
+// Shape of one entry in the 'invalid' list returned by the user-tag validation endpoint (BE-5 contract).
+export type InvalidUserTag = {
+  uid: string,
+  name: string | null,
+  reason: string
+}
+
 export type Note = {
   id: number,
   attachments: NoteAttachment[],
@@ -291,6 +298,7 @@ export type NoteComment = {
   body: string,
   createdAt?: string,
   deletedAt?: string,
+  taggedUsers?: TaggedUsers,
   updatedAt?: string
 }
 
@@ -313,6 +321,7 @@ export type NoteEditSessionModel = {
   setDate: string | undefined,
   sid: string | undefined,
   subject: string | undefined,
+  taggedUsers?: TaggedUsers,
   topics: string[]
   noteTemplateId: number | undefined,
   peerAdvisingStudentRecipient: string | null
@@ -383,6 +392,30 @@ export interface Student extends HasName {
   alertCount?: number,
   degrees?: object[],
   enrollmentTerms: object
+}
+
+// Describes where the author is typing, so the backend can scope who may be tagged (BE-5 contract).
+export type TagContext = {
+  noteId?: number,
+  parentNoteId?: number,
+  peerAdvisingDepartmentId?: number,
+  commentParentType?: string,
+  commentParentId?: number,
+  isPrivate?: boolean,
+  recipientCount?: number
+}
+
+// One user offered in the @ autocomplete list (BE-5 contract).
+export type TaggableUser = {
+  uid: string,
+  name: string,
+  title: string | null,
+  deptName: string | null
+}
+
+// Tagged users on a saved note or comment, keyed by UID; null marks a user whose name can no longer be shown (BE-5 contract).
+export type TaggedUsers = {
+  [uid: string]: {name: string} | null
 }
 
 export type TermEnrollment = {

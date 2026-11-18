@@ -5,7 +5,8 @@ import router from '@/router'
 import type {BoaUser} from '@/lib/types'
 import {useContextStore} from '@/stores/context'
 
-const SKIP_REDIRECT_ON_ERROR = ['/api/user/create_or_update', '/api/peer_advising/create_peer_advisor']
+// A failed taggable-user lookup while typing must not navigate away from an unsaved note.
+const SKIP_REDIRECT_ON_ERROR = ['/api/user/create_or_update', '/api/peer_advising/create_peer_advisor', '/api/users/taggable']
 // Flask-WTF's default header names; matched on the backend by WTF_CSRF_HEADERS.
 const CSRF_HEADER = 'X-CSRFToken'
 // Flask-WTF's CSRFProtect only validates these methods; matching here avoids sending the header needlessly.
