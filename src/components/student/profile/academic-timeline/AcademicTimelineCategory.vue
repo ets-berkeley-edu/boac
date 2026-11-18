@@ -1,6 +1,6 @@
 <template>
   <v-badge
-    :id="`timeline-category-${message.type}-${message.id}`"
+    :id="`timeline-category-${messageType}-${message.id}`"
     :aria-atomic="undefined"
     :aria-label="undefined"
     :aria-live="undefined"
@@ -36,10 +36,11 @@ const props = defineProps({
   }
 })
 
-const categoryColor = computed(() => `category-${props.message.type === 'note' && props.message.peerAdvisingDepartmentId ? 'peer-note' : props.message.type}`)
+const categoryColor = computed(() => `category-${messageType.value === 'note' && props.message.peerAdvisingDepartmentId ? 'peer-note' : messageType}`)
+const messageType = props.message.type || props.message.objectType
 
 const categoryType = (() => {
-  return props.message.type === 'note' && props.message.peerAdvisingDepartmentId ? 'peer-advising' : props.message.type
+  return messageType.value === 'note' && props.message.peerAdvisingDepartmentId ? 'peer-advising' : messageType.value
 })
 </script>
 

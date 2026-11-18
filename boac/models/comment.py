@@ -25,7 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from collections import defaultdict
 
-from sqlalchemy import func, tuple_
+from sqlalchemy import and_, func, tuple_
 from sqlalchemy.dialects.postgresql import ARRAY
 
 from boac import db, std_commit
@@ -54,6 +54,10 @@ class Comment(Base):
         back_populates='comment',
         lazy=True,
     )
+
+    @classmethod
+    def fetch_by_ids(cls, comment_ids):
+        return cls.query.filter(and_(cls.id.in_(comment_ids), cls.deleted_at == None)).all()  # noqa: E711
 
     @classmethod
     def find_by_id(cls, comment_id):

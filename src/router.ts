@@ -16,7 +16,9 @@ const FlightDeck = () => import('@/views/FlightDeck.vue')
 const Home = () => import('@/views/Home.vue')
 const Login = () => import('./layouts/Login.vue')
 const ManageDegreeChecks = () => import('@/views/degree/ManageDegreeChecks.vue')
+const Messages = () => import ('@/views/notification/Messages.vue')
 const NotFound = () => import('@/views/NotFound.vue')
+const NotificationDashboard = () => import ('@/layouts/NotificationDashboard.vue')
 const PassengerManifest = () => import('@/views/PassengerManifest.vue')
 const PeerAdvisor = () => import('@/layouts/PeerAdvisor.vue')
 const PeerAdvisorManager = () => import('@/views/PeerAdvisorManager.vue')
@@ -77,6 +79,29 @@ const routes:RouteRecordRaw[] = [
     meta: {
       title: 'Welcome'
     }
+  },
+  {
+    path: '/',
+    component: NotificationDashboard,
+    beforeEnter: (to: RouteLocation, from: RouteLocation, next: NavigationGuardNext) => {
+      // Requires Advisor
+      const currentUser: BoaUser = useContextStore().currentUser
+      if (currentUser.isAuthenticated) {
+        if (isAdvisor(currentUser) || isDirector(currentUser) || currentUser.isAdmin) {
+          next()
+        } else {
+          next({path: '/404'})
+        }
+      } else {
+        $_goToLogin(to, next)
+      }
+    },
+    children: [
+      {
+        path: '/messages',
+        component: Messages
+      }
+    ]
   },
   {
     path: '/',
