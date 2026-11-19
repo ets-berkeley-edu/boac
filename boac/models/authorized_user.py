@@ -359,6 +359,64 @@ class AuthorizedUser(Base):
         return [row['uid'] for row in results.mappings()]
 
     @classmethod
+    def get_existing_uids(cls, uids):
+        """Return the subset of the given UIDs that have an authorized_users row, soft-deleted users included."""
+        # UIDs can arrive from client JSON as numbers, and a varchar column cannot be compared with an integer.
+        uids = [str(uid) for uid in uids]
+        if not uids:
+            return set()
+        # One query for the whole batch, because tagging checks many UIDs on every save.
+        sql = 'SELECT uid FROM authorized_users WHERE uid = ANY(:uids)'
+        return {row['uid'] for row in db.session.execute(text(sql), {'uids': uids}).mappings()}
+
+    @classmethod
+    def get_tag_eligibility(cls, uids):
+        """Return the facts the tagging rules need about each UID, keyed by UID. UIDs with no row are omitted."""
+        # UIDs can arrive from client JSON as numbers, and a varchar column cannot be compared with an integer.
+        uids = [str(uid) for uid in uids]
+        if not uids:
+            return {}
+        # One query for the whole batch: tagging checks many UIDs per save, and the flags come from correlated subqueries.
+        sql = f"""
+            SELECT {_tag_eligibility_columns_sql()}
+            FROM authorized_users u
+            WHERE u.uid = ANY(:uids)
+        """
+        rows = db.session.execute(text(sql), {'uids': uids}).mappings()
+        return {row['uid']: _tag_eligibility_from_row(row) for row in rows}
+
+    @classmethod
+    def get_tag_candidates(cls, name_snippet, peer_department_ids=()):
+        """Return who may read advising notes, or belongs to a given peer department, and whose name contains the snippet.
+
+        Each item is the user's `get_tag_eligibility` facts plus 'uid' and 'calnet', the cached CalNet feed or None when
+        CalNet has not been asked about that user yet. Users whose cached feed has no matching name are left out.
+        """
+        # One query, with the cached name filter and the eligibility flags included, because the people search runs on
+        # every pause in typing and each query is a network round trip. LEFT JOIN keeps users with no cached feed, so the
+        # caller can fetch theirs. POSITION, unlike LIKE, treats % and _ in the snippet as plain characters.
+        sql = f"""
+            SELECT {_tag_eligibility_columns_sql()}, j.json AS calnet
+            FROM authorized_users u
+            LEFT JOIN json_cache j ON j.key = 'calnet_user_for_uid_' || u.uid
+            WHERE u.deleted_at IS NULL
+              AND (
+                (COALESCE(u.can_access_advising_data, FALSE) AND {_is_advisor_or_director_sql()})
+                OR EXISTS (
+                  SELECT 1 FROM peer_advising_department_members p
+                  WHERE p.authorized_user_id = u.id
+                    AND p.deleted_at IS NULL
+                    AND p.peer_advising_department_id = ANY(CAST(:peer_department_ids AS INTEGER[]))
+                )
+              )
+              AND (j.id IS NULL OR POSITION(LOWER(:name_snippet) IN LOWER(COALESCE(j.json->>'name', ''))) > 0)
+            ORDER BY u.uid
+        """
+        params = {'name_snippet': name_snippet, 'peer_department_ids': list(peer_department_ids)}
+        rows = db.session.execute(text(sql), params).mappings()
+        return [{**_tag_eligibility_from_row(row), 'uid': row['uid'], 'calnet': row['calnet']} for row in rows]
+
+    @classmethod
     def is_admin_user(cls, uid):
         sql = 'SELECT is_admin FROM authorized_users WHERE uid = :uid'
         result = db.session.execute(text(sql), {'uid': uid}).first()
@@ -496,3 +554,42 @@ def _get_deleted_at_condition(status):
     elif status == 'active':
         query_filter += ' AND m.deleted_at IS NULL AND u.deleted_at IS NULL AND u.disabled_at IS NULL'
     return query_filter
+
+
+def _is_advisor_or_director_sql():
+    # SQL fragment for "holds an advisor or director role in any department", correlated on the outer alias u.
+    return """EXISTS (
+                SELECT 1 FROM university_dept_members m
+                WHERE m.authorized_user_id = u.id AND m.role IN ('advisor', 'director')
+              )"""
+
+
+def _tag_eligibility_columns_sql():
+    # SQL select list of the facts the tagging rules need about a user, correlated on the outer alias u. The columns
+    # are read back by _tag_eligibility_from_row.
+    return f"""
+              u.uid,
+              u.id,
+              (u.deleted_at IS NOT NULL) AS is_deleted,
+              COALESCE(u.can_access_advising_data, FALSE) AS can_access_advising_data,
+              {_is_advisor_or_director_sql()} AS is_advisor_or_director,
+              EXISTS (
+                SELECT 1 FROM university_dept_members m
+                JOIN university_depts d ON d.id = m.university_dept_id
+                WHERE m.authorized_user_id = u.id AND m.role IN ('advisor', 'director') AND d.dept_code = 'ZCEEE'
+              ) AS is_ce3,
+              ARRAY(
+                SELECT p.peer_advising_department_id FROM peer_advising_department_members p
+                WHERE p.authorized_user_id = u.id AND p.deleted_at IS NULL
+              ) AS peer_department_ids"""
+
+
+def _tag_eligibility_from_row(row):
+    return {
+        'id': row['id'],
+        'is_deleted': row['is_deleted'],
+        'can_access_advising_data': row['can_access_advising_data'],
+        'is_advisor_or_director': row['is_advisor_or_director'],
+        'is_ce3': row['is_ce3'],
+        'peer_department_ids': set(row['peer_department_ids']),
+    }

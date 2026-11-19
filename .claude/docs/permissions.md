@@ -106,6 +106,14 @@ Undecorated routes: `/cas/login_url`, `/cas/callback`, `/api/auth/dev_auth_login
   - Note creation checks that the user is a member of the posted `peerAdvisingDepartmentId` (`create_peer_advising_note`).
   - `GET /api/peer_advisor/<uid>/notes` is restricted to that user or an admin.
   - Manager actions on a specific peer advisor call `is_authorized_peer_advisor_manager(..., peer_advisor_user_id=...)` inline, which also stops a manager from acting on themselves.
+- **User tag autocomplete:** `POST /api/users/taggable` (`boac/api/taggable_users_controller.py`, `@advisor_or_peer_advisor_required`) takes exactly one context, otherwise 400, and `_resolve_tag_context` checks the caller may use it:
+  - `noteId`: 404 if the note is missing or not `can_current_user_edit_note` (one answer for both, so note ids can't be probed). A note comment's id takes privacy and peer department from its parent.
+  - A body that isn't a JSON object, or a malformed id, is a 400.
+  - `parentNoteId`: 404 if the note is missing or not `can_current_user_access_note`. Privacy and peer department come from the parent.
+  - `peerAdvisingDepartmentId`: 403 unless the caller has an active membership there.
+  - `commentParentType` + `commentParentId`: 400 for an unknown type, 403 without advising-data access.
+  - Who can be suggested is decided by the tagging rules in `boac/merged/user_tag.py`. A peer advisor (not a manager) is limited to their own group through `writer_peer_department_id()`.
+  - The search is one database query on a warm cache (`AuthorizedUser.get_tag_candidates`): it picks candidates, filters them by cached CalNet name, and returns their eligibility flags and cached CalNet feed together. Only users with no cached CalNet feed cost a second step. Each query is a network round trip, and the editor searches on every pause in typing.
 
 ## Frontend counterparts
 
