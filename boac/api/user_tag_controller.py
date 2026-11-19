@@ -23,11 +23,16 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+
 from flask import current_app as app
 from flask_login import current_user
 
 from boac.api.decorators import advisor_required
+from boac.externals.data_loch import get_students_by_sids
 from boac.lib.http import tolerant_jsonify
+from boac.lib.util import join_if_present
+from boac.models.comment import Comment
+from boac.models.note import Note
 from boac.models.user_tag import UserTag
 
 
@@ -35,7 +40,41 @@ from boac.models.user_tag import UserTag
 @advisor_required
 def list_user_tags():
     user_tags = UserTag.get_all_for_user(current_user.get_id())
-    return tolerant_jsonify({'notifications': [tag.to_api_json() for tag in user_tags]})
+    comment_ids = []
+    note_ids = []
+    for tag in user_tags:
+        if tag.object_type == 'comment':
+            comment_ids.append(tag.object_id)
+        elif tag.object_type == 'note':
+            note_ids.append(tag.object_id)
+    comments = {comment.id: comment for comment in Comment.fetch_by_ids(comment_ids)}
+    notes = {}
+    student_sids = []
+    for note in Note.find_by_ids(note_ids):
+        notes[note.id] = note
+        student_sids.append(note.sid)
+    if len(student_sids):
+        students_by_sid = {student.get('sid'): student for student in get_students_by_sids(student_sids)}
+    else:
+        students_by_sid = {}
+    feed = []
+    for tag in user_tags:
+        message = comments.get(tag.object_id) if tag.object_type == 'comment' else notes.get(tag.object_id)
+        feed_item = {
+            **tag.to_api_json(),
+            'object': message.to_api_json() if message else None,
+        }
+        app.logger.error(feed_item)
+        student_sid = feed_item['object'].get('sid') if feed_item['object'] else None
+        if (student_sid and students_by_sid.get(student_sid)):
+            student = students_by_sid.get(student_sid)
+            feed_item['student'] = {
+                'name': join_if_present(' ', [student.get('first_name'), student.get('last_name')]),
+                'uid': student.get('uid'),
+                'sid': student_sid,
+            }
+        feed.append(feed_item)
+    return tolerant_jsonify({'notifications': feed})
 
 
 @app.route('/api/user_tag/archived')

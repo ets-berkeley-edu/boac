@@ -57,7 +57,6 @@ def comment(app):
 
 
 def _create_note(author_uid, author_dept_codes):
-    # The author matters to the tests that compare a self-tag with a tag from another user.
     return Note.create(
         author_uid=author_uid,
         author_name='Test Author',
@@ -111,7 +110,19 @@ class TestListUserTags:
         notifications = self._api_list_user_tags(client)['notifications']
         # Both tags are created in one transaction and share a created_at, so the id tiebreaker sets the order.
         assert [n['id'] for n in notifications] == [comment_tag.id, note_tag.id]
-        assert notifications[0] == comment_tag.to_api_json()
+        assert notifications[0]['object']
+        assert notifications[0]['object']['author']['uid'] == l_s_advisor_uid
+        assert notifications[0]['object']['author']['name'] == 'Test Author'
+        assert notifications[0]['object']['body'] == 'A comment that tags another advisor.'
+        assert notifications[0]['objectId'] == comment.id
+        assert notifications[0]['objectType'] == 'comment'
+        assert notifications[0]['userId'] == user_id
+        assert notifications[0]['readByUser'] is False
+        assert notifications[0]['archivedByUser'] is False
+        assert notifications[1]['object']
+        assert notifications[1]['object']['authorUid'] == l_s_advisor_uid
+        assert notifications[1]['object']['authorName'] == 'Test Author'
+        assert notifications[1]['object']['body'] == 'A note that tags an advisor.'
         assert notifications[1]['objectId'] == note.id
         assert notifications[1]['objectType'] == 'note'
         assert notifications[1]['userId'] == user_id
