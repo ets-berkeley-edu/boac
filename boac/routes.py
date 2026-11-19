@@ -88,6 +88,7 @@ def register_routes(app):  #noqa: PLR0915
     import boac.api.search_controller
     import boac.api.status_controller
     import boac.api.student_controller
+    import boac.api.taggable_users_controller
     import boac.api.topic_controller
     import boac.api.user_controller
     import boac.api.user_tag_controller

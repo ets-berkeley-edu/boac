@@ -472,5 +472,36 @@ def strip_html(text, max_passes=3):
     return re.sub(r'\s+', ' ', text)
 
 
+# Matches an @UID tag in a note body. The pattern must stay in step with src/lib/user-tags.ts. It uses re.ASCII so that
+# \w and \b follow the editor's ASCII rules, which means a non-ASCII letter next to a tag does not block the match.
+USER_TAG_REGEX = re.compile(r'(?<![\w@/])@(\d+)\b', re.ASCII)
+
+
+def find_user_tag_uids(body):
+    """Return the distinct UIDs tagged in the body, in order of first appearance."""
+    if not body:
+        return []
+    # A dict keeps insertion order, which dedupes while preserving the order of first occurrence.
+    return list(dict.fromkeys(USER_TAG_REGEX.findall(body)))
+
+
+def replace_user_tags(body, replace):
+    """Replace each tag with the text `replace(uid)` returns, leaving tags for which it returns None untouched."""
+    if body is None:
+        return ''
+
+    def _substitute(match):
+        replacement = replace(match.group(1))
+        return match.group(0) if replacement is None else replacement
+
+    return USER_TAG_REGEX.sub(_substitute, body)
+
+
+def strip_user_tags(body, uids):
+    """Remove the tags for the given UIDs from the body, leaving any other @digits text alone."""
+    uid_set = set(uids)
+    return replace_user_tags(body, lambda uid: '' if uid in uid_set else None)
+
+
 def _localize_datetime(dt):
     return dt.astimezone(pytz.timezone(app.config['TIMEZONE']))

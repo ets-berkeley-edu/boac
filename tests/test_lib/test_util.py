@@ -163,3 +163,45 @@ class TestSearchResultTextSnippet:
         with override_config(app, 'NOTES_SEARCH_RESULT_SNIPPET_PADDING', 29):
             snippet = util.search_result_text_snippet('GPA &lt; 3.0 &amp; units &gt; 120', 'zebra')
         assert snippet == 'GPA &lt; 3.0 &amp; units &gt; 120'
+
+
+class TestUserTagParsing:
+    """Finding, replacing, and stripping @UID tags in note bodies."""
+
+    def test_find_none_and_empty(self):
+        """Returns no tags for an empty body."""
+        assert util.find_user_tag_uids(None) == []
+        assert util.find_user_tag_uids('') == []
+
+    def test_find_dedupes_in_order(self):
+        """Keeps the first occurrence of each tag, in body order."""
+        assert util.find_user_tag_uids('<p>@2040 and @1081940, again @2040.</p>') == ['2040', '1081940']
+
+    def test_find_skips_email_url_and_double_at(self):
+        """Email addresses, URL path segments, and @@ are not tags."""
+        assert util.find_user_tag_uids('x@2040 /@2040 @@2040 https://example.edu/@2040') == []
+
+    def test_find_requires_word_boundary_after_digits(self):
+        """Digits glued to letters are not a tag."""
+        assert util.find_user_tag_uids('@2040s @2040_x') == []
+        assert util.find_user_tag_uids('@2040, @1081940.') == ['2040', '1081940']
+
+    def test_find_inside_html(self):
+        """A tag right after a tag boundary or inside markup counts."""
+        assert util.find_user_tag_uids('<p>@2040</p><li><strong>@1081940</strong></li>') == ['2040', '1081940']
+
+    def test_find_non_ascii_neighbors_match_the_editor(self):
+        """Non-ASCII letters are not word characters, matching the editor's ASCII rules."""
+        assert util.find_user_tag_uids('é@2040') == ['2040']
+        assert util.find_user_tag_uids('@2040é') == ['2040']
+
+    def test_replace_user_tags(self):
+        """Replaces only the tags the callback returns text for."""
+        names = {'2040': '@Name A'}
+        assert util.replace_user_tags('<p>@2040 x@2040 @3</p>', lambda uid: names.get(uid)) == '<p>@Name A x@2040 @3</p>'
+        assert util.replace_user_tags(None, lambda _uid: 'x') == ''
+
+    def test_strip_user_tags(self):
+        """Removes the given tags and leaves other @digits text alone."""
+        assert util.strip_user_tags('<p>Ask @2040 and @3 today</p>', ['2040']) == '<p>Ask  and @3 today</p>'
+        assert util.strip_user_tags(None, ['2040']) == ''
