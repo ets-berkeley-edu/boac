@@ -4,10 +4,13 @@
       :id="`${idPrefix}-text`"
       :auto-focus="true"
       :disabled="isSaving"
+      :enable-user-tags="true"
       :initial-value="commentText"
       :is-invalid="!!error"
       :label="`${comment ? 'Edit' : 'Add'} Comment`"
       :on-value-update="onInputText"
+      :tagged-users="comment?.taggedUsers || {}"
+      :user-tag-context="userTagContext"
     />
     <div aria-live="polite">
       <v-alert
@@ -54,11 +57,13 @@
 
 <script setup lang="ts">
 import {clone, get, isEmpty, reject, trim} from 'lodash'
-import {onMounted, ref} from 'vue'
+import {computed, onMounted, ref} from 'vue'
+import type {TagContext} from '@/lib/types'
 import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments'
 import ProgressButton from '@/components/util/ProgressButton'
 import RichTextEditor from '@/components/util/RichTextEditor'
 import {alertScreenReader} from '@/lib/utils'
+import {isExternalCommentParent} from '@/lib/comment'
 import {useContextStore} from '@/stores/context'
 
 const props = defineProps({
@@ -92,6 +97,15 @@ const deleteAttachmentIds = ref([])
 const error = ref()
 const isSaving = ref(false)
 const isUpdatingAttachments = ref(false)
+
+// Tells the tag autocomplete which note, appointment or eForm the comment belongs to, so only users who can see that
+// parent are offered. External parents are identified by type and id; regular notes by their note id.
+const userTagContext = computed<TagContext>(() => {
+  const parent = props.parent
+  return isExternalCommentParent(parent.type) ?
+    {commentParentType: parent.parentType || parent.type, commentParentId: parent.id} :
+    {parentNoteId: parent.id}
+})
 
 onMounted(() => {
   if (props.comment) {

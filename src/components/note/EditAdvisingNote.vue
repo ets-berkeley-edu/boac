@@ -66,10 +66,13 @@
       <RichTextEditor
         id="edit-note-body"
         :disabled="isSaving || boaSessionExpired"
+        :enable-user-tags="true"
         :initial-value="model.body || ''"
         label="Note Details"
         :on-value-update="noteStore.setBody"
         :show-advising-note-best-practices="true"
+        :tagged-users="model.taggedUsers"
+        :user-tag-context="userTagContext"
       />
     </div>
     <AdvisingNoteTopics
@@ -153,7 +156,7 @@
 
 <script setup>
 import {mdiAlert} from '@mdi/js'
-import {nextTick, onBeforeMount, onMounted, ref, watch} from 'vue'
+import {computed, nextTick, onBeforeMount, onMounted, ref, watch} from 'vue'
 import {size, trim} from 'lodash'
 import {storeToRefs} from 'pinia'
 import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments'
@@ -214,6 +217,10 @@ const isPauseButtonFocused = ref(false)
 const showDraftSavedBadge = ref(false)
 const topics = ref([])
 const {boaSessionExpired, isSaving, mode, model} = storeToRefs(noteStore)
+
+// Tells the tag autocomplete who can see this note, so only eligible users are offered. Computed so that
+// privacy changes take effect while the editor is open.
+const userTagContext = computed(() => ({noteId: model.value.id, isPrivate: model.value.isPrivate}))
 
 const focusNoteField = () => {
   if (model.value.peerAdvisingDepartmentId) {

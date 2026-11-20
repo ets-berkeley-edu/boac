@@ -64,6 +64,7 @@ export function getDefaultModel(): NoteEditSessionModel {
     setDate: undefined,
     sid: undefined,
     subject: undefined,
+    taggedUsers: {},
     topics: []
   }
 }
