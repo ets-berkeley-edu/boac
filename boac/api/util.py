@@ -40,7 +40,6 @@ from boac.merged.advising_note import can_current_user_access_note, can_current_
 from boac.merged.calnet import get_calnet_user_for_uid
 from boac.merged.cohort_filter_options import PROTECTED_COHORT_FILTERS_COENG, PROTECTED_COHORT_FILTERS_UWASC, CohortFilterOptions
 from boac.merged.sis_terms import current_term_id
-from boac.merged.user_tag import get_tagged_user_names, get_tagged_users_by_body
 from boac.models.alert import Alert
 from boac.models.appointment_read import AppointmentRead
 from boac.models.authorized_user import AuthorizedUser
@@ -362,14 +361,7 @@ def _attach_external_comments(appointments, eforms):
         if parent_type and e.get('id') is not None:
             pairs.append((parent_type, str(e['id'])))
     grouped = Comment.get_comments_by_parents(pairs)
-    all_comments = [c for group in grouped.values() for c in group]
-    all_comment_ids = [c.id for c in all_comments]
-    # One lookup names the tags of every appointment and eForm comment on the timeline, instead of one per comment.
-    tagged_users_by_comment_id = dict(zip(
-        all_comment_ids,
-        get_tagged_users_by_body([c.body for c in all_comments]),
-        strict=True,
-    ))
+    all_comment_ids = [c.id for group in grouped.values() for c in group]
     reads_set = set()
     if all_comment_ids:
         read_rows = CommentRead.get_comments_read_by_user(current_user.get_id(), all_comment_ids)
@@ -378,21 +370,13 @@ def _attach_external_comments(appointments, eforms):
         if a.get('id') is None:
             a['comments'] = []
             continue
-        a['comments'] = [_external_comment_json(c, reads_set, tagged_users_by_comment_id) for c in grouped.get(('appointment', str(a['id'])), [])]
+        a['comments'] = [c.to_api_json(read=c.id in reads_set) for c in grouped.get(('appointment', str(a['id'])), [])]
     for e in eforms:
         parent_type = e.get('parentType')
         if not parent_type or e.get('id') is None:
             e['comments'] = []
             continue
-        e['comments'] = [_external_comment_json(c, reads_set, tagged_users_by_comment_id) for c in grouped.get((parent_type, str(e['id'])), [])]
-
-
-def _external_comment_json(comment, reads_set, tagged_users_by_comment_id):
-    # The model's JSON has no names, because models don't look people up. The timeline adds them here.
-    return {
-        **comment.to_api_json(read=comment.id in reads_set),
-        'taggedUsers': tagged_users_by_comment_id[comment.id],
-    }
+        e['comments'] = [c.to_api_json(read=c.id in reads_set) for c in grouped.get((parent_type, str(e['id'])), [])]
 
 
 def get_current_user_profile():
@@ -523,31 +507,22 @@ def get_academic_standing(profile):
         return ''
 
 
-def get_boac_note_as_compatible_json(note, note_read, children_by_parent_id=None, tagged_users=None, tagged_users_by_note_id=None):
-    # List callers pass what they already resolved in one lookup: this note's map, or a map for every note and comment by id.
-    # A lone note looks up its own.
-    if tagged_users is None and tagged_users_by_note_id is not None:
-        tagged_users = tagged_users_by_note_id.get(note.id)
-    if tagged_users is None:
-        tagged_users = get_tagged_user_names(note.body)
-    # A private note's text is hidden from advisors who can't read private notes, in 'message' as well as 'body'.
-    omit_note_body = note.is_private and not current_user.can_access_private_notes
+def get_boac_note_as_compatible_json(note, note_read, children_by_parent_id=None):
     base = {
         **note_to_compatible_json(
             note=note.__dict__,
             note_read=note_read,
             attachments=[a.to_api_json() for a in note.attachments if not a.deleted_at],
             topics=[t.topic for t in note.topics if not t.deleted_at],
-            tagged_users=tagged_users,
         ),
-        'message': None if omit_note_body else note.body,
+        'message': note.body,
         'type': 'note',
     }
-    base['comments'] = get_boa_note_comments_as_compatible_json(note, children_by_parent_id, tagged_users_by_note_id)
+    base['comments'] = get_boa_note_comments_as_compatible_json(note, children_by_parent_id)
     return base
 
 
-def get_boa_note_comments_as_compatible_json(note, children_by_parent_id=None, tagged_users_by_note_id=None):
+def get_boa_note_comments_as_compatible_json(note, children_by_parent_id=None):
     if note.parent_note_id:
         return []
     if children_by_parent_id is None:
@@ -559,16 +534,11 @@ def get_boa_note_comments_as_compatible_json(note, children_by_parent_id=None, t
     if accessible:
         read_rows = NoteRead.get_notes_read_by_user(current_user.get_id(), [str(c.id) for c in accessible])
         reads_by_id = {r.note_id: r.created_at for r in read_rows}
-    # List callers have already named every comment's tags. Otherwise one lookup names this note's comments, not one each.
-    if tagged_users_by_note_id is None:
-        tagged_users_per_child = get_tagged_users_by_body([child.body for child in accessible])
-        tagged_users_by_note_id = dict(zip([child.id for child in accessible], tagged_users_per_child, strict=True))
     return[
         get_boac_note_as_compatible_json(
             child,
             note_read=reads_by_id.get(str(child.id)),
             children_by_parent_id=children_by_parent_id,
-            tagged_users_by_note_id=tagged_users_by_note_id,
         )
         for child in accessible
     ]

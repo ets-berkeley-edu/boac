@@ -36,7 +36,6 @@ from boac.api.util import (
 )
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import is_int, process_input_from_rich_text_editor
-from boac.merged.user_tag import get_tagged_user_names
 from boac.models.comment import Comment
 from boac.models.comment_parent import CommentParent, comment_parent_type_enum
 
@@ -73,7 +72,6 @@ def create_comment():
     record_external_comment_read_state(comment, viewer_id, parent_type, parent_id)
     return tolerant_jsonify({
         **comment.to_api_json(read=True),
-        'taggedUsers': get_tagged_user_names(comment.body),
         'parentType': comment_parent.parent_type,
         'parentId': comment_parent.parent_id,
     })
@@ -85,7 +83,6 @@ def _comment_json_with_parent(comment, read=False):
         raise ResourceNotFoundError('Comment not found')
     return {
         **comment.to_api_json(read=read),
-        'taggedUsers': get_tagged_user_names(comment.body),
         'parentType': comment_parent.parent_type,
         'parentId': comment_parent.parent_id,
     }

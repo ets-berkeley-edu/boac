@@ -52,7 +52,6 @@ from boac.lib.util import (
     to_iso_format,
 )
 from boac.merged.calnet import get_calnet_users_for_csids
-from boac.merged.user_tag import get_tagged_users_by_body, replace_tags_with_names
 from boac.models.note import Note
 from boac.models.note_attachment import NoteAttachment
 from boac.models.note_read import NoteRead
@@ -250,18 +249,15 @@ def get_history_dept_advising_notes(sid):
 
 def get_native_boa_notes(sid, exclude_draft_notes=False):
     notes_by_id = {}
-    rows = Note.get_notes_by_sid(exclude_draft_notes=exclude_draft_notes, sid=sid)
-    accessible_rows = [row for row in rows if can_current_user_access_note(row.__dict__)]
-    # One lookup names the tags of every note on the timeline, instead of one per note.
-    tagged_users_per_row = get_tagged_users_by_body([row.body for row in accessible_rows])
-    for row, tagged_users in zip(accessible_rows, tagged_users_per_row, strict=True):
+    for row in Note.get_notes_by_sid(exclude_draft_notes=exclude_draft_notes, sid=sid):
         note = row.__dict__
-        notes_by_id[str(note['id'])] = note_to_compatible_json(
-            note=note,
-            attachments=[a.to_api_json() for a in row.attachments if not a.deleted_at],
-            topics=[t.to_api_json() for t in row.topics if not t.deleted_at],
-            tagged_users=tagged_users,
-        )
+        if can_current_user_access_note(note):
+            note_id = note['id']
+            notes_by_id[str(note_id)] = note_to_compatible_json(
+                note=note,
+                attachments=[a.to_api_json() for a in row.attachments if not a.deleted_at],
+                topics=[t.to_api_json() for t in row.topics if not t.deleted_at],
+            )
     return notes_by_id
 
 
@@ -384,8 +380,7 @@ def get_zip_stream(
                 note['author']['sid'],
                 (note['author']['name'] or author_name),
                 note['subject'],
-                # Downloads show a tagged person's name, never their UID. Legacy notes carry no taggedUsers and stay as written.
-                '' if omit_note_body else replace_tags_with_names(note['body'], note.get('taggedUsers') or {}),
+                '' if omit_note_body else note['body'],
                 '; '.join([t for t in note['topics'] or []]),
                 '' if omit_note_body else '; '.join([a['displayName'] for a in note['attachments'] or []]),
                 note.get('isPrivate'),
@@ -432,12 +427,11 @@ def note_to_compatible_json(
         topics=(),
         attachments=None,
         note_read=False,
-        tagged_users=None,
 ):
     # We have legacy notes and notes created via BOA. The following sets a standard for the front-end.
     omit_note_body = note.get('is_private') and not current_user.can_access_private_notes
     data_source = note.get('data_source') if note.get('eform_id') else None
-    api_json = {
+    return {
         'appointmentId': note.get('appointmentId'),
         'attachments': None if omit_note_body else attachments,
         'author': get_note_author_summary(note),
@@ -462,10 +456,6 @@ def note_to_compatible_json(
         'updatedAt': to_iso_format(note.get('updated_at')) if note.get('parent_note_id') else resolve_sis_updated_at(note),
         'updatedBy': note.get('updated_by'),
     }
-    if tagged_users is not None:
-        # Names behind the @<UID> tags in the body. Loch notes pass nothing and get no key. A hidden body hides its names too.
-        api_json['taggedUsers'] = {} if omit_note_body else tagged_users
-    return api_json
 
 
 def _eform_to_json(eform):
