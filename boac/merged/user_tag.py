@@ -32,7 +32,7 @@ from dataclasses import dataclass
 
 from flask import current_app as app
 
-from boac.lib.util import find_user_tag_uids
+from boac.lib.util import find_user_tag_uids, replace_user_tags
 from boac.merged.calnet import get_calnet_users_for_uids
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
@@ -44,6 +44,10 @@ PRIVATE_NOTE = 'private_note'
 NO_ACCESS = 'no_access'
 SELF_TAG = 'self_tag'
 OUTSIDE_PEER_DEPARTMENT = 'outside_peer_department'
+
+# Shown in place of a tag whose person has no CalNet name.
+UNKNOWN_USER_NAME = 'Unknown user'
+
 
 @dataclass(frozen=True)
 class TagContext:
@@ -74,6 +78,42 @@ def writer_peer_department_id(user_id: int, peer_department_id: int | None) -> i
         m['role_type'] == 'peer_advisor' and m['peer_advising_department_id'] == peer_department_id for m in memberships
     )
     return peer_department_id if is_peer_advisor_here else None
+
+
+def get_tagged_users_by_body(bodies: list[str | None]) -> list[dict[str, dict | None]]:
+    """Return one {uid: {'name': name} | None} map per body, resolving every body's tags with one lookup.
+
+    A tag is a UID with an `authorized_users` row, deleted users included. A tag with no CalNet name maps to None. Bodies
+    with no `@digits` text cost no query, so most responses pay nothing.
+    """
+    uids_by_body = [find_user_tag_uids(body) for body in bodies]
+    all_uids = {uid for uids in uids_by_body for uid in uids}
+    if not all_uids:
+        return [{} for _ in bodies]
+    existing = AuthorizedUser.get_existing_uids(all_uids)
+    if not existing:
+        return [{} for _ in bodies]
+    calnet_users = get_calnet_users_for_uids(app, sorted(existing))
+    # Resolve each tag once, then hand each body only the tags it contains.
+    users_by_uid = {uid: ({'name': calnet_users[uid]['name']} if (calnet_users.get(uid) or {}).get('name') else None) for uid in existing}
+    return [{uid: users_by_uid[uid] for uid in uids if uid in users_by_uid} for uids in uids_by_body]
+
+
+def get_tagged_user_names(body: str | None) -> dict[str, dict | None]:
+    """Return the tagged-users map for a single body."""
+    return get_tagged_users_by_body([body])[0]
+
+
+def replace_tags_with_names(body: str | None, tagged_users: dict[str, dict | None]) -> str:
+    """Turn each tag in `tagged_users` into @Name for downloads, and leave other @digits text alone."""
+
+    def _name_for(uid):
+        if uid not in tagged_users:
+            return None
+        user = tagged_users[uid]
+        return f"@{user['name'] if user else UNKNOWN_USER_NAME}"
+
+    return replace_user_tags(body, _name_for)
 
 
 def get_tagged_uids(body: str | None) -> list[str]:
