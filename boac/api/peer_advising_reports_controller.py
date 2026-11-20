@@ -41,7 +41,6 @@ from boac.merged.peer_advising_notes_reports import (
     get_peer_advising_note_topic_usage,
     get_total_peer_advising_notes,
 )
-from boac.merged.user_tag import get_tagged_users_by_body, replace_tags_with_names
 from boac.models.peer_advising_department import PeerAdvisingDepartment
 
 
@@ -49,13 +48,9 @@ from boac.models.peer_advising_department import PeerAdvisingDepartment
 @peer_advisor_manager_in_department
 def get_peer_advising_csv_download(peer_advising_department_id):
     rows = []
-    notes = get_all_peer_advising_notes(peer_advising_department_id=peer_advising_department_id)
-    # One lookup names the tags of every note in the report, instead of one per note.
-    tagged_users_per_note = get_tagged_users_by_body([row['body'] for row in notes])
-    for row, tagged_users in zip(notes, tagged_users_per_note, strict=True):
-        # Show tagged people by name, then clean up line breaks, which cause problems in CSV.
-        body = replace_tags_with_names(row['body'], tagged_users)
-        body = body.replace('\n', ' ').replace('\r', ' ').strip()
+    for row in get_all_peer_advising_notes(peer_advising_department_id=peer_advising_department_id):
+        # Line breaks in CSV cause problems
+        body = (row['body'] or '').replace('\n', ' ').replace('\r', ' ').strip()
         body = re.sub(r'\s+', ' ', body)
         row['body'] = body
         rows.append(row)
