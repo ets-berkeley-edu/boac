@@ -50,14 +50,19 @@
                 autocomplete="on"
                 @input="setSubjectPerEvent"
               />
+              <!-- The editor reads enableUserTags only at setup, so switching in place to template editing must remount it. -->
               <RichTextEditor
                 id="note-details"
+                :key="mode === 'editTemplate' ? 'template' : 'note'"
                 :disabled="isSaving || boaSessionExpired"
+                :enable-user-tags="mode !== 'editTemplate'"
                 :initial-value="model.body || ''"
                 label="Note Details"
                 :on-value-update="noteStore.setBody"
                 :show-advising-note-best-practices="true"
                 :on-toggle-popover="toggleFocusLock"
+                :tagged-users="model.taggedUsers"
+                :user-tag-context="userTagContext"
               />
             </div>
             <div class="py-3">
@@ -143,7 +148,7 @@
 <script setup>
 import {concat, filter, size, trim, xor, xorBy} from 'lodash'
 import {mdiCloseCircle, mdiSync} from '@mdi/js'
-import {onBeforeUnmount, ref, watch} from 'vue'
+import {computed, onBeforeUnmount, ref, watch} from 'vue'
 import {storeToRefs} from 'pinia'
 import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments'
 import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics'
@@ -215,6 +220,14 @@ const showCreateTemplateModal = ref(false)
 const showDiscardNoteModal = ref(false)
 const showDiscardTemplateModal = ref(false)
 const topics = ref([])
+
+// Tells the tag autocomplete who can see this note, so only eligible users are offered. Computed so that
+// privacy and recipient changes take effect while the modal is open.
+const userTagContext = computed(() => ({
+  noteId: model.value.id,
+  isPrivate: model.value.isPrivate,
+  recipientCount: noteStore.completeSidSet.size
+}))
 
 const selectEscape = event => {
   if (event.key === 'Escape' && !isSecondModalOpen.value && !noteStore.isSaving && !showCreateTemplateModal.value && dialogModel.value) {

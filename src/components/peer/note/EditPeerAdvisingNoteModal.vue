@@ -41,10 +41,13 @@
             id="peer-advising-note-body"
             class="pt-4"
             :disabled="isSaving"
+            :enable-user-tags="true"
             :initial-value="model.body || ''"
             label="Note Details"
             :on-value-update="noteStore.setBody"
             :show-advising-note-best-practices="true"
+            :tagged-users="{}"
+            :user-tag-context="userTagContext"
           />
           <AdvisingNoteTopics
             v-if="topics.length"
@@ -93,7 +96,7 @@ import {computed, onMounted, ref, watch} from 'vue'
 import {concat, get, size} from 'lodash'
 import {storeToRefs} from 'pinia'
 import FocusLock from 'vue-focus-lock'
-import type {BasicStudent, BasicStudentLabeled, NoteAttachment, NoteRecipients, NoteTemplate, NoteTopic} from '@/lib/types'
+import type {BasicStudent, BasicStudentLabeled, NoteAttachment, NoteRecipients, NoteTemplate, NoteTopic, TagContext} from '@/lib/types'
 import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments.vue'
 import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics.vue'
 import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
@@ -137,6 +140,9 @@ const studentMajorsLabel = computed(() => studentMajors.value.length ? studentMa
 const studentName = computed(() => `${get(student.value, 'firstName')} ${get(student.value, 'lastName')}`)
 const topics = ref<NoteTopic[]>([])
 const {isSaving, model} = storeToRefs(noteStore)
+
+// Peer advising notes are scoped to the author's peer advising department when offering users to tag.
+const userTagContext = computed<TagContext>(() => ({peerAdvisingDepartmentId: props.peerAdvisingDepartmentId}))
 
 onMounted(() => {
   getPeerAdvisingTopics().then(data => {
