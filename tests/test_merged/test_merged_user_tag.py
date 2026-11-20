@@ -41,6 +41,9 @@ from boac.merged.user_tag import (
     TagContext,
     find_invalid_tags,
     get_tagged_uids,
+    get_tagged_user_names,
+    get_tagged_users_by_body,
+    replace_tags_with_names,
     search_taggable_users,
     writer_peer_department_id,
 )
@@ -347,3 +350,78 @@ class TestWriterPeerDepartmentId:
         membership.deleted_at = utc_now()
         std_commit()
         assert writer_peer_department_id(user_id, _eop_id()) is None
+
+
+class _CallSpy:
+    """Wraps a callable and records how many times it ran, so tests can assert on query counts."""
+
+    def __init__(self, func):
+        self.func = func
+        self.calls = 0
+
+    def __call__(self, *args, **kwargs):
+        self.calls += 1
+        return self.func(*args, **kwargs)
+
+
+@pytest.mark.usefixtures('db_session')
+class TestGetTaggedUsersByBody:
+    """Names behind the tags of many bodies, found with one lookup."""
+
+    def test_no_tag_text_makes_no_query(self, monkeypatch):
+        """Bodies with no @digits text are answered without touching the database."""
+        spy = _CallSpy(AuthorizedUser.get_existing_uids)
+        monkeypatch.setattr(AuthorizedUser, 'get_existing_uids', spy)
+        assert get_tagged_users_by_body(['<p>hi</p>', None, '']) == [{}, {}, {}]
+        assert spy.calls == 0
+
+    def test_one_query_for_many_bodies(self, app, monkeypatch):
+        """Many tagged bodies cost one user query, and each body's map holds only its own tags."""
+        spy = _CallSpy(AuthorizedUser.get_existing_uids)
+        monkeypatch.setattr(AuthorizedUser, 'get_existing_uids', spy)
+        maps = get_tagged_users_by_body([
+            f'<p>Ask @{REGULAR_ADVISOR_UID}</p>',
+            f'<p>Ask @{CE3_ADVISOR_UID}</p>',
+            f'<p>Both @{REGULAR_ADVISOR_UID} and @{CE3_ADVISOR_UID}</p>',
+        ])
+        assert spy.calls == 1
+        assert maps[0] == {REGULAR_ADVISOR_UID: {'name': _name(app, REGULAR_ADVISOR_UID)}}
+        assert maps[1] == {CE3_ADVISOR_UID: {'name': _name(app, CE3_ADVISOR_UID)}}
+        assert set(maps[2].keys()) == {REGULAR_ADVISOR_UID, CE3_ADVISOR_UID}
+
+    def test_non_user_digits_left_out(self):
+        """Digits after an @ that aren't a BOA user are ordinary text, not a tag."""
+        maps = get_tagged_users_by_body([f'@{NOT_A_USER_UID} and @{REGULAR_ADVISOR_UID}'])
+        assert set(maps[0].keys()) == {REGULAR_ADVISOR_UID}
+
+    def test_deleted_user_included(self, app):
+        """A deleted user is still a tag, shown with their name."""
+        maps = get_tagged_users_by_body([f'@{DELETED_UID}'])
+        assert maps[0] == {DELETED_UID: {'name': _name(app, DELETED_UID)}}
+
+    def test_missing_calnet_name_is_none(self, monkeypatch):
+        """A tag whose person has no CalNet name maps to None, which the UI shows as an unknown user."""
+        monkeypatch.setattr(
+            'boac.merged.user_tag.get_calnet_users_for_uids',
+            lambda _app, uids: {uid: {'name': None} for uid in uids},
+        )
+        assert get_tagged_users_by_body([f'@{REGULAR_ADVISOR_UID}']) == [{REGULAR_ADVISOR_UID: None}]
+
+    def test_single_body(self):
+        """The one-body helper answers the same as the batch helper."""
+        body = f'<p>@{REGULAR_ADVISOR_UID}</p>'
+        assert get_tagged_user_names(body) == get_tagged_users_by_body([body])[0]
+
+
+class TestReplaceTagsWithNames:
+    """Names in place of tags, for downloads."""
+
+    def test_replaces_known_and_unknown(self):
+        """A named tag becomes @Name, an unnamed one @Unknown user, and other @digits text is untouched."""
+        body = '<p>@1081940, @5405613 and @2</p>'
+        tagged_users = {'1081940': {'name': 'Synthetic One'}, '5405613': None}
+        assert replace_tags_with_names(body, tagged_users) == '<p>@Synthetic One, @Unknown user and @2</p>'
+
+    def test_none_body(self):
+        """A missing body becomes an empty string."""
+        assert replace_tags_with_names(None, {}) == ''

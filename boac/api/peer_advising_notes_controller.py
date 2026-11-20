@@ -60,9 +60,10 @@ from boac.lib.util import (
     to_bool_or_none,
     to_iso_format,
 )
-from boac.merged.advising_note import can_current_user_edit_note, get_author_uid, get_boa_attachment_stream
+from boac.merged.advising_note import can_current_user_access_note, can_current_user_edit_note, get_author_uid, get_boa_attachment_stream
 from boac.merged.sis_terms import future_term_id
 from boac.merged.student import merge_enrollment_terms
+from boac.merged.user_tag import get_tagged_users_by_body
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.note import Note
 from boac.models.note_attachment import NoteAttachment
@@ -275,6 +276,12 @@ def get_notes_authored_by():
     for comment in comments:
         comments_by_note_id.setdefault(comment.parent_note_id, []).append(comment)
 
+    # One lookup names the tags of every listed note and its comments, instead of one per note.
+    tagged_users_by_note_id = dict(zip(
+        [row['id'] for row in rows] + [comment.id for comment in comments],
+        get_tagged_users_by_body([row['body'] for row in rows] + [comment.body for comment in comments]),
+        strict=True,
+    ))
     for row in rows:
         note_id = row['id']
         note = next((n for n in notes if n['id'] == note_id), None)
@@ -288,11 +295,12 @@ def get_notes_authored_by():
                     'role': row['author_role'],
                 },
                 'body': row['body'],
-                'comments': get_boa_note_comments_as_compatible_json(row, comments_by_note_id),
+                'comments': get_boa_note_comments_as_compatible_json(row, comments_by_note_id, tagged_users_by_note_id),
                 'contactType': row['contact_type'],
                 'peerAdvisingDepartmentId': peer_advising_department_id,
                 'sid': row['sid'],
                 'subject': row['subject'],
+                'taggedUsers': tagged_users_by_note_id[note_id],
                 'topics': [],
                 'createdAt': to_iso_format(row['created_at']),
                 'updatedAt': to_iso_format(row['updated_at']),
@@ -437,12 +445,30 @@ def _peer_advising_notes_api_json(peer_advising_department_id, offset, limit, in
         'notes': [],
         'totalNoteCount': total_note_count,
     }
+    # Fetch every listed note's comments together, then name the tags of all notes and comments with one lookup,
+    # instead of one lookup per note.
+    comments = Note.get_note_comments_by_parent_ids([note.id for note in notes]) if notes else []
+    children_by_parent_id = {}
+    for comment in comments:
+        if can_current_user_access_note(comment):
+            children_by_parent_id.setdefault(comment.parent_note_id, []).append(comment)
+    tagged_users_by_note_id = _tagged_users_by_note_id(notes + [c for group in children_by_parent_id.values() for c in group])
     for note in notes:
-        note_json = get_boac_note_as_compatible_json(note=note, note_read=note.id in notes_read_by_user)
+        note_json = get_boac_note_as_compatible_json(
+            note=note,
+            note_read=note.id in notes_read_by_user,
+            children_by_parent_id=children_by_parent_id,
+            tagged_users_by_note_id=tagged_users_by_note_id,
+        )
         api_json['notes'].append(note_json)
         if include_students and note.sid in students_by_sid:
             note_json['student'] = students_by_sid[note.sid]
     return tolerant_jsonify(api_json)
+
+
+def _tagged_users_by_note_id(notes):
+    # One lookup names the tags of every note and comment given, keyed by note id.
+    return dict(zip([n.id for n in notes], get_tagged_users_by_body([n.body for n in notes]), strict=True))
 
 
 def _get_enrollments_by_term_id(sid):
