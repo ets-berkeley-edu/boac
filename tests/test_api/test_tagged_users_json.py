@@ -123,8 +123,6 @@ class TestNoteTaggedUsers:
         response = client.get(f'/api/note/{note.id}')
         assert response.status_code == 200
         assert response.json['body'] is None
-        # The message field repeats the body, so it must be hidden too or the raw text and its UIDs would leak.
-        assert response.json['message'] is None
         assert response.json['taggedUsers'] == {}
 
     def test_nested_comment_has_own_map(self, client, fake_auth):

@@ -322,7 +322,7 @@
                 v-if="['appointment', 'eForm', 'note'].includes(message.type)"
                 :class="{'sr-only': !isExpanded(message)}"
               >
-                <div v-if="message.createdAt" :class="{'pb-2': !displayUpdatedAt(message)}">
+                <div v-if="message.createdAt" :class="{'pb-2': !shouldDisplayUpdatedAt(message)}">
                   <div :aria-hidden="true" class="text-medium-emphasis font-size-14">{{ message.type === 'appointment' ? 'Appt Date' : 'Created' }}:</div>
                   <TimelineDate
                     :id="`expanded-${message.type}-${message.id}-created-at`"
@@ -338,7 +338,7 @@
                     <span class="sr-only">{{ getSameDayDate(message).screenReader }}</span>
                   </div>
                 </div>
-                <div v-if="displayUpdatedAt(message)">
+                <div v-if="shouldDisplayUpdatedAt(message)">
                   <div :aria-hidden="true" class="pt-2 text-medium-emphasis font-size-14">Updated:</div>
                   <TimelineDate
                     :id="`expanded-${message.type}-${message.id}-updated-at`"
@@ -433,7 +433,7 @@ import AuthorDetails from '@/components/note/AuthorDetails'
 import EditAdvisingNote from '@/components/note/EditAdvisingNote'
 import TimelineDate from '@/components/student/profile/TimelineDate'
 import {alertScreenReader, decodeStudentUriAnchor, pluralize, putFocusNextTick, stripHtmlAndTrim} from '@/lib/utils'
-import {canUserEditNote, summarizeNoteForAcademicTimeline as getMessageSummary} from '@/lib/note'
+import {canUserEditNote, summarizeNoteForAcademicTimeline as getMessageSummary, shouldDisplayUpdatedAt} from '@/lib/note'
 import {deleteNote, getNote, markNoteRead} from '@/api/notes'
 import {dismissStudentAlert} from '@/api/student'
 import {isDirector} from '@/lib/boa-user'
@@ -647,10 +647,6 @@ const describeTheActiveTab = () => {
     : `Showing ${props.countPerActiveTab > defaultShowPerTab.value ? 'the first' : ''} ${pluralized}`
 }
 
-const displayUpdatedAt = message => {
-  return message.updatedAt && (message.updatedAt !== message.createdAt) && (message.type !== 'appointment')
-}
-
 const editNote = note => {
   editModeNoteId.value = note.id
   putFocusNextTick('edit-note-subject')
@@ -839,8 +835,7 @@ const refreshSearchIndex = () => {
           commentAuthor.name,
           (map(commentAuthor.departments || [], 'deptName')).join(),
           commentAuthor.email,
-          c.createdBy,
-          c.message
+          c.createdBy
         ])
       })
     }

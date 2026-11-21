@@ -4,17 +4,20 @@ export type AcademicTimelineMessage = {
   advisor: BoaUserBasic,
   appointmentTitle?: string,
   author: NoteAuthor,
+  body?: string,
   category?: string,
+  createdAt?: string,
   createdBy?: string,
   details?: string,
   eForm: EForm,
   legacySource: string,
-  message: string,
+  message?: string,
   peerAdvisingDepartmentId?: number,
   subcategory?: string,
   subject: string,
   topics: string[],
   type: string,
+  updatedAt?: string
 }
 
 export type Attachment = {
@@ -298,6 +301,7 @@ export type NoteComment = {
   body: string,
   createdAt?: string,
   deletedAt?: string,
+  parentNoteId: number,
   taggedUsers?: TaggedUsers,
   updatedAt?: string
 }

@@ -223,7 +223,6 @@ class Comment(Base):
                 'authorDeptCodes': self.author_dept_codes,
             }),
             'body': self.body,
-            'message': self.body,
             'attachments': [a.to_api_json() for a in self.attachments if not a.deleted_at],
             'createdAt': to_iso_format(self.created_at),
             'updatedAt': self.resolve_updated_at(),
