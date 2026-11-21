@@ -9,7 +9,7 @@
         v-if="note.studentUid"
         :id="`note-${note.id}-link-to-student`"
         :class="{'demo-mode-blur': currentUser.inDemoMode}"
-        :to="`${studentRoutePath(note.studentUid, currentUser.inDemoMode)}#${timelineAnchor}`"
+        :to="`${studentRoutePath(note.studentUid, currentUser.inDemoMode)}#${timelineAnchor(note)}`"
         class="advising-note-search-result-header-link"
         v-html="note.studentName"
       />
@@ -47,9 +47,9 @@
 </template>
 
 <script setup>
-import {computed} from 'vue'
 import {get} from 'lodash'
 import Date from '@/components/util/Date.vue'
+import {timelineAnchor} from '@/lib/note'
 import {studentRoutePath} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 
@@ -64,11 +64,4 @@ const contextStore = useContextStore()
 const currentUser = contextStore.currentUser
 const timestamp = get(props.note, 'updatedAt') || get(props.note, 'createdAt')
 const timezone = contextStore.config.timezone
-
-const timelineAnchor = computed(() => {
-  if (props.note.parentNoteId) {
-    return `timeline-note-${props.note.parentNoteId}_comment-${props.note.id}`
-  }
-  return `timeline-note-${props.note.id}`
-})
 </script>

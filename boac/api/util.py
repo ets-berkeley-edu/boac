@@ -292,7 +292,7 @@ def put_notifications(student):
                 'type': 'appointment',
             })
 
-        # The front-end requires 'type', 'message' and 'read'. Optional fields: id, status, createdAt, updatedAt.
+        # The front-end requires 'type', 'body' and 'read'. Optional fields: id, status, createdAt, updatedAt.
         notes_by_id = {}
         children = []
         for note in get_advising_notes(sid) or []:
@@ -300,7 +300,7 @@ def put_notifications(student):
             note_type = 'eForm' if note.get('eForm') else 'note'
             wrapped = {
                 **note,
-                'message': message.strip() if message else None,
+                'body': message.strip() if message else None,
                 'type': note_type,
             }
             if note_type == 'eForm':
@@ -530,8 +530,6 @@ def get_boac_note_as_compatible_json(note, note_read, children_by_parent_id=None
         tagged_users = tagged_users_by_note_id.get(note.id)
     if tagged_users is None:
         tagged_users = get_tagged_user_names(note.body)
-    # A private note's text is hidden from advisors who can't read private notes, in 'message' as well as 'body'.
-    omit_note_body = note.is_private and not current_user.can_access_private_notes
     base = {
         **note_to_compatible_json(
             note=note.__dict__,
@@ -540,7 +538,6 @@ def get_boac_note_as_compatible_json(note, note_read, children_by_parent_id=None
             topics=[t.topic for t in note.topics if not t.deleted_at],
             tagged_users=tagged_users,
         ),
-        'message': None if omit_note_body else note.body,
         'type': 'note',
     }
     base['comments'] = get_boa_note_comments_as_compatible_json(note, children_by_parent_id, tagged_users_by_note_id)

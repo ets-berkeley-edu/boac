@@ -48,6 +48,10 @@ export function canUserEditNote(note: Note, user: BoaUser): boolean {
   return canEdit
 }
 
+export function shouldDisplayUpdatedAt(message: AcademicTimelineMessage) {
+  return message.updatedAt && (message.updatedAt !== message.createdAt) && (message.type !== 'appointment')
+}
+
 export function stripHtmlAndSummarize(message: string) {
   const cleanse = (s: string) => {
     const spaced = s
@@ -67,16 +71,17 @@ export function stripHtmlAndSummarize(message: string) {
 }
 
 export function summarizeNoteForAcademicTimeline(message: AcademicTimelineMessage, isCollapsedView?: boolean): string {
+  // Appointments, alerts and other timeline items carry their text in 'message'. Notes carry it in 'body'.
   let summary = message.message
   if ('note' === message.type) {
     if (message.subject) {
       summary = message.subject
-    } else if (size(message.message)) {
+    } else if (message.body && size(message.body)) {
       if (isCollapsedView) {
-        // Notes without a subject get a pseudo-subject line using the first line of the message body.
-        summary = stripHtmlAndSummarize(message.message)
+        // Notes without a subject get a pseudo-subject line using the first line of the note body.
+        summary = stripHtmlAndSummarize(message.body)
       } else {
-        summary = message.message
+        summary = message.body
       }
     } else if (message.category) {
       summary = `${message.category}${message.subcategory ? `, ${message.subcategory}` : ''}`
@@ -126,6 +131,13 @@ export function mergePeerAdvisingNoteUpdate(existingNote: Note, updatedNote: Not
     peerAdvisingDepartment: updatedNote.peerAdvisingDepartment ?? existingNote.peerAdvisingDepartment,
     student: updatedNote.student ?? existingNote.student,
   }
+}
+
+export function timelineAnchor(note: Note|NoteComment) {
+  if ('parentNoteId' in note && note.parentNoteId) {
+    return `timeline-note-${note.parentNoteId}_comment-${note.id}`
+  }
+  return `timeline-note-${note.id}`
 }
 
 export function updateNoteComments(parentNote: Note, comment: NoteComment) {

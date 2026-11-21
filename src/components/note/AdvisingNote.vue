@@ -47,10 +47,10 @@
       class="note-body pb-4"
       :class="{'sr-only': !isOpen}"
     >
-      <div v-if="(note.subject || note.isDraft) && note.message" class="open-note-message-container py-3">
-        <span :id="`note-${note.id}-message-open`" v-html="note.message" />
+      <div v-if="(note.subject || note.isDraft) && note.body" class="open-note-message-container py-3">
+        <span :id="`note-${note.id}-message-open`" v-html="note.body" />
       </div>
-      <div v-if="!note.subject && !note.message && note.eForm" class="pt-2">
+      <div v-if="!note.subject && !note.body && note.eForm" class="pt-2">
         <AdvisingEForm :note="note" />
       </div>
       <div v-if="!note.eForm && note.legacySource" class="font-italic text-medium-emphasis pt-2">
@@ -110,11 +110,13 @@ import {useNoteStore} from '@/stores/note-edit-session'
 
 const props = defineProps({
   afterSaved: {
-    required: true,
+    default: () => {},
+    required: false,
     type: Function
   },
   editNote: {
-    required: true,
+    default: () => {},
+    required: false,
     type: Function
   },
   isOpen: {
@@ -126,7 +128,8 @@ const props = defineProps({
     type: Object
   },
   onClickOpen: {
-    required: true,
+    default: () => {},
+    required: false,
     type: Function
   }
 })
@@ -140,8 +143,8 @@ const currentUser = contextStore.currentUser
 const isUpdatingAttachments = ref(false)
 const noteSummary = computed(() => {
   const note = props.note
-  const showNoteMessage = props.isOpen && !note.subject && !note.peerAdvisingDepartmentId && size(note.message)
-  return showNoteMessage ? note.message : summarizeNoteForAcademicTimeline(note, !props.isOpen)
+  const showNoteMessage = props.isOpen && !note.subject && !note.peerAdvisingDepartmentId && size(note.body)
+  return showNoteMessage ? note.body : summarizeNoteForAcademicTimeline(note, !props.isOpen)
 })
 const showConfirmDeleteAttachment = ref(false)
 const showNoteAttachmentsWidget = computed(() => (!props.note.legacySource && canUserEditNote(props.note, currentUser)) || size(props.note.attachments))
