@@ -40,7 +40,7 @@ from boac.merged.advising_note import can_current_user_access_note, can_current_
 from boac.merged.calnet import get_calnet_user_for_uid
 from boac.merged.cohort_filter_options import PROTECTED_COHORT_FILTERS_COENG, PROTECTED_COHORT_FILTERS_UWASC, CohortFilterOptions
 from boac.merged.sis_terms import current_term_id
-from boac.merged.user_tag import get_tagged_user_names, get_tagged_users_by_body
+from boac.merged.user_tag import get_tagged_user_names, get_tagged_users_by_body, note_comment_tag_context, sync_tags, validate_tags
 from boac.models.alert import Alert
 from boac.models.appointment_read import AppointmentRead
 from boac.models.authorized_user import AuthorizedUser
@@ -211,6 +211,8 @@ def create_note_comment(parent_note, params, peer_advising_department_id=None):
     author = get_note_author_profile_of_current_user()
     if not author['author_role']:
         raise UnauthorizedRequestError('Unauthorized.')
+    # A note comment is judged by its parent note's privacy and peer department. Check before the comment is created.
+    tag_user_ids = validate_tags(body, note_comment_tag_context(parent_note, current_user.uid, current_user.get_id()))
     comment = Note.create(
         **author,
         attachments=attachments,
@@ -221,6 +223,8 @@ def create_note_comment(parent_note, params, peer_advising_department_id=None):
         sid=parent_note.sid,
         subject='',
     )
+    # Note comments are rows in the notes table, so their tags use object_type 'note'.
+    sync_tags(comment.id, 'note', tag_user_ids)
     NoteRead.delete_for_note(parent_note.id, except_viewer_id=current_user.get_id())
     NoteRead.find_or_create(viewer_id=current_user.get_id(), note_ids=[comment.id])
     return comment
@@ -245,6 +249,11 @@ def update_note_comment(params):
     existing_attachment_count = len(comment.attachments) - len(delete_attachment_ids)
     if existing_attachment_count + len(attachments) > attachment_limit:
         raise BadRequestError(f'No more than {attachment_limit} attachments may be uploaded at once.')
+    parent_note = Note.find_by_id(note_id=comment.parent_note_id)
+    if not parent_note:
+        raise ResourceNotFoundError('Note not found')
+    context = note_comment_tag_context(parent_note, current_user.uid, current_user.get_id())
+    tag_user_ids = validate_tags(body, context, object_id=comment.id, object_type='note')
 
     comment = Note.update(
         body=body,
@@ -269,6 +278,7 @@ def update_note_comment(params):
             note_id=comment.id,
             attachment=attachment,
         )
+    sync_tags(comment.id, 'note', tag_user_ids)
     NoteRead.delete_for_note(comment.id, except_viewer_id=current_user.get_id())
     NoteRead.delete_for_note(comment.parent_note_id, except_viewer_id=current_user.get_id())
     return comment

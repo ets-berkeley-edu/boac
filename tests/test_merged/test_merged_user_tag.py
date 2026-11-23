@@ -135,6 +135,11 @@ class TestFindInvalidTags:
         result = find_invalid_tags([DELETED_UID], TagContext(writer_uid=WRITER_UID))
         assert result == [{'uid': DELETED_UID, 'reason': DELETED_USER}]
 
+    def test_duplicate_uid_reported_once(self):
+        """A UID tagged twice in one body is one invalid tag, not two."""
+        context = TagContext(writer_uid=WRITER_UID, is_batch=True)
+        assert find_invalid_tags([REGULAR_ADVISOR_UID, REGULAR_ADVISOR_UID], context) == [{'uid': REGULAR_ADVISOR_UID, 'reason': BATCH_NOTE}]
+
     def test_deleted_user_reason_wins(self):
         context = TagContext(writer_uid=WRITER_UID, is_private=True, is_batch=True)
         assert find_invalid_tags([DELETED_UID], context) == [{'uid': DELETED_UID, 'reason': DELETED_USER}]

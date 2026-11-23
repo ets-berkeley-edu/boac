@@ -63,6 +63,7 @@ from boac.merged.advising_note import (
     get_eop_attachment_stream,
     get_zip_stream,
 )
+from boac.merged.user_tag import note_tag_context, sync_tags, validate_tags, validate_tags_for_private_thread
 from boac.models.cohort_filter import CohortFilter
 from boac.models.comment_parent import EFORM_COMMENT_PARENT_TYPES
 from boac.models.curated_group import CuratedGroup
@@ -192,8 +193,24 @@ def update_note():
     else:
         if (not subject and not note.peer_advising_department_id) or not len(sids):
             raise BadRequestError('Note update requires subject and one SID.')
+    tag_user_ids = []
+    if not is_draft:
+        # Tags are checked before anything is written, so a rejected save changes nothing. Draft autosaves skip this: a
+        # draft tags no one until it is published.
+        context = note_tag_context(
+            current_user.uid,
+            current_user.get_id(),
+            note.peer_advising_department_id,
+            is_private,
+            is_batch=len(sids) > 1,
+        )
+        tag_user_ids = validate_tags(process_input_from_rich_text_editor(body), context, object_id=note.id, object_type='note')
+        if is_private and not note.is_private and not note.is_draft:
+            # A published note turning private must not hide its comments from people they tag.
+            comments = Note.get_note_comments_by_parent_ids([note.id])
+            validate_tags_for_private_thread([c.body for c in comments], current_user.uid, note.peer_advising_department_id)
     if is_publishing_draft_note and len(sids) > 1:
-        # Create a batch of notes!
+        # Create a batch of notes! Validation above rejects any tag in a batch, so there are no tags to sync.
         api_json = Note.create_batch(
             **get_note_author_profile_of_current_user(),
             attachments=note.attachments,
@@ -224,6 +241,8 @@ def update_note():
             topics=topics,
             note_template_id=note_template_id,
         )
+        if not is_draft:
+            sync_tags(note.id, 'note', tag_user_ids)
         NoteRead.delete_for_note(note_id, except_viewer_id=current_user.get_id())
         NoteRead.find_or_create(current_user.get_id(), [note_id])
         api_json = get_boac_note_as_compatible_json(note=note, note_read=True)

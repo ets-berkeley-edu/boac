@@ -32,10 +32,12 @@ from dataclasses import dataclass
 
 from flask import current_app as app
 
+from boac.api.errors import UserTagValidationError
 from boac.lib.util import find_user_tag_uids, replace_user_tags
 from boac.merged.calnet import get_calnet_users_for_uids
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
+from boac.models.user_tag import UserTag
 
 # Reason codes returned to the client for a tag that is not allowed.
 DELETED_USER = 'deleted_user'
@@ -130,19 +132,86 @@ def find_invalid_tags(uids: Iterable[str], context: TagContext, new_uids: Iterab
     UIDs with no authorized_users row are not tags and are skipped. `new_uids` names the tags added by this save; the
     self-tag and peer-department rules apply to those only. None means every UID is new.
     """
-    uids = list(uids)
-    new_uid_set = None if new_uids is None else set(new_uids)
+    # A UID tagged twice is one tag, so it is judged and reported once.
+    uids = list(dict.fromkeys(str(uid) for uid in uids))
+    new_uid_set = None if new_uids is None else {str(uid) for uid in new_uids}
     # One query covers every UID, since a save may carry many tags.
     eligibility = AuthorizedUser.get_tag_eligibility(uids)
-    invalid = []
-    for uid in uids:
-        if uid not in eligibility:
-            continue
-        is_new = new_uid_set is None or uid in new_uid_set
-        reason = _first_failing_reason(uid, eligibility[uid], context, is_new)
-        if reason:
-            invalid.append({'uid': uid, 'reason': reason})
-    return invalid
+    return _invalid_tags(uids, eligibility, context, new_uid_set)
+
+
+def note_tag_context(writer_uid: str, writer_id: int, peer_department_id: int | None, is_private: bool, is_batch: bool = False) -> TagContext:  # noqa: FBT001
+    """Build the context for a note, a draft, or a new peer note from facts the server trusts.
+
+    The tag endpoints and every save site build their context here, so autocomplete, validation and save never disagree.
+    """
+    return TagContext(
+        writer_uid=writer_uid,
+        is_private=bool(is_private),
+        is_batch=is_batch,
+        note_peer_department_id=peer_department_id,
+        writer_peer_department_id=writer_peer_department_id(writer_id, peer_department_id),
+    )
+
+
+def note_comment_tag_context(parent_note, writer_uid: str, writer_id: int) -> TagContext:
+    """Build the context for a comment on a note. Its privacy and peer department always come from the parent note."""
+    return note_tag_context(writer_uid, writer_id, parent_note.peer_advising_department_id, parent_note.is_private)
+
+
+def comment_tag_context(writer_uid: str) -> TagContext:
+    """Build the context for an appointment or eForm comment, which is never private, never batch, and has no peer department."""
+    return TagContext(writer_uid=writer_uid)
+
+
+def validate_tags(body: str | None, context: TagContext, object_id: int | None = None, object_type: str | None = None) -> list[int]:
+    """Raise UserTagValidationError if the body tags anyone who may not be tagged here; otherwise return their user ids.
+
+    Pass the object id and type when editing a saved note or comment: the self-tag and peer-department rules then judge
+    only tags added in this save, so a tag saved earlier never blocks an edit. Call this before writing anything.
+    """
+    uids = list(dict.fromkeys(find_user_tag_uids(body)))
+    if not uids:
+        return []
+    eligibility = AuthorizedUser.get_tag_eligibility(uids)
+    existing_user_ids = UserTag.get_active_user_ids(object_id, object_type) if object_id is not None else set()
+    new_uid_set = {uid for uid, facts in eligibility.items() if facts['id'] not in existing_user_ids}
+    invalid = _invalid_tags(uids, eligibility, context, new_uid_set)
+    if invalid:
+        raise UserTagValidationError(_with_names(invalid))
+    # Digits after an @ with no matching user are ordinary text, not a tag, so they get no row.
+    return [eligibility[uid]['id'] for uid in uids if uid in eligibility]
+
+
+def validate_tags_for_private_thread(bodies: Iterable[str | None], writer_uid: str, peer_department_id: int | None) -> None:
+    """Raise UserTagValidationError if making a note private would leave anyone tagged in these bodies unable to read it.
+
+    Used for a published note's comments when the note turns private. Only the rules about the note apply (deleted user,
+    private note, no access): those tags were already saved, so the rules about who added them do not.
+    """
+    uids = list(dict.fromkeys(uid for body in bodies for uid in find_user_tag_uids(body)))
+    if not uids:
+        return
+    context = TagContext(writer_uid=writer_uid, is_private=True, note_peer_department_id=peer_department_id)
+    invalid = find_invalid_tags(uids, context, new_uids=[])
+    if invalid:
+        raise UserTagValidationError(_with_names(invalid))
+
+
+def sync_tags(object_id: int, object_type: str, user_ids: Iterable[int]) -> None:
+    """Make the active user_tag rows of a saved note or comment match the people its body tags.
+
+    Run this after the save itself has been written. A failure here is logged and swallowed, so the save still succeeds.
+    """
+    user_ids = list(dict.fromkeys(user_ids))
+    try:
+        for user_id in user_ids:
+            UserTag.create(user_id=user_id, object_id=object_id, object_type=object_type)
+        # A tag removed in this edit loses its row. A tag added back later gets a new row, so the person hears about it again.
+        UserTag.delete_for_object(object_id, object_type, except_user_ids=user_ids)
+    except Exception:
+        # Log the id only: never the body or who was tagged.
+        app.logger.exception(f'Failed to sync user tags for {object_type} {object_id}')
 
 
 def search_taggable_users(snippet: str | None, context: TagContext, limit: int = 8) -> list[dict]:
@@ -183,6 +252,25 @@ def search_taggable_users(snippet: str | None, context: TagContext, limit: int =
     # The UID breaks ties between equal names, so the order, and which match is cut at the limit, never varies.
     matches.sort(key=lambda m: (m['name'].casefold(), m['uid']))
     return matches[:limit]
+
+
+def _invalid_tags(uids: list[str], eligibility: dict, context: TagContext, new_uid_set: set[str] | None) -> list[dict]:
+    # Judge each tag with the shared rules. UIDs with no authorized_users row are not tags and are skipped.
+    invalid = []
+    for uid in uids:
+        if uid not in eligibility:
+            continue
+        is_new = new_uid_set is None or uid in new_uid_set
+        reason = _first_failing_reason(uid, eligibility[uid], context, is_new)
+        if reason:
+            invalid.append({'uid': uid, 'reason': reason})
+    return invalid
+
+
+def _with_names(invalid_tags: list[dict]) -> list[dict]:
+    # The editor names each rejected tag. One CalNet lookup covers them all; a user with no CalNet name gets None.
+    calnet_users = get_calnet_users_for_uids(app, [tag['uid'] for tag in invalid_tags])
+    return [{'uid': tag['uid'], 'name': (calnet_users.get(tag['uid']) or {}).get('name'), 'reason': tag['reason']} for tag in invalid_tags]
 
 
 def _first_failing_reason(uid: str, eligibility: dict, context: TagContext, is_new: bool) -> str | None:  # noqa: FBT001

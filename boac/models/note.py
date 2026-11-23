@@ -37,6 +37,7 @@ from boac.models.base import Base
 from boac.models.note_attachment import NoteAttachment
 from boac.models.note_template_attachment import NoteTemplateAttachment
 from boac.models.note_topic import NoteTopic
+from boac.models.user_tag import UserTag
 
 note_contact_type_enum = ENUM(
     'Email',
@@ -612,9 +613,13 @@ class Note(Base):
                 attachment.deleted_at = now
             for topic in note.topics:
                 topic.deleted_at = now
-            for comment in Note.get_note_comments_by_parent_ids([note_id]):
+            comments = Note.get_note_comments_by_parent_ids([note_id])
+            for comment in comments:
                 comment.deleted_at = now
             std_commit()
+            # Note comments are notes too, so their tags use object_type 'note'. Nobody stays tagged in a deleted thread.
+            for object_id in [note.id] + [comment.id for comment in comments]:
+                UserTag.delete_for_object(object_id, 'note')
             if not note.is_draft:
                 sqs.send(
                     table='notes',

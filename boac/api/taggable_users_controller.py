@@ -32,7 +32,7 @@ from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotF
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import to_bool_or_none
 from boac.merged.advising_note import can_current_user_access_note, can_current_user_edit_note
-from boac.merged.user_tag import TagContext, search_taggable_users, writer_peer_department_id
+from boac.merged.user_tag import comment_tag_context, note_comment_tag_context, note_tag_context, search_taggable_users
 from boac.models.comment_parent import comment_parent_type_enum
 from boac.models.note import Note
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
@@ -89,48 +89,26 @@ def _resolve_tag_context(params):
             parent = Note.find_by_id(note_id=note.parent_note_id)
             if not parent:
                 raise ResourceNotFoundError('Note not found')
-            return _note_comment_context(parent, caller_id)
+            return note_comment_tag_context(parent, current_user.uid, caller_id)
         # The editor's privacy counts here: the author may have just toggled it without saving.
-        return TagContext(
-            writer_uid=current_user.uid,
-            is_private=is_private,
-            is_batch=is_batch,
-            note_peer_department_id=note.peer_advising_department_id,
-            writer_peer_department_id=writer_peer_department_id(caller_id, note.peer_advising_department_id),
-        )
+        return note_tag_context(current_user.uid, caller_id, note.peer_advising_department_id, is_private, is_batch=is_batch)
     if parent_note_id is not None:
         parent = Note.find_by_id(note_id=_to_int(parent_note_id, 'parentNoteId'))
         if not parent or not can_current_user_access_note(parent):
             raise ResourceNotFoundError('Note not found')
-        return _note_comment_context(parent, caller_id)
+        return note_comment_tag_context(parent, current_user.uid, caller_id)
     if peer_department_id is not None:
         peer_department_id = _to_int(peer_department_id, 'peerAdvisingDepartmentId')
         memberships = PeerAdvisingDepartmentMember.find_peer_advising_memberships_by_user_id(authorized_user_id=caller_id)
         if not any(m['peer_advising_department_id'] == peer_department_id for m in memberships):
             raise ForbiddenRequestError('You are not a member of this peer advising department.')
-        return TagContext(
-            writer_uid=current_user.uid,
-            is_private=is_private,
-            is_batch=is_batch,
-            note_peer_department_id=peer_department_id,
-            writer_peer_department_id=writer_peer_department_id(caller_id, peer_department_id),
-        )
+        return note_tag_context(current_user.uid, caller_id, peer_department_id, is_private, is_batch=is_batch)
     # Appointment and eForm comments: never private, never batch, no peer department.
     if comment_parent_type not in comment_parent_type_enum.enums or comment_parent_id is None or not str(comment_parent_id).strip():
         raise BadRequestError('A valid comment parent type and id are required.')
     if not current_user.can_access_advising_data:
         raise ForbiddenRequestError('You are not authorized to comment here.')
-    return TagContext(writer_uid=current_user.uid)
-
-
-def _note_comment_context(parent, caller_id):
-    # A note comment takes its privacy and peer department from the parent note, whatever the client sends.
-    return TagContext(
-        writer_uid=current_user.uid,
-        is_private=parent.is_private,
-        note_peer_department_id=parent.peer_advising_department_id,
-        writer_peer_department_id=writer_peer_department_id(caller_id, parent.peer_advising_department_id),
-    )
+    return comment_tag_context(current_user.uid)
 
 
 def _to_int(value, name):

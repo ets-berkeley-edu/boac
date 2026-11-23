@@ -63,7 +63,7 @@ from boac.lib.util import (
 from boac.merged.advising_note import can_current_user_access_note, can_current_user_edit_note, get_author_uid, get_boa_attachment_stream
 from boac.merged.sis_terms import future_term_id
 from boac.merged.student import merge_enrollment_terms
-from boac.merged.user_tag import get_tagged_users_by_body
+from boac.merged.user_tag import get_tagged_users_by_body, note_tag_context, sync_tags, validate_tags
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.note import Note
 from boac.models.note_attachment import NoteAttachment
@@ -117,6 +117,9 @@ def create_peer_advising_note():
     matching_membership = next((m for m in memberships if m['peer_advising_department_id'] == peer_advising_department_id), None)
     if not matching_membership:
         raise ForbiddenRequestError('Unauthorized')
+    # Peer notes are never private. A peer advisor may tag only within their own peer group; check before creating.
+    context = note_tag_context(current_user.uid, current_user.get_id(), peer_advising_department_id, is_private=False)
+    tag_user_ids = validate_tags(body, context)
     calnet_profile = get_note_author_profile_of_current_user()
     note = Note.create(
         author_uid=calnet_profile['author_uid'],
@@ -131,6 +134,7 @@ def create_peer_advising_note():
         sid=sid,
         note_template_id=note_template_id,
     )
+    sync_tags(note.id, 'note', tag_user_ids)
     NoteRead.find_or_create(note_ids=[note.id], viewer_id=current_user.get_id())
     return tolerant_jsonify(get_boac_note_as_compatible_json(note, note_read=True))
 
@@ -397,8 +401,13 @@ def update_peer_advising_note():
     is_authorized = note and can_current_user_edit_note(note)
     if not is_authorized:
         raise ResourceNotFoundError('Note not found')
+    body = process_input_from_rich_text_editor(body)
+    # The update below saves the note as not private, so the tags are judged that way. Tags already saved are kept even
+    # when the editor is a manager re-saving someone else's note.
+    context = note_tag_context(current_user.uid, current_user.get_id(), note.peer_advising_department_id, is_private=False)
+    tag_user_ids = validate_tags(body, context, object_id=note.id, object_type='note')
     note = Note.update(
-        body=process_input_from_rich_text_editor(body),
+        body=body,
         contact_type=contact_type,
         is_draft=False,
         note_id=note.id,
@@ -407,6 +416,7 @@ def update_peer_advising_note():
         topics=topics,
         note_template_id=note_template_id,
     )
+    sync_tags(note.id, 'note', tag_user_ids)
     note_read = NoteRead.find_or_create(current_user.get_id(), [note_id])
     api_json = get_boac_note_as_compatible_json(note=note, note_read=note_read)
     student = data_loch.get_student_by_sid(note.sid)

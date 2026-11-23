@@ -112,8 +112,17 @@ Undecorated routes: `/cas/login_url`, `/cas/callback`, `/api/auth/dev_auth_login
   - `parentNoteId`: 404 if the note is missing or not `can_current_user_access_note`. Privacy and peer department come from the parent.
   - `peerAdvisingDepartmentId`: 403 unless the caller has an active membership there.
   - `commentParentType` + `commentParentId`: 400 for an unknown type, 403 without advising-data access.
-  - Who can be suggested is decided by the tagging rules in `boac/merged/user_tag.py`. A peer advisor (not a manager) is limited to their own group through `writer_peer_department_id()`.
+  - Who can be suggested is decided by the tag eligibility rules below. The context comes from `note_tag_context()`, `note_comment_tag_context()` or `comment_tag_context()` in `boac/merged/user_tag.py`, the same builders every save uses.
   - The search is one database query on a warm cache (`AuthorizedUser.get_tag_candidates`): it picks candidates, filters them by cached CalNet name, and returns their eligibility flags and cached CalNet feed together. Only users with no cached CalNet feed cost a second step. Each query is a network round trip, and the editor searches on every pause in typing.
+- **Tag eligibility:** who may be tagged in a note or comment, checked in this order by `boac/merged/user_tag.py`. The first failing rule is the reason the API returns.
+  1. `deleted_user`: the tagged user is soft-deleted.
+  2. `batch_note`: the note goes to more than one student.
+  3. `private_note`: the note is private and the tagged user isn't a CE3 advisor or director.
+  4. `no_access`: the tagged user can't read the note. They need advising-data access as an advisor or director, or membership in the note's peer department.
+  5. `self_tag`: the writer tagged themself.
+  6. `outside_peer_department`: a writer acting as a `peer_advisor` (not a manager) tagged someone outside that peer department.
+
+  Rules 1 to 4 are checked on every tag at every save. Rules 5 and 6 apply only to tags added in that save (tags with no active `user_tags` row), so a manager re-saving a peer advisor's note keeps its tags. A note comment takes privacy and peer department from its parent note.
 
 ## Frontend counterparts
 
