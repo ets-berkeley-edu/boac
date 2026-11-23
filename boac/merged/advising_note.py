@@ -435,8 +435,11 @@ def note_to_compatible_json(
         tagged_users=None,
 ):
     # We have legacy notes and notes created via BOA. The following sets a standard for the front-end.
-    omit_note_body = note.get('is_private') and not current_user.can_access_private_notes
     data_source = note.get('data_source') if note.get('eform_id') else None
+
+    # A private note's text is hidden from advisors who can't read private notes, in 'message' as well as 'body'.
+    omit_note_body = note.get('is_private') and not current_user.can_access_private_notes
+
     api_json = {
         'appointmentId': note.get('appointmentId'),
         'attachments': None if omit_note_body else attachments,

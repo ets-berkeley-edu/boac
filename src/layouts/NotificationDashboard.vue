@@ -1,49 +1,51 @@
 <template>
   <v-fade-transition>
-    <v-layout>
-      <v-app-bar
-        color="primary"
-        elevation="0"
-        role="banner"
-        tag="banner"
-        @shortkey="() => putFocusNextTick('basic-search-input')"
-      >
-        <a id="skip-to-content-link" href="#content" class="sr-only sr-only-focusable align-self-start">Skip to main content</a>
-        <AppBar />
-      </v-app-bar>
-      <v-main role="none" tag="div">
-        <div id="main-container" class="h-100">
-          <div v-if="loading" class="loading-container align-center d-flex justify-center">
-            <div class="ma-auto" role="progressbar">
-              <PlaneGoRound
-                id="spinner-when-loading"
-                aria-label="page loading"
-                role="progressbar"
-                tabindex="0"
-              />
+    <div>
+      <v-layout>
+        <v-app-bar
+          color="primary"
+          elevation="0"
+          role="banner"
+          tag="banner"
+          @shortkey="() => putFocusNextTick('basic-search-input')"
+        >
+          <a id="skip-to-content-link" href="#content" class="sr-only sr-only-focusable align-self-start">Skip to main content</a>
+          <AppBar />
+        </v-app-bar>
+        <v-main role="none" tag="div">
+          <div id="main-container" class="h-100">
+            <div v-if="loading" class="loading-container align-center d-flex justify-center">
+              <div class="ma-auto" role="progressbar">
+                <PlaneGoRound
+                  id="spinner-when-loading"
+                  aria-label="page loading"
+                  role="progressbar"
+                  tabindex="0"
+                />
+              </div>
             </div>
-          </div>
-          <div
-            class="w-100"
-            :class="{'service-alert-offset': get(contextStore, 'announcement.isPublished') && !contextStore.dismissedServiceAnnouncement}"
-          >
-            <ServiceAnnouncement ref="serviceAlert" />
             <div
-              v-show="!loading"
-              id="content"
-              class="scroll-margins"
-              role="main"
-              tabindex="-1"
+              class="w-100"
+              :class="{'service-alert-offset': get(contextStore, 'announcement.isPublished') && !contextStore.dismissedServiceAnnouncement}"
             >
-              <router-view :key="split(route.fullPath, '#', 1)[0]" />
+              <ServiceAnnouncement ref="serviceAlert" />
+              <div
+                v-show="!loading"
+                id="content"
+                class="scroll-margins"
+                role="main"
+                tabindex="-1"
+              >
+                <router-view :key="split(route.fullPath, '#', 1)[0]" />
+              </div>
             </div>
           </div>
-        </div>
-      </v-main>
-    </v-layout>
-    <footer role="contentinfo">
-      <AppFooter v-if="!loading && !hideFooter" />
-    </footer>
+        </v-main>
+      </v-layout>
+      <footer role="contentinfo">
+        <AppFooter v-if="!loading && !hideFooter" />
+      </footer>
+    </div>
   </v-fade-transition>
 </template>
 

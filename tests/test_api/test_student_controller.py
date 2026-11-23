@@ -781,7 +781,7 @@ class TestNotes:
         assert len(notes)
         note = next((n for n in notes if n.get('subject') == 'In France they kiss on main street'), None)
         assert len(note)
-        assert 'My darling dime store thief' in note['message']
+        assert 'My darling dime store thief' in note['body']
         author = note['author']
         assert author['name'] == 'Joni Mitchell CC'
         assert author['role'] == 'Director'
@@ -800,7 +800,7 @@ class TestNotes:
         note = next((n for n in notes if n.get('id') == '11667051-00001'), None)
         assert len(note)
         assert note['legacySource'] == 'SIS'
-        assert note['message'] == 'Brigitte is making athletic and moral progress'
+        assert note['body'] == 'Brigitte is making athletic and moral progress'
         author = note['author']
         assert not author['name']
         assert not author['role']

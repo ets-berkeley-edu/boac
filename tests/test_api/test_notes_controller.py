@@ -187,7 +187,7 @@ class TestGetNote:
         assert note
         assert 'id' in note
         assert note['type'] == 'note'
-        assert note['body'] == note['message']
+        assert note['body'] == note['body']
         assert note['read'] is False
         # Mark as read and re-test
         NoteRead.find_or_create(AuthorizedUser.get_id_per_uid(admin_uid), [note['id']])

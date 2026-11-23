@@ -64,7 +64,6 @@ def list_user_tags():
             **tag.to_api_json(),
             'object': message.to_api_json() if message else None,
         }
-        app.logger.error(feed_item)
         student_sid = feed_item['object'].get('sid') if feed_item['object'] else None
         if (student_sid and students_by_sid.get(student_sid)):
             student = students_by_sid.get(student_sid)
