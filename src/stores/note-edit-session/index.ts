@@ -176,6 +176,7 @@ export const useNoteStore: StoreDefinition = defineStore('note', {
           setDate: model.setDate,
           sid: model.sid,
           subject: model.subject,
+          taggedUsers: model.taggedUsers || {},
           topics: model.topics || []
 
         }
