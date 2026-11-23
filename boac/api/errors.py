@@ -43,6 +43,18 @@ class BadRequestError(JsonableError):
     pass
 
 
+class UserTagValidationError(BadRequestError):
+    """A save that tags people who may not be tagged here. The 400 body lists each one so the editor can mark it."""
+
+    def __init__(self, invalid_tags):
+        super().__init__('Some of the people tagged here cannot be tagged. Remove those tags and try again.')
+        # Each item is {uid, name, reason}, as defined by the tag API contract.
+        self.invalid_tags = invalid_tags
+
+    def to_json(self):
+        return tolerant_jsonify({'message': self.message, 'invalidTags': self.invalid_tags})
+
+
 class UnauthorizedRequestError(JsonableError):
     pass
 

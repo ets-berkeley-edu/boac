@@ -35,6 +35,7 @@ from boac.merged.advising_note import get_note_author_summary
 from boac.models.base import Base
 from boac.models.comment_attachment import CommentAttachment
 from boac.models.comment_parent import CommentParent
+from boac.models.user_tag import UserTag
 
 
 class Comment(Base):
@@ -204,6 +205,8 @@ class Comment(Base):
             attachment.deleted_at = now
         self.deleted_at = now
         std_commit()
+        # A deleted comment no longer tags anyone.
+        UserTag.delete_for_object(self.id, 'comment')
         db.session.refresh(self)
         sqs.send(
             table='comments',

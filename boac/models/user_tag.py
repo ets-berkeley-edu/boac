@@ -124,6 +124,19 @@ class UserTag(Base):
         ).first()
 
     @classmethod
+    def get_active_user_ids(cls, object_id, object_type):
+        # The people already tagged in a saved note or comment. Tag validation uses this to tell kept tags from new ones.
+        _validate_object_type(object_type)
+        rows = cls.query.with_entities(cls.user_id).filter(
+            and_(
+                cls.object_id == int(object_id),
+                cls.object_type == object_type,
+                cls.deleted_at == None,  # noqa: E711
+            ),
+        ).all()
+        return {row.user_id for row in rows}
+
+    @classmethod
     def get_all_for_user(cls, user_id, archived=False):
         return cls.query.filter(
             and_(cls.user_id == user_id, cls.deleted_at == None, cls.archived_by_user == archived),  # noqa: E711

@@ -36,7 +36,7 @@ from boac.api.util import (
 )
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import is_int, process_input_from_rich_text_editor
-from boac.merged.user_tag import get_tagged_user_names
+from boac.merged.user_tag import comment_tag_context, get_tagged_user_names, sync_tags, validate_tags
 from boac.models.comment import Comment
 from boac.models.comment_parent import CommentParent, comment_parent_type_enum
 
@@ -62,6 +62,8 @@ def create_comment():
     if len(attachments) > attachment_limit:
         raise BadRequestError(f'No more than {attachment_limit} attachments may be uploaded at once.')
 
+    # Check tags before creating the comment parent or the comment, so a rejected save writes nothing.
+    tag_user_ids = validate_tags(body, comment_tag_context(current_user.uid))
     comment_parent = CommentParent.find_or_create(parent_type=parent_type, parent_id=parent_id)
     comment = Comment.create(
         **get_note_author_profile_of_current_user(),
@@ -69,6 +71,8 @@ def create_comment():
         body=body,
         attachments=attachments,
     )
+    # Appointment and eForm comments live in the comments table, so their tags use object_type 'comment'.
+    sync_tags(comment.id, 'comment', tag_user_ids)
     viewer_id = current_user.get_id()
     record_external_comment_read_state(comment, viewer_id, parent_type, parent_id)
     return tolerant_jsonify({
@@ -120,7 +124,9 @@ def update_comment():
     if existing_attachment_count + len(attachments) > attachment_limit:
         raise BadRequestError(f'No more than {attachment_limit} attachments may be uploaded at once.')
 
+    tag_user_ids = validate_tags(body, comment_tag_context(current_user.uid), object_id=comment.id, object_type='comment')
     comment.update(body=body, delete_attachment_ids=delete_attachment_ids, new_attachments=attachments)
+    sync_tags(comment.id, 'comment', tag_user_ids)
     viewer_id = current_user.get_id()
     comment_parent = CommentParent.find_by_id(comment.comment_parent_id)
     if comment_parent:
