@@ -25,17 +25,26 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 from flask import current_app as app
+from flask import request
 from flask_login import current_user
 
 from boac.api.decorators import advisor_or_peer_advisor_required
+from boac.api.errors import BadRequestError, ResourceNotFoundError
 from boac.api.util import get_user_tag_object_sid, get_user_tag_objects
 from boac.externals.data_loch import get_students_by_sids
 from boac.lib.http import tolerant_jsonify
-from boac.lib.util import join_if_present
+from boac.lib.util import is_int, join_if_present
 from boac.models.comment import Comment
 from boac.models.comment_parent import CommentParent
 from boac.models.note import Note
 from boac.models.user_tag import UserTag
+
+
+@app.route('/api/user_tag/archived')
+@advisor_or_peer_advisor_required
+def archived_user_tags():
+    user_tags = UserTag.get_all_for_user(current_user.get_id(), archived=True)
+    return tolerant_jsonify({'archived': [tag.to_api_json() for tag in user_tags]})
 
 
 @app.route('/api/user_tag/list')
@@ -58,10 +67,8 @@ def list_user_tags():
     # For a tag in a comment, objectId and objectType still name the tagged comment.
     objects = get_user_tag_objects(list(notes.values()), list(comments.values()), comment_parents)
     student_sids = {sid for sid in (get_user_tag_object_sid(o) for o in objects.values()) if sid}
-    if len(student_sids):
-        students_by_sid = {student.get('sid'): student for student in get_students_by_sids(list(student_sids))}
-    else:
-        students_by_sid = {}
+    students_by_sid = {student.get('sid'): student for student in get_students_by_sids(list(student_sids))} if len(student_sids) else []
+
     feed = []
     for tag in user_tags:
         tag_object = objects.get((tag.object_type, tag.object_id))
@@ -81,8 +88,28 @@ def list_user_tags():
     return tolerant_jsonify({'notifications': feed})
 
 
-@app.route('/api/user_tag/archived')
+@app.route('/api/user_tag/<user_tag_id>', methods=['PATCH'])
 @advisor_or_peer_advisor_required
-def archived_user_tags():
-    user_tags = UserTag.get_all_for_user(current_user.get_id(), archived=True)
-    return tolerant_jsonify({'archived': [tag.to_api_json() for tag in user_tags]})
+def update_user_tag(user_tag_id):
+    if not is_int(user_tag_id):
+        raise BadRequestError('Invalid user tag id')
+
+    params = request.get_json(silent=True)
+    if not isinstance(params, dict) or not params or set(params) - {'readByUser'}:
+        raise BadRequestError('Request body must contain readByUser and nothing else')
+
+    read_by_user = params['readByUser']
+    if not isinstance(read_by_user, bool):
+        raise BadRequestError('readByUser must be true or false')
+
+    user_id = current_user.get_id()
+    user_tag = UserTag.set_read_by_user(int(user_tag_id), user_id, read_by_user)
+    if not user_tag:
+        raise ResourceNotFoundError('User tag not found')
+
+    api_json = user_tag.to_api_json()
+    if 'readByUser' in params:
+        # A read-state change moves the header's unread count, so send the new count back. It has the same name as the
+        # field in /api/profile/my, so the front end can copy it straight onto the current user.
+        api_json['myUnreadMessageCount'] = UserTag.get_unread_count(user_id)
+    return tolerant_jsonify(api_json)

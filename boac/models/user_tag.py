@@ -124,6 +124,24 @@ class UserTag(Base):
         ).first()
 
     @classmethod
+    def find_by_id_for_user(cls, user_tag_id, user_id):
+        return cls.query.filter(
+            and_(
+                cls.id == user_tag_id,
+                cls.user_id == user_id,
+                cls.deleted_at == None,  # noqa: E711
+            ),
+        ).first()
+
+    @classmethod
+    def set_read_by_user(cls, user_tag_id, user_id, read_by_user):
+        user_tag = cls.find_by_id_for_user(user_tag_id, user_id)
+        if user_tag:
+            user_tag.read_by_user = read_by_user
+            std_commit()
+        return user_tag
+
+    @classmethod
     def get_active_user_ids(cls, object_id, object_type):
         # The people already tagged in a saved note or comment. Tag validation uses this to tell kept tags from new ones.
         _validate_object_type(object_type)
@@ -144,7 +162,6 @@ class UserTag(Base):
 
     @classmethod
     def get_unread_count(cls, user_id):
-        # Counts the same tags the notifications list shows (not deleted, not archived) that the user hasn't read yet.
         return cls.query.filter(
             and_(
                 cls.user_id == user_id,
