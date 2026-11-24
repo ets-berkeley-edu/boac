@@ -126,7 +126,7 @@ def register_routes(app):  #noqa: PLR0915
             response.headers['Access-Control-Allow-Headers'] = 'Content-Type, X-CSRFToken'
             response.headers['Access-Control-Allow-Origin'] = app.config['VUE_LOCALHOST_BASE_URL']
             response.headers['Access-Control-Allow-Credentials'] = 'true'
-            response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS, PUT, DELETE'
+            response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS, PUT, PATCH, DELETE'
         if request.full_path.startswith('/api'):
             forwarded_for = request.headers.get('X-Forwarded-For')
             client_ip_address = forwarded_for.split(',')[0] if forwarded_for else request.remote_addr

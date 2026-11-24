@@ -116,6 +116,27 @@ class TestUserTag:
             UserTag.create(user_id=_user_id(l_s_advisor_uid), object_id=999999999, object_type='comment')
         db.session.rollback()
 
+    def test_mark_read_and_unread(self, note):
+        user_id = _user_id(l_s_advisor_uid)
+        user_tag = UserTag.create(user_id=user_id, object_id=note.id, object_type='note')
+        assert UserTag.set_read_by_user(user_tag.id, user_id, True).read_by_user is True
+        assert UserTag.get_unread_count(user_id) == 0
+        assert UserTag.set_read_by_user(user_tag.id, user_id, False).read_by_user is False
+        assert UserTag.get_unread_count(user_id) == 1
+
+    def test_mark_read_only_own_tag(self, note):
+        user_id = _user_id(l_s_advisor_uid)
+        user_tag = UserTag.create(user_id=user_id, object_id=note.id, object_type='note')
+        assert UserTag.set_read_by_user(user_tag.id, _user_id(admin_uid), True) is None
+        assert UserTag.find_by_id_for_user(user_tag.id, user_id).read_by_user is False
+
+    def test_mark_read_deleted_tag(self, note):
+        user_id = _user_id(l_s_advisor_uid)
+        user_tag = UserTag.create(user_id=user_id, object_id=note.id, object_type='note')
+        UserTag.delete(user_id=user_id, object_id=note.id, object_type='note')
+        assert UserTag.set_read_by_user(user_tag.id, user_id, True) is None
+        assert UserTag.set_read_by_user(user_tag.id, user_id, False) is None
+
     def test_get_unread_count(self, note, comment):
         user_id = _user_id(l_s_advisor_uid)
         own_note = Note.create(

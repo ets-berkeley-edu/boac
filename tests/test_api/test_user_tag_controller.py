@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 import pytest
+import simplejson as json
 
 from boac import std_commit
 from boac.models.authorized_user import AuthorizedUser
@@ -32,6 +33,7 @@ from boac.models.comment_parent import CommentParent
 from boac.models.note import Note
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 from boac.models.user_tag import UserTag
+from tests.util import override_config
 
 admin_uid = '2040'
 coe_advisor_uid = '1133399'
@@ -40,8 +42,6 @@ l_s_advisor_uid = '242881'
 loch_appointment_id = '11667051-00010'
 loch_eform_id = 'eform-10096'
 loch_student_sid = '11667051'
-
-# An EOP peer advisor and the EOP peer advisor manager.
 peer_advisor_uid = '1563405'
 peer_advisor_manager_uid = '3535'
 
@@ -57,7 +57,6 @@ def comment(app):
 
 
 def _create_comment(parent_type, parent_id):
-    # The parent type matters to the test that checks what kind of record each tagged comment is on.
     parent = CommentParent.find_or_create(parent_type=parent_type, parent_id=parent_id)
     return Comment.create(
         comment_parent_id=parent.id,
@@ -70,7 +69,6 @@ def _create_comment(parent_type, parent_id):
 
 
 def _create_note_comment(parent_note, author_uid=l_s_advisor_uid, body='A comment on the note.'):
-    # A note comment is itself a note, with parent_note_id pointing at the note it's on.
     return Note.create(
         author_uid=author_uid,
         author_name='Test Author',
@@ -85,8 +83,6 @@ def _create_note_comment(parent_note, author_uid=l_s_advisor_uid, body='A commen
 
 
 def _create_note(author_uid, author_dept_codes, peer_advising_department_id=None):
-    # Pass peer_advising_department_id for a peer note. Tagging rules let a peer advisor be tagged only in their own
-    # department's peer notes.
     return Note.create(
         author_uid=author_uid,
         author_name='Test Author',
@@ -227,7 +223,6 @@ class TestListUserTags:
 
     def test_user_tagged_by_another_user(self, client, fake_auth, note):
         """Lists the tag for the tagged user, but not for the author who wrote the tag."""
-        # The note fixture is written by the L&S advisor, who tags the COE advisor.
         user_tag = UserTag.create(user_id=_user_id(coe_advisor_uid), object_id=note.id, object_type='note')
         fake_auth.login(coe_advisor_uid)
         notifications = self._api_list_user_tags(client)['notifications']
@@ -268,7 +263,6 @@ class TestListUserTags:
         assert notification['object']['id'] == loch_appointment_id
         assert notification['object']['type'] == 'appointment'
         assert {c['id'] for c in notification['object']['comments']} == {comment.id, other_comment.id}
-        # A comment has no SID of its own, so the student comes from the appointment.
         assert notification['object']['student']['sid'] == loch_student_sid
 
     def test_eform_with_comments(self, client, fake_auth):
@@ -395,3 +389,121 @@ class TestArchivedUserTags:
         fake_auth.login(admin_uid)
         archived = self._api_archived_user_tags(client)['archived']
         assert [t['id'] for t in archived] == [user_tag.id]
+
+
+@pytest.mark.usefixtures('db_session')
+class TestUpdateUserTag:
+
+    @classmethod
+    def _api_update_user_tag(cls, client, user_tag_id, params, expected_status_code=200):
+        response = client.patch(
+            f'/api/user_tag/{user_tag_id}',
+            data=json.dumps(params),
+            content_type='application/json',
+        )
+        assert response.status_code == expected_status_code
+        return response.json
+
+    @classmethod
+    def _create_tag(cls, uid, note):
+        return UserTag.create(user_id=_user_id(uid), object_id=note.id, object_type='note')
+
+    def test_not_authenticated(self, client, note):
+        """Denies anonymous access."""
+        user_tag = self._create_tag(coe_advisor_uid, note)
+        self._api_update_user_tag(client, user_tag.id, {'readByUser': True}, expected_status_code=401)
+
+    def test_invalid_id(self, client, fake_auth):
+        """Rejects an id that isn't an integer."""
+        fake_auth.login(coe_advisor_uid)
+        self._api_update_user_tag(client, 'foo', {'readByUser': True}, expected_status_code=400)
+
+    def test_invalid_body(self, client, fake_auth, note):
+        """Rejects a body that is empty, has a non-boolean readByUser, or has any other field."""
+        user_tag = self._create_tag(coe_advisor_uid, note)
+        fake_auth.login(coe_advisor_uid)
+        for params in ({}, {'readByUser': 'true'}, {'readByUser': None}, {'archivedByUser': True}, {'readByUser': True, 'foo': 1}):
+            self._api_update_user_tag(client, user_tag.id, params, expected_status_code=400)
+        assert UserTag.find_by_id_for_user(user_tag.id, _user_id(coe_advisor_uid)).read_by_user is False
+
+    def test_not_found(self, client, fake_auth):
+        """Returns 404 for a tag that doesn't exist."""
+        fake_auth.login(coe_advisor_uid)
+        self._api_update_user_tag(client, 999999999, {'readByUser': True}, expected_status_code=404)
+
+    def test_other_users_tag(self, client, fake_auth, note):
+        """Returns 404 for another user's tag and leaves it unchanged."""
+        user_tag = self._create_tag(admin_uid, note)
+        fake_auth.login(coe_advisor_uid)
+        self._api_update_user_tag(client, user_tag.id, {'readByUser': True}, expected_status_code=404)
+        assert UserTag.find_by_id_for_user(user_tag.id, _user_id(admin_uid)).read_by_user is False
+
+    def test_deleted_tag(self, client, fake_auth, note):
+        """Returns 404 for a tag removed from its note."""
+        user_tag = self._create_tag(coe_advisor_uid, note)
+        UserTag.delete(user_id=_user_id(coe_advisor_uid), object_id=note.id, object_type='note')
+        fake_auth.login(coe_advisor_uid)
+        self._api_update_user_tag(client, user_tag.id, {'readByUser': True}, expected_status_code=404)
+
+    def test_mark_read_and_unread(self, client, fake_auth, note):
+        """Sets readByUser, which the list and the unread count in the profile follow."""
+        user_tag = self._create_tag(coe_advisor_uid, note)
+        fake_auth.login(coe_advisor_uid)
+        api_json = self._api_update_user_tag(client, user_tag.id, {'readByUser': True})
+        assert api_json['id'] == user_tag.id
+        assert api_json['readByUser'] is True
+        assert api_json['myUnreadMessageCount'] == 0
+        assert TestListUserTags._api_list_user_tags(client)['notifications'][0]['readByUser'] is True
+        assert client.get('/api/profile/my').json['myUnreadMessageCount'] == 0
+
+        api_json = self._api_update_user_tag(client, user_tag.id, {'readByUser': False})
+        assert api_json['readByUser'] is False
+        assert api_json['myUnreadMessageCount'] == 1
+        assert TestListUserTags._api_list_user_tags(client)['notifications'][0]['readByUser'] is False
+        assert client.get('/api/profile/my').json['myUnreadMessageCount'] == 1
+
+    def test_unread_count_covers_all_my_tags(self, client, fake_auth, note):
+        """The returned count is all of the user's unread tags, not just this one, and leaves out other users' tags."""
+        user_tag = self._create_tag(coe_advisor_uid, note)
+        other_note = _create_note(author_uid=l_s_advisor_uid, author_dept_codes=['QCADV'])
+        self._create_tag(coe_advisor_uid, other_note)
+        self._create_tag(admin_uid, note)
+        fake_auth.login(coe_advisor_uid)
+        assert self._api_update_user_tag(client, user_tag.id, {'readByUser': True})['myUnreadMessageCount'] == 1
+        assert self._api_update_user_tag(client, user_tag.id, {'readByUser': False})['myUnreadMessageCount'] == 2
+
+    def test_mark_read_twice(self, client, fake_auth, note):
+        """Marking an already-read tag read again succeeds and changes nothing."""
+        user_tag = self._create_tag(coe_advisor_uid, note)
+        fake_auth.login(coe_advisor_uid)
+        self._api_update_user_tag(client, user_tag.id, {'readByUser': True})
+        assert self._api_update_user_tag(client, user_tag.id, {'readByUser': True})['readByUser'] is True
+
+    def test_peer_advisor(self, client, fake_auth):
+        """A peer advisor can mark their own tag read and unread."""
+        peer_note = _create_note(
+            author_uid=peer_advisor_manager_uid,
+            author_dept_codes=['ZCEEE'],
+            peer_advising_department_id=_peer_advising_department_id(peer_advisor_uid),
+        )
+        user_tag = self._create_tag(peer_advisor_uid, peer_note)
+        fake_auth.login(peer_advisor_uid)
+        assert self._api_update_user_tag(client, user_tag.id, {'readByUser': True})['readByUser'] is True
+        assert self._api_update_user_tag(client, user_tag.id, {'readByUser': False})['readByUser'] is False
+
+    def test_csrf_token_required(self, app, client, fake_auth, note):
+        """PATCH routes are under CSRF protection."""
+        user_tag = self._create_tag(coe_advisor_uid, note)
+        fake_auth.login(coe_advisor_uid)
+        with override_config(app, 'WTF_CSRF_ENABLED', True):
+            response = client.patch(f'/api/user_tag/{user_tag.id}', data=json.dumps({'readByUser': True}), content_type='application/json')
+            assert response.status_code == 400
+            assert response.json['error_class'] == 'CSRFError'
+            csrf_token = client.get('/api/config').json['csrfToken']
+            response = client.patch(
+                f'/api/user_tag/{user_tag.id}',
+                data=json.dumps({'readByUser': True}),
+                content_type='application/json',
+                headers={'X-CSRFToken': csrf_token},
+            )
+            assert response.status_code == 200

@@ -81,7 +81,7 @@ def request(url, headers=None, method='get', auth=None, auth_params=None, **kwar
         one was returned.
         Borrowing the Requests convention, successful responses are truthy and failures are falsey.
     """
-    if method not in ['get', 'post', 'put', 'delete']:
+    if method not in ['get', 'post', 'put', 'delete', 'patch']:
         raise ValueError(f'Unrecognized HTTP method "{method}"')
     app.logger.debug({
         'headers': sanitize_headers(headers) if headers else {},

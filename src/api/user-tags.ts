@@ -14,6 +14,19 @@ export function listUserTags() {
   return axios.get(url).then(response => response.data)
 }
 
+export function markUserTagRead(userTagId: number) {
+  return updateUserTag(userTagId, {readByUser: true})
+}
+
+export function markUserTagUnread(userTagId: number) {
+  return updateUserTag(userTagId, {readByUser: false})
+}
+
+function updateUserTag(userTagId: number, changes: {readByUser: boolean}) {
+  const url: string = `${utils.apiBaseUrl()}/api/user_tag/${userTagId}`
+  return axios.patch(url, changes).then(response => response.data)
+}
+
 // Checks the UIDs tagged in a note or comment before it is saved and returns the ones the backend would reject.
 export function validateUserTags(uids: string[], context: TagContext): Promise<InvalidUserTag[]> {
   const url: string = `${utils.apiBaseUrl()}/api/users/tags/validate`

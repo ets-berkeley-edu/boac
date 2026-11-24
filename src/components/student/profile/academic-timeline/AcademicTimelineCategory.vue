@@ -1,6 +1,6 @@
 <template>
   <v-badge
-    :id="`timeline-category-${messageType}-${message.id}`"
+    :id="`${idPrefix}-${messageType}-${message.id}`"
     :aria-atomic="undefined"
     :aria-label="undefined"
     :aria-live="undefined"
@@ -26,6 +26,11 @@
 import {computed} from 'vue'
 
 const props = defineProps({
+  idPrefix: {
+    default: 'timeline-category',
+    required: false,
+    type: String
+  },
   label: {
     required: true,
     type: String
@@ -37,11 +42,8 @@ const props = defineProps({
 })
 
 const categoryColor = computed(() => `category-${messageType.value === 'note' && props.message.peerAdvisingDepartmentId ? 'peer-note' : messageType}`)
+const categoryType = computed(() => messageType === 'note' && props.message.peerAdvisingDepartmentId ? 'peer-advising' : messageType)
 const messageType = props.message.type || props.message.objectType
-
-const categoryType = (() => {
-  return messageType.value === 'note' && props.message.peerAdvisingDepartmentId ? 'peer-advising' : messageType.value
-})
 </script>
 
 <style>

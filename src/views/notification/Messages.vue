@@ -12,7 +12,9 @@
           <div class="d-flex align-center justify-space-between pb-1">
             <MessageFilters v-model="filtersApplied" />
             <span :aria-hidden="true" class="text-disabled">|</span>
-            <span class="font-weight-bold pl-4">{{ size(unreadNotifications) }} new</span>
+            <span class="pl-4" :class="{'font-weight-bold': currentUser.myUnreadMessageCount}">
+              {{ currentUser.myUnreadMessageCount }} new
+            </span>
           </div>
           <p
             v-if="size(notifications) && !size(filteredNotifications)"
@@ -33,22 +35,23 @@
                 :aria-current="get(selectedNotification, 'id') === notification ? 'true' : undefined"
                 class="d-block message-select-btn pa-1 my-2"
                 type="button"
-                @click="() => selectedNotification = notification"
+                @click="() => showDetail(notification)"
               >
                 <span class="d-flex align-baseline justify-space-between">
                   <span class="d-block font-weight-bold mr-1 text-truncate">{{ authorName(notification) }}</span>
                   <span class="d-block">{{ dateOrTime(notification.createdAt) }}</span>
                 </span>
-                <span class="d-flex align-center">
+                <span class="d-flex align-center justify-space-between">
                   <AcademicTimelineCategory
                     class="mr-2"
+                    id-prefix="notifications"
                     :label="messageLabel(notification.object)"
                     :message="notification.object"
                   />
                   <span
                     v-if="get(notification.object, 'student')"
                     :id="`${notification.objectType}-${notification.id}-student`"
-                    class="d-block text-medium-emphasis"
+                    class="d-block text-medium-emphasis text-truncate"
                   >
                     {{ notification.object.student.name }} ({{ notification.object.student.sid }})
                   </span>
@@ -83,21 +86,23 @@
             </div>
             <div class="d-flex align-center">
               <AcademicTimelineCategory
+                :key="`${selectedMessage.type}-${selectedMessage.id}`"
                 class="mr-2 mr-md-3"
+                id-prefix="message-detail"
                 :label="messageLabel(selectedMessage)"
                 :message="selectedMessage"
               />
               <router-link
-                v-if="get(selectedNotification, 'student')"
-                :id="`link-to-${selectedMessage.type}-${selectedMessage.id}`"
+                v-if="get(selectedMessage, 'student')"
+                id="link-to-timeline-message"
                 class="d-inline-block"
-                :to="`${studentRoutePath(selectedNotification.student.uid, currentUser.inDemoMode)}#${permalinkAnchor(selectedNotification)}`"
+                :to="`${studentRoutePath(selectedMessage.student.uid, currentUser.inDemoMode)}#${permalinkAnchor(selectedNotification)}`"
               >
                 <v-icon class="account-icon mr-1" :icon="mdiAccountCircle" size="1.25rem" />
-                <span :id="`student-name-${selectedMessage.type}-${selectedMessage.id}`">{{ selectedNotification.student.name }}</span>
+                <span :id="`student-name-${selectedMessage.type}-${selectedMessage.id}`">{{ selectedMessage.student.name }}</span>
               </router-link>
-              <span v-if="get(selectedNotification, 'student.sid')" :id="`student-sid-${selectedMessage.type}-${selectedMessage.id}`">
-                &ThickSpace;({{ selectedNotification.student.sid }})
+              <span v-if="get(selectedMessage, 'student.sid')" :id="`student-sid-${selectedMessage.type}-${selectedMessage.id}`">
+                &ThickSpace;({{ selectedMessage.student.sid }})
               </span>
             </div>
             <div class="d-flex">
@@ -113,7 +118,7 @@
                 :appointment="selectedMessage"
                 :is-open="true"
                 :on-click-open="noop"
-                :student="selectedNotification.student || {}"
+                :student="selectedMessage.student || {}"
               />
               <footer
                 class="pl-4 pl-md-6"
@@ -184,14 +189,13 @@ import AdvisingComments from '@/components/comment/AdvisingComments'
 import AuthorDetails from '@/components/note/AuthorDetails'
 import MessageFilters from '@/components/notification/MessageFilters'
 import TimelineDate from '@/components/student/profile/TimelineDate'
-import {listUserTags} from '@/api/user-tags.ts'
+import {listUserTags, markUserTagRead} from '@/api/user-tags.ts'
 import {shouldDisplayUpdatedAt, stripHtmlAndSummarize, summarizeNoteForAcademicTimeline} from '@/lib/note.ts'
 import {alertScreenReader, pluralize, studentRoutePath} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 
 const contextStore = useContextStore()
 const currentUser = contextStore.currentUser
-
 const filtersApplied = ref<string[]>(['all'])
 const filteredNotifications = computed(() => filter(notifications.value, message => matchesFilters(message, filtersApplied.value)))
 const notifications = ref(undefined)
@@ -204,7 +208,6 @@ const selectedNotification = ref(undefined)
 const selectedMessage = computed(() => get(selectedNotification.value, 'object'))
 const selectedMessageAuthor = computed(() => get(selectedMessage.value, 'author') || get(selectedMessage.value, 'advisor'))
 const today = DateTime.now()
-const unreadNotifications = ref(undefined)
 
 contextStore.loadingStart()
 
@@ -224,6 +227,29 @@ watch(filtersApplied, () => {
 
 const TYPE_FILTERS = ['note', 'appointment', 'eForm']
 
+const authorName = message => {
+  const item = taggedItem(message)
+  return get(item, 'author.name') || get(item, 'advisor.name')
+}
+
+// Loch notes have no BOA comments. Same rule as the student timeline.
+const commentsEnabled = message => {
+  return includes(['appointment', 'eForm'], message.type) || (message.type === 'note' && !message.legacySource)
+}
+
+const dateOrTime = isoDate => {
+  const localDate = DateTime.fromISO(isoDate).setZone(contextStore.config.timezone)
+  let format
+  if (localDate.hasSame(today, 'day')) {
+    format = 'h:mma'
+  } else if (localDate.hasSame(today, 'year')) {
+    format = 'MMM d'
+  } else {
+    format = 'MMM d, yyyy'
+  }
+  return localDate.toFormat(format)
+}
+
 const matchesFilters = (message, filters: string[]) => {
   if (includes(filters, 'all')) {
     return true
@@ -236,20 +262,6 @@ const matchesFilters = (message, filters: string[]) => {
   }
   const typeFilters = intersection(filters, TYPE_FILTERS)
   return isEmpty(typeFilters) || includes(typeFilters, message.object.type)
-}
-
-const taggedItem = notification => {
-  // The note or comment that mentions the user.
-  const message = notification.object
-  if (notification.objectType === 'note' && notification.objectId === message.id) {
-    return message
-  }
-  return find(message.comments, {id: notification.objectId}) || message
-}
-
-const authorName = message => {
-  const item = taggedItem(message)
-  return get(item, 'author.name') || get(item, 'advisor.name')
 }
 
 const messageLabel = message => {
@@ -274,29 +286,27 @@ const permalinkAnchor = notification => {
   return isTagInNote ? messageAnchor : `${messageAnchor}_comment-${notification.objectId}`
 }
 
-// Loch notes have no BOA comments. Same rule as the student timeline.
-const commentsEnabled = message => {
-  return includes(['appointment', 'eForm'], message.type) || (message.type === 'note' && !message.legacySource)
-}
-
-const dateOrTime = isoDate => {
-  const localDate = DateTime.fromISO(isoDate).setZone(contextStore.config.timezone)
-  let format
-  if (localDate.hasSame(today, 'day')) {
-    format = 'h:mma'
-  } else if (localDate.hasSame(today, 'year')) {
-    format = 'MMM d'
-  } else {
-    format = 'MMM d, yyyy'
-  }
-  return localDate.toFormat(format)
-}
-
 const refreshList = () => {
   return listUserTags().then(data => {
     notifications.value = filter(data.notifications, 'object')
-    unreadNotifications.value = filter(notifications.value, {'readByUser': false})
   })
+}
+
+const showDetail = notification => {
+  selectedNotification.value = notification
+  markUserTagRead(notification.id).then(data => {
+    notification.readByUser = data.readByUser
+    currentUser.myUnreadMessageCount = data.myUnreadMessageCount
+  })
+}
+
+const taggedItem = notification => {
+  // The note or comment that mentions the user.
+  const message = notification.object
+  if (notification.objectType === 'note' && notification.objectId === message.id) {
+    return message
+  }
+  return find(message.comments, {id: notification.objectId}) || message
 }
 </script>
 
