@@ -63,6 +63,19 @@ def get_advising_appointments(sid):
     return list(appointments_by_id.values())
 
 
+def get_advising_appointments_by_ids(appointment_ids):
+    wanted_ids = {str(appointment_id) for appointment_id in appointment_ids}
+    if not wanted_ids:
+        return {}
+    sids = {row['sid'] for row in data_loch.get_advising_appointments_by_ids(list(wanted_ids)) if row.get('sid')}
+    appointments_by_id = {}
+    for sid in sids:
+        for appointment in get_advising_appointments(sid) or []:
+            if str(appointment['id']) in wanted_ids:
+                appointments_by_id[str(appointment['id'])] = appointment
+    return appointments_by_id
+
+
 def get_calendly_advising_appointments(sid):
     appointments_by_id = {}
     for row in data_loch.get_calendly_advising_appointments(sid):

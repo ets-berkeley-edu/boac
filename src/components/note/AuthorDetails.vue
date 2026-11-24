@@ -1,75 +1,85 @@
 <template>
-  <v-tooltip
-    :id="`${idPrefix}-author-details`"
-    attach
-    close-delay="500"
-    content-class="bg-white elevation-2"
-    eager
-    interactive
-    location="bottom end"
-    scroll-strategy="reposition"
-  >
-    <template #activator="{ props: tooltipProps }">
-      <div v-if="!name && !email" class="text-medium-emphasis" :class="activatorClass">
-        Advisor profile not found
-      </div>
-      <router-link
-        v-if="showPeerAdvisorLink"
-        :id="`${idPrefix}-link-to-peer-advisor-home`"
-        v-bind="tooltipProps"
-        :aria-describedby="undefined"
-        :aria-details="`${idPrefix}-author-details`"
-        class="text-no-wrap text-primary"
-        :class="activatorClass"
-        :to="`/peer_advisor/${author.uid}/home`"
-      >
-        <span class="mr-1 text-wrap">{{ name }}</span><v-icon class="mb-1" :icon="mdiInformation" size="1rem" />
-      </router-link>
-      <div
-        v-if="!showPeerAdvisorLink && (name || email)"
-        :id="`${idPrefix}-author-name`"
-        v-bind="tooltipProps"
-        :aria-describedby="undefined"
-        :aria-details="`${idPrefix}-author-details`"
-        class="text-no-wrap text-primary"
-        :class="activatorClass"
-        role="button"
-        tabindex="0"
-      >
-        <span class="mr-1 text-wrap">{{ name || email }}</span><v-icon class="mb-1" :icon="mdiInformation" size="1rem" />
-      </div>
-    </template>
-    <div class="pa-2">
-      <div :aria-hidden="true" class="font-weight-bold">{{ name }}</div>
-      <span v-if="role">
-        <span :id="`${idPrefix}-author-role`">{{ capitalizeAllWords(replace(role, '_', ' ')) }}</span>
-      </span>
-      <div v-if="peerAdvisingDepartment" class="text-medium-emphasis">
-        <span :id="`${idPrefix}-peer-advising-department`">{{ peerAdvisingDepartment.name }}</span>
-        <div
-          v-if="peerAdvisingDepartment.deptName !== peerAdvisingDepartment.name"
-          :id="`${idPrefix}-university-department-of-peer-advisor`"
+  <div>
+    <v-progress-linear
+      v-if="isLoading"
+      color="primary"
+      height="2"
+      indeterminate
+      size="x-small"
+    />
+    <v-tooltip
+      v-if="!isLoading"
+      :id="`${idPrefix}-author-details`"
+      attach
+      close-delay="500"
+      content-class="bg-white elevation-2"
+      eager
+      interactive
+      location="bottom end"
+      scroll-strategy="reposition"
+    >
+      <template #activator="{ props: tooltipProps }">
+        <div v-if="!name && !email" class="text-medium-emphasis" :class="activatorClass">
+          Advisor profile not found
+        </div>
+        <router-link
+          v-if="showPeerAdvisorLink"
+          :id="`${idPrefix}-link-to-peer-advisor-home`"
+          v-bind="tooltipProps"
+          :aria-describedby="undefined"
+          :aria-details="`${idPrefix}-author-details`"
+          class="text-no-wrap text-primary"
+          :class="activatorClass"
+          :to="`/peer_advisor/${author.uid}/home`"
         >
-          {{ peerAdvisingDepartment.deptName }}
+          <span class="mr-1 text-wrap">{{ name }}</span><v-icon class="mb-1" :icon="mdiInformation" size="1rem" />
+        </router-link>
+        <div
+          v-if="!showPeerAdvisorLink && (name || email)"
+          :id="`${idPrefix}-author-name`"
+          v-bind="tooltipProps"
+          :aria-describedby="undefined"
+          :aria-details="`${idPrefix}-author-details`"
+          class="text-no-wrap text-primary"
+          :class="activatorClass"
+          role="button"
+          tabindex="0"
+        >
+          <span class="mr-1 text-wrap">{{ name || email }}</span><v-icon class="mb-1" :icon="mdiInformation" size="1rem" />
         </div>
-      </div>
-      <div v-if="!peerAdvisingDepartment" class="text-medium-emphasis">
-        <div v-for="(deptName, index) in departments" :key="index">
-          <span :id="`${idPrefix}-author-dept-${index}`">{{ deptName }}</span>
+      </template>
+      <div class="pa-2">
+        <div :aria-hidden="true" class="font-weight-bold">{{ name }}</div>
+        <span v-if="role">
+          <span :id="`${idPrefix}-author-role`">{{ capitalizeAllWords(replace(role, '_', ' ')) }}</span>
+        </span>
+        <div v-if="peerAdvisingDepartment" class="text-medium-emphasis">
+          <span :id="`${idPrefix}-peer-advising-department`">{{ peerAdvisingDepartment.name }}</span>
+          <div
+            v-if="peerAdvisingDepartment.deptName !== peerAdvisingDepartment.name"
+            :id="`${idPrefix}-university-department-of-peer-advisor`"
+          >
+            {{ peerAdvisingDepartment.deptName }}
+          </div>
         </div>
+        <div v-if="!peerAdvisingDepartment" class="text-medium-emphasis">
+          <div v-for="(deptName, index) in departments" :key="index">
+            <span :id="`${idPrefix}-author-dept-${index}`">{{ deptName }}</span>
+          </div>
+        </div>
+        <hr>
+        <a
+          :id="`${idPrefix}-author-directory-link`"
+          :aria-label="`${name} UC Berkeley Directory page (opens in new tab)`"
+          class="d-flex align-center"
+          :href="`https://www.berkeley.edu/directory/results?search-term=${name}`"
+          target="_blank"
+        >
+          View directory listing <v-icon class="ml-2" :icon="mdiOpenInNew" size="1rem" />
+        </a>
       </div>
-      <hr>
-      <a
-        :id="`${idPrefix}-author-directory-link`"
-        :aria-label="`${name} UC Berkeley Directory page (opens in new tab)`"
-        class="d-flex align-center"
-        :href="`https://www.berkeley.edu/directory/results?search-term=${name}`"
-        target="_blank"
-      >
-        View directory listing <v-icon class="ml-2" :icon="mdiOpenInNew" size="1rem" />
-      </a>
-    </div>
-  </v-tooltip>
+    </v-tooltip>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -105,6 +115,7 @@ const props = defineProps({
 
 const departments = ref(orderBy(map(props.author.departments, 'deptName')))
 const email = ref()
+const isLoading = ref(true)
 const name = ref()
 const role = ref()
 const contextStore = useContextStore()
@@ -115,6 +126,8 @@ onMounted(() => {
   setAuthorDetails(props.author.uid === contextStore.currentUser.uid ? contextStore.currentUser : props.author)
   if (!name.value || !role.value) {
     loadAuthorDetails()
+  } else {
+    isLoading.value = false
   }
   if (props.peerAdvisingDepartmentId) {
     peerAdvisingDepartment.value = findPeerAdvisingDepartment(props.peerAdvisingDepartmentId)
@@ -123,9 +136,13 @@ onMounted(() => {
 
 const loadAuthorDetails = () => {
   if (props.author.uid) {
-    getCalnetProfileByUid(props.author.uid).then(setAuthorDetails)
+    getCalnetProfileByUid(props.author.uid)
+      .then(setAuthorDetails)
+      .finally(() => isLoading.value = false)
   } else if (props.author.sid) {
-    getCalnetProfileByCsid(props.author.sid).then(setAuthorDetails)
+    getCalnetProfileByCsid(props.author.sid)
+      .then(setAuthorDetails)
+      .finally(() => isLoading.value = false)
   }
 }
 

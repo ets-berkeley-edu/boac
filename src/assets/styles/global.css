@@ -525,6 +525,8 @@ div.highcharts-tooltip > span {
 .v-badge-override {
   .v-badge__badge {
     font-family: revert-layer !important;
+    font-size: revert-layer !important;
+    font-weight: revert-layer !important;
     height: max-content;
     min-width: fit-content;
   }

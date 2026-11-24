@@ -50,7 +50,7 @@ Related docs (not repeated here):
 
 | Method | Route | Decorator | What it does |
 |---|---|---|---|
-| GET | `/api/profile/my` | none | Current session blob plus `myCohorts`, `myCuratedGroups`, `myDraftNoteCount`, `preferences` (`get_current_user_profile`) |
+| GET | `/api/profile/my` | none | Current session blob plus `myCohorts`, `myCuratedGroups`, `myDraftNoteCount`, `myUnreadMessageCount`, `preferences` (`get_current_user_profile`) |
 | GET | `/api/user/session_keep_alive` | `login_required` | Returns the session JSON. The frontend pings it every `pingFrequency` ms |
 | GET | `/api/user/calnet_profile/by_csid/<csid>`, `.../by_uid/<uid>`, `.../by_user_id/<user_id>` | `advisor_required` | CalNet lookups. `by_user_id` includes deleted users and returns 404 if there is no row |
 | GET | `/api/user/by_uid/<uid>?includeDeleted=` | `advisor_required` | One user feed entry, 404 if missing. `includeDeleted` is honored only for admins |

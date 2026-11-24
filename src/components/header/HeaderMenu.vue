@@ -19,6 +19,7 @@
         >
           {{ currentUser.firstName || `UID:${currentUser.uid}` }}
           <v-icon :icon="mdiMenuDown" size="1.5rem" />
+          <NewMessageCount />
         </button>
       </template>
       <v-list aria-labelledby="header-dropdown-under-name" density="compact">
@@ -124,6 +125,24 @@
             variant="text"
           />
         </v-list-item>
+        <v-list-item class="pa-0" density="compact">
+          <v-btn
+            id="header-menu-messages"
+            :aria-current="route.path === '/messages' ? 'page' : false"
+            block
+            class="header-menu-item"
+            color="primary"
+            density="comfortable"
+            size="large"
+            text="Messages"
+            to="/messages"
+            variant="text"
+          >
+            <template #append>
+              <NewMessageCount class="ml-2" />
+            </template>
+          </v-btn>
+        </v-list-item>
         <v-list-item class="pa-0">
           <v-btn
             block
@@ -160,6 +179,7 @@
 import {mdiMenuDown} from '@mdi/js'
 import {onMounted, ref} from 'vue'
 import {useRoute} from 'vue-router'
+import NewMessageCount from '@/components/header/NewMessageCount'
 import {alertScreenReader} from '@/lib/utils'
 import {onSafariActivatorMousedown} from '@/lib/menu-focus'
 import {getCasLogoutUrl} from '@/api/auth'

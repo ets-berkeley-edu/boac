@@ -94,6 +94,7 @@ export interface BoaUser extends BoaUserBasic, CalNetUser {
   myCohorts: Cohort[],
   myCuratedGroups: CuratedGroup[],
   myDraftNoteCount: number | undefined,
+  myUnreadMessageCount: number | undefined,
   preferences: {
     sortBy: string | undefined,
     termId: string | undefined

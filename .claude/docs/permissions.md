@@ -65,7 +65,7 @@ BOA authorization has two parts. **Who you are** is an `authorized_users` row pl
 - `degreeProgressPermission`: forced to `'read_write'` for admins. `canEditDegreeProgress` means `read_write`. `canReadDegreeProgress` means `read` or `read_write`.
 - `inDemoMode`, `disabledAt`, `deletedAt`, `isBlocked`, `uid`, `id`, plus CalNet profile fields. CalNet `departments` are renamed to `calNetDepartments`.
 
-`get_current_user_profile()` adds `myCohorts`, `myCuratedGroups`, `myDraftNoteCount`, and `preferences`.
+`get_current_user_profile()` adds `myCohorts`, `myCuratedGroups`, `myDraftNoteCount`, `myUnreadMessageCount` (unread, unarchived tags of the current user; `0` when not logged in), and `preferences`.
 
 ## Backend decorators (`boac/api/decorators.py`)
 

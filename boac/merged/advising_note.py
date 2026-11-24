@@ -265,6 +265,22 @@ def get_native_boa_notes(sid, exclude_draft_notes=False):
     return notes_by_id
 
 
+def get_sis_eforms_by_parent_ids(parent_type_to_ids):
+    """Return eForms keyed by (comment parent type, string id), in the same JSON the student timeline uses.
+
+    `parent_type_to_ids` maps a comment parent type such as 'late_drop_eform' to eForm ids. The by-id query selects the
+    same columns as the per-student eForm queries, so the rows convert the same way.
+    """
+    eforms_by_key = {}
+    for row in data_loch.get_sis_eforms_by_ids(parent_type_to_ids):
+        eform = {
+            **note_to_compatible_json(row),
+            'legacySource': 'SIS',
+        }
+        eforms_by_key[(eform['parentType'], str(eform['id']))] = eform
+    return eforms_by_key
+
+
 def get_sis_career_program_plan_eforms(sid):
     eforms_by_id = {}
     for eform in data_loch.get_sis_career_program_plan_eforms(sid):

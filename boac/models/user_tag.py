@@ -142,6 +142,18 @@ class UserTag(Base):
             and_(cls.user_id == user_id, cls.deleted_at == None, cls.archived_by_user == archived),  # noqa: E711
         ).order_by(cls.created_at.desc(), cls.id.desc()).all()
 
+    @classmethod
+    def get_unread_count(cls, user_id):
+        # Counts the same tags the notifications list shows (not deleted, not archived) that the user hasn't read yet.
+        return cls.query.filter(
+            and_(
+                cls.user_id == user_id,
+                cls.deleted_at == None,  # noqa: E711
+                cls.archived_by_user == False,  # noqa: E712
+                cls.read_by_user == False,  # noqa: E712
+            ),
+        ).count()
+
     def to_api_json(self):
         return {
             'id': self.id,
