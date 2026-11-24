@@ -135,10 +135,13 @@ class UserTag(Base):
         ).first()
 
     @classmethod
-    def set_read_by_user(cls, user_tag_id, user_id, read_by_user):
+    def update_flags(cls, user_tag_id, user_id, read_by_user=None, archived_by_user=None):
         user_tag = cls.find_by_id_for_user(user_tag_id, user_id)
         if user_tag:
-            user_tag.read_by_user = read_by_user
+            if read_by_user is not None:
+                user_tag.read_by_user = read_by_user
+            if archived_by_user is not None:
+                user_tag.archived_by_user = archived_by_user
             std_commit()
         return user_tag
 

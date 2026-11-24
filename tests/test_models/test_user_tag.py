@@ -119,23 +119,45 @@ class TestUserTag:
     def test_mark_read_and_unread(self, note):
         user_id = _user_id(l_s_advisor_uid)
         user_tag = UserTag.create(user_id=user_id, object_id=note.id, object_type='note')
-        assert UserTag.set_read_by_user(user_tag.id, user_id, True).read_by_user is True
+        assert UserTag.update_flags(user_tag.id, user_id, read_by_user=True).read_by_user is True
         assert UserTag.get_unread_count(user_id) == 0
-        assert UserTag.set_read_by_user(user_tag.id, user_id, False).read_by_user is False
+        assert UserTag.update_flags(user_tag.id, user_id, read_by_user=False).read_by_user is False
         assert UserTag.get_unread_count(user_id) == 1
+
+    def test_archive_and_unarchive(self, note):
+        user_id = _user_id(l_s_advisor_uid)
+        user_tag = UserTag.create(user_id=user_id, object_id=note.id, object_type='note')
+        archived = UserTag.update_flags(user_tag.id, user_id, archived_by_user=True)
+        # Archiving leaves the read flag alone, but an archived tag drops out of the list and the unread count.
+        assert archived.archived_by_user is True
+        assert archived.read_by_user is False
+        assert UserTag.get_all_for_user(user_id) == []
+        assert [t.id for t in UserTag.get_all_for_user(user_id, archived=True)] == [user_tag.id]
+        assert UserTag.get_unread_count(user_id) == 0
+        assert UserTag.update_flags(user_tag.id, user_id, archived_by_user=False).archived_by_user is False
+        assert UserTag.get_unread_count(user_id) == 1
+
+    def test_update_both_flags(self, note):
+        user_id = _user_id(l_s_advisor_uid)
+        user_tag = UserTag.create(user_id=user_id, object_id=note.id, object_type='note')
+        updated = UserTag.update_flags(user_tag.id, user_id, read_by_user=True, archived_by_user=True)
+        assert updated.read_by_user is True
+        assert updated.archived_by_user is True
 
     def test_mark_read_only_own_tag(self, note):
         user_id = _user_id(l_s_advisor_uid)
         user_tag = UserTag.create(user_id=user_id, object_id=note.id, object_type='note')
-        assert UserTag.set_read_by_user(user_tag.id, _user_id(admin_uid), True) is None
-        assert UserTag.find_by_id_for_user(user_tag.id, user_id).read_by_user is False
+        assert UserTag.update_flags(user_tag.id, _user_id(admin_uid), read_by_user=True, archived_by_user=True) is None
+        user_tag = UserTag.find_by_id_for_user(user_tag.id, user_id)
+        assert user_tag.read_by_user is False
+        assert user_tag.archived_by_user is False
 
     def test_mark_read_deleted_tag(self, note):
         user_id = _user_id(l_s_advisor_uid)
         user_tag = UserTag.create(user_id=user_id, object_id=note.id, object_type='note')
         UserTag.delete(user_id=user_id, object_id=note.id, object_type='note')
-        assert UserTag.set_read_by_user(user_tag.id, user_id, True) is None
-        assert UserTag.set_read_by_user(user_tag.id, user_id, False) is None
+        assert UserTag.update_flags(user_tag.id, user_id, read_by_user=True) is None
+        assert UserTag.update_flags(user_tag.id, user_id, archived_by_user=True) is None
 
     def test_get_unread_count(self, note, comment):
         user_id = _user_id(l_s_advisor_uid)

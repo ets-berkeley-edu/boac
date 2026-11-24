@@ -9,6 +9,10 @@ export function findTaggableUsers(snippet: string, context: TagContext): Promise
   return axios.post(url, {snippet, ...context}).then(response => response.data)
 }
 
+export function archiveUserTag(userTagId: number) {
+  return updateUserTag(userTagId, {archivedByUser: true})
+}
+
 export function listUserTags() {
   const url: string = `${utils.apiBaseUrl()}/api/user_tag/list`
   return axios.get(url).then(response => response.data)
@@ -22,7 +26,12 @@ export function markUserTagUnread(userTagId: number) {
   return updateUserTag(userTagId, {readByUser: false})
 }
 
-function updateUserTag(userTagId: number, changes: {readByUser: boolean}) {
+export function unarchiveUserTag(userTagId: number) {
+  return updateUserTag(userTagId, {archivedByUser: false})
+}
+
+// Sends one or both flags. The response is the updated tag plus myUnreadMessageCount.
+function updateUserTag(userTagId: number, changes: {archivedByUser?: boolean, readByUser?: boolean}) {
   const url: string = `${utils.apiBaseUrl()}/api/user_tag/${userTagId}`
   return axios.patch(url, changes).then(response => response.data)
 }

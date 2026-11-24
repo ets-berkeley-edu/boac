@@ -88,6 +88,10 @@ def list_user_tags():
     return tolerant_jsonify({'notifications': feed})
 
 
+# The fields PATCH /api/user_tag/<id> accepts. Every one of them changes the unread count.
+UPDATABLE_FLAGS = {'archivedByUser', 'readByUser'}
+
+
 @app.route('/api/user_tag/<user_tag_id>', methods=['PATCH'])
 @advisor_or_peer_advisor_required
 def update_user_tag(user_tag_id):
@@ -95,21 +99,26 @@ def update_user_tag(user_tag_id):
         raise BadRequestError('Invalid user tag id')
 
     params = request.get_json(silent=True)
-    if not isinstance(params, dict) or not params or set(params) - {'readByUser'}:
-        raise BadRequestError('Request body must contain readByUser and nothing else')
-
-    read_by_user = params['readByUser']
-    if not isinstance(read_by_user, bool):
-        raise BadRequestError('readByUser must be true or false')
+    # A partial update: send either flag or both. Unknown fields are rejected rather than ignored, so a typo can't look
+    # like success.
+    if not isinstance(params, dict) or not params or set(params) - UPDATABLE_FLAGS:
+        raise BadRequestError('Request body must contain archivedByUser, readByUser, or both, and nothing else')
+    for key, value in params.items():
+        if not isinstance(value, bool):
+            raise BadRequestError(f'{key} must be true or false')
 
     user_id = current_user.get_id()
-    user_tag = UserTag.set_read_by_user(int(user_tag_id), user_id, read_by_user)
+    user_tag = UserTag.update_flags(
+        int(user_tag_id),
+        user_id,
+        read_by_user=params.get('readByUser'),
+        archived_by_user=params.get('archivedByUser'),
+    )
     if not user_tag:
         raise ResourceNotFoundError('User tag not found')
 
     api_json = user_tag.to_api_json()
-    if 'readByUser' in params:
-        # A read-state change moves the header's unread count, so send the new count back. It has the same name as the
-        # field in /api/profile/my, so the front end can copy it straight onto the current user.
-        api_json['myUnreadMessageCount'] = UserTag.get_unread_count(user_id)
+    # Reading or archiving a tag moves the header's unread count, since archived tags don't count. Send the new count
+    # back under the same name as in /api/profile/my, so the front end can copy it straight onto the current user.
+    api_json['myUnreadMessageCount'] = UserTag.get_unread_count(user_id)
     return tolerant_jsonify(api_json)
