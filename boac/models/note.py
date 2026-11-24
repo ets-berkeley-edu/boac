@@ -662,7 +662,8 @@ class Note(Base):
             'author_name': self.author_name,
             'author_role': self.author_role,
             'author_dept_codes': self.author_dept_codes,
-            'body': self.body,
+            # Search gets the body without user tags. See UserTag.strip_tags_for_search.
+            'body': UserTag.strip_tags_for_search(self.body),
             'contact_type': self.contact_type,
             'is_draft': self.is_draft,
             'is_private': self.is_private,
@@ -698,6 +699,8 @@ def _create_notes(
     # The syntax of the following is what Postgres expects in json_populate_recordset(...)
 
     joined_author_dept_codes = '{' + ','.join(author_dept_codes) + '}'
+    # Every row in a batch shares one body, so strip its user tags for search once rather than once per row.
+    search_body = UserTag.strip_tags_for_search(body)
     count_per_chunk = 10000
     for chunk in range(0, len(sids), count_per_chunk):
         sids_subset = sids[chunk:chunk + count_per_chunk]
@@ -758,6 +761,7 @@ def _create_notes(
         def _to_sqs_json(data_row):
             return {
                 **data_row,
+                'body': search_body,
                 'id': ids_by_sid.get(data_row['sid']),
                 'is_draft': False,
                 'deleted_at': None,

@@ -8,7 +8,7 @@ Guidance for the pytest suite. The ground rules in the root `CLAUDE.md` apply he
 - `boac_test` is built from `scripts/db/schema.sql` and seeded from `fixtures/development_db/` (test users, departments, topics, cohorts, curated groups) by `boac/models/development_db.py`.
 - The data loch is faked: the session-scoped `fake_loch` fixture in `conftest.py` loads `fixtures/loch/loch.sql` and the `fixtures/loch/student_*.json` files into `boac_loch_test`.
 - AWS is mocked with moto (`fake_aws` in `conftest.py`), including a fake SQS queue. Helpers in `tests/util.py` create mock S3 buckets for attachments.
-- To emulate the SQS + Lambda searchlight-cdc process, search tests rebuild the loch search indexes with `refresh_loch_note_search_index`, `refresh_loch_appointment_search_index`, and `refresh_loch_eform_search_index` from `tests/util.py`. Each takes a list of records to index and a list to remove (`notes`/`deleted_notes`, or `comments`/`deleted_comments`). Set `created_at` before indexing, because the index computes `age_days` from it.
+- To emulate the SQS + Lambda searchlight-cdc process, search tests rebuild the loch search indexes with `refresh_loch_note_search_index`, `refresh_loch_appointment_search_index`, and `refresh_loch_eform_search_index` from `tests/util.py`. Each takes a list of records to index and a list to remove (`notes`/`deleted_notes`, or `comments`/`deleted_comments`). Set `created_at` before indexing, because the index computes `age_days` from it. Like the real SQS path, the helpers index bodies with user tags stripped (`UserTag.strip_tags_for_search`).
 
 ## Writing API tests
 

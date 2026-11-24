@@ -32,6 +32,7 @@ from botocore.exceptions import ClientError
 
 from boac.lib.util import localized_timestamp_to_utc
 from boac.models.comment_parent import CommentParent
+from boac.models.user_tag import UserTag
 
 
 def _ensure_bucket(s3, bucket, region):
@@ -152,6 +153,8 @@ def _refresh_loch_comment_search_index(
                 values = []
                 for comment in comments:
                     parent = CommentParent.find_by_id(comment.comment_parent_id)
+                    # The loch gets the body that SQS sends, which has its user tags stripped.
+                    body = UserTag.strip_tags_for_search(comment.body)
                     values.append({
                         'parent_id': parent.parent_id,
                         'boa_id': comment.id,
@@ -159,10 +162,10 @@ def _refresh_loch_comment_search_index(
                         'author_name': comment.author_name,
                         'author_role': comment.author_role,
                         'author_dept_codes': comment.author_dept_codes,
-                        'body': comment.body.replace("'", r"''") if comment.body else None,
+                        'body': body.replace("'", r"''") if body else None,
                         'created_at': comment.created_at,
                         'updated_at': comment.updated_at,
-                        'searchable_text': f"{comment.body or ''} {comment.author_name or ''}",
+                        'searchable_text': f"{body or ''} {comment.author_name or ''}",
                     })
                 # age_days is computed from created_at at insert time, so callers must backdate comments before indexing them.
                 sql = f"""INSERT INTO {comments_table}
@@ -224,7 +227,9 @@ def refresh_loch_note_search_index(app, notes=None, deleted_notes=None):
                     name_parts = (note.author_name or '').split(maxsplit=1)
                     advisor_first_name = name_parts[0] if name_parts else None
                     advisor_last_name = name_parts[1] if len(name_parts) > 1 else None
-                    searchable_body = note.body if note.body and not note.is_private else ''
+                    # The loch gets the body that SQS sends, which has its user tags stripped.
+                    body = UserTag.strip_tags_for_search(note.body)
+                    searchable_body = body if body and not note.is_private else ''
                     searchable_topics = ' '.join([t.topic for t in note.topics]) if note.topics else ''
                     searchable_text = f"{note.subject or ''} {searchable_body} {searchable_topics} {note.author_name or ''}"
 
@@ -238,7 +243,7 @@ def refresh_loch_note_search_index(app, notes=None, deleted_notes=None):
                         'advisor_last_name': advisor_last_name,
                         'author_dept_codes': note.author_dept_codes,
                         'subject': note.subject,
-                        'note_body': note.body.replace("'", r"''") if note.body else None,
+                        'note_body': body.replace("'", r"''") if body else None,
                         'is_private': note.is_private,
                         'contact_type': note.contact_type,
                         'set_date': note.set_date,

@@ -472,6 +472,28 @@ class TestNoteSearch:
         api_json = _api_search(client, 'a conquering virtue', notes=True)
         self._assert(api_json, note_count=1, note_ids=[note['id']])
 
+    def test_search_skips_tagged_uids_in_notes(self, client, fake_auth, app):
+        """Finds a tagged note by its words, but not by the UID of the BOA user it tags."""
+        note = Note.create(
+            author_uid=coe_advisor_uid,
+            author_name='COE Advisor',
+            author_role='advisor',
+            author_dept_codes=['COENG'],
+            body='<p>Ask @6446 about the marmalade petition.</p>',
+            sid='11667051',
+            subject='Tagged note',
+        )
+        refresh_loch_note_search_index(app, notes=[note])
+        try:
+            fake_auth.login(coe_advisor_uid)
+            api_json = _api_search(client, 'marmalade petition', notes=True)
+            self._assert(api_json, note_count=1, note_ids=[note.id])
+            assert '6446' not in api_json['notes'][0]['noteSnippet']
+            api_json = _api_search(client, '6446', notes=True)
+            assert note.id not in [n['id'] for n in api_json['notes']]
+        finally:
+            refresh_loch_note_search_index(app, deleted_notes=[note])
+
     def test_search_asc_notes(self, client, fake_auth):
         """Includes ASC notes in search results."""
         fake_auth.login(asc_advisor_uid)
@@ -1189,6 +1211,31 @@ class TestFindAdvisorsByName:
         labels = set([s['label'] for s in response])
         for label in ('John Deleted-in-BOA', 'Joni Mitchell', 'Joni Mitchell CC', 'Robert Johnson'):
             assert label in labels
+
+
+    def test_search_skips_tagged_uids_in_appointment_comments(self, client, fake_auth, app):
+        """Finds a tagged appointment comment by its words, but not by the UID of the BOA user it tags."""
+        comment_parent = CommentParent.find_or_create('appointment', '11667051-00010')
+        comment = Comment.create(
+            comment_parent_id=comment_parent.id,
+            author_uid=coe_advisor_uid,
+            author_name='COE Advisor',
+            author_role='advisor',
+            author_dept_codes=['COENG'],
+            body='<p>Ask @6446 about the pterodactyl roster.</p>',
+        )
+        refresh_loch_appointment_search_index(app, comments=[comment])
+        try:
+            fake_auth.login(coe_advisor_uid)
+            api_json = _api_search(client, 'pterodactyl roster', appointments=True)
+            comment_results = [a for a in api_json['appointments'] if a.get('kind') == 'commentOnAppointment']
+            assert len(comment_results) == 1
+            assert '6446' not in comment_results[0]['snippet']
+            api_json = _api_search(client, '6446', appointments=True)
+            assert not [a for a in api_json['appointments'] if a.get('kind') == 'commentOnAppointment']
+        finally:
+            comment.soft_delete()
+            refresh_loch_appointment_search_index(app, deleted_comments=[comment])
 
 
 def _api_search(
