@@ -35,6 +35,7 @@ export const ANONYMOUS_USER: BoaUser = {
   myCohorts: [] as Cohort[],
   myCuratedGroups: [] as CuratedGroup[],
   myDraftNoteCount: undefined as number | undefined,
+  myUnreadMessageCount: undefined as number | undefined,
   name: undefined,
   preferences: {
     sortBy: undefined as string | undefined,

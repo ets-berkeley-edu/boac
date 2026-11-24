@@ -116,6 +116,29 @@ class TestUserTag:
             UserTag.create(user_id=_user_id(l_s_advisor_uid), object_id=999999999, object_type='comment')
         db.session.rollback()
 
+    def test_get_unread_count(self, note, comment):
+        user_id = _user_id(l_s_advisor_uid)
+        own_note = Note.create(
+            author_uid=admin_uid,
+            author_name='Test Author',
+            author_role='Advisor',
+            author_dept_codes=['COENG'],
+            body='Another note that tags an advisor.',
+            sid='11667051',
+            subject='Unread count test',
+        )
+        unread = UserTag.create(user_id=user_id, object_id=note.id, object_type='note')
+        read = UserTag.create(user_id=user_id, object_id=comment.id, object_type='comment')
+        read.read_by_user = True
+        archived = UserTag.create(user_id=user_id, object_id=own_note.id, object_type='note')
+        archived.archived_by_user = True
+        db.session.flush()
+        UserTag.create(user_id=_user_id(admin_uid), object_id=note.id, object_type='note')
+        assert UserTag.get_unread_count(user_id) == 1
+        # A tag removed from its note or comment no longer counts.
+        UserTag.delete(user_id=user_id, object_id=unread.object_id, object_type='note')
+        assert UserTag.get_unread_count(user_id) == 0
+
     def test_get_all_for_user(self, note, comment):
         user_id = _user_id(l_s_advisor_uid)
         other_user_id = _user_id(admin_uid)

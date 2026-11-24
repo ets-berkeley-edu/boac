@@ -27,7 +27,8 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from flask import current_app as app
 from flask_login import current_user
 
-from boac.api.decorators import advisor_required
+from boac.api.decorators import advisor_or_peer_advisor_required
+from boac.api.util import get_user_tag_object_sid, get_user_tag_objects
 from boac.externals.data_loch import get_students_by_sids
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import join_if_present
@@ -38,7 +39,7 @@ from boac.models.user_tag import UserTag
 
 
 @app.route('/api/user_tag/list')
-@advisor_required
+@advisor_or_peer_advisor_required
 def list_user_tags():
     user_tags = UserTag.get_all_for_user(current_user.get_id())
     comment_ids = []
@@ -50,29 +51,28 @@ def list_user_tags():
             note_ids.append(tag.object_id)
     comments = {comment.id: comment for comment in Comment.fetch_by_ids(comment_ids)}
     parent_ids = {comment.comment_parent_id for comment in comments.values()}
-    parent_types = {parent.id: parent.parent_type for parent in CommentParent.find_by_ids(parent_ids)} if parent_ids else {}
-    notes = {}
-    student_sids = []
-    for note in Note.find_by_ids(note_ids):
-        notes[note.id] = note
-        student_sids.append(note.sid)
+    comment_parents = CommentParent.find_by_ids(parent_ids) if parent_ids else []
+
+    notes = {note.id: note for note in Note.find_by_ids(note_ids)}
+    # Each tag's object is the note, appointment or eForm the tag sits in, with all of that record's comments.
+    # For a tag in a comment, objectId and objectType still name the tagged comment.
+    objects = get_user_tag_objects(list(notes.values()), list(comments.values()), comment_parents)
+    student_sids = {sid for sid in (get_user_tag_object_sid(o) for o in objects.values()) if sid}
     if len(student_sids):
-        students_by_sid = {student.get('sid'): student for student in get_students_by_sids(student_sids)}
+        students_by_sid = {student.get('sid'): student for student in get_students_by_sids(list(student_sids))}
     else:
         students_by_sid = {}
     feed = []
     for tag in user_tags:
-        message = comments.get(tag.object_id) if tag.object_type == 'comment' else notes.get(tag.object_id)
+        tag_object = objects.get((tag.object_type, tag.object_id))
         feed_item = {
             **tag.to_api_json(),
-            'object': message.to_api_json() if message else None,
+            'object': tag_object,
         }
-        if tag.object_type == 'comment' and message:
-            feed_item['object']['parentType'] = parent_types.get(message.comment_parent_id)
-        student_sid = feed_item['object'].get('sid') if feed_item['object'] else None
+        student_sid = get_user_tag_object_sid(tag_object)
         if (student_sid and students_by_sid.get(student_sid)):
             student = students_by_sid.get(student_sid)
-            feed_item['student'] = {
+            feed_item['object']['student'] = {
                 'name': join_if_present(' ', [student.get('first_name'), student.get('last_name')]),
                 'uid': student.get('uid'),
                 'sid': student_sid,
@@ -82,7 +82,7 @@ def list_user_tags():
 
 
 @app.route('/api/user_tag/archived')
-@advisor_required
+@advisor_or_peer_advisor_required
 def archived_user_tags():
     user_tags = UserTag.get_all_for_user(current_user.get_id(), archived=True)
     return tolerant_jsonify({'archived': [tag.to_api_json() for tag in user_tags]})

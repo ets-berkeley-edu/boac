@@ -30,8 +30,10 @@ from boac import std_commit
 from boac.merged import calnet
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.json_cache import insert_row as insert_in_json_cache
+from boac.models.note import Note
 from boac.models.peer_advising_department import PeerAdvisingDepartment
 from boac.models.university_dept import UniversityDept
+from boac.models.user_tag import UserTag
 from tests.util import override_config
 
 admin_uid = '2040'
@@ -97,6 +99,34 @@ class TestUserProfile:
         assert departments[0]['deptCode'] == 'UWASC'
         assert departments[0]['deptName'] == 'Athletic Study Center'
         assert departments[0]['memberships'][0]['role'] == 'advisor'
+
+
+class TestMyUnreadMessageCount:
+
+    def test_not_authenticated(self, client):
+        """Returns zero for an anonymous visitor."""
+        assert _api_my_profile(client)['myUnreadMessageCount'] == 0
+
+    def test_no_user_tags(self, client, fake_auth):
+        """Returns zero when nobody has tagged the current user."""
+        fake_auth.login(coe_advisor_uid)
+        assert _api_my_profile(client)['myUnreadMessageCount'] == 0
+
+    def test_unread_count(self, client, fake_auth):
+        """Counts only the current user's unread, unarchived tags."""
+        user_id = AuthorizedUser.get_id_per_uid(coe_advisor_uid)
+        notes = [_create_note(subject=f'Unread count test {index}') for index in range(4)]
+        UserTag.create(user_id=user_id, object_id=notes[0].id, object_type='note')
+        UserTag.create(user_id=user_id, object_id=notes[1].id, object_type='note')
+        read_tag = UserTag.create(user_id=user_id, object_id=notes[2].id, object_type='note')
+        read_tag.read_by_user = True
+        archived_tag = UserTag.create(user_id=user_id, object_id=notes[3].id, object_type='note')
+        archived_tag.archived_by_user = True
+        std_commit()
+        # Another user's tag on the same note doesn't count for the current user.
+        UserTag.create(user_id=AuthorizedUser.get_id_per_uid(admin_uid), object_id=notes[0].id, object_type='note')
+        fake_auth.login(coe_advisor_uid)
+        assert _api_my_profile(client)['myUnreadMessageCount'] == 2
 
 
 class TestMyCohorts:
@@ -1008,6 +1038,18 @@ def _api_create_or_update(
     )
     assert response.status_code == expected_status_code
     return response.json
+
+
+def _create_note(subject):
+    return Note.create(
+        author_uid=l_s_college_advisor_uid,
+        author_name='Test Author',
+        author_role='Advisor',
+        author_dept_codes=['QCADV'],
+        body='A note that tags an advisor.',
+        sid='11667051',
+        subject=subject,
+    )
 
 
 def _api_my_profile(client, expected_status_code=200):

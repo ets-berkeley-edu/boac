@@ -35,8 +35,14 @@ from boac.externals.data_loch import get_sis_holds
 from boac.lib.berkeley import ACADEMIC_STANDING_DESCRIPTIONS, dept_codes_where_advising
 from boac.lib.util import get_benchmarker, is_int, join_if_present, process_input_from_rich_text_editor, to_bool_or_none, to_iso_format, utc_now
 from boac.merged import calnet
-from boac.merged.advising_appointment import get_advising_appointments
-from boac.merged.advising_note import can_current_user_access_note, can_current_user_edit_note, get_advising_notes, note_to_compatible_json
+from boac.merged.advising_appointment import get_advising_appointments, get_advising_appointments_by_ids
+from boac.merged.advising_note import (
+    can_current_user_access_note,
+    can_current_user_edit_note,
+    get_advising_notes,
+    get_sis_eforms_by_parent_ids,
+    note_to_compatible_json,
+)
 from boac.merged.calnet import get_calnet_user_for_uid
 from boac.merged.cohort_filter_options import PROTECTED_COHORT_FILTERS_COENG, PROTECTED_COHORT_FILTERS_UWASC, CohortFilterOptions
 from boac.merged.sis_terms import current_term_id
@@ -56,6 +62,7 @@ from boac.models.note_read import NoteRead
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 from boac.models.university_dept import UniversityDept
 from boac.models.user_login import UserLogin
+from boac.models.user_tag import UserTag
 
 
 @stow('alert_counts_curated_group_{group_id}_user_{viewer_id}')
@@ -362,6 +369,81 @@ def put_notifications(student):
             })
 
 
+def _appointment_timeline_json(appointment):
+    details = appointment['details']
+    return {
+        **appointment,
+        'message': details.strip() if details else None,
+        'type': 'appointment',
+    }
+
+
+def _note_timeline_json(note):
+    # Loch notes and eForms both arrive as notes. An eForm keeps its own 'type' so the front end renders it as one.
+    body = note['body']
+    return {
+        **note,
+        'body': body.strip() if body else None,
+        'type': 'eForm' if note.get('eForm') else 'note',
+    }
+
+
+def get_user_tag_objects(notes, comments, comment_parents):
+    """Return the record each tag sits in, with all its comments, in the JSON the student timeline uses.
+
+    `notes` and `comments` are the tagged Note and Comment rows, and `comment_parents` the CommentParent rows of those
+    comments. The result maps ('note', note id) and ('comment', comment id) to a note, appointment or eForm, or to None
+    when the record is gone or the current user may not read it. A tag in a note comment gets the whole parent note.
+    """
+    objects = {}
+    # Notes: a tag in a note comment belongs to the top-level note.
+    top_note_ids = {note.parent_note_id or note.id for note in notes}
+    top_notes = {note.id: note for note in Note.find_by_ids(list(top_note_ids))} if top_note_ids else {}
+    readable_top_notes = [note for note in top_notes.values() if can_current_user_access_note(note)]
+    note_reads = NoteRead.get_notes_read_by_user(current_user.get_id(), [note.id for note in readable_top_notes]) if readable_top_notes else []
+    read_note_ids = {read.note_id for read in note_reads}
+    note_objects = {
+        note.id: get_boac_note_as_compatible_json(note, note_read=str(note.id) in read_note_ids)
+        for note in readable_top_notes
+    }
+    for note in notes:
+        objects[('note', note.id)] = note_objects.get(note.parent_note_id or note.id)
+
+    # Appointments and eForms live in the data loch. Only users with advising data access can read them, and the tagging
+    # rules keep anyone else from being tagged in their comments.
+    parents_by_id = {parent.id: parent for parent in comment_parents}
+    external_objects = {}
+    if comments and current_user.can_access_advising_data:
+        appointment_ids = {p.parent_id for p in comment_parents if p.parent_type == 'appointment'}
+        eform_ids_by_type = {}
+        for parent in comment_parents:
+            if parent.parent_type in EFORM_COMMENT_PARENT_TYPES:
+                eform_ids_by_type.setdefault(parent.parent_type, set()).add(parent.parent_id)
+        for appointment_id, appointment in get_advising_appointments_by_ids(appointment_ids).items():
+            external_objects[('appointment', appointment_id)] = _appointment_timeline_json(appointment)
+        eforms = get_sis_eforms_by_parent_ids({t: list(ids) for t, ids in eform_ids_by_type.items()})
+        if eforms:
+            # The timeline marks eForms read through note_reads, keyed by eForm id.
+            eform_reads = NoteRead.get_notes_read_by_user(current_user.get_id(), [key[1] for key in eforms])
+            read_eform_ids = {read.note_id for read in eform_reads}
+            for key, eform in eforms.items():
+                external_objects[key] = _note_timeline_json({**eform, 'read': key[1] in read_eform_ids})
+        appointments = [o for key, o in external_objects.items() if key[0] == 'appointment']
+        eforms_with_comments = [o for key, o in external_objects.items() if key[0] != 'appointment']
+        _attach_external_comments(appointments=appointments, eforms=eforms_with_comments)
+    for comment in comments:
+        parent = parents_by_id.get(comment.comment_parent_id)
+        objects[('comment', comment.id)] = external_objects.get((parent.parent_type, str(parent.parent_id))) if parent else None
+    return objects
+
+
+def get_user_tag_object_sid(tag_object):
+    # Notes and eForms carry the student's SID at the top level. Appointments carry it under 'student'.
+    if not tag_object:
+        return None
+    return tag_object.get('sid') or (tag_object.get('student') or {}).get('sid')
+
+
 def _attach_external_comments(appointments, eforms):
     pairs = []
     for a in appointments:
@@ -411,6 +493,7 @@ def get_current_user_profile():
         'myCohorts': get_my_cohorts(),
         'myCuratedGroups': get_my_curated_groups(),
         'myDraftNoteCount': Note.get_draft_note_count(None if current_user.is_admin else current_user.uid),
+        'myUnreadMessageCount': UserTag.get_unread_count(current_user.get_id()) if current_user.is_authenticated else 0,
         'preferences': {
             'admitSortBy': 'last_name',
             'sortBy': 'last_name',

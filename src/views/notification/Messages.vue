@@ -12,10 +12,10 @@
           <div class="d-flex align-center justify-space-between pb-1">
             <MessageFilters v-model="filtersApplied" />
             <span :aria-hidden="true" class="text-disabled">|</span>
-            <span class="font-weight-bold pl-4">{{ size(unreadMessages) }} new</span>
+            <span class="font-weight-bold pl-4">{{ size(unreadNotifications) }} new</span>
           </div>
           <p
-            v-if="size(messages) && !size(filteredMessages)"
+            v-if="size(notifications) && !size(filteredNotifications)"
             id="no-messages-match-filters"
             class="border-t-md py-2 text-medium-emphasis"
           >
@@ -23,43 +23,43 @@
           </p>
           <ul v-else class="border-t-md">
             <li
-              v-for="message in filteredMessages"
-              :key="message.id"
+              v-for="notification in filteredNotifications"
+              :key="notification.id"
               class="border-b-sm list-no-bullets"
-              :class="{'bg-pale-blue': selectedMessage === message}"
+              :class="{'bg-pale-blue': get(selectedNotification, 'id') === notification.id}"
             >
               <button
-                :id="`${message.objectType}-${message.id}-select-btn`"
-                :aria-current="selectedMessage === message ? 'true' : undefined"
+                :id="`${notification.objectType}-${notification.id}-select-btn`"
+                :aria-current="get(selectedNotification, 'id') === notification ? 'true' : undefined"
                 class="d-block message-select-btn pa-1 my-2"
                 type="button"
-                @click="() => selectedMessage = message"
+                @click="() => selectedNotification = notification"
               >
                 <span class="d-flex align-baseline justify-space-between">
-                  <span class="d-block font-weight-bold mr-1 text-truncate">{{ get(message, 'object.author.name') || get(message, 'object.authorName') }}</span>
-                  <span class="d-block">{{ dateOrTime(message.createdAt) }}</span>
+                  <span class="d-block font-weight-bold mr-1 text-truncate">{{ authorName(notification) }}</span>
+                  <span class="d-block">{{ dateOrTime(notification.createdAt) }}</span>
                 </span>
                 <span class="d-flex align-center">
                   <AcademicTimelineCategory
                     class="mr-2"
-                    :label="filterTypes[message.objectType].name"
-                    :message="message"
+                    :label="messageLabel(notification.object)"
+                    :message="notification.object"
                   />
                   <span
-                    v-if="get(message, 'student')"
-                    :id="`${message.objectType}-${message.id}-student`"
+                    v-if="get(notification.object, 'student')"
+                    :id="`${notification.objectType}-${notification.id}-student`"
                     class="d-block text-medium-emphasis"
                   >
-                    {{ get(message, 'student.name') }} ({{ get(message, 'object.sid') }})
+                    {{ notification.object.student.name }} ({{ notification.object.student.sid }})
                   </span>
                 </span>
-                <span :id="`${message.objectType}-${message.id}-subject`" class="d-block font-weight-bold">
-                  {{ get(message, 'object.subject') }}
+                <span :id="`${notification.objectType}-${notification.id}-subject`" class="d-block font-weight-bold">
+                  {{ messageTitle(notification.object) }}
                 </span>
-                <div :id="`${message.objectType}-${message.id}-body`" class="w-100">
+                <div :id="`${notification.objectType}-${notification.id}-body`" class="w-100">
                   <div
                     class="line-clamp-2"
-                    v-html="stripHtmlAndSummarize(get(message, 'object.body'))"
+                    v-html="stripHtmlAndSummarize(get(taggedItem(notification), 'body') || '')"
                   />
                 </div>
               </button>
@@ -74,88 +74,97 @@
         sm="7"
       >
         <section id="message-detail" aria-labelledby="detail-header" class="message-detail pl-md-6">
-          <h2 v-if="!selectedMessage" id="detail-header" class="font-weight-regular text-medium-emphasis">
-            No messages {{ size(filteredMessages) ? 'selected' : '' }}
+          <h2 v-if="!selectedNotification" id="detail-header" class="font-weight-regular text-medium-emphasis">
+            No messages {{ size(filteredNotifications) ? 'selected' : '' }}
           </h2>
-          <div v-if="selectedMessage && 'note' === selectedMessage.objectType">
+          <div v-if="selectedMessage">
             <div class="message-title">
-              <h2>{{ selectedMessage.object.subject }}</h2>
+              <h2 id="detail-header">{{ messageTitle(selectedMessage) }}</h2>
             </div>
             <div class="d-flex align-center">
               <AcademicTimelineCategory
                 class="mr-2 mr-md-3"
-                :label="filterTypes[selectedMessage.objectType].name"
+                :label="messageLabel(selectedMessage)"
                 :message="selectedMessage"
               />
               <router-link
-                v-if="get(selectedMessage, 'student')"
-                :id="`link-to-${selectedMessage.objectType}-${selectedMessage.object.id}`"
+                v-if="get(selectedNotification, 'student')"
+                :id="`link-to-${selectedMessage.type}-${selectedMessage.id}`"
                 class="d-inline-block"
-                :to="`${studentRoutePath(selectedMessage.student.uid, currentUser.inDemoMode)}#${timelineAnchor(selectedMessage.object)}`"
+                :to="`${studentRoutePath(selectedNotification.student.uid, currentUser.inDemoMode)}#${permalinkAnchor(selectedNotification)}`"
               >
                 <v-icon class="account-icon mr-1" :icon="mdiAccountCircle" size="1.25rem" />
-                <span :id="`student-name-${selectedMessage.objectType}-${selectedMessage.object.id}`">{{ get(selectedMessage, 'student.name') }}</span>
+                <span :id="`student-name-${selectedMessage.type}-${selectedMessage.id}`">{{ selectedNotification.student.name }}</span>
               </router-link>
-              <span v-if="get(selectedMessage, 'student.sid')" :id="`student-sid-${selectedMessage.objectType}-${selectedMessage.object.id}`">
-                &ThickSpace;({{ selectedMessage.student.sid }})
+              <span v-if="get(selectedNotification, 'student.sid')" :id="`student-sid-${selectedMessage.type}-${selectedMessage.id}`">
+                &ThickSpace;({{ selectedNotification.student.sid }})
               </span>
             </div>
             <div class="d-flex">
               <AdvisingNote
-                :key="`message-${selectedMessage.object.id}`"
+                v-if="includes(['eForm', 'note'], selectedMessage.type)"
+                :key="`message-${selectedMessage.type}-${selectedMessage.id}`"
                 :is-open="true"
-                :note="selectedMessage.object"
+                :note="selectedMessage"
+              />
+              <AdvisingAppointment
+                v-if="selectedMessage.type === 'appointment'"
+                :key="`message-${selectedMessage.type}-${selectedMessage.id}`"
+                :appointment="selectedMessage"
+                :is-open="true"
+                :on-click-open="noop"
+                :student="selectedNotification.student || {}"
               />
               <footer
                 class="pl-4 pl-md-6"
               >
-                <div class="pb-1 pl-2">
-                  <span v-if="'note' === selectedMessage.objectType" class="font-size-14 text-medium-emphasis">Created by:</span>
+                <div v-if="selectedMessageAuthor && 'eForm' !== selectedMessage.type" class="pb-2 pl-2">
+                  <span v-if="'note' === selectedMessage.type" class="font-size-14 text-medium-emphasis">Created by:</span>
                   <AuthorDetails
-                    :key="`author-${selectedMessage.object.id}`"
+                    :key="`author-${selectedMessage.type}-${selectedMessage.id}`"
                     activator-class="font-size-14"
                     :author="selectedMessageAuthor"
-                    :id-prefix="`note-${selectedMessage.object.id}`"
-                    :peer-advising-department-id="selectedMessage.object.peerAdvisingDepartmentId"
+                    :id-prefix="`${selectedMessage.type}-${selectedMessage.id}`"
+                    :peer-advising-department-id="selectedMessage.peerAdvisingDepartmentId"
                   />
                 </div>
                 <div
-                  class="text-no-wrap py-2 pl-2"
+                  class="text-no-wrap pb-2 pl-2"
                 >
                   <div>
-                    <div v-if="selectedMessage.object.createdAt" :class="{'pb-2': !shouldDisplayUpdatedAt(selectedMessage.object)}">
-                      <div :aria-hidden="true" class="text-medium-emphasis font-size-14">{{ selectedMessage.objectType === 'appointment' ? 'Appt Date' : 'Created' }}:</div>
+                    <div v-if="selectedMessage.createdAt" :class="{'pb-2': !shouldDisplayUpdatedAt(selectedMessage)}">
+                      <div :aria-hidden="true" class="text-medium-emphasis font-size-14">{{ selectedMessage.type === 'appointment' ? 'Appt Date' : 'Created' }}:</div>
                       <TimelineDate
-                        :id="`expanded-${selectedMessage.objectType}-${selectedMessage.object.id}-created-at`"
-                        :date="selectedMessage.object.startsAt || selectedMessage.object.createdAt"
-                        :sr-prefix="selectedMessage.objectType === 'appointment' ? 'Appointment date' : 'Created on'"
-                        :include-time-of-day="(selectedMessage.object.createdAt.length > 10) && (selectedMessage.objectType !== 'appointment')"
+                        :id="`expanded-${selectedMessage.type}-${selectedMessage.id}-created-at`"
+                        :date="selectedMessage.startsAt || selectedMessage.createdAt"
+                        :sr-prefix="selectedMessage.type === 'appointment' ? 'Appointment date' : 'Created on'"
+                        :include-time-of-day="(selectedMessage.createdAt.length > 10) && (selectedMessage.type !== 'appointment')"
                       />
                     </div>
-                    <div v-if="shouldDisplayUpdatedAt(selectedMessage.object)">
+                    <div v-if="shouldDisplayUpdatedAt(selectedMessage)">
                       <div :aria-hidden="true" class="pt-2 text-medium-emphasis font-size-14">Updated:</div>
                       <TimelineDate
-                        :id="`expanded-${selectedMessage.objectType}-${selectedMessage.object.id}-updated-at`"
-                        :date="selectedMessage.object.updatedAt"
-                        :include-time-of-day="selectedMessage.object.updatedAt.length > 10"
+                        :id="`expanded-${selectedMessage.type}-${selectedMessage.id}-updated-at`"
+                        :date="selectedMessage.updatedAt"
+                        :include-time-of-day="selectedMessage.updatedAt.length > 10"
                         class="mb-2"
                         sr-prefix="Last updated on"
                       />
                     </div>
-                    <div v-if="selectedMessage.object.setDate">
+                    <div v-if="selectedMessage.setDate">
                       <div class="pt-2 text-medium-emphasis font-size-14">Set Date:</div>
                       <TimelineDate
-                        :id="`expanded-${selectedMessage.objectType}-${selectedMessage.object.id}-set-date`"
-                        :date="selectedMessage.object.setDate"
+                        :id="`expanded-${selectedMessage.type}-${selectedMessage.id}-set-date`"
+                        :date="selectedMessage.setDate"
                         class="mb-2"
                       />
                     </div>
-                    <span v-if="!selectedMessage.object.updatedAt && !selectedMessage.object.createdAt" class="sr-only">No last-updated date</span>
+                    <span v-if="!selectedMessage.updatedAt && !selectedMessage.createdAt" class="sr-only">No last-updated date</span>
                   </div>
                 </div>
               </footer>
             </div>
-            <AdvisingComments class="pt-2" :parent="selectedMessage.object" />
+            <AdvisingComments v-if="commentsEnabled(selectedMessage)" class="pt-2" :parent="selectedMessage" />
           </div>
         </section>
       </v-col>
@@ -166,60 +175,54 @@
 <script setup lang="ts">
 import {computed, onMounted, ref, watch} from 'vue'
 import {DateTime} from 'luxon'
-import {endsWith, filter, get, includes, intersection, isEmpty, size} from 'lodash'
+import {filter, find, get, includes, intersection, isEmpty, noop, size} from 'lodash'
 import {mdiAccountCircle} from '@mdi/js'
 import AcademicTimelineCategory from '@/components/student/profile/academic-timeline/AcademicTimelineCategory.vue'
+import AdvisingAppointment from '@/components/appointment/AdvisingAppointment'
 import AdvisingNote from '@/components/note/AdvisingNote'
 import AdvisingComments from '@/components/comment/AdvisingComments'
 import AuthorDetails from '@/components/note/AuthorDetails'
 import MessageFilters from '@/components/notification/MessageFilters'
 import TimelineDate from '@/components/student/profile/TimelineDate'
-import {listUserTags} from '@/api/user-tag.ts'
-import {shouldDisplayUpdatedAt, stripHtmlAndSummarize, timelineAnchor} from '@/lib/note.ts'
+import {listUserTags} from '@/api/user-tags.ts'
+import {shouldDisplayUpdatedAt, stripHtmlAndSummarize, summarizeNoteForAcademicTimeline} from '@/lib/note.ts'
 import {alertScreenReader, pluralize, studentRoutePath} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 
 const contextStore = useContextStore()
 const currentUser = contextStore.currentUser
 
-const filterTypes = {
-  comment: {name: 'Comment'},
+const filtersApplied = ref<string[]>(['all'])
+const filteredNotifications = computed(() => filter(notifications.value, message => matchesFilters(message, filtersApplied.value)))
+const notifications = ref(undefined)
+const messageTypes = {
+  appointment: {name: 'Appointment'},
+  eForm: {name: 'eForm'},
   note: {name: 'Note'}
 }
-const filtersApplied = ref<string[]>(['all'])
-const messages = ref(undefined)
-const filteredMessages = computed(() => filter(messages.value, message => matchesFilters(message, filtersApplied.value)))
-const selectedMessage = ref(undefined)
-const selectedMessageAuthor = computed(() => {
-  if (!get(selectedMessage.value, 'object')) {
-    return null
-  }
-  return {
-    name: selectedMessage.value.object.authorName,
-    role: selectedMessage.value.object.authorRole,
-  }
-})
+const selectedNotification = ref(undefined)
+const selectedMessage = computed(() => get(selectedNotification.value, 'object'))
+const selectedMessageAuthor = computed(() => get(selectedMessage.value, 'author') || get(selectedMessage.value, 'advisor'))
 const today = DateTime.now()
-const unreadMessages = ref(undefined)
+const unreadNotifications = ref(undefined)
 
 contextStore.loadingStart()
 
 onMounted(() => {
-  listUserTags().then(data => {
-    messages.value = data.notifications
-    unreadMessages.value = filter(data.notifications, {'readByUser': false})
+  refreshList().then(() => {
+    contextStore.setEventHandler('note-updated', refreshList)
     contextStore.loadingComplete()
   })
 })
 
 watch(filtersApplied, () => {
-  if (selectedMessage.value && !includes(filteredMessages.value, selectedMessage.value)) {
-    selectedMessage.value = undefined
+  if (selectedNotification.value && !includes(filteredNotifications.value, selectedNotification.value)) {
+    selectedNotification.value = undefined
   }
-  alertScreenReader(`Showing ${pluralize('message', size(filteredMessages.value))}`)
+  alertScreenReader(`Showing ${pluralize('message', size(filteredNotifications.value))}`)
 })
 
-const TYPE_FILTERS = ['note', 'appointment', 'eform']
+const TYPE_FILTERS = ['note', 'appointment', 'eForm']
 
 const matchesFilters = (message, filters: string[]) => {
   if (includes(filters, 'all')) {
@@ -232,18 +235,48 @@ const matchesFilters = (message, filters: string[]) => {
     return false
   }
   const typeFilters = intersection(filters, TYPE_FILTERS)
-  return isEmpty(typeFilters) || includes(typeFilters, messageTypeForFilter(message))
+  return isEmpty(typeFilters) || includes(typeFilters, message.object.type)
 }
 
-const messageTypeForFilter = message => {
-  if (message.objectType === 'note') {
-    return 'note'
+const taggedItem = notification => {
+  // The note or comment that mentions the user.
+  const message = notification.object
+  if (notification.objectType === 'note' && notification.objectId === message.id) {
+    return message
   }
-  const parentType = get(message, 'object.parentType', '')
-  if (parentType === 'appointment') {
-    return 'appointment'
+  return find(message.comments, {id: notification.objectId}) || message
+}
+
+const authorName = message => {
+  const item = taggedItem(message)
+  return get(item, 'author.name') || get(item, 'advisor.name')
+}
+
+const messageLabel = message => {
+  return message.type === 'note' && message.peerAdvisingDepartmentId ? 'Peer Note' : messageTypes[message.type].name
+}
+
+const messageTitle = message => {
+  if (message.type === 'note') {
+    return message.subject
   }
-  return endsWith(parentType, '_eform') ? 'eform' : null
+  if (message.type === 'appointment') {
+    return message.appointmentTitle ? stripHtmlAndSummarize(message.appointmentTitle) : messageTypes.appointment.name
+  }
+  return summarizeNoteForAcademicTimeline(message, true)
+}
+
+const permalinkAnchor = notification => {
+  // Matches the element ids on the student timeline: the message's row, or the comment's row inside it.
+  const message = notification.object
+  const messageAnchor = `timeline-${message.type}-${message.id}`
+  const isTagInNote = notification.objectType === 'note' && notification.objectId === message.id
+  return isTagInNote ? messageAnchor : `${messageAnchor}_comment-${notification.objectId}`
+}
+
+// Loch notes have no BOA comments. Same rule as the student timeline.
+const commentsEnabled = message => {
+  return includes(['appointment', 'eForm'], message.type) || (message.type === 'note' && !message.legacySource)
 }
 
 const dateOrTime = isoDate => {
@@ -257,6 +290,13 @@ const dateOrTime = isoDate => {
     format = 'MMM d, yyyy'
   }
   return localDate.toFormat(format)
+}
+
+const refreshList = () => {
+  return listUserTags().then(data => {
+    notifications.value = filter(data.notifications, 'object')
+    unreadNotifications.value = filter(notifications.value, {'readByUser': false})
+  })
 }
 </script>
 

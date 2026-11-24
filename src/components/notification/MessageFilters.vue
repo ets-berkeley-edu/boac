@@ -62,7 +62,7 @@ const filterOptions = [
   divider,
   {density: 'compact', title: 'Notes', value: 'note'},
   {density: 'compact', title: 'Appointments', value: 'appointment'},
-  {density: 'compact', title: 'EForms', value: 'eform'},
+  {density: 'compact', title: 'EForms', value: 'eForm'},
 ]
 const filtersApplied = defineModel<string[]>({default: () => ['all']})
 const isMenuOpen = ref(false)
@@ -82,7 +82,7 @@ const onSelectOption = option => {
       break
     case 'note':
     case 'appointment':
-    case 'eform':
+    case 'eForm':
       selected = concat(without(selected, 'all'), option.id)
       break
     default:
