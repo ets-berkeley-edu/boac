@@ -1,7 +1,7 @@
 <template>
   <v-fade-transition>
-    <div>
-      <v-layout>
+    <div class="d-flex flex-column min-viewport-height">
+      <v-layout class="flex-grow-1">
         <v-app-bar
           color="primary"
           elevation="0"
@@ -42,7 +42,7 @@
           </div>
         </v-main>
       </v-layout>
-      <footer role="contentinfo">
+      <footer class="flex-shrink-0" role="contentinfo">
         <AppFooter v-if="!loading && !hideFooter" />
       </footer>
     </div>
@@ -68,3 +68,11 @@ const serviceAlert = useTemplateRef('serviceAlert')
 
 const {loading} = storeToRefs(contextStore)
 </script>
+
+<style scoped>
+.min-viewport-height {
+  min-height: 100vh;
+  /* dvh tracks mobile browser toolbars as they show and hide. Browsers without it use the 100vh above. */
+  min-height: 100dvh;
+}
+</style>

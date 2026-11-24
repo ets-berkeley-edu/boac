@@ -32,6 +32,7 @@ from boac.externals.data_loch import get_students_by_sids
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import join_if_present
 from boac.models.comment import Comment
+from boac.models.comment_parent import CommentParent
 from boac.models.note import Note
 from boac.models.user_tag import UserTag
 
@@ -48,6 +49,8 @@ def list_user_tags():
         elif tag.object_type == 'note':
             note_ids.append(tag.object_id)
     comments = {comment.id: comment for comment in Comment.fetch_by_ids(comment_ids)}
+    parent_ids = {comment.comment_parent_id for comment in comments.values()}
+    parent_types = {parent.id: parent.parent_type for parent in CommentParent.find_by_ids(parent_ids)} if parent_ids else {}
     notes = {}
     student_sids = []
     for note in Note.find_by_ids(note_ids):
@@ -64,6 +67,8 @@ def list_user_tags():
             **tag.to_api_json(),
             'object': message.to_api_json() if message else None,
         }
+        if tag.object_type == 'comment' and message:
+            feed_item['object']['parentType'] = parent_types.get(message.comment_parent_id)
         student_sid = feed_item['object'].get('sid') if feed_item['object'] else None
         if (student_sid and students_by_sid.get(student_sid)):
             student = students_by_sid.get(student_sid)
