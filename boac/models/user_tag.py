@@ -27,7 +27,8 @@ from sqlalchemy import and_
 from sqlalchemy.dialects.postgresql import ENUM
 
 from boac import db, std_commit
-from boac.lib.util import to_iso_format, utc_now
+from boac.lib.util import find_user_tag_uids, strip_user_tags, to_iso_format, utc_now
+from boac.models.authorized_user import AuthorizedUser
 from boac.models.base import Base
 
 user_tag_object_type_enum = ENUM(
@@ -170,6 +171,15 @@ class UserTag(Base):
                 cls.read_by_user == False,  # noqa: E712
             ),
         ).count()
+
+    @classmethod
+    def strip_tags_for_search(cls, body):
+        """Return the body without its user tags, for the copy that goes to the search index."""
+        # The search index lives in the data loch and is built from SQS messages. A stored @UID left in that copy would
+        # let anyone find every note that tags a colleague by searching the colleague's UID. Only UIDs with a BOA user
+        # row (deleted users included) are tags, so other @digits text stays searchable.
+        tag_uids = AuthorizedUser.get_existing_uids(find_user_tag_uids(body))
+        return strip_user_tags(body, tag_uids) if tag_uids else body
 
     def to_api_json(self):
         return {

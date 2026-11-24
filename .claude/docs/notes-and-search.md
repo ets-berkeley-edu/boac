@@ -82,6 +82,8 @@ The "new note" flow has no create endpoint. It always starts as a draft. Peer ad
 
 `Comment.to_sqs_json()` sends `comment_parent_id` set to the **loch parent id** (`CommentParent.parent_id`), not the `comment_parents` row id, and adds `parent_type`.
 
+**User tags never reach search.** Every `body` sent to SQS goes through `UserTag.strip_tags_for_search()` (`boac/models/user_tag.py`), which removes each `@<UID>` whose UID has an `authorized_users` row (deleted users included). Without it, searching a colleague's UID would find every note or comment that tags them. Other `@digits` text stays in. The `boac` database keeps the full body. `Note.to_sqs_json()` and `Comment.to_sqs_json()` call it, and `_create_notes()` calls it once per batch because every row shares one body. The loch's copy of the body has no tags, so search snippets never show a UID.
+
 The consumer (the "CDC handler") is not in this repo. Based on the fixture DDL in `fixtures/loch/loch.sql`, it maintains these tables in the loch schema named by `DATA_LOCH_BOA_CDC_SCHEMA` (default `boa_app_rds_data`):
 
 - `advising_notes`, with `id` like `'boa-<n>'` and `boa_id` the integer note id (inferred)

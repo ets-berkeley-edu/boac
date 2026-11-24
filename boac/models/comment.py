@@ -243,7 +243,8 @@ class Comment(Base):
             'author_name': self.author_name,
             'author_role': self.author_role,
             'author_dept_codes': self.author_dept_codes,
-            'body': self.body,
+            # Search gets the body without user tags. See UserTag.strip_tags_for_search.
+            'body': UserTag.strip_tags_for_search(self.body),
             'created_at': to_iso_format(self.created_at),
             'updated_at': to_iso_format(self.updated_at),
         }
