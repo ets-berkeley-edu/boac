@@ -45,7 +45,12 @@ def note(app):
 
 @pytest.fixture
 def comment(app):
-    parent = CommentParent.find_or_create(parent_type='appointment', parent_id='user-tag-api-test-appointment')
+    return _create_comment(parent_type='appointment', parent_id='user-tag-api-test-appointment')
+
+
+def _create_comment(parent_type, parent_id):
+    # The parent type matters to the test that checks what kind of record each tagged comment is on.
+    parent = CommentParent.find_or_create(parent_type=parent_type, parent_id=parent_id)
     return Comment.create(
         comment_parent_id=parent.id,
         author_uid=l_s_advisor_uid,
@@ -114,6 +119,7 @@ class TestListUserTags:
         assert notifications[0]['object']['author']['uid'] == l_s_advisor_uid
         assert notifications[0]['object']['author']['name'] == 'Test Author'
         assert notifications[0]['object']['body'] == 'A comment that tags another advisor.'
+        assert notifications[0]['object']['parentType'] == 'appointment'
         assert notifications[0]['objectId'] == comment.id
         assert notifications[0]['objectType'] == 'comment'
         assert notifications[0]['userId'] == user_id
@@ -123,6 +129,8 @@ class TestListUserTags:
         assert notifications[1]['object']['authorUid'] == l_s_advisor_uid
         assert notifications[1]['object']['authorName'] == 'Test Author'
         assert notifications[1]['object']['body'] == 'A note that tags an advisor.'
+        # Only comments have a parent; a note's object has no parentType.
+        assert 'parentType' not in notifications[1]['object']
         assert notifications[1]['objectId'] == note.id
         assert notifications[1]['objectType'] == 'note'
         assert notifications[1]['userId'] == user_id
@@ -177,6 +185,17 @@ class TestListUserTags:
         assert notifications[0]['userId'] == _user_id(coe_advisor_uid)
         fake_auth.login(l_s_advisor_uid)
         assert self._api_list_user_tags(client) == {'notifications': []}
+
+    def test_comment_parent_types(self, client, fake_auth, comment):
+        """Reports whether each tagged comment is on an appointment or an eForm."""
+        user_id = _user_id(coe_advisor_uid)
+        eform_comment = _create_comment(parent_type='late_drop_eform', parent_id='user-tag-api-test-eform')
+        appointment_tag = UserTag.create(user_id=user_id, object_id=comment.id, object_type='comment')
+        eform_tag = UserTag.create(user_id=user_id, object_id=eform_comment.id, object_type='comment')
+        fake_auth.login(coe_advisor_uid)
+        notifications = self._api_list_user_tags(client)['notifications']
+        parent_types = {n['id']: n['object']['parentType'] for n in notifications}
+        assert parent_types == {appointment_tag.id: 'appointment', eform_tag.id: 'late_drop_eform'}
 
     def test_admin(self, client, fake_auth, note):
         """Admin users can list their own tags."""

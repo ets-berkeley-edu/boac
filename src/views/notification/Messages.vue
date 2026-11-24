@@ -9,48 +9,60 @@
       >
         <section aria-labelledby="page-header">
           <h1 id="page-header">Messages</h1>
-          <div class="d-flex">
-            <span class="font-weight-bold ml-auto">{{ size(unreadMessages) }} new</span>
+          <div class="d-flex align-center justify-space-between pb-1">
+            <MessageFilters v-model="filtersApplied" />
+            <span :aria-hidden="true" class="text-disabled">|</span>
+            <span class="font-weight-bold pl-4">{{ size(unreadMessages) }} new</span>
           </div>
-          <ul class="border-t-md">
+          <p
+            v-if="size(messages) && !size(filteredMessages)"
+            id="no-messages-match-filters"
+            class="border-t-md py-2 text-medium-emphasis"
+          >
+            No messages match the selected filters.
+          </p>
+          <ul v-else class="border-t-md">
             <li
-              v-for="message in messages"
+              v-for="message in filteredMessages"
               :key="message.id"
-              class="border-b-sm list-no-bullets mb-2 py-2"
+              class="border-b-sm list-no-bullets"
+              :class="{'bg-pale-blue': selectedMessage === message}"
             >
-              <div
+              <button
                 :id="`${message.objectType}-${message.id}-select-btn`"
-                role="button"
+                :aria-current="selectedMessage === message ? 'true' : undefined"
+                class="d-block message-select-btn pa-1 my-2"
+                type="button"
                 @click="() => selectedMessage = message"
               >
-                <div class="d-flex align-baseline justify-space-between">
-                  <div class="font-weight-bold mr-1 text-truncate">{{ get(message, 'object.author.name') || get(message, 'object.authorName') }}</div>
-                  <div>{{ dateOrTime(message.createdAt) }}</div>
-                </div>
-                <div class="d-flex align-center">
+                <span class="d-flex align-baseline justify-space-between">
+                  <span class="d-block font-weight-bold mr-1 text-truncate">{{ get(message, 'object.author.name') || get(message, 'object.authorName') }}</span>
+                  <span class="d-block">{{ dateOrTime(message.createdAt) }}</span>
+                </span>
+                <span class="d-flex align-center">
                   <AcademicTimelineCategory
                     class="mr-2"
                     :label="filterTypes[message.objectType].name"
                     :message="message"
                   />
-                  <div
+                  <span
                     v-if="get(message, 'student')"
                     :id="`${message.objectType}-${message.id}-student`"
-                    class="text-medium-emphasis"
+                    class="d-block text-medium-emphasis"
                   >
                     {{ get(message, 'student.name') }} ({{ get(message, 'object.sid') }})
-                  </div>
-                </div>
-                <div :id="`${message.objectType}-${message.id}-subject`" class="font-weight-bold">
+                  </span>
+                </span>
+                <span :id="`${message.objectType}-${message.id}-subject`" class="d-block font-weight-bold">
                   {{ get(message, 'object.subject') }}
-                </div>
-                <div :id="`${message.objectType}-${message.id}-body`" class="overflow-x-hidden w-100">
-                  <span
-                    class="d-inline-block text-truncate text-wrap"
-                    v-html="get(message, 'object.body')"
+                </span>
+                <div :id="`${message.objectType}-${message.id}-body`" class="w-100">
+                  <div
+                    class="line-clamp-2"
+                    v-html="stripHtmlAndSummarize(get(message, 'object.body'))"
                   />
                 </div>
-              </div>
+              </button>
             </li>
           </ul>
         </section>
@@ -63,7 +75,7 @@
       >
         <section id="message-detail" aria-labelledby="detail-header" class="message-detail pl-md-6">
           <h2 v-if="!selectedMessage" id="detail-header" class="font-weight-regular text-medium-emphasis">
-            No messages {{ size(messages) ? 'selected' : '' }}
+            No messages {{ size(filteredMessages) ? 'selected' : '' }}
           </h2>
           <div v-if="selectedMessage && 'note' === selectedMessage.objectType">
             <div class="message-title">
@@ -152,18 +164,19 @@
 </template>
 
 <script setup lang="ts">
-import {computed, onMounted, ref} from 'vue'
+import {computed, onMounted, ref, watch} from 'vue'
 import {DateTime} from 'luxon'
-import {filter, get, size} from 'lodash'
+import {endsWith, filter, get, includes, intersection, isEmpty, size} from 'lodash'
 import {mdiAccountCircle} from '@mdi/js'
 import AcademicTimelineCategory from '@/components/student/profile/academic-timeline/AcademicTimelineCategory.vue'
 import AdvisingNote from '@/components/note/AdvisingNote'
 import AdvisingComments from '@/components/comment/AdvisingComments'
 import AuthorDetails from '@/components/note/AuthorDetails'
+import MessageFilters from '@/components/notification/MessageFilters'
 import TimelineDate from '@/components/student/profile/TimelineDate'
 import {listUserTags} from '@/api/user-tag.ts'
-import {shouldDisplayUpdatedAt, timelineAnchor} from '@/lib/note.ts'
-import {studentRoutePath} from '@/lib/utils'
+import {shouldDisplayUpdatedAt, stripHtmlAndSummarize, timelineAnchor} from '@/lib/note.ts'
+import {alertScreenReader, pluralize, studentRoutePath} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 
 const contextStore = useContextStore()
@@ -173,7 +186,9 @@ const filterTypes = {
   comment: {name: 'Comment'},
   note: {name: 'Note'}
 }
+const filtersApplied = ref<string[]>(['all'])
 const messages = ref(undefined)
+const filteredMessages = computed(() => filter(messages.value, message => matchesFilters(message, filtersApplied.value)))
 const selectedMessage = ref(undefined)
 const selectedMessageAuthor = computed(() => {
   if (!get(selectedMessage.value, 'object')) {
@@ -197,6 +212,40 @@ onMounted(() => {
   })
 })
 
+watch(filtersApplied, () => {
+  if (selectedMessage.value && !includes(filteredMessages.value, selectedMessage.value)) {
+    selectedMessage.value = undefined
+  }
+  alertScreenReader(`Showing ${pluralize('message', size(filteredMessages.value))}`)
+})
+
+const TYPE_FILTERS = ['note', 'appointment', 'eform']
+
+const matchesFilters = (message, filters: string[]) => {
+  if (includes(filters, 'all')) {
+    return true
+  }
+  if (includes(filters, 'read') && !message.readByUser) {
+    return false
+  }
+  if (includes(filters, 'unread') && message.readByUser) {
+    return false
+  }
+  const typeFilters = intersection(filters, TYPE_FILTERS)
+  return isEmpty(typeFilters) || includes(typeFilters, messageTypeForFilter(message))
+}
+
+const messageTypeForFilter = message => {
+  if (message.objectType === 'note') {
+    return 'note'
+  }
+  const parentType = get(message, 'object.parentType', '')
+  if (parentType === 'appointment') {
+    return 'appointment'
+  }
+  return endsWith(parentType, '_eform') ? 'eform' : null
+}
+
 const dateOrTime = isoDate => {
   const localDate = DateTime.fromISO(isoDate).setZone(contextStore.config.timezone)
   let format
@@ -215,12 +264,28 @@ const dateOrTime = isoDate => {
 .account-icon {
   margin-top: -2px;
 }
+.message-select-btn {
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: start;
+  width: 100%;
+}
 .message-title {
   min-height: 2.25rem;
 }
 </style>
 
 <style>
+/* Truncate to two lines with an ellipsis. Vuetify's text-truncate only handles a single line. */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
 .message-detail .edit-note-comment {
   margin-left: -8px;
   width: 100% !important;

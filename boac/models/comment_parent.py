@@ -55,6 +55,12 @@ class CommentParent(db.Model):
         ).first()
 
     @classmethod
+    def find_by_ids(cls, row_ids):
+        return cls.query.filter(
+            and_(cls.id.in_(row_ids), cls.deleted_at == None),  # noqa: E711
+        ).all()
+
+    @classmethod
     def find_by_type_and_parent_id(cls, parent_type, parent_id):
         return cls.query.filter(
             and_(
