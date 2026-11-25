@@ -257,3 +257,158 @@ class TestFindTaggableUsersResults:
         assert 0 < len(results) <= 8
         for result in results:
             assert set(result.keys()) == {'uid', 'name', 'title', 'deptName'}
+
+
+deleted_uid = '1015674'
+
+
+def _api_validate(client, params, expected_status_code=200, headers=None):
+    response = client.post(
+        '/api/users/tags/validate',
+        data=json.dumps(params),
+        content_type='application/json',
+        headers=headers or {},
+    )
+    assert response.status_code == expected_status_code
+    return response.json
+
+
+@pytest.mark.usefixtures('db_session')
+class TestValidateUserTagsAccess:
+    """Access checks and input validation for the tag-validation endpoint, which shares its context checks with autocomplete."""
+
+    def test_not_authenticated(self, client):
+        """Denies anonymous access."""
+        _api_validate(client, {'uids': [advisor_uid], 'noteId': 1}, expected_status_code=401)
+
+    def test_api_key_without_login(self, app, client):
+        """Denies an API key without a login, since tags are always checked for a person."""
+        with override_config(app, 'API_KEY', 'synthetic-key'):
+            _api_validate(
+                client,
+                {'uids': [advisor_uid], 'peerAdvisingDepartmentId': _eop_id()},
+                expected_status_code=401,
+                headers={'App-Key': 'synthetic-key'},
+            )
+
+    def test_no_locator(self, client, fake_auth):
+        """Requires a tag context."""
+        fake_auth.login(director_uid)
+        _api_validate(client, {'uids': [advisor_uid]}, expected_status_code=400)
+
+    def test_other_authors_note(self, client, fake_auth):
+        """Answers a note the caller can't edit exactly like a missing one."""
+        note = _create_note(director_uid)
+        fake_auth.login(advisor_uid)
+        _api_validate(client, {'uids': [ce3_advisor_uid], 'noteId': note.id}, expected_status_code=404)
+        _api_validate(client, {'uids': [ce3_advisor_uid], 'noteId': 999999999}, expected_status_code=404)
+
+    def test_non_member_peer_department(self, client, fake_auth):
+        """Denies a peer department context to someone outside that department."""
+        fake_auth.login(director_uid)
+        _api_validate(client, {'uids': [advisor_uid], 'peerAdvisingDepartmentId': _eop_id()}, expected_status_code=403)
+
+    def test_comment_without_advising_data(self, client, fake_auth):
+        """Denies an appointment or eForm comment context to someone without advising-data access."""
+        fake_auth.login(no_advising_data_advisor_uid)
+        params = {'uids': [advisor_uid], 'commentParentType': 'appointment', 'commentParentId': '123'}
+        _api_validate(client, params, expected_status_code=403)
+
+    def test_non_object_body(self, client, fake_auth):
+        """A JSON body that isn't an object is a bad request, not a server error."""
+        fake_auth.login(director_uid)
+        for body in ([1, 2], 'abc', 5, True):
+            response = client.post('/api/users/tags/validate', data=json.dumps(body), content_type='application/json')
+            assert response.status_code == 400
+
+    def test_bad_uids(self, client, fake_auth):
+        """Requires uids to be a list of plain digit strings or ints, of bounded length."""
+        fake_auth.login(director_uid)
+        note = _create_note(director_uid)
+        for uids in (None, advisor_uid, {'uid': advisor_uid}, ['abc'], [True], [1.5], [None], [['1']], ['²'], ['-1'], ['1'] * 201):
+            params = {'noteId': note.id} if uids is None else {'uids': uids, 'noteId': note.id}
+            _api_validate(client, params, expected_status_code=400)
+
+
+@pytest.mark.usefixtures('db_session')
+class TestValidateUserTagsResults:
+    """Which tags the tag-validation endpoint reports, and why."""
+
+    def test_all_valid(self, client, fake_auth):
+        """A list where everyone may be tagged returns no invalid tags."""
+        fake_auth.login(director_uid)
+        note = _create_note(director_uid)
+        assert _api_validate(client, {'uids': [advisor_uid, ce3_advisor_uid], 'noteId': note.id}) == []
+
+    def test_empty_list(self, client, fake_auth):
+        """An empty list returns no invalid tags."""
+        fake_auth.login(director_uid)
+        note = _create_note(director_uid)
+        assert _api_validate(client, {'uids': [], 'noteId': note.id}) == []
+
+    def test_deleted_user(self, app, client, fake_auth):
+        """A deleted user is reported as deleted_user, with their name."""
+        fake_auth.login(director_uid)
+        note = _create_note(director_uid)
+        assert _api_validate(client, {'uids': [deleted_uid], 'noteId': note.id}) == [
+            {'uid': deleted_uid, 'name': _name(app, deleted_uid), 'reason': 'deleted_user'},
+        ]
+
+    def test_private_note(self, app, client, fake_auth):
+        """On a private context, a non-CE3 advisor is reported as private_note and a CE3 advisor passes."""
+        fake_auth.login(director_uid)
+        note = _create_note(director_uid)
+        params = {'uids': [advisor_uid, ce3_advisor_uid], 'noteId': note.id, 'isPrivate': True}
+        assert _api_validate(client, params) == [{'uid': advisor_uid, 'name': _name(app, advisor_uid), 'reason': 'private_note'}]
+
+    def test_batch(self, client, fake_auth):
+        """A note going to more than one student can't carry any tag."""
+        fake_auth.login(director_uid)
+        note = _create_note(director_uid)
+        results = _api_validate(client, {'uids': [advisor_uid], 'noteId': note.id, 'recipientCount': 2})
+        assert [r['reason'] for r in results] == ['batch_note']
+
+    def test_no_access(self, client, fake_auth):
+        """Someone who can't read the note is reported as no_access."""
+        fake_auth.login(director_uid)
+        note = _create_note(director_uid)
+        results = _api_validate(client, {'uids': [no_advising_data_advisor_uid], 'noteId': note.id})
+        assert [r['reason'] for r in results] == ['no_access']
+
+    def test_self_tag(self, client, fake_auth):
+        """Every UID counts as newly added, so tagging yourself is reported."""
+        fake_auth.login(director_uid)
+        note = _create_note(director_uid)
+        results = _api_validate(client, {'uids': [director_uid], 'noteId': note.id})
+        assert [r['reason'] for r in results] == ['self_tag']
+
+    def test_outside_peer_department(self, client, fake_auth):
+        """A peer advisor tagging someone outside their peer department is reported."""
+        fake_auth.login(eop_peer_advisor_uid)
+        params = {'uids': [eop_manager_uid, advisor_uid], 'peerAdvisingDepartmentId': _eop_id()}
+        results = _api_validate(client, params)
+        assert [(r['uid'], r['reason']) for r in results] == [(advisor_uid, 'outside_peer_department')]
+
+    def test_parent_privacy_wins(self, client, fake_auth):
+        """A comment on a private note is judged as private even when the client says otherwise."""
+        parent = _create_note(ce3_advisor_uid, author_dept_codes=('ZCEEE',), is_private=True)
+        fake_auth.login(eop_manager_uid)
+        results = _api_validate(client, {'uids': [advisor_uid], 'parentNoteId': parent.id, 'isPrivate': False})
+        assert [r['reason'] for r in results] == ['private_note']
+
+    def test_non_users_duplicates_and_order(self, client, fake_auth):
+        """UIDs that aren't BOA users are skipped, a repeated UID is reported once, and results follow input order."""
+        fake_auth.login(director_uid)
+        note = _create_note(director_uid)
+        params = {'uids': ['999999999', director_uid, int(deleted_uid), deleted_uid, director_uid], 'noteId': note.id}
+        results = _api_validate(client, params)
+        assert [(r['uid'], r['reason']) for r in results] == [(director_uid, 'self_tag'), (deleted_uid, 'deleted_user')]
+
+    def test_result_shape(self, client, fake_auth):
+        """Each invalid tag has uid, name, and reason, with the UID as a string."""
+        fake_auth.login(director_uid)
+        note = _create_note(director_uid)
+        results = _api_validate(client, {'uids': [int(deleted_uid)], 'noteId': note.id})
+        assert len(results) == 1
+        assert set(results[0].keys()) == {'uid', 'name', 'reason'}
+        assert results[0]['uid'] == deleted_uid
