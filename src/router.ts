@@ -230,6 +230,11 @@ const routes:RouteRecordRaw[] = [
         name: 'Peer Advisor Home'
       },
       {
+        path: '/peer_advisor/messages',
+        component: Messages,
+        name: 'Peer Advising Messages'
+      },
+      {
         path: '/peer_advisor/profile',
         component: Profile,
         name: 'Peer Advisor Profile'

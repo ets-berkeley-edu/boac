@@ -9,63 +9,120 @@
       >
         <section aria-labelledby="page-header">
           <h1 id="page-header">Messages</h1>
-          <div class="d-flex align-center justify-space-between pb-1">
+          <div class="d-flex align-center border-b-md flex-wrap pb-1">
             <MessageFilters v-model="filtersApplied" />
-            <span :aria-hidden="true" class="text-disabled">|</span>
-            <span class="pl-4" :class="{'font-weight-bold': currentUser.myUnreadMessageCount}">
-              {{ currentUser.myUnreadMessageCount }} new
+            <span :aria-hidden="true" class="text-disabled mx-1">|</span>
+            <v-btn
+              id="toggle-archive-btn"
+              class="opacity-100"
+              color="primary"
+              density="compact"
+              slim
+              variant="plain"
+              @click="onToggleArchive"
+            >
+              {{ `${showingArchive ? 'Hide' : 'Show'} Archive` }}
+            </v-btn>
+            <span :aria-hidden="true" class="text-disabled mx-1">|</span>
+            <span
+              v-if="!showingArchive"
+              id="notifications-unread-count"
+              class="pl-3"
+              :class="{'font-weight-bold': currentUser.myUnreadMessageCount}"
+            >
+              {{ currentUser.myUnreadMessageCount }} New
+            </span>
+            <span
+              v-if="showingArchive"
+              id="notifications-archived-count"
+              class="font-weight-bold pl-3"
+            >
+              {{ pluralize('Msg', size(archivedNotifications)) }}.
             </span>
           </div>
+          <v-progress-linear
+            v-if="isLoading"
+            color="primary"
+            height="2"
+            indeterminate
+            size="x-small"
+          />
           <p
-            v-if="size(notifications) && !size(filteredNotifications)"
+            v-if="!isLoading && size(notifications) && !size(filteredNotifications)"
             id="no-messages-match-filters"
-            class="border-t-md py-2 text-medium-emphasis"
+            class="py-2 text-medium-emphasis"
           >
             No messages match the selected filters.
           </p>
-          <ul v-else class="border-t-md">
+          <ul v-if="!isLoading && size(filteredNotifications)">
             <li
               v-for="notification in filteredNotifications"
               :key="notification.id"
               class="border-b-sm list-no-bullets"
               :class="{'bg-pale-blue': get(selectedNotification, 'id') === notification.id}"
             >
-              <button
-                :id="`${notification.objectType}-${notification.id}-select-btn`"
-                :aria-current="get(selectedNotification, 'id') === notification ? 'true' : undefined"
-                class="d-block message-select-btn pa-1 my-2"
-                type="button"
-                @click="() => showDetail(notification)"
-              >
-                <span class="d-flex align-baseline justify-space-between">
-                  <span class="d-block font-weight-bold mr-1 text-truncate">{{ authorName(notification) }}</span>
-                  <span class="d-block">{{ dateOrTime(notification.createdAt) }}</span>
-                </span>
-                <span class="d-flex align-center justify-space-between">
-                  <AcademicTimelineCategory
-                    class="mr-2"
-                    id-prefix="notifications"
-                    :label="messageLabel(notification.object)"
-                    :message="notification.object"
-                  />
-                  <span
-                    v-if="get(notification.object, 'student')"
-                    :id="`${notification.objectType}-${notification.id}-student`"
-                    class="d-block text-medium-emphasis text-truncate"
-                  >
-                    {{ notification.object.student.name }} ({{ notification.object.student.sid }})
-                  </span>
-                </span>
-                <span :id="`${notification.objectType}-${notification.id}-subject`" class="d-block font-weight-bold">
-                  {{ messageTitle(notification.object) }}
-                </span>
-                <div :id="`${notification.objectType}-${notification.id}-body`" class="w-100">
-                  <div
-                    class="line-clamp-2"
-                    v-html="stripHtmlAndSummarize(get(taggedItem(notification), 'body') || '')"
-                  />
+              <div class="d-flex align-start justify-space-between py-2">
+                <button
+                  :id="`${notification.objectType}-${notification.id}-select-btn`"
+                  :aria-current="get(selectedNotification, 'id') === notification ? 'true' : undefined"
+                  class="d-block message-select-btn px-1 px-lg-2"
+                  type="button"
+                  @click="() => showDetail(notification)"
+                >
+                  <div class="d-flex align-baseline justify-space-between">
+                    <div :id="`${notification.objectType}-${notification.id}-tag-created-by`" class="font-weight-bold mr-1 text-truncate">
+                      {{ authorName(notification) }}
+                    </div>
+                    <div :id="`${notification.objectType}-${notification.id}-tag-created-at`">{{ dateOrTime(notification.createdAt) }}</div>
+                  </div>
+                  <div class="d-flex align-center justify-space-between">
+                    <AcademicTimelineCategory
+                      class="mr-2"
+                      id-prefix="notifications"
+                      :label="messageLabel(notification.object)"
+                      :message="notification.object"
+                    />
+                    <span
+                      v-if="get(notification.object, 'student')"
+                      :id="`${notification.objectType}-${notification.id}-student`"
+                      class="d-block text-medium-emphasis text-truncate"
+                    >
+                      {{ notification.object.student.name }} ({{ notification.object.student.sid }})
+                    </span>
+                  </div>
+                  <div :id="`${notification.objectType}-${notification.id}-subject`" class="d-block font-weight-bold">
+                    {{ messageTitle(notification.object) }}
+                  </div>
+                  <div :id="`${notification.objectType}-${notification.id}-body`" class="w-100">
+                    <div
+                      class="line-clamp-2"
+                      v-html="stripHtmlAndSummarize(get(taggedItem(notification), 'body') || '')"
+                    />
+                  </div>
+                </button>
+                <div class="px-2 context-menu-btn">
+                  <v-menu eager>
+                    <template #activator="{ props }">
+                      <v-btn
+                        :id="`${notification.objectType}-${notification.id}-context-menu-btn`"
+                        height="1.5rem"
+                        width="1.5rem"
+                        :icon="mdiDotsHorizontalCircleOutline"
+                        variant="plain"
+                        v-bind="props"
+                      />
+                    </template>
+                    <v-list
+                      color="primary"
+                      density="compact"
+                      item-props
+                      :items="getAllowedActions(notification)"
+                      menu
+                      @click:select="action => updateNotification(action, notification)"
+                    />
+                  </v-menu>
                 </div>
-              </button>
+              </div>
             </li>
           </ul>
         </section>
@@ -180,8 +237,8 @@
 <script setup lang="ts">
 import {computed, onMounted, ref, watch} from 'vue'
 import {DateTime} from 'luxon'
-import {filter, find, get, includes, intersection, isEmpty, noop, size} from 'lodash'
-import {mdiAccountCircle} from '@mdi/js'
+import {filter, find, findIndex, get, includes, intersection, isEmpty, noop, orderBy, reject, size} from 'lodash'
+import {mdiAccountCircle, mdiDotsHorizontalCircleOutline} from '@mdi/js'
 import AcademicTimelineCategory from '@/components/student/profile/academic-timeline/AcademicTimelineCategory.vue'
 import AdvisingAppointment from '@/components/appointment/AdvisingAppointment'
 import AdvisingNote from '@/components/note/AdvisingNote'
@@ -189,25 +246,39 @@ import AdvisingComments from '@/components/comment/AdvisingComments'
 import AuthorDetails from '@/components/note/AuthorDetails'
 import MessageFilters from '@/components/notification/MessageFilters'
 import TimelineDate from '@/components/student/profile/TimelineDate'
-import {listUserTags, markUserTagRead} from '@/api/user-tags.ts'
+import {archiveUserTag, getArchivedUserTags, listUserTags, markUserTagRead, markUserTagUnread, unarchiveUserTag} from '@/api/user-tags.ts'
 import {shouldDisplayUpdatedAt, stripHtmlAndSummarize, summarizeNoteForAcademicTimeline} from '@/lib/note.ts'
-import {alertScreenReader, pluralize, studentRoutePath} from '@/lib/utils'
+import {alertScreenReader, pluralize, putFocusNextTick, studentRoutePath} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
 
 const contextStore = useContextStore()
 const currentUser = contextStore.currentUser
+
+const archivedNotifications = ref(undefined)
 const filtersApplied = ref<string[]>(['all'])
-const filteredNotifications = computed(() => filter(notifications.value, message => matchesFilters(message, filtersApplied.value)))
+const filteredNotifications = computed(() => {
+  const visibleNotifications = showingArchive.value ? archivedNotifications.value : notifications.value
+  return filter(visibleNotifications, matchesFilters)
+})
+const isLoading = ref(false)
 const notifications = ref(undefined)
-const messageTypes = {
+const selectedNotification = ref(undefined)
+const selectedMessage = computed(() => get(selectedNotification.value, 'object'))
+const selectedMessageAuthor = computed(() => get(selectedMessage.value, 'author') || get(selectedMessage.value, 'advisor'))
+const showingArchive = ref(false)
+
+const MESSAGE_TYPES = {
   appointment: {name: 'Appointment'},
   eForm: {name: 'eForm'},
   note: {name: 'Advising Note'}
 }
-const selectedNotification = ref(undefined)
-const selectedMessage = computed(() => get(selectedNotification.value, 'object'))
-const selectedMessageAuthor = computed(() => get(selectedMessage.value, 'author') || get(selectedMessage.value, 'advisor'))
-const today = DateTime.now()
+const NOTIFICATION_ACTIONS = {
+  archive: {execute: archiveUserTag, announcement: 'Message archived'},
+  read: {execute: markUserTagRead, announcement: 'Message marked read'},
+  unarchive: {execute: unarchiveUserTag, announcement: 'Message moved out of the archive'},
+  unread: {execute: markUserTagUnread, announcement: 'Message marked unread'}
+}
+const TODAY = DateTime.now()
 
 contextStore.loadingStart()
 
@@ -225,14 +296,11 @@ watch(filtersApplied, () => {
   alertScreenReader(`Showing ${pluralize('message', size(filteredNotifications.value))}`)
 })
 
-const TYPE_FILTERS = ['note', 'appointment', 'eForm']
-
 const authorName = message => {
   const item = taggedItem(message)
   return get(item, 'author.name') || get(item, 'advisor.name')
 }
 
-// Loch notes have no BOA comments. Same rule as the student timeline.
 const commentsEnabled = message => {
   return includes(['appointment', 'eForm'], message.type) || (message.type === 'note' && !message.legacySource)
 }
@@ -240,9 +308,9 @@ const commentsEnabled = message => {
 const dateOrTime = isoDate => {
   const localDate = DateTime.fromISO(isoDate).setZone(contextStore.config.timezone)
   let format
-  if (localDate.hasSame(today, 'day')) {
+  if (localDate.hasSame(TODAY, 'day')) {
     format = 'h:mma'
-  } else if (localDate.hasSame(today, 'year')) {
+  } else if (localDate.hasSame(TODAY, 'year')) {
     format = 'MMM d'
   } else {
     format = 'MMM d, yyyy'
@@ -250,22 +318,29 @@ const dateOrTime = isoDate => {
   return localDate.toFormat(format)
 }
 
-const matchesFilters = (message, filters: string[]) => {
-  if (includes(filters, 'all')) {
+const getAllowedActions = notification => {
+  return [
+    notification.readByUser ? {title: 'Mark Unread', value: 'unread'} : {title: 'Mark Read', value: 'read'},
+    notification.archivedByUser ? {title: 'Unarchive', value: 'unarchive'} : {title: 'Archive', value: 'archive'}
+  ]
+}
+
+const matchesFilters = message => {
+  if (includes(filtersApplied.value, 'all')) {
     return true
   }
-  if (includes(filters, 'read') && !message.readByUser) {
+  if (includes(filtersApplied.value, 'read') && !message.readByUser) {
     return false
   }
-  if (includes(filters, 'unread') && message.readByUser) {
+  if (includes(filtersApplied.value, 'unread') && message.readByUser) {
     return false
   }
-  const typeFilters = intersection(filters, TYPE_FILTERS)
+  const typeFilters = intersection(filtersApplied.value, Object.keys(MESSAGE_TYPES))
   return isEmpty(typeFilters) || includes(typeFilters, message.object.type)
 }
 
 const messageLabel = message => {
-  return message.type === 'note' && message.peerAdvisingDepartmentId ? 'Peer Note' : messageTypes[message.type].name
+  return message.type === 'note' && message.peerAdvisingDepartmentId ? 'Peer Note' : MESSAGE_TYPES[message.type].name
 }
 
 const messageTitle = message => {
@@ -273,9 +348,34 @@ const messageTitle = message => {
     return message.subject
   }
   if (message.type === 'appointment') {
-    return message.appointmentTitle ? stripHtmlAndSummarize(message.appointmentTitle) : messageTypes.appointment.name
+    return message.appointmentTitle ? stripHtmlAndSummarize(message.appointmentTitle) : MESSAGE_TYPES.appointment.name
   }
   return summarizeNoteForAcademicTimeline(message, true)
+}
+
+const moveBetweenLists = notification => {
+  // Archiving moves a notification from the inbox to the archive, and unarchiving moves it back.
+  const index = findIndex(filteredNotifications.value, {id: notification.id})
+  const [fromList, toList] = notification.archivedByUser ? [notifications, archivedNotifications] : [archivedNotifications, notifications]
+  fromList.value = reject(fromList.value, {id: notification.id})
+  if (toList.value) {
+    toList.value = orderBy([...toList.value, notification], ['createdAt', 'id'], ['desc', 'desc'])
+  }
+  if (get(selectedNotification.value, 'id') === notification.id) {
+    selectedNotification.value = undefined
+  }
+  const neighbor = filteredNotifications.value[index] || filteredNotifications.value[index - 1]
+  putFocusNextTick(neighbor ? `${neighbor.objectType}-${neighbor.id}-select-btn` : 'toggle-archive-btn')
+}
+
+const onToggleArchive = () => {
+  showingArchive.value = !showingArchive.value
+  if (showingArchive.value && !archivedNotifications.value) {
+    isLoading.value = true
+    getArchivedUserTags().then(data => {
+      archivedNotifications.value = data.archived
+    }).finally(() => isLoading.value = false)
+  }
 }
 
 const permalinkAnchor = notification => {
@@ -287,9 +387,10 @@ const permalinkAnchor = notification => {
 }
 
 const refreshList = () => {
+  isLoading.value = true
   return listUserTags().then(data => {
     notifications.value = filter(data.notifications, 'object')
-  })
+  }).finally(() => isLoading.value = false)
 }
 
 const showDetail = notification => {
@@ -308,6 +409,24 @@ const taggedItem = notification => {
   }
   return find(message.comments, {id: notification.objectId}) || message
 }
+
+const updateNotification = (actionOption, notification) => {
+  if (actionOption.value) {
+    const action = NOTIFICATION_ACTIONS[actionOption.id]
+    if (action && action.execute) {
+      action.execute(notification.id).then(data => {
+        const previouslyArchived = notification.archivedByUser
+        notification.archivedByUser = data.archivedByUser
+        notification.readByUser = data.readByUser
+        currentUser.myUnreadMessageCount = data.myUnreadMessageCount
+        if (previouslyArchived !== data.archivedByUser) {
+          moveBetweenLists(notification)
+        }
+        alertScreenReader(action.announcement)
+      })
+    }
+  }
+}
 </script>
 
 <style scoped>
@@ -319,7 +438,7 @@ const taggedItem = notification => {
   font: inherit;
   letter-spacing: inherit;
   text-align: start;
-  width: 100%;
+  width: calc(100% - 2.5rem);
 }
 .message-title {
   min-height: 2.25rem;
@@ -327,7 +446,10 @@ const taggedItem = notification => {
 </style>
 
 <style>
-/* Truncate to two lines with an ellipsis. Vuetify's text-truncate only handles a single line. */
+.context-menu-btn {
+  margin-top: -0.125rem
+}
+/* Truncate to two lines with an ellipsis. */
 .line-clamp-2 {
   display: -webkit-box;
   -webkit-box-orient: vertical;

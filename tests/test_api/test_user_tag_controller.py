@@ -345,7 +345,13 @@ class TestArchivedUserTags:
         # All three tags share a created_at within the test transaction, so the id tiebreaker sets the order.
         assert [t['id'] for t in archived] == [comment_tag.id, note_tag.id]
         assert unarchived_tag.id not in [t['id'] for t in archived]
-        assert archived[0] == comment_tag.to_api_json()
+        # Each item is the tag's own fields plus its object, built the same way as in /api/user_tag/list.
+        assert {key: value for key, value in archived[0].items() if key != 'object'} == comment_tag.to_api_json()
+        assert archived[0]['object']['id'] == loch_appointment_id
+        assert archived[0]['object']['type'] == 'appointment'
+        assert comment.id in [c['id'] for c in archived[0]['object']['comments']]
+        assert archived[1]['object']['id'] == note.id
+        assert archived[1]['object']['type'] == 'note'
         assert all(t['archivedByUser'] is True for t in archived)
 
     def test_only_my_archived_user_tags(self, client, fake_auth, note):

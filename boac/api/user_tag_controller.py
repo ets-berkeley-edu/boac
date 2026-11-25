@@ -44,13 +44,49 @@ from boac.models.user_tag import UserTag
 @advisor_or_peer_advisor_required
 def archived_user_tags():
     user_tags = UserTag.get_all_for_user(current_user.get_id(), archived=True)
-    return tolerant_jsonify({'archived': [tag.to_api_json() for tag in user_tags]})
+    return tolerant_jsonify({'archived': _build_notifications_feed(user_tags)})
 
 
 @app.route('/api/user_tag/list')
 @advisor_or_peer_advisor_required
 def list_user_tags():
     user_tags = UserTag.get_all_for_user(current_user.get_id())
+    return tolerant_jsonify({'notifications': _build_notifications_feed(user_tags)})
+
+
+# The fields PATCH /api/user_tag/<id> accepts. Every one of them changes the unread count.
+UPDATABLE_FLAGS = {'archivedByUser', 'readByUser'}
+
+
+@app.route('/api/user_tag/<user_tag_id>', methods=['PATCH'])
+@advisor_or_peer_advisor_required
+def update_user_tag(user_tag_id):
+    if not is_int(user_tag_id):
+        raise BadRequestError('Invalid user tag id')
+
+    params = request.get_json(silent=True)
+    if not isinstance(params, dict) or not params or set(params) - UPDATABLE_FLAGS:
+        raise BadRequestError('Request body must contain archivedByUser, readByUser, or both, and nothing else')
+    for key, value in params.items():
+        if not isinstance(value, bool):
+            raise BadRequestError(f'{key} must be true or false')
+
+    user_id = current_user.get_id()
+    user_tag = UserTag.update_flags(
+        int(user_tag_id),
+        user_id,
+        read_by_user=params.get('readByUser'),
+        archived_by_user=params.get('archivedByUser'),
+    )
+    if not user_tag:
+        raise ResourceNotFoundError('User tag not found')
+
+    api_json = user_tag.to_api_json()
+    api_json['myUnreadMessageCount'] = UserTag.get_unread_count(user_id)
+    return tolerant_jsonify(api_json)
+
+
+def _build_notifications_feed(user_tags):
     comment_ids = []
     note_ids = []
     for tag in user_tags:
@@ -85,40 +121,4 @@ def list_user_tags():
                 'sid': student_sid,
             }
         feed.append(feed_item)
-    return tolerant_jsonify({'notifications': feed})
-
-
-# The fields PATCH /api/user_tag/<id> accepts. Every one of them changes the unread count.
-UPDATABLE_FLAGS = {'archivedByUser', 'readByUser'}
-
-
-@app.route('/api/user_tag/<user_tag_id>', methods=['PATCH'])
-@advisor_or_peer_advisor_required
-def update_user_tag(user_tag_id):
-    if not is_int(user_tag_id):
-        raise BadRequestError('Invalid user tag id')
-
-    params = request.get_json(silent=True)
-    # A partial update: send either flag or both. Unknown fields are rejected rather than ignored, so a typo can't look
-    # like success.
-    if not isinstance(params, dict) or not params or set(params) - UPDATABLE_FLAGS:
-        raise BadRequestError('Request body must contain archivedByUser, readByUser, or both, and nothing else')
-    for key, value in params.items():
-        if not isinstance(value, bool):
-            raise BadRequestError(f'{key} must be true or false')
-
-    user_id = current_user.get_id()
-    user_tag = UserTag.update_flags(
-        int(user_tag_id),
-        user_id,
-        read_by_user=params.get('readByUser'),
-        archived_by_user=params.get('archivedByUser'),
-    )
-    if not user_tag:
-        raise ResourceNotFoundError('User tag not found')
-
-    api_json = user_tag.to_api_json()
-    # Reading or archiving a tag moves the header's unread count, since archived tags don't count. Send the new count
-    # back under the same name as in /api/profile/my, so the front end can copy it straight onto the current user.
-    api_json['myUnreadMessageCount'] = UserTag.get_unread_count(user_id)
-    return tolerant_jsonify(api_json)
+    return feed

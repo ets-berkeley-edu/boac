@@ -1,15 +1,12 @@
 <template>
-  <div class="vh-100" :class="{'align-center d-flex justify-center': loading}">
-    <div v-if="loading" class="d-flex">
-      <div class="my-auto" role="progressbar">
-        <PlaneGoRound
-          id="spinner-when-loading"
-          aria-label="page loading"
-          role="progressbar"
-          tabindex="0"
-        />
-      </div>
-    </div>
+  <div class="vh-100">
+    <PlaneGoRound
+      v-if="loading"
+      id="spinner-when-loading"
+      aria-label="page loading"
+      role="progressbar"
+      tabindex="0"
+    />
     <v-container v-if="!loading" fluid>
       <v-row class="pb-2">
         <v-col v-if="student">

@@ -20,7 +20,7 @@
               'bg-success border-success': !isMenuOpen,
               'text-disabled': isMenuOpen}"
           >
-            <v-icon :icon="mdiFilterVariant" size="1rem" />
+            <v-icon :icon="mdiFilterVariant" size="0.875rem" />
           </div>
         </template>
         Filter
@@ -104,12 +104,13 @@ const onSelectOption = option => {
 }
 .filter-icon {
   box-sizing: content-box;
-  height: 1.15rem;
-  max-width: 1.15rem;
-  min-width: 1.15rem;
-  width: 1.15rem;
+  height: 1rem;
+  max-width: 1rem;
+  min-width: 1rem;
+  width: 1rem;
 }
 .filter-icon .v-icon {
   margin-left: -0.1rem;
+  margin-top: -0.1rem;
 }
 </style>
