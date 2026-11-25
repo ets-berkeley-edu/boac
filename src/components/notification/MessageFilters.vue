@@ -4,14 +4,14 @@
     :close-on-content-click="false"
     eager
   >
-    <template #activator="{ props }">
+    <template #activator="{ props: activatorProps }">
       <v-btn
         class="opacity-100"
         color="primary"
         density="compact"
         slim
         variant="plain"
-        v-bind="props"
+        v-bind="activatorProps"
       >
         <template #prepend>
           <div
@@ -49,23 +49,41 @@
 </template>
 
 <script setup lang="ts">
-import {ref} from 'vue'
+import {computed, ref, watch} from 'vue'
 import {concat, isEmpty, without} from 'lodash'
 import {mdiCheckBold, mdiFilterVariant} from '@mdi/js'
 
-const divider = {class: 'my-2', color: 'primary', opacity: '0.4', thickness: '2px', type: 'divider'}
-const filterOptions = [
+const props = defineProps({
+  isArchive: {
+    required: false,
+    type: Boolean
+  }
+})
+
+const READ_STATE_FILTERS = ['read', 'unread']
+const DIVIDER = {class: 'my-2', color: 'primary', opacity: '0.4', thickness: '2px', type: 'divider'}
+
+const filterOptions = computed(() => [
   {density: 'compact', title: 'Show All', value: 'all'},
-  divider,
-  {density: 'compact', title: 'Read', value: 'read'},
-  {density: 'compact', title: 'Unread', value: 'unread'},
-  divider,
+  DIVIDER,
+  ...(props.isArchive ? [] : [
+    {density: 'compact', title: 'Read', value: 'read'},
+    {density: 'compact', title: 'Unread', value: 'unread'},
+    DIVIDER
+  ]),
   {density: 'compact', title: 'Notes', value: 'note'},
   {density: 'compact', title: 'Appointments', value: 'appointment'},
   {density: 'compact', title: 'EForms', value: 'eForm'},
-]
+])
 const filtersApplied = defineModel<string[]>({default: () => ['all']})
 const isMenuOpen = ref(false)
+
+watch(() => props.isArchive, isArchive => {
+  const selected = without(filtersApplied.value, ...READ_STATE_FILTERS)
+  if (isArchive && selected.length !== filtersApplied.value.length) {
+    filtersApplied.value = isEmpty(selected) ? ['all'] : selected
+  }
+})
 
 const onSelectOption = option => {
   let selected = filtersApplied.value

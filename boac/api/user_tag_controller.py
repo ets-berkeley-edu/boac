@@ -39,6 +39,8 @@ from boac.models.comment_parent import CommentParent
 from boac.models.note import Note
 from boac.models.user_tag import UserTag
 
+UPDATABLE_FLAGS = {'archivedByUser', 'readByUser'}
+
 
 @app.route('/api/user_tag/archived')
 @advisor_or_peer_advisor_required
@@ -52,10 +54,6 @@ def archived_user_tags():
 def list_user_tags():
     user_tags = UserTag.get_all_for_user(current_user.get_id())
     return tolerant_jsonify({'notifications': _build_notifications_feed(user_tags)})
-
-
-# The fields PATCH /api/user_tag/<id> accepts. Every one of them changes the unread count.
-UPDATABLE_FLAGS = {'archivedByUser', 'readByUser'}
 
 
 @app.route('/api/user_tag/<user_tag_id>', methods=['PATCH'])
