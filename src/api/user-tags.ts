@@ -2,6 +2,10 @@ import axios from 'axios'
 import type {InvalidUserTag, TagContext, TaggableUser} from '@/lib/types'
 import utils from '@/api/api-utils'
 
+export function archiveUserTag(userTagId: number) {
+  return updateUserTag(userTagId, {archivedByUser: true})
+}
+
 // Looks up users the author may tag at the current cursor. The request is never cancelled, so a slow answer still finishes
 // and the caller can cache it.
 export function findTaggableUsers(snippet: string, context: TagContext): Promise<TaggableUser[]> {
@@ -9,8 +13,9 @@ export function findTaggableUsers(snippet: string, context: TagContext): Promise
   return axios.post(url, {snippet, ...context}).then(response => response.data)
 }
 
-export function archiveUserTag(userTagId: number) {
-  return updateUserTag(userTagId, {archivedByUser: true})
+export function getArchivedUserTags() {
+  const url: string = `${utils.apiBaseUrl()}/api/user_tag/archived`
+  return axios.get(url).then(response => response.data)
 }
 
 export function listUserTags() {

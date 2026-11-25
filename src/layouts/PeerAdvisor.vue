@@ -14,16 +14,13 @@
         </v-app-bar>
         <v-main role="none" tag="div">
           <div id="main-container" class="h-100">
-            <div v-if="loading" class="loading-container align-center d-flex justify-center">
-              <div class="ma-auto" role="progressbar">
-                <PlaneGoRound
-                  id="spinner-when-loading"
-                  aria-label="page loading"
-                  role="progressbar"
-                  tabindex="0"
-                />
-              </div>
-            </div>
+            <PlaneGoRound
+              v-if="loading"
+              id="spinner-when-loading"
+              aria-label="page loading"
+              role="progressbar"
+              tabindex="0"
+            />
             <div
               class="w-100"
               :class="{'service-alert-offset': get(contextStore, 'announcement.isPublished') && !contextStore.dismissedServiceAnnouncement}"
@@ -98,12 +95,6 @@ const setServiceAlertOffset = () => {
   }, 500)
 }
 </script>
-
-<style scoped>
-.loading-container {
-  height: calc(100vh - 64px);
-}
-</style>
 
 <style>
 .service-alert-offset > .scroll-margins, .service-alert-offset h1.scroll-margins {

@@ -42,16 +42,13 @@
         </v-navigation-drawer>
         <v-main role="none" tag="div">
           <div id="main-container" class="h-100">
-            <div v-if="loading" class="loading-container align-center d-flex justify-center">
-              <div class="ma-auto" role="progressbar">
-                <PlaneGoRound
-                  id="spinner-when-loading"
-                  aria-label="page loading"
-                  role="progressbar"
-                  tabindex="0"
-                />
-              </div>
-            </div>
+            <PlaneGoRound
+              v-if="loading"
+              id="spinner-when-loading"
+              aria-label="page loading"
+              role="progressbar"
+              tabindex="0"
+            />
             <v-expand-transition>
               <nav
                 v-if="!mdAndUp && showSidebar && !loading"
@@ -182,9 +179,6 @@ const setServiceAlertOffset = () => {
 .footer-xl {
   margin-left: 256px;
   width: 83%;
-}
-.loading-container {
-  height: calc(100vh - 64px);
 }
 </style>
 
