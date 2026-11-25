@@ -58,14 +58,14 @@ const selectedFilter = ref(undefined)
 
 onMounted(() => {
   filterTypes.value = {
-    alert: {name: 'Alert', tab: 'Alerts', tabWidth: 65},
-    hold: {name: 'Hold', tab: 'Holds', tabWidth: 62},
-    requirement: {ariaLabel: 'requirements', name: 'Requirement', tab: 'Reqs', tabWidth: 58}
+    alert: {name: 'Alert', tab: 'Alerts'},
+    hold: {name: 'Hold', tab: 'Holds'},
+    requirement: {ariaLabel: 'requirements', name: 'Requirement', tab: 'Reqs'}
   }
   if (currentUser.canAccessAdvisingData) {
-    filterTypes.value.eForm = {name: 'eForm', tab: 'eForms', tabWidth: 76}
-    filterTypes.value.note = {name: 'Advising Note', tab: 'Notes', tabWidth: 64}
-    filterTypes.value.appointment = {name: 'Appointment', tab: 'Appointments', tabWidth: 126}
+    filterTypes.value.eForm = {name: 'eForm', tab: 'eForms'}
+    filterTypes.value.note = {name: 'Advising Note', tab: 'Notes'}
+    filterTypes.value.appointment = {name: 'Appointment', tab: 'Appointments'}
   }
   each(keys(filterTypes.value), (type, typeIndex) => {
     const notifications = props.student.notifications[type] || []

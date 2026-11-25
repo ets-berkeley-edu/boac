@@ -202,7 +202,7 @@ const notifications = ref(undefined)
 const messageTypes = {
   appointment: {name: 'Appointment'},
   eForm: {name: 'eForm'},
-  note: {name: 'Note'}
+  note: {name: 'Advising Note'}
 }
 const selectedNotification = ref(undefined)
 const selectedMessage = computed(() => get(selectedNotification.value, 'object'))

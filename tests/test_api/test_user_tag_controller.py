@@ -26,7 +26,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import pytest
 import simplejson as json
 
-from boac import std_commit
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.comment import Comment
 from boac.models.comment_parent import CommentParent
@@ -105,9 +104,7 @@ def _user_id(uid):
 
 
 def _archive(user_tag):
-    # The model has no archive method yet, so set the flag directly the way an archive action would.
-    user_tag.archived_by_user = True
-    std_commit()
+    UserTag.update_flags(user_tag.id, user_tag.user_id, archived_by_user=True)
 
 
 @pytest.mark.usefixtures('db_session')
@@ -422,7 +419,14 @@ class TestUpdateUserTag:
         """Rejects a body that is empty, has a non-boolean readByUser, or has any other field."""
         user_tag = self._create_tag(coe_advisor_uid, note)
         fake_auth.login(coe_advisor_uid)
-        for params in ({}, {'readByUser': 'true'}, {'readByUser': None}, {'archivedByUser': True}, {'readByUser': True, 'foo': 1}):
+        for params in (
+            {},
+            {'readByUser': 'true'},
+            {'readByUser': None},
+            {'archivedByUser': 1},
+            {'readByUser': True, 'archivedByUser': 'false'},
+            {'readByUser': True, 'foo': 1},
+        ):
             self._api_update_user_tag(client, user_tag.id, params, expected_status_code=400)
         assert UserTag.find_by_id_for_user(user_tag.id, _user_id(coe_advisor_uid)).read_by_user is False
 
@@ -471,6 +475,38 @@ class TestUpdateUserTag:
         fake_auth.login(coe_advisor_uid)
         assert self._api_update_user_tag(client, user_tag.id, {'readByUser': True})['myUnreadMessageCount'] == 1
         assert self._api_update_user_tag(client, user_tag.id, {'readByUser': False})['myUnreadMessageCount'] == 2
+
+    def test_archive_and_unarchive(self, client, fake_auth, note):
+        """Moves a tag between the list and the archived list, and keeps archived tags out of the unread count."""
+        user_tag = self._create_tag(coe_advisor_uid, note)
+        fake_auth.login(coe_advisor_uid)
+        api_json = self._api_update_user_tag(client, user_tag.id, {'archivedByUser': True})
+        assert api_json['archivedByUser'] is True
+        assert api_json['readByUser'] is False
+        assert api_json['myUnreadMessageCount'] == 0
+        assert TestListUserTags._api_list_user_tags(client)['notifications'] == []
+        assert [t['id'] for t in TestArchivedUserTags._api_archived_user_tags(client)['archived']] == [user_tag.id]
+
+        api_json = self._api_update_user_tag(client, user_tag.id, {'archivedByUser': False})
+        assert api_json['archivedByUser'] is False
+        assert api_json['myUnreadMessageCount'] == 1
+        assert [n['id'] for n in TestListUserTags._api_list_user_tags(client)['notifications']] == [user_tag.id]
+        assert TestArchivedUserTags._api_archived_user_tags(client)['archived'] == []
+
+    def test_read_and_archive_together(self, client, fake_auth, note):
+        """Sets both flags in one request."""
+        user_tag = self._create_tag(coe_advisor_uid, note)
+        fake_auth.login(coe_advisor_uid)
+        api_json = self._api_update_user_tag(client, user_tag.id, {'archivedByUser': True, 'readByUser': True})
+        assert api_json['archivedByUser'] is True
+        assert api_json['readByUser'] is True
+
+    def test_archive_other_users_tag(self, client, fake_auth, note):
+        """Returns 404 for another user's tag and leaves it unarchived."""
+        user_tag = self._create_tag(admin_uid, note)
+        fake_auth.login(coe_advisor_uid)
+        self._api_update_user_tag(client, user_tag.id, {'archivedByUser': True}, expected_status_code=404)
+        assert UserTag.find_by_id_for_user(user_tag.id, _user_id(admin_uid)).archived_by_user is False
 
     def test_mark_read_twice(self, client, fake_auth, note):
         """Marking an already-read tag read again succeeds and changes nothing."""
