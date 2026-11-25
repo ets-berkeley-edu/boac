@@ -10,7 +10,7 @@
         <section aria-labelledby="page-header">
           <h1 id="page-header">Messages</h1>
           <div class="d-flex align-center border-b-md flex-wrap pb-1">
-            <MessageFilters v-model="filtersApplied" />
+            <MessageFilters v-model="filtersApplied" :is-archive="showingArchive" />
             <span :aria-hidden="true" class="text-disabled mx-1">|</span>
             <v-btn
               id="toggle-archive-btn"
@@ -25,17 +25,17 @@
             </v-btn>
             <span :aria-hidden="true" class="text-disabled mx-1">|</span>
             <span
-              v-if="!showingArchive"
+              v-if="!showingArchive && !isLoading"
               id="notifications-unread-count"
-              class="pl-3"
+              class="notifications-count"
               :class="{'font-weight-bold': currentUser.myUnreadMessageCount}"
             >
               {{ currentUser.myUnreadMessageCount }} New
             </span>
             <span
-              v-if="showingArchive"
+              v-if="showingArchive && !isLoading"
               id="notifications-archived-count"
-              class="font-weight-bold pl-3"
+              class="notifications-count"
             >
               {{ pluralize('Msg', size(archivedNotifications)) }}.
             </span>
@@ -50,22 +50,27 @@
           <p
             v-if="!isLoading && size(notifications) && !size(filteredNotifications)"
             id="no-messages-match-filters"
-            class="py-2 text-medium-emphasis"
+            class="pl-2 py-2 text-medium-emphasis"
           >
-            No messages match the selected filters.
+            <span v-if="!showingArchive">No messages match the selected filters</span>
+            <span v-if="showingArchive">No archived messages</span>
           </p>
           <ul v-if="!isLoading && size(filteredNotifications)">
             <li
               v-for="notification in filteredNotifications"
               :key="notification.id"
               class="border-b-sm list-no-bullets"
-              :class="{'bg-pale-blue': get(selectedNotification, 'id') === notification.id}"
+              :class="{
+                'bg-light-grey': notification.readByUser && get(selectedNotification, 'id') !== notification.id,
+                'bg-pale-blue': get(selectedNotification, 'id') === notification.id
+              }"
             >
               <div class="d-flex align-start justify-space-between py-2">
                 <button
                   :id="`${notification.objectType}-${notification.id}-select-btn`"
                   :aria-current="get(selectedNotification, 'id') === notification ? 'true' : undefined"
                   class="d-block message-select-btn px-1 px-lg-2"
+                  :class="{'text-medium-emphasis': notification.readByUser}"
                   type="button"
                   @click="() => showDetail(notification)"
                 >
@@ -319,9 +324,12 @@ const dateOrTime = isoDate => {
 }
 
 const getAllowedActions = notification => {
+  if (notification.archivedByUser) {
+    return [{title: 'Unarchive', value: 'unarchive'}]
+  }
   return [
-    notification.readByUser ? {title: 'Mark Unread', value: 'unread'} : {title: 'Mark Read', value: 'read'},
-    notification.archivedByUser ? {title: 'Unarchive', value: 'unarchive'} : {title: 'Archive', value: 'archive'}
+    {title: 'Archive', value: 'archive'},
+    notification.readByUser ? {title: 'Mark Unread', value: 'unread'} : {title: 'Mark Read', value: 'read'}
   ]
 }
 
@@ -433,19 +441,6 @@ const updateNotification = (actionOption, notification) => {
 .account-icon {
   margin-top: -2px;
 }
-.message-select-btn {
-  color: inherit;
-  font: inherit;
-  letter-spacing: inherit;
-  text-align: start;
-  width: calc(100% - 2.5rem);
-}
-.message-title {
-  min-height: 2.25rem;
-}
-</style>
-
-<style>
 .context-menu-btn {
   margin-top: -0.125rem
 }
@@ -458,6 +453,25 @@ const updateNotification = (actionOption, notification) => {
   overflow: hidden;
   overflow-wrap: anywhere;
 }
+.message-select-btn {
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: start;
+  width: calc(100% - 2.5rem);
+}
+.message-title {
+  min-height: 2.25rem;
+}
+.notifications-count {
+  flex-grow: 1;
+  min-width: 4rem;
+  padding-left: 4px;
+  text-align: right;
+}
+</style>
+
+<style>
 .message-detail .edit-note-comment {
   margin-left: -8px;
   width: 100% !important;
