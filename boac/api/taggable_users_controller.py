@@ -32,13 +32,21 @@ from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotF
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import to_bool_or_none
 from boac.merged.advising_note import can_current_user_access_note, can_current_user_edit_note
-from boac.merged.user_tag import comment_tag_context, note_comment_tag_context, note_tag_context, search_taggable_users
+from boac.merged.user_tag import (
+    comment_tag_context,
+    find_invalid_tags_with_names,
+    note_comment_tag_context,
+    note_tag_context,
+    search_taggable_users,
+)
 from boac.models.comment_parent import comment_parent_type_enum
 from boac.models.note import Note
 from boac.models.peer_advising_department_member import PeerAdvisingDepartmentMember
 
 # Longer than any name; caps the work a single keystroke can ask for.
 SNIPPET_MAX_LENGTH = 100
+# Far more people than any note tags; caps the work one tag check can ask for.
+UIDS_MAX_COUNT = 200
 
 
 @app.route('/api/users/taggable', methods=['POST'])
@@ -56,6 +64,21 @@ def find_taggable_users():
     # A non-string snippet is treated as blank, which returns no one. Never log the snippet: it may hold a name.
     snippet = snippet.strip()[:SNIPPET_MAX_LENGTH] if isinstance(snippet, str) else ''
     return tolerant_jsonify(search_taggable_users(snippet, context))
+
+
+@app.route('/api/users/tags/validate', methods=['POST'])
+@advisor_or_peer_advisor_required
+def validate_user_tags():
+    # Same reasoning as find_taggable_users: the answer names people, so it is only ever given to a logged-in person.
+    if not current_user.is_authenticated:
+        raise UnauthorizedRequestError('Login required')
+    params = request.get_json(silent=True)
+    params = {} if params is None else params
+    # Resolve first, so access checks come before input checks and match the taggable-users endpoint exactly.
+    context = _resolve_tag_context(params)
+    uids = _to_uids(params.get('uids'))
+    # Only the invalid tags come back. Never log the UIDs: together with the context they say who is tagged where.
+    return tolerant_jsonify(find_invalid_tags_with_names(uids, context))
 
 
 def _resolve_tag_context(params):
@@ -119,3 +142,21 @@ def _to_int(value, name):
     if isinstance(value, str) and value.strip().isascii() and value.strip().isdigit():
         return int(value.strip())
     raise BadRequestError(f'Invalid {name}')
+
+
+def _to_uids(value):
+    # The editor sends the UIDs it has tagged, as strings or ints. Anything else is a malformed request, not an empty list.
+    if not isinstance(value, list):
+        raise BadRequestError('uids must be a list.')
+    if len(value) > UIDS_MAX_COUNT:
+        raise BadRequestError(f'No more than {UIDS_MAX_COUNT} uids are allowed.')
+    uids = []
+    for uid in value:
+        # Bools are ints in Python, and a negative int is never a UID.
+        if isinstance(uid, int) and not isinstance(uid, bool) and uid >= 0:
+            uids.append(str(uid))
+        elif isinstance(uid, str) and uid.strip().isascii() and uid.strip().isdigit():
+            uids.append(uid.strip())
+        else:
+            raise BadRequestError('Each uid must be a string of digits.')
+    return uids

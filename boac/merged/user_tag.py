@@ -140,6 +140,17 @@ def find_invalid_tags(uids: Iterable[str], context: TagContext, new_uids: Iterab
     return _invalid_tags(uids, eligibility, context, new_uid_set)
 
 
+def find_invalid_tags_with_names(uids: Iterable[str], context: TagContext) -> list[dict]:
+    """Return {uid, name, reason} for each UID that may not be tagged in this context, treating every UID as newly added.
+
+    The editor's tag check uses this to warn before Publish. It has no saved tags to compare against, so the self-tag and
+    peer-department rules judge every UID, as they would on a first save.
+    """
+    invalid = find_invalid_tags(uids, context)
+    # Skip the CalNet lookup when there is no one to name, which is the usual answer while the author types.
+    return _with_names(invalid) if invalid else []
+
+
 def note_tag_context(writer_uid: str, writer_id: int, peer_department_id: int | None, is_private: bool, is_batch: bool = False) -> TagContext:  # noqa: FBT001
     """Build the context for a note, a draft, or a new peer note from facts the server trusts.
 
